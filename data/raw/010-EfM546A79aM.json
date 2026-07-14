@@ -1,0 +1,7553 @@
+{
+  "video_id": "EfM546A79aM",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 10: Inference",
+  "position": 10,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "All right.",
+      "start": 5.32,
+      "duration": 0.7
+    },
+    {
+      "text": "Let's get started.",
+      "start": 6.02,
+      "duration": 1.94
+    },
+    {
+      "text": "So last time, Tatsu\ntalked about scaling laws,",
+      "start": 7.96,
+      "duration": 3.34
+    },
+    {
+      "text": "and we're going to take\na little break from that",
+      "start": 11.3,
+      "duration": 2.94
+    },
+    {
+      "text": "and talk about an inference.",
+      "start": 14.24,
+      "duration": 3.6
+    },
+    {
+      "text": "So the problem of\ninference is very simple.",
+      "start": 17.84,
+      "duration": 3.92
+    },
+    {
+      "text": "You've trained a model,\nand you're given a prompt,",
+      "start": 21.76,
+      "duration": 3.06
+    },
+    {
+      "text": "and you want to produce\nthe response usually",
+      "start": 24.82,
+      "duration": 2.66
+    },
+    {
+      "text": "as accurately and as\nquickly as you can.",
+      "start": 27.48,
+      "duration": 4.12
+    },
+    {
+      "text": "So inference turns out\nto be only one lecture,",
+      "start": 31.6,
+      "duration": 4.22
+    },
+    {
+      "text": "but it's actually of\ngrowing importance.",
+      "start": 35.82,
+      "duration": 3.82
+    },
+    {
+      "text": "And it shows up in many places.",
+      "start": 39.64,
+      "duration": 3.04
+    },
+    {
+      "text": "So clearly, once\nyou've trained a model,",
+      "start": 42.68,
+      "duration": 1.9
+    },
+    {
+      "text": "you don't just sit there.",
+      "start": 44.58,
+      "duration": 1.4
+    },
+    {
+      "text": "And if you're a\nresearcher, you put",
+      "start": 45.98,
+      "duration": 2.22
+    },
+    {
+      "text": "a plot in your paper of\nhere's how my model works,",
+      "start": 48.2,
+      "duration": 2.74
+    },
+    {
+      "text": "but for everyone else, you\nactually want to use this model.",
+      "start": 50.94,
+      "duration": 3.36
+    },
+    {
+      "text": "So what does use look like?",
+      "start": 54.3,
+      "duration": 1.82
+    },
+    {
+      "text": "It could be chatting with\nan AI assistant or chatbot,",
+      "start": 56.12,
+      "duration": 3.71
+    },
+    {
+      "text": "it could be doing\ncode completion.",
+      "start": 59.83,
+      "duration": 2.84
+    },
+    {
+      "text": "These days, agents\nare very popular,",
+      "start": 62.67,
+      "duration": 2.28
+    },
+    {
+      "text": "and that requires inference.",
+      "start": 64.95,
+      "duration": 3.08
+    },
+    {
+      "text": "Batch data processing as well.",
+      "start": 68.03,
+      "duration": 4.4
+    },
+    {
+      "text": "It's also used for evaluation.",
+      "start": 72.43,
+      "duration": 3.36
+    },
+    {
+      "text": "For evaluation that requires\ngeneration in particular.",
+      "start": 75.79,
+      "duration": 3.88
+    },
+    {
+      "text": "And it's also used\ninside training.",
+      "start": 79.67,
+      "duration": 1.895
+    },
+    {
+      "text": "If you're doing\nreinforcement learning,",
+      "start": 81.565,
+      "duration": 1.625
+    },
+    {
+      "text": "you need to have a model,\nyou generate rollouts,",
+      "start": 83.19,
+      "duration": 2.56
+    },
+    {
+      "text": "and you score them, and\nyou update the weights",
+      "start": 85.75,
+      "duration": 2.0
+    },
+    {
+      "text": "appropriately.",
+      "start": 87.75,
+      "duration": 1.2
+    },
+    {
+      "text": "So inference shows up\nall over the place.",
+      "start": 88.95,
+      "duration": 3.56
+    },
+    {
+      "text": "And efficiency, as is\nthe theme of this class,",
+      "start": 92.51,
+      "duration": 5.76
+    },
+    {
+      "text": "really matters more\nthan ever here.",
+      "start": 98.27,
+      "duration": 2.96
+    },
+    {
+      "text": "And even if you just look at the\nactual use app of vantage point,",
+      "start": 101.23,
+      "duration": 7.6
+    },
+    {
+      "text": "training is a one-time cost.",
+      "start": 108.83,
+      "duration": 1.72
+    },
+    {
+      "text": "It could be very expensive.",
+      "start": 110.55,
+      "duration": 1.14
+    },
+    {
+      "text": "It is very expensive.",
+      "start": 111.69,
+      "duration": 1.08
+    },
+    {
+      "text": "But once you're done\nwith it, that's it.",
+      "start": 112.77,
+      "duration": 2.38
+    },
+    {
+      "text": "But inference is\na repeated cost.",
+      "start": 115.15,
+      "duration": 2.75
+    },
+    {
+      "text": "You kind of incur\nthem every single day.",
+      "start": 117.9,
+      "duration": 3.76
+    },
+    {
+      "text": "So OpenAI is\nestimated to produce",
+      "start": 121.66,
+      "duration": 3.68
+    },
+    {
+      "text": "8.6 trillion tokens a day.",
+      "start": 125.34,
+      "duration": 3.72
+    },
+    {
+      "text": "And just for\nreference, DeepSeek-V4,",
+      "start": 129.06,
+      "duration": 2.92
+    },
+    {
+      "text": "which came out\nearlier this year,",
+      "start": 131.98,
+      "duration": 1.58
+    },
+    {
+      "text": "was trained on 32\ntrillion tokens.",
+      "start": 133.56,
+      "duration": 2.82
+    },
+    {
+      "text": "So in less than four\ndays, the number of tokens",
+      "start": 136.38,
+      "duration": 2.68
+    },
+    {
+      "text": "that OpenAI has to produce,\nand therefore the compute",
+      "start": 139.06,
+      "duration": 3.32
+    },
+    {
+      "text": "is at least DeepSeek-V4.",
+      "start": 142.38,
+      "duration": 4.16
+    },
+    {
+      "text": "And of course, even\nthe frontier models",
+      "start": 146.54,
+      "duration": 3.08
+    },
+    {
+      "text": "might be trained on\nmore tokens, but still,",
+      "start": 149.62,
+      "duration": 2.28
+    },
+    {
+      "text": "inference, the number of tokens\ngenerated is going to be higher.",
+      "start": 151.9,
+      "duration": 5.6
+    },
+    {
+      "text": "So that's just some perspective.",
+      "start": 157.5,
+      "duration": 3.16
+    },
+    {
+      "text": "And moreover, I think the\nimportance of inference",
+      "start": 160.66,
+      "duration": 3.2
+    },
+    {
+      "text": "has grown in the last year\nbecause once upon a time,",
+      "start": 163.86,
+      "duration": 4.72
+    },
+    {
+      "text": "we thought of language\nmodels as primarily",
+      "start": 168.58,
+      "duration": 2.4
+    },
+    {
+      "text": "as chatbots or assistants,\nwhere you put in a prompt,",
+      "start": 170.98,
+      "duration": 4.58
+    },
+    {
+      "text": "you get back a response,\nand presumably,",
+      "start": 175.56,
+      "duration": 3.09
+    },
+    {
+      "text": "the goal of the human\nis to read the response.",
+      "start": 178.65,
+      "duration": 2.48
+    },
+    {
+      "text": "But now, as we move more\ninto a genetic world,",
+      "start": 181.13,
+      "duration": 3.72
+    },
+    {
+      "text": "what it looks like is\nthat a query goes in,",
+      "start": 184.85,
+      "duration": 3.2
+    },
+    {
+      "text": "and the agent is going\nto do a bunch of stuff.",
+      "start": 188.05,
+      "duration": 3.18
+    },
+    {
+      "text": "It's going to think,\nit's going to reason,",
+      "start": 191.23,
+      "duration": 2.24
+    },
+    {
+      "text": "it's going to call some tools,\nit's going to introspect.",
+      "start": 193.47,
+      "duration": 2.5
+    },
+    {
+      "text": "And at the end of the day,\nit will produce some output",
+      "start": 195.97,
+      "duration": 2.88
+    },
+    {
+      "text": "for a human to read.",
+      "start": 198.85,
+      "duration": 2.12
+    },
+    {
+      "text": "So most of the tokens\nthat the agent produces",
+      "start": 200.97,
+      "duration": 2.6
+    },
+    {
+      "text": "is actually not for reading.",
+      "start": 203.57,
+      "duration": 3.48
+    },
+    {
+      "text": "And so you should really\nthink about the number",
+      "start": 207.05,
+      "duration": 2.16
+    },
+    {
+      "text": "of tokens generated as\nreally the compute spend.",
+      "start": 209.21,
+      "duration": 3.28
+    },
+    {
+      "text": "And there's no limit.",
+      "start": 212.49,
+      "duration": 1.62
+    },
+    {
+      "text": "If you have an ambitious\nenough problem,",
+      "start": 214.11,
+      "duration": 2.18
+    },
+    {
+      "text": "you're going to need much\ncompute and a lot of tokens.",
+      "start": 216.29,
+      "duration": 5.64
+    },
+    {
+      "text": "So if you were in\nthe chatbot world,",
+      "start": 221.93,
+      "duration": 2.0
+    },
+    {
+      "text": "maybe inference after\na certain point,",
+      "start": 223.93,
+      "duration": 3.46
+    },
+    {
+      "text": "it's fast enough, because\nhumans can only read so fast.",
+      "start": 227.39,
+      "duration": 4.06
+    },
+    {
+      "text": "But for an agent, there's\nno limit to how much a value",
+      "start": 231.45,
+      "duration": 5.14
+    },
+    {
+      "text": "you can get out of squeezing\nmore out of inference.",
+      "start": 236.59,
+      "duration": 3.84
+    },
+    {
+      "text": "So there's a lot of\npeople doing inference",
+      "start": 240.43,
+      "duration": 3.48
+    },
+    {
+      "text": "on the commercial side.",
+      "start": 243.91,
+      "duration": 2.4
+    },
+    {
+      "text": "Of course, all the\nclosed API providers",
+      "start": 246.31,
+      "duration": 2.52
+    },
+    {
+      "text": "have to serve their\nmodels, so inference",
+      "start": 248.83,
+      "duration": 2.24
+    },
+    {
+      "text": "is a big deal for them.",
+      "start": 251.07,
+      "duration": 1.8
+    },
+    {
+      "text": "And there is also a\nbunch of providers",
+      "start": 252.87,
+      "duration": 2.68
+    },
+    {
+      "text": "serving open weight models and\nproviding inference as well.",
+      "start": 255.55,
+      "duration": 4.599
+    },
+    {
+      "text": "And in the open\nsource community,",
+      "start": 260.149,
+      "duration": 1.821
+    },
+    {
+      "text": "there's a bunch of packages.",
+      "start": 261.97,
+      "duration": 1.52
+    },
+    {
+      "text": "So VLM is probably\na popular one.",
+      "start": 263.49,
+      "duration": 2.18
+    },
+    {
+      "text": "Kind of a go-to.",
+      "start": 265.67,
+      "duration": 2.76
+    },
+    {
+      "text": "SG Lang is another one\nthat's particularly",
+      "start": 268.43,
+      "duration": 3.16
+    },
+    {
+      "text": "good for agentic workloads,\nbut maybe not as popular yet.",
+      "start": 271.59,
+      "duration": 4.1
+    },
+    {
+      "text": "And then there's TensorRT from\nNVIDIA, which is really fast,",
+      "start": 275.69,
+      "duration": 4.08
+    },
+    {
+      "text": "but it's more narrow.",
+      "start": 279.77,
+      "duration": 2.42
+    },
+    {
+      "text": "And then Llama CPP, if you\nwant to run inference on CPU,",
+      "start": 282.19,
+      "duration": 5.52
+    },
+    {
+      "text": "this is a popular package.",
+      "start": 287.71,
+      "duration": 2.92
+    },
+    {
+      "text": "So hopefully, I've argued\nthat inference is huge.",
+      "start": 290.63,
+      "duration": 4.91
+    },
+    {
+      "text": "If you can make inference twice\nas fast or even 10% faster,",
+      "start": 295.54,
+      "duration": 4.9
+    },
+    {
+      "text": "that is a big deal.",
+      "start": 300.44,
+      "duration": 2.02
+    },
+    {
+      "text": "So now, the question\nis, what does fast mean?",
+      "start": 302.46,
+      "duration": 2.88
+    },
+    {
+      "text": "So there's a few metrics that\ncapture the notion of fast.",
+      "start": 305.34,
+      "duration": 3.06
+    },
+    {
+      "text": "And they're going to be\napplicable in different settings",
+      "start": 308.4,
+      "duration": 3.3
+    },
+    {
+      "text": "and have different trade offs.",
+      "start": 311.7,
+      "duration": 2.04
+    },
+    {
+      "text": "So one metric of fast is\ntime to first token or TTFT.",
+      "start": 313.74,
+      "duration": 5.84
+    },
+    {
+      "text": "This is essentially\nhow long a user waits",
+      "start": 319.58,
+      "duration": 2.32
+    },
+    {
+      "text": "before any generation happens.",
+      "start": 321.9,
+      "duration": 2.36
+    },
+    {
+      "text": "So you put in a\nquery into ChatGPT,",
+      "start": 324.26,
+      "duration": 4.44
+    },
+    {
+      "text": "and some number of milliseconds\npasses by, and then",
+      "start": 328.7,
+      "duration": 8.04
+    },
+    {
+      "text": "from the point the first token\ncomes in, that is the time.",
+      "start": 336.74,
+      "duration": 4.08
+    },
+    {
+      "text": "And this is generally useful\nfor interactive applications",
+      "start": 340.82,
+      "duration": 2.72
+    },
+    {
+      "text": "because that latency where\nyou're just waiting and doing",
+      "start": 343.54,
+      "duration": 3.36
+    },
+    {
+      "text": "nothing is--",
+      "start": 346.9,
+      "duration": 1.96
+    },
+    {
+      "text": "the longer that is, the\nworse the user experience,",
+      "start": 348.86,
+      "duration": 3.01
+    },
+    {
+      "text": "and as soon as tokens\ncome in, it doesn't maybe",
+      "start": 351.87,
+      "duration": 2.34
+    },
+    {
+      "text": "have to be that fast, because if\nyou're going to read it anyway,",
+      "start": 354.21,
+      "duration": 3.48
+    },
+    {
+      "text": "you can't read that fast.",
+      "start": 357.69,
+      "duration": 2.84
+    },
+    {
+      "text": "So the second metric is latency.",
+      "start": 360.53,
+      "duration": 3.12
+    },
+    {
+      "text": "And this is from the standpoint\nof an individual user.",
+      "start": 363.65,
+      "duration": 2.86
+    },
+    {
+      "text": "How fast are tokens\nappearing for one query?",
+      "start": 366.51,
+      "duration": 2.96
+    },
+    {
+      "text": "This is also important for\ninteractive applications.",
+      "start": 369.47,
+      "duration": 4.86
+    },
+    {
+      "text": "So basically, this is how fast\nthe tokens are kind of streaming",
+      "start": 374.33,
+      "duration": 3.04
+    },
+    {
+      "text": "through.",
+      "start": 377.37,
+      "duration": 2.12
+    },
+    {
+      "text": "And then the second\nrelated concept",
+      "start": 379.49,
+      "duration": 1.68
+    },
+    {
+      "text": "is throughput, measuring\ntokens per second,",
+      "start": 381.17,
+      "duration": 3.4
+    },
+    {
+      "text": "this is how fast tokens are\nappearing for many queries.",
+      "start": 384.57,
+      "duration": 3.84
+    },
+    {
+      "text": "So latency or one\nlatency and throughput",
+      "start": 388.41,
+      "duration": 3.52
+    },
+    {
+      "text": "are clearly very related.",
+      "start": 391.93,
+      "duration": 2.56
+    },
+    {
+      "text": "It's very kind of\naligned-- in general,",
+      "start": 394.49,
+      "duration": 3.92
+    },
+    {
+      "text": "many interventions will make\nlatency and throughput better.",
+      "start": 398.41,
+      "duration": 3.84
+    },
+    {
+      "text": "But as we'll see later, there's\nactually a trade off here.",
+      "start": 402.25,
+      "duration": 4.68
+    },
+    {
+      "text": "And throughput is useful\nfor if you're doing",
+      "start": 406.93,
+      "duration": 2.43
+    },
+    {
+      "text": "a bunch of batch processing.",
+      "start": 409.36,
+      "duration": 2.72
+    },
+    {
+      "text": "You have a petabyte\nof data, and you",
+      "start": 412.08,
+      "duration": 2.48
+    },
+    {
+      "text": "want to process it\nwith a language model.",
+      "start": 414.56,
+      "duration": 2.44
+    },
+    {
+      "text": "You just want that\njob to get done.",
+      "start": 417.0,
+      "duration": 2.1
+    },
+    {
+      "text": "It doesn't matter if one query\nis coming in faster, sooner,",
+      "start": 419.1,
+      "duration": 4.14
+    },
+    {
+      "text": "or later.",
+      "start": 423.24,
+      "duration": 1.72
+    },
+    {
+      "text": "OK.",
+      "start": 424.96,
+      "duration": 1.64
+    },
+    {
+      "text": "So what determines\nthe efficiency",
+      "start": 426.6,
+      "duration": 2.76
+    },
+    {
+      "text": "by either any of these\nmetrics of inference.",
+      "start": 429.36,
+      "duration": 4.92
+    },
+    {
+      "text": "So the high level\nbit is as follows.",
+      "start": 434.28,
+      "duration": 3.96
+    },
+    {
+      "text": "And this is-- maybe\none high level bit",
+      "start": 438.24,
+      "duration": 2.76
+    },
+    {
+      "text": "to remember from the lecture is\nthat when you're doing training,",
+      "start": 441.0,
+      "duration": 5.0
+    },
+    {
+      "text": "you see all the tokens\nat once, because",
+      "start": 446.0,
+      "duration": 2.04
+    },
+    {
+      "text": "in supervised fine-tuning,\nyou see all the tokens,",
+      "start": 448.04,
+      "duration": 2.84
+    },
+    {
+      "text": "and you can parallelize\nover the sequence.",
+      "start": 450.88,
+      "duration": 2.38
+    },
+    {
+      "text": "Remember, think about\nin the transformer,",
+      "start": 453.26,
+      "duration": 1.94
+    },
+    {
+      "text": "the calculation\nfor attention, MLP,",
+      "start": 455.2,
+      "duration": 3.16
+    },
+    {
+      "text": "the sequence is\njust a dimension.",
+      "start": 458.36,
+      "duration": 1.66
+    },
+    {
+      "text": "So it's a big tensor\nthat gets multiplied.",
+      "start": 460.02,
+      "duration": 2.9
+    },
+    {
+      "text": "And so you, essentially,\nprocess all the tokens at once.",
+      "start": 462.92,
+      "duration": 4.23
+    },
+    {
+      "text": "In inference, you can't do that.",
+      "start": 467.15,
+      "duration": 2.88
+    },
+    {
+      "text": "You have to generate because\nof the autoregressive nature",
+      "start": 470.03,
+      "duration": 2.92
+    },
+    {
+      "text": "of inference.",
+      "start": 472.95,
+      "duration": 1.48
+    },
+    {
+      "text": "Tokens sequentially.",
+      "start": 474.43,
+      "duration": 1.02
+    },
+    {
+      "text": "One at a time.",
+      "start": 475.45,
+      "duration": 1.46
+    },
+    {
+      "text": "So this is the\nfundamental problem",
+      "start": 476.91,
+      "duration": 2.88
+    },
+    {
+      "text": "of why inference is a\nvery different workload",
+      "start": 479.79,
+      "duration": 3.08
+    },
+    {
+      "text": "than training, because you can't\nparallelize across the sequence",
+      "start": 482.87,
+      "duration": 3.0
+    },
+    {
+      "text": "dimension.",
+      "start": 485.87,
+      "duration": 1.16
+    },
+    {
+      "text": "And therefore, as\nwe'll see later,",
+      "start": 487.03,
+      "duration": 1.82
+    },
+    {
+      "text": "it's going to be harder to\nhave high arithmetic intensity",
+      "start": 488.85,
+      "duration": 3.18
+    },
+    {
+      "text": "or fully utilize the compute.",
+      "start": 492.03,
+      "duration": 3.68
+    },
+    {
+      "text": "OK.",
+      "start": 495.71,
+      "duration": 2.895
+    },
+    {
+      "text": "All right.",
+      "start": 498.605,
+      "duration": 0.845
+    },
+    {
+      "text": "So let's go on.",
+      "start": 499.45,
+      "duration": 1.92
+    },
+    {
+      "text": "So first, I'm going to-- just\nmaybe a preview of what's",
+      "start": 501.37,
+      "duration": 3.34
+    },
+    {
+      "text": "in this lecture.",
+      "start": 504.71,
+      "duration": 1.56
+    },
+    {
+      "text": "First, I'm going to do some math\nto understand the arithmetic",
+      "start": 506.27,
+      "duration": 5.4
+    },
+    {
+      "text": "intensity and\nthroughput and latency,",
+      "start": 511.67,
+      "duration": 3.18
+    },
+    {
+      "text": "how to think about\nthat for a transformer.",
+      "start": 514.85,
+      "duration": 2.699
+    },
+    {
+      "text": "And then I'm going to talk\nabout various techniques",
+      "start": 517.549,
+      "duration": 2.561
+    },
+    {
+      "text": "to reduce the cost by\nmaking the kv cache smaller,",
+      "start": 520.11,
+      "duration": 6.17
+    },
+    {
+      "text": "quantizing model\npruning, and then",
+      "start": 526.28,
+      "duration": 2.62
+    },
+    {
+      "text": "finally, I'll talk about\nspeculative decoding, and then",
+      "start": 528.9,
+      "duration": 2.36
+    },
+    {
+      "text": "some kind of practical concerns.",
+      "start": 531.26,
+      "duration": 4.2
+    },
+    {
+      "text": "All right.",
+      "start": 535.46,
+      "duration": 0.54
+    },
+    {
+      "text": "So this is going to be a\nbit of a review, mostly",
+      "start": 536.0,
+      "duration": 2.917
+    },
+    {
+      "text": "kind of swapping in,\nmaking sure we're",
+      "start": 538.917,
+      "duration": 1.583
+    },
+    {
+      "text": "on the same page with\nrespect to notation.",
+      "start": 540.5,
+      "duration": 2.56
+    },
+    {
+      "text": "Much of this lecture is based\non the scaling book from Google",
+      "start": 543.06,
+      "duration": 3.76
+    },
+    {
+      "text": "on transformers and inference.",
+      "start": 546.82,
+      "duration": 2.66
+    },
+    {
+      "text": "So I do recommend that\npeople go check it out.",
+      "start": 549.48,
+      "duration": 2.4
+    },
+    {
+      "text": "It's a very nicely written.",
+      "start": 551.88,
+      "duration": 1.96
+    },
+    {
+      "text": "And some of the\nfigures are generously",
+      "start": 553.84,
+      "duration": 6.22
+    },
+    {
+      "text": "lifted from that book.",
+      "start": 560.06,
+      "duration": 2.6
+    },
+    {
+      "text": "OK.",
+      "start": 562.66,
+      "duration": 0.96
+    },
+    {
+      "text": "So just to establish\na bit of notation",
+      "start": 563.62,
+      "duration": 3.4
+    },
+    {
+      "text": "to understand this diagram.",
+      "start": 567.02,
+      "duration": 3.36
+    },
+    {
+      "text": "So we're going to use symbols.",
+      "start": 570.38,
+      "duration": 3.08
+    },
+    {
+      "text": "Think about it in ienops\nto denote dimensions,",
+      "start": 573.46,
+      "duration": 3.56
+    },
+    {
+      "text": "but also they're kind of length.",
+      "start": 577.02,
+      "duration": 1.62
+    },
+    {
+      "text": "So B is going to be the\nbatch dimension and also",
+      "start": 578.64,
+      "duration": 2.9
+    },
+    {
+      "text": "the number of sequences.",
+      "start": 581.54,
+      "duration": 1.353
+    },
+    {
+      "text": "T is going to be the\nsequence dimension, which",
+      "start": 582.893,
+      "duration": 1.917
+    },
+    {
+      "text": "is also the number of tokens.",
+      "start": 584.81,
+      "duration": 1.42
+    },
+    {
+      "text": "D is the model dimension,\nH is the dimension.",
+      "start": 586.23,
+      "duration": 3.54
+    },
+    {
+      "text": "So if I'm going to\nwrite this, this",
+      "start": 589.77,
+      "duration": 3.44
+    },
+    {
+      "text": "is taking a product between a\ntensor with dimensions B, T,",
+      "start": 593.21,
+      "duration": 4.72
+    },
+    {
+      "text": "and D, and another matrix of\nD and H, and I produce BTH.",
+      "start": 597.93,
+      "duration": 5.92
+    },
+    {
+      "text": "So what is going on\nhere is that there",
+      "start": 603.85,
+      "duration": 2.2
+    },
+    {
+      "text": "are some dimensions\nmarked red, which",
+      "start": 606.05,
+      "duration": 2.44
+    },
+    {
+      "text": "are going to be contracting.",
+      "start": 608.49,
+      "duration": 1.8
+    },
+    {
+      "text": "These dimensions appear\nin both the operands",
+      "start": 610.29,
+      "duration": 2.92
+    },
+    {
+      "text": "and disappear from the results.",
+      "start": 613.21,
+      "duration": 3.16
+    },
+    {
+      "text": "And then there's going to\nbe other regular dimensions",
+      "start": 616.37,
+      "duration": 3.2
+    },
+    {
+      "text": "in black that appear only in one\noperand and stay in the result.",
+      "start": 619.57,
+      "duration": 6.12
+    },
+    {
+      "text": "So this is the general form.",
+      "start": 625.69,
+      "duration": 2.36
+    },
+    {
+      "text": "Another case is if you\nhave blue dimensions, that",
+      "start": 628.05,
+      "duration": 3.68
+    },
+    {
+      "text": "means they're\nattaching dimensions,",
+      "start": 631.73,
+      "duration": 2.16
+    },
+    {
+      "text": "and they appear in both,\nbut stay in the result.",
+      "start": 633.89,
+      "duration": 2.74
+    },
+    {
+      "text": "They do not get\ncontracted or reduced.",
+      "start": 636.63,
+      "duration": 3.62
+    },
+    {
+      "text": "OK.",
+      "start": 640.25,
+      "duration": 0.5
+    },
+    {
+      "text": "So the interpretation\nhere, as we'll see later,",
+      "start": 640.75,
+      "duration": 2.47
+    },
+    {
+      "text": "is that we have this\ntensor for every sequence",
+      "start": 643.22,
+      "duration": 3.34
+    },
+    {
+      "text": "and token position.",
+      "start": 646.56,
+      "duration": 0.98
+    },
+    {
+      "text": "You have a vector and you want\nto multiply that by a matrix.",
+      "start": 647.54,
+      "duration": 5.54
+    },
+    {
+      "text": "And then here, you're\nbasically taking",
+      "start": 653.08,
+      "duration": 2.0
+    },
+    {
+      "text": "a bunch of dot products\nbetween two tensors.",
+      "start": 655.08,
+      "duration": 3.82
+    },
+    {
+      "text": "OK.",
+      "start": 658.9,
+      "duration": 0.5
+    },
+    {
+      "text": "So with that in mind, this\nin all its full glory,",
+      "start": 659.4,
+      "duration": 4.04
+    },
+    {
+      "text": "is the description of\na transformer block.",
+      "start": 663.44,
+      "duration": 4.94
+    },
+    {
+      "text": "So it looks a little bit\nlike a circuit diagram.",
+      "start": 668.38,
+      "duration": 2.0
+    },
+    {
+      "text": "There's a lot of details\nhere, but I actually",
+      "start": 670.38,
+      "duration": 2.26
+    },
+    {
+      "text": "find this probably the\nmost crisp definition",
+      "start": 672.64,
+      "duration": 4.96
+    },
+    {
+      "text": "of what a transformer is.",
+      "start": 677.6,
+      "duration": 1.88
+    },
+    {
+      "text": "You see a lot of\ndescription of transformer,",
+      "start": 679.48,
+      "duration": 1.94
+    },
+    {
+      "text": "and frankly, a lot\nof them are-- it's",
+      "start": 681.42,
+      "duration": 2.78
+    },
+    {
+      "text": "hard to understand what\nis exactly happening.",
+      "start": 684.2,
+      "duration": 2.562
+    },
+    {
+      "text": "This one basically tells\nyou exactly the shapes",
+      "start": 686.762,
+      "duration": 1.958
+    },
+    {
+      "text": "of the tensors and allows you\nto reason about the dependency.",
+      "start": 688.72,
+      "duration": 4.8
+    },
+    {
+      "text": "So for transformer\nblock, you take",
+      "start": 693.52,
+      "duration": 2.44
+    },
+    {
+      "text": "the X, which is the\nactivations of one layer,",
+      "start": 695.96,
+      "duration": 3.34
+    },
+    {
+      "text": "you feed it through\na tension, and then",
+      "start": 699.3,
+      "duration": 1.8
+    },
+    {
+      "text": "you feed it through MLP.",
+      "start": 701.1,
+      "duration": 2.92
+    },
+    {
+      "text": "And just as a kind\nof a quick refresher,",
+      "start": 704.02,
+      "duration": 6.84
+    },
+    {
+      "text": "you projected using a query\nmatrix, a key matrix and a value",
+      "start": 710.86,
+      "duration": 5.04
+    },
+    {
+      "text": "matrix, you'll see\nhere that we have",
+      "start": 715.9,
+      "duration": 6.92
+    },
+    {
+      "text": "N, which is the\nnumber of heads, and H",
+      "start": 722.82,
+      "duration": 2.16
+    },
+    {
+      "text": "is the dimension of each head.",
+      "start": 724.98,
+      "duration": 1.72
+    },
+    {
+      "text": "So the query matrix is batch\ntimes sequence times number",
+      "start": 726.7,
+      "duration": 4.04
+    },
+    {
+      "text": "of heads times the\nhead dimension,",
+      "start": 730.74,
+      "duration": 2.32
+    },
+    {
+      "text": "and K and V,\ninstead of having N,",
+      "start": 733.06,
+      "duration": 2.74
+    },
+    {
+      "text": "we have K, which\nwe'll see later,",
+      "start": 735.8,
+      "duration": 2.82
+    },
+    {
+      "text": "which we have a potentially\nsmaller number key value heads.",
+      "start": 738.62,
+      "duration": 5.24
+    },
+    {
+      "text": "And then this is the\nattention operation,",
+      "start": 743.86,
+      "duration": 2.96
+    },
+    {
+      "text": "where notice that there's\nbatching dimensions.",
+      "start": 746.82,
+      "duration": 3.16
+    },
+    {
+      "text": "So B appears in both.",
+      "start": 749.98,
+      "duration": 2.56
+    },
+    {
+      "text": "And we're contracting\nover the head dimension.",
+      "start": 752.54,
+      "duration": 4.08
+    },
+    {
+      "text": "And we'll come back to\nwhy this B, B in both,",
+      "start": 756.62,
+      "duration": 4.27
+    },
+    {
+      "text": "makes inference hard.",
+      "start": 760.89,
+      "duration": 2.52
+    },
+    {
+      "text": "Why attention is kind\nof a bottleneck there.",
+      "start": 763.41,
+      "duration": 2.28
+    },
+    {
+      "text": "So just hold on to that thought.",
+      "start": 765.69,
+      "duration": 3.92
+    },
+    {
+      "text": "And the MLP is very simple\nand straightforward.",
+      "start": 769.61,
+      "duration": 5.56
+    },
+    {
+      "text": "You just do some math models.",
+      "start": 775.17,
+      "duration": 2.34
+    },
+    {
+      "text": "This is the gating matrix.",
+      "start": 777.51,
+      "duration": 5.58
+    },
+    {
+      "text": "This is the upper direction\nand a down projection.",
+      "start": 783.09,
+      "duration": 2.14
+    },
+    {
+      "text": "So thank you guys.",
+      "start": 785.23,
+      "duration": 1.24
+    },
+    {
+      "text": "I have implemented this.",
+      "start": 786.47,
+      "duration": 1.0
+    },
+    {
+      "text": "So I don't want to\nbelabor it, but just",
+      "start": 787.47,
+      "duration": 1.625
+    },
+    {
+      "text": "to swap in the notation.",
+      "start": 789.095,
+      "duration": 2.275
+    },
+    {
+      "text": "By convention, we're going\nto assume that in the MLP,",
+      "start": 791.37,
+      "duration": 6.68
+    },
+    {
+      "text": "the MLP up projects the D\ndimensional, model dimension",
+      "start": 798.05,
+      "duration": 4.4
+    },
+    {
+      "text": "into four times that.",
+      "start": 802.45,
+      "duration": 1.22
+    },
+    {
+      "text": "So F is always--",
+      "start": 803.67,
+      "duration": 1.26
+    },
+    {
+      "text": "think about it as 4D\nwhenever you see F.",
+      "start": 804.93,
+      "duration": 3.32
+    },
+    {
+      "text": "And then the model dimension\ngets split across the N heads.",
+      "start": 808.25,
+      "duration": 3.9
+    },
+    {
+      "text": "So the model dimension is\nalways equal to number of heads",
+      "start": 812.15,
+      "duration": 3.22
+    },
+    {
+      "text": "times the head dimension.",
+      "start": 815.37,
+      "duration": 2.63
+    },
+    {
+      "text": "And then the number\nof heads get split,",
+      "start": 818.0,
+      "duration": 5.04
+    },
+    {
+      "text": "in the case of group\nquery attention,",
+      "start": 823.04,
+      "duration": 2.6
+    },
+    {
+      "text": "into the number of groups and\nthe number of heads per group.",
+      "start": 825.64,
+      "duration": 6.28
+    },
+    {
+      "text": "And finally, we have\ntwo variables, S and T,",
+      "start": 831.92,
+      "duration": 2.84
+    },
+    {
+      "text": "which both represents\nthe sequence dimension.",
+      "start": 834.76,
+      "duration": 4.4
+    },
+    {
+      "text": "And the difference\nis that S is going",
+      "start": 839.16,
+      "duration": 1.92
+    },
+    {
+      "text": "to represent the\nnumber of input tokens,",
+      "start": 841.08,
+      "duration": 4.44
+    },
+    {
+      "text": "and T is going to represent\nthe number of output tokens.",
+      "start": 845.52,
+      "duration": 3.16
+    },
+    {
+      "text": "So in training time,\nthese two are the same,",
+      "start": 848.68,
+      "duration": 2.04
+    },
+    {
+      "text": "because we're predicting all\nthe same inputs as outputs.",
+      "start": 850.72,
+      "duration": 4.84
+    },
+    {
+      "text": "And inference time,\nT is going to be 1,",
+      "start": 855.56,
+      "duration": 2.44
+    },
+    {
+      "text": "and S is going to be the input.",
+      "start": 858.0,
+      "duration": 1.66
+    },
+    {
+      "text": "OK.",
+      "start": 862.96,
+      "duration": 1.0
+    },
+    {
+      "text": "So another review for\narithmetic intensity.",
+      "start": 863.96,
+      "duration": 2.42
+    },
+    {
+      "text": "So I talked about this\nin the second lecture.",
+      "start": 866.38,
+      "duration": 2.14
+    },
+    {
+      "text": "So just as a warm up.",
+      "start": 868.52,
+      "duration": 1.0
+    },
+    {
+      "text": "Suppose I'm multiplying\ntwo matrices; a B by D",
+      "start": 869.52,
+      "duration": 2.72
+    },
+    {
+      "text": "matrix and a D by F matrix.",
+      "start": 872.24,
+      "duration": 2.36
+    },
+    {
+      "text": "So intuition.",
+      "start": 874.6,
+      "duration": 1.39
+    },
+    {
+      "text": "B is the batch dimension,\nD is the hidden dimension",
+      "start": 875.99,
+      "duration": 2.4
+    },
+    {
+      "text": "or the model dimension, and\nF is the projection dimension",
+      "start": 878.39,
+      "duration": 2.92
+    },
+    {
+      "text": "in the MLP.",
+      "start": 881.31,
+      "duration": 2.16
+    },
+    {
+      "text": "So remember, what are\nthe arithmetic intensity?",
+      "start": 883.47,
+      "duration": 3.56
+    },
+    {
+      "text": "I have to count\nflops, and I have",
+      "start": 887.03,
+      "duration": 1.96
+    },
+    {
+      "text": "to count the amount\nof memory moved.",
+      "start": 888.99,
+      "duration": 3.64
+    },
+    {
+      "text": "So we can do this as follows.",
+      "start": 892.63,
+      "duration": 3.52
+    },
+    {
+      "text": "So what do you have to do\nto multiply these matrices?",
+      "start": 896.15,
+      "duration": 4.96
+    },
+    {
+      "text": "Now, remember, the\nsystems, lectures,",
+      "start": 901.11,
+      "duration": 3.44
+    },
+    {
+      "text": "you have to read X from HBM.",
+      "start": 904.55,
+      "duration": 4.0
+    },
+    {
+      "text": "And if you're storing\neverything in bf16,",
+      "start": 908.55,
+      "duration": 2.44
+    },
+    {
+      "text": "which is the case\nfor inference, we're",
+      "start": 910.99,
+      "duration": 2.88
+    },
+    {
+      "text": "going to have 2 times B times D,\nyou're going to read W. That's",
+      "start": 913.87,
+      "duration": 3.76
+    },
+    {
+      "text": "going to be another\n2 times D times F.",
+      "start": 917.63,
+      "duration": 3.44
+    },
+    {
+      "text": "You're going to do the matmul.",
+      "start": 921.07,
+      "duration": 1.38
+    },
+    {
+      "text": "So that's number of flops\nis 2 times B times D times F",
+      "start": 922.45,
+      "duration": 7.47
+    },
+    {
+      "text": "And then you're going\nto write it back.",
+      "start": 929.92,
+      "duration": 3.26
+    },
+    {
+      "text": "OK?",
+      "start": 933.18,
+      "duration": 0.68
+    },
+    {
+      "text": "So every time you\nread and write,",
+      "start": 933.86,
+      "duration": 2.3
+    },
+    {
+      "text": "it's basically the\nnumber of entries.",
+      "start": 936.16,
+      "duration": 2.72
+    },
+    {
+      "text": "It's kind of a quadratic-like\nterm, and matmuls are qubit.",
+      "start": 938.88,
+      "duration": 4.04
+    },
+    {
+      "text": "And remember, this is\ngoing to be important",
+      "start": 942.92,
+      "duration": 2.61
+    },
+    {
+      "text": "because that's how you're\ngoing to get high arithmetic",
+      "start": 945.53,
+      "duration": 2.25
+    },
+    {
+      "text": "intensity.",
+      "start": 947.78,
+      "duration": 1.12
+    },
+    {
+      "text": "So total number of\nflops is the cubic,",
+      "start": 948.9,
+      "duration": 4.54
+    },
+    {
+      "text": "and then the bytes transferred\nis the sum of the reads",
+      "start": 953.44,
+      "duration": 4.34
+    },
+    {
+      "text": "and writes.",
+      "start": 957.78,
+      "duration": 2.2
+    },
+    {
+      "text": "So remember, arithmetic\nintensity is how much compute",
+      "start": 959.98,
+      "duration": 3.16
+    },
+    {
+      "text": "we do per byte transfer.",
+      "start": 963.14,
+      "duration": 1.78
+    },
+    {
+      "text": "And we want this to be high.",
+      "start": 964.92,
+      "duration": 1.34
+    },
+    {
+      "text": "So the intensity is going\nto be equal to flops",
+      "start": 966.26,
+      "duration": 6.76
+    },
+    {
+      "text": "over bytes transfer.",
+      "start": 973.02,
+      "duration": 1.755
+    },
+    {
+      "text": "And I'm representing all\nthese things symbolically,",
+      "start": 974.775,
+      "duration": 2.125
+    },
+    {
+      "text": "because it will be\neasier to see and work",
+      "start": 976.9,
+      "duration": 3.64
+    },
+    {
+      "text": "with rather than numbers.",
+      "start": 980.54,
+      "duration": 3.24
+    },
+    {
+      "text": "One just simplification\nwe can make",
+      "start": 983.78,
+      "duration": 3.56
+    },
+    {
+      "text": "is that suppose that\nthe batch dimension here",
+      "start": 987.34,
+      "duration": 2.48
+    },
+    {
+      "text": "is much less than D and F,\nthen we can simplify this.",
+      "start": 989.82,
+      "duration": 4.91
+    },
+    {
+      "text": "So in particular, what this\nis doing is saying D equals C",
+      "start": 994.73,
+      "duration": 3.76
+    },
+    {
+      "text": "times D and F equals C times\nB and let C goes to infinity,",
+      "start": 998.49,
+      "duration": 3.54
+    },
+    {
+      "text": "so both D and F are really\nlarge and B is smaller,",
+      "start": 1002.03,
+      "duration": 3.54
+    },
+    {
+      "text": "and this just reduces\nto the intensity of B.",
+      "start": 1005.57,
+      "duration": 6.02
+    },
+    {
+      "text": "So the upshot of\nthat is that remember",
+      "start": 1011.59,
+      "duration": 3.74
+    },
+    {
+      "text": "when we did arithmetic\nintensity for matmul,",
+      "start": 1015.33,
+      "duration": 4.16
+    },
+    {
+      "text": "it was something like N/3.",
+      "start": 1019.49,
+      "duration": 4.8
+    },
+    {
+      "text": "And this is the kind\nof analog, where",
+      "start": 1024.29,
+      "duration": 2.84
+    },
+    {
+      "text": "instead of just having\nsquare matrices,",
+      "start": 1027.13,
+      "duration": 5.3
+    },
+    {
+      "text": "we have non-square matrices.",
+      "start": 1032.43,
+      "duration": 2.399
+    },
+    {
+      "text": "OK.",
+      "start": 1034.829,
+      "duration": 0.5
+    },
+    {
+      "text": "So just to compare, so\nthe accelerator intensity",
+      "start": 1035.329,
+      "duration": 3.601
+    },
+    {
+      "text": "of a hardware is you look\nat the flops per second",
+      "start": 1038.93,
+      "duration": 5.48
+    },
+    {
+      "text": "in the spec sheet, you look at\nhow much memory bandwidth, how",
+      "start": 1044.41,
+      "duration": 4.08
+    },
+    {
+      "text": "fast memory gets moved\nbetween HBM, you divide,",
+      "start": 1048.49,
+      "duration": 3.43
+    },
+    {
+      "text": "and that is the\naccelerated intensity.",
+      "start": 1051.92,
+      "duration": 3.24
+    },
+    {
+      "text": "And now, you compare your\ncomputations intensity",
+      "start": 1055.16,
+      "duration": 5.08
+    },
+    {
+      "text": "with your accelerator intensity.",
+      "start": 1060.24,
+      "duration": 2.16
+    },
+    {
+      "text": "And if it's greater then your\ncompute bound, which is good,",
+      "start": 1062.4,
+      "duration": 5.14
+    },
+    {
+      "text": "if you're less, then you're\nmemory bound, and that's bad.",
+      "start": 1067.54,
+      "duration": 2.94
+    },
+    {
+      "text": "So in this case, for H100,\nfor this particular matmul",
+      "start": 1070.48,
+      "duration": 4.44
+    },
+    {
+      "text": "operation, you're compute\nbound if the batch",
+      "start": 1074.92,
+      "duration": 3.84
+    },
+    {
+      "text": "size is greater than 295.",
+      "start": 1078.76,
+      "duration": 5.08
+    },
+    {
+      "text": "So here's an extreme case.",
+      "start": 1083.84,
+      "duration": 2.16
+    },
+    {
+      "text": "So suppose you just\nhave one example.",
+      "start": 1086.0,
+      "duration": 5.16
+    },
+    {
+      "text": "What happens is you\nhave one example, then",
+      "start": 1091.16,
+      "duration": 2.16
+    },
+    {
+      "text": "your arithmetic intensity\nis going to be one.",
+      "start": 1093.32,
+      "duration": 3.0
+    },
+    {
+      "text": "And this is going\nto be memory bound.",
+      "start": 1096.32,
+      "duration": 4.72
+    },
+    {
+      "text": "And you can see\nwhat's going on here.",
+      "start": 1101.04,
+      "duration": 2.38
+    },
+    {
+      "text": "You're reading this DF\nmatrix, but B is only one.",
+      "start": 1103.42,
+      "duration": 3.72
+    },
+    {
+      "text": "So you're effectively doing\nonly 2 times D times F flops.",
+      "start": 1107.14,
+      "duration": 4.82
+    },
+    {
+      "text": "And this is basically\nthe workload",
+      "start": 1114.69,
+      "duration": 2.33
+    },
+    {
+      "text": "that you'll see in inference.",
+      "start": 1117.02,
+      "duration": 1.7
+    },
+    {
+      "text": "You don't get these\nfull matrices,",
+      "start": 1118.72,
+      "duration": 1.68
+    },
+    {
+      "text": "you get these very thin\nmatrices or tensors.",
+      "start": 1120.4,
+      "duration": 5.28
+    },
+    {
+      "text": "OK.",
+      "start": 1125.68,
+      "duration": 0.5
+    },
+    {
+      "text": "Let me stop there in case\nthere's any questions.",
+      "start": 1126.18,
+      "duration": 3.92
+    },
+    {
+      "text": "Yeah.",
+      "start": 1130.1,
+      "duration": 1.04
+    },
+    {
+      "text": "In the transformer slide, I just\nwant to confirm [INAUDIBLE].",
+      "start": 1131.14,
+      "duration": 5.372
+    },
+    {
+      "text": "You said, across [INAUDIBLE]\ncan search across [INAUDIBLE]?",
+      "start": 1143.409,
+      "duration": 6.059
+    },
+    {
+      "text": "Yeah, should that be across\ntables instead of cubes?",
+      "start": 1153.34,
+      "duration": 4.62
+    },
+    {
+      "text": "Let's see.",
+      "start": 1162.18,
+      "duration": 0.78
+    },
+    {
+      "text": "So the number of\ngroups here is--",
+      "start": 1162.96,
+      "duration": 7.21
+    },
+    {
+      "text": "wait, I'm just making sure.",
+      "start": 1170.17,
+      "duration": 1.62
+    },
+    {
+      "text": "So K is the number\nkey value heads.",
+      "start": 1171.79,
+      "duration": 4.7
+    },
+    {
+      "text": "And so you have g per KV head.",
+      "start": 1176.49,
+      "duration": 8.66
+    },
+    {
+      "text": "My understanding is [INAUDIBLE]\neach key path will have one",
+      "start": 1188.01,
+      "duration": 6.245
+    },
+    {
+      "text": "[INAUDIBLE] correspond to it.",
+      "start": 1194.255,
+      "duration": 4.755
+    },
+    {
+      "text": "And [INAUDIBLE] then g is\nthe number of [INAUDIBLE] p.",
+      "start": 1199.01,
+      "duration": 7.44
+    },
+    {
+      "text": "That means we have k.",
+      "start": 1206.45,
+      "duration": 1.84
+    },
+    {
+      "text": "That's my question.",
+      "start": 1208.29,
+      "duration": 0.84
+    },
+    {
+      "text": "Yeah, OK.",
+      "start": 1209.13,
+      "duration": 2.695
+    },
+    {
+      "text": "Yeah, I think you're right.",
+      "start": 1211.825,
+      "duration": 1.125
+    },
+    {
+      "text": "So k should be the\nnumber of groups,",
+      "start": 1212.95,
+      "duration": 2.86
+    },
+    {
+      "text": "and g should be the number\nof the heads per one",
+      "start": 1215.81,
+      "duration": 4.32
+    },
+    {
+      "text": "of those groups.",
+      "start": 1220.13,
+      "duration": 1.1
+    },
+    {
+      "text": "Yes.",
+      "start": 1221.23,
+      "duration": 0.5
+    },
+    {
+      "text": "Yeah, OK.",
+      "start": 1221.73,
+      "duration": 0.86
+    },
+    {
+      "text": "Thanks for that.",
+      "start": 1222.59,
+      "duration": 0.72
+    },
+    {
+      "text": "I'll fix that later.",
+      "start": 1223.31,
+      "duration": 0.96
+    },
+    {
+      "text": "OK.",
+      "start": 1227.92,
+      "duration": 2.26
+    },
+    {
+      "text": "So let's talk a little bit\nmore about the arithmetic",
+      "start": 1230.18,
+      "duration": 2.38
+    },
+    {
+      "text": "intensity of inference.",
+      "start": 1232.56,
+      "duration": 1.76
+    },
+    {
+      "text": "So here's how to think about\nwhat's happening in inference.",
+      "start": 1234.32,
+      "duration": 7.54
+    },
+    {
+      "text": "Let's say you just\ndo it naively.",
+      "start": 1241.86,
+      "duration": 2.42
+    },
+    {
+      "text": "So here is a prompt\nnever going to give you.",
+      "start": 1244.28,
+      "duration": 4.36
+    },
+    {
+      "text": "I'm going to the transformer.",
+      "start": 1248.64,
+      "duration": 2.08
+    },
+    {
+      "text": "And the transformer does\ngenerates keys and values",
+      "start": 1250.72,
+      "duration": 4.64
+    },
+    {
+      "text": "and activations.",
+      "start": 1255.36,
+      "duration": 1.44
+    },
+    {
+      "text": "And at the end of the\nday, it generates logits",
+      "start": 1256.8,
+      "duration": 3.2
+    },
+    {
+      "text": "over the output vocabulary.",
+      "start": 1260.0,
+      "duration": 2.72
+    },
+    {
+      "text": "And you sample a\ntoken, and that token",
+      "start": 1262.72,
+      "duration": 4.04
+    },
+    {
+      "text": "gets concatenated\nwith the prompt,",
+      "start": 1266.76,
+      "duration": 3.16
+    },
+    {
+      "text": "and then you just do this again.",
+      "start": 1269.92,
+      "duration": 1.94
+    },
+    {
+      "text": "You generate never.",
+      "start": 1271.86,
+      "duration": 1.1
+    },
+    {
+      "text": "You attach that to the prompt\nand so on and so forth.",
+      "start": 1272.96,
+      "duration": 3.76
+    },
+    {
+      "text": "So this is the most naive thing.",
+      "start": 1276.72,
+      "duration": 1.9
+    },
+    {
+      "text": "If you have a black box\nthat takes a sequence",
+      "start": 1278.62,
+      "duration": 3.3
+    },
+    {
+      "text": "and outputs a distribution\nover tokens, which",
+      "start": 1281.92,
+      "duration": 2.19
+    },
+    {
+      "text": "is exactly what a\ntransformer does,",
+      "start": 1284.11,
+      "duration": 1.54
+    },
+    {
+      "text": "you can just apply\nthis repeatedly.",
+      "start": 1285.65,
+      "duration": 3.1
+    },
+    {
+      "text": "OK, so this works, but this is\nreally bad because each time you",
+      "start": 1288.75,
+      "duration": 7.44
+    },
+    {
+      "text": "generate one token,\nyou actually take",
+      "start": 1296.19,
+      "duration": 3.96
+    },
+    {
+      "text": "order T squared time where\nT is the number of tokens",
+      "start": 1300.15,
+      "duration": 3.12
+    },
+    {
+      "text": "that you've generated so far.",
+      "start": 1303.27,
+      "duration": 1.86
+    },
+    {
+      "text": "So generate T tokens is actually\nT cubed because the attention is",
+      "start": 1305.13,
+      "duration": 7.46
+    },
+    {
+      "text": "already T squared, and you have\nto do that once for every token.",
+      "start": 1312.59,
+      "duration": 8.32
+    },
+    {
+      "text": "So this is pretty bad,\nbut the observation",
+      "start": 1320.91,
+      "duration": 4.92
+    },
+    {
+      "text": "is that you don't\nactually have to do this.",
+      "start": 1325.83,
+      "duration": 3.72
+    },
+    {
+      "text": "A lot of the work can actually\nbe shared across prefixes.",
+      "start": 1329.55,
+      "duration": 3.06
+    },
+    {
+      "text": "So for example, if you're over\ngenerating network versus you're",
+      "start": 1332.61,
+      "duration": 2.7
+    },
+    {
+      "text": "generating up, you're\nactually computing",
+      "start": 1335.31,
+      "duration": 1.92
+    },
+    {
+      "text": "a lot of the same key values\nfor never going to give.",
+      "start": 1337.23,
+      "duration": 6.79
+    },
+    {
+      "text": "So these tokens, they\nshouldn't change, OK?",
+      "start": 1344.02,
+      "duration": 3.48
+    },
+    {
+      "text": "And this is because it's\na causal transformer.",
+      "start": 1347.5,
+      "duration": 2.54
+    },
+    {
+      "text": "If it was bidirectional,\nthen if you attach a token,",
+      "start": 1350.04,
+      "duration": 2.38
+    },
+    {
+      "text": "then everything changes.",
+      "start": 1352.42,
+      "duration": 1.64
+    },
+    {
+      "text": "But if it's causal,\nthen the activations",
+      "start": 1354.06,
+      "duration": 2.28
+    },
+    {
+      "text": "here don't change based\non any tokens you append.",
+      "start": 1356.34,
+      "duration": 5.64
+    },
+    {
+      "text": "So with that observation,\nthe first obvious thing",
+      "start": 1361.98,
+      "duration": 3.76
+    },
+    {
+      "text": "is to store a KV\ncache in HPM, so",
+      "start": 1365.74,
+      "duration": 4.76
+    },
+    {
+      "text": "that, between successive\ntoken generations,",
+      "start": 1370.5,
+      "duration": 2.4
+    },
+    {
+      "text": "you can just reuse the KV cache.",
+      "start": 1372.9,
+      "duration": 2.4
+    },
+    {
+      "text": "So that means when you are\ntrying to generate gonna, you",
+      "start": 1375.3,
+      "duration": 6.8
+    },
+    {
+      "text": "don't actually have to compute\nall the keys and activations",
+      "start": 1382.1,
+      "duration": 3.52
+    },
+    {
+      "text": "of these previous tokens.",
+      "start": 1385.62,
+      "duration": 4.84
+    },
+    {
+      "text": "So this is what it looks\nlike with a KV cache.",
+      "start": 1390.46,
+      "duration": 2.22
+    },
+    {
+      "text": "So there's going to be\ntwo stages pre-fill.",
+      "start": 1392.68,
+      "duration": 3.96
+    },
+    {
+      "text": "So you get the prompt, and you\npopulate the KV cache, which",
+      "start": 1396.64,
+      "duration": 4.37
+    },
+    {
+      "text": "is the set key and value pairs\nthat the transformer computes,",
+      "start": 1401.01,
+      "duration": 4.92
+    },
+    {
+      "text": "and then you\ngenerate the logit--",
+      "start": 1405.93,
+      "duration": 1.82
+    },
+    {
+      "text": "just the same computation\nas we did before.",
+      "start": 1407.75,
+      "duration": 2.58
+    },
+    {
+      "text": "And now you have the KV cache\nhere and then this distribution",
+      "start": 1410.33,
+      "duration": 6.32
+    },
+    {
+      "text": "which you sample at a token.",
+      "start": 1416.65,
+      "duration": 1.92
+    },
+    {
+      "text": "And now you feed that through\nthe transformer, which",
+      "start": 1418.57,
+      "duration": 2.92
+    },
+    {
+      "text": "uses this cache\nand then produces",
+      "start": 1421.49,
+      "duration": 6.32
+    },
+    {
+      "text": "both the distribution\nof the next tokens,",
+      "start": 1427.81,
+      "duration": 2.26
+    },
+    {
+      "text": "but a new KB, which is\nbasically activations",
+      "start": 1430.07,
+      "duration": 4.02
+    },
+    {
+      "text": "corresponding to the token up.",
+      "start": 1434.09,
+      "duration": 3.28
+    },
+    {
+      "text": "And then this gets fed in.",
+      "start": 1437.37,
+      "duration": 2.04
+    },
+    {
+      "text": "So now you have the\ncommand to KV cache.",
+      "start": 1439.41,
+      "duration": 2.8
+    },
+    {
+      "text": "You have this logits you\nsample, and then that",
+      "start": 1442.21,
+      "duration": 3.68
+    },
+    {
+      "text": "feeds to the transformer.",
+      "start": 1445.89,
+      "duration": 1.5
+    },
+    {
+      "text": "You output the distribution\nover next tokens",
+      "start": 1447.39,
+      "duration": 2.74
+    },
+    {
+      "text": "as well as the new token\nwhich you add to the KB cache",
+      "start": 1450.13,
+      "duration": 5.12
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 1455.25,
+      "duration": 1.06
+    },
+    {
+      "text": "So the KV cache formula\nis for every sequence--",
+      "start": 1459.96,
+      "duration": 4.46
+    },
+    {
+      "text": "so there's B of them.",
+      "start": 1464.42,
+      "duration": 1.2
+    },
+    {
+      "text": "For every token,\nthere's S of them.",
+      "start": 1465.62,
+      "duration": 2.9
+    },
+    {
+      "text": "And for every layer\nand every head,",
+      "start": 1468.52,
+      "duration": 4.4
+    },
+    {
+      "text": "you store H dimensional vector.",
+      "start": 1472.92,
+      "duration": 1.9
+    },
+    {
+      "text": "And just to reiterate for\ninference, there's prefill.",
+      "start": 1478.12,
+      "duration": 3.36
+    },
+    {
+      "text": "You given a prompt.",
+      "start": 1481.48,
+      "duration": 1.38
+    },
+    {
+      "text": "You encode the prompt\ninto these vectors.",
+      "start": 1482.86,
+      "duration": 6.0
+    },
+    {
+      "text": "And this is parallelizable\njust like in training",
+      "start": 1488.86,
+      "duration": 2.14
+    },
+    {
+      "text": "because you see\nthe entire prompt.",
+      "start": 1491.0,
+      "duration": 1.5
+    },
+    {
+      "text": "You can compute the KV cache.",
+      "start": 1492.5,
+      "duration": 2.74
+    },
+    {
+      "text": "And then in generation, you\ngenerate the new response tokens",
+      "start": 1495.24,
+      "duration": 4.32
+    },
+    {
+      "text": "sequentially.",
+      "start": 1499.56,
+      "duration": 1.04
+    },
+    {
+      "text": "But at least you\ndon't have to pay",
+      "start": 1500.6,
+      "duration": 1.64
+    },
+    {
+      "text": "for generating the KV\ncache of the tokens",
+      "start": 1502.24,
+      "duration": 2.92
+    },
+    {
+      "text": "that you already looked at.",
+      "start": 1505.16,
+      "duration": 3.04
+    },
+    {
+      "text": "So is everyone comfortable\nwith the KV cache?",
+      "start": 1508.2,
+      "duration": 3.1
+    },
+    {
+      "text": "Any questions about this?",
+      "start": 1511.3,
+      "duration": 1.56
+    },
+    {
+      "text": "All right, so let's try to\nfigure out the FLOPs and memory",
+      "start": 1522.02,
+      "duration": 5.4
+    },
+    {
+      "text": "I/O for both MLP and\nattention layers.",
+      "start": 1527.42,
+      "duration": 4.68
+    },
+    {
+      "text": "So remember S is\nthe number of tokens",
+      "start": 1532.1,
+      "duration": 1.84
+    },
+    {
+      "text": "we're kind of conditioning on,\nand T is the number of tokens",
+      "start": 1533.94,
+      "duration": 3.4
+    },
+    {
+      "text": "we're generating.",
+      "start": 1537.34,
+      "duration": 1.92
+    },
+    {
+      "text": "So we're going to\ndo this abstractly.",
+      "start": 1539.26,
+      "duration": 1.86
+    },
+    {
+      "text": "And then later, we'll specify\nto the prefill where T equals S,",
+      "start": 1541.12,
+      "duration": 3.66
+    },
+    {
+      "text": "and generation T equals 1.",
+      "start": 1544.78,
+      "duration": 3.96
+    },
+    {
+      "text": "So for the MLP layers--\nand through all of this,",
+      "start": 1548.74,
+      "duration": 2.4
+    },
+    {
+      "text": "I'm just going to\nlook at the MAmmoTH",
+      "start": 1551.14,
+      "duration": 1.74
+    },
+    {
+      "text": "because the MAmmoTH\nare the thing that",
+      "start": 1552.88,
+      "duration": 2.26
+    },
+    {
+      "text": "actually require a lot of work.",
+      "start": 1555.14,
+      "duration": 2.78
+    },
+    {
+      "text": "Everything else can\nis not that many FLOPs",
+      "start": 1557.92,
+      "duration": 4.26
+    },
+    {
+      "text": "and can be potentially\nfused into the MAmmoTH too.",
+      "start": 1562.18,
+      "duration": 4.58
+    },
+    {
+      "text": "OK.",
+      "start": 1566.76,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's do this calculation.",
+      "start": 1567.26,
+      "duration": 2.18
+    },
+    {
+      "text": "So it's the same as the\nmatrix calculations.",
+      "start": 1569.44,
+      "duration": 2.56
+    },
+    {
+      "text": "I'm not going to maybe belabored\nstep through every single detail",
+      "start": 1572.0,
+      "duration": 3.89
+    },
+    {
+      "text": "here, but just the\nform is you read X",
+      "start": 1575.89,
+      "duration": 3.72
+    },
+    {
+      "text": "from high bandwidth memory.",
+      "start": 1579.61,
+      "duration": 4.52
+    },
+    {
+      "text": "You read all the parameters.",
+      "start": 1584.13,
+      "duration": 3.44
+    },
+    {
+      "text": "You compute the\nupper projection,",
+      "start": 1587.57,
+      "duration": 5.56
+    },
+    {
+      "text": "and then you write it to HBM.",
+      "start": 1593.13,
+      "duration": 2.48
+    },
+    {
+      "text": "You compute the gate,\nand you write HBM,",
+      "start": 1595.61,
+      "duration": 7.24
+    },
+    {
+      "text": "and then you compute basically\nthe down projection of that,",
+      "start": 1602.85,
+      "duration": 8.2
+    },
+    {
+      "text": "and you write it to HBM.",
+      "start": 1611.05,
+      "duration": 2.92
+    },
+    {
+      "text": "So the number of flops\ndepends on B and T",
+      "start": 1613.97,
+      "duration": 5.72
+    },
+    {
+      "text": "and D and F. So batch\nsize, sequence length,",
+      "start": 1619.69,
+      "duration": 3.28
+    },
+    {
+      "text": "model dimension, and the\nfeedforward dimension,",
+      "start": 1622.97,
+      "duration": 4.2
+    },
+    {
+      "text": "MLP dimension.",
+      "start": 1627.17,
+      "duration": 1.28
+    },
+    {
+      "text": "And the bytes transferred\nis this expression.",
+      "start": 1628.45,
+      "duration": 6.59
+    },
+    {
+      "text": "So now you can compute\nthe arithmetic intensity",
+      "start": 1635.04,
+      "duration": 2.6
+    },
+    {
+      "text": "which, again, is FLOPs\ndivided by bytes transferred.",
+      "start": 1637.64,
+      "duration": 4.56
+    },
+    {
+      "text": "So this is some expression.",
+      "start": 1642.2,
+      "duration": 2.2
+    },
+    {
+      "text": "We're going to assume, that\njust like before, B times T",
+      "start": 1644.4,
+      "duration": 3.04
+    },
+    {
+      "text": "is much smaller than D and\nF. And with that, then we see",
+      "start": 1647.44,
+      "duration": 6.28
+    },
+    {
+      "text": "that intensity is B times T.",
+      "start": 1653.72,
+      "duration": 5.12
+    },
+    {
+      "text": "So this is analogous to\njust the MAmmoTH case.",
+      "start": 1658.84,
+      "duration": 3.06
+    },
+    {
+      "text": "There's more matrices and\nthere's more dimensions,",
+      "start": 1661.9,
+      "duration": 2.48
+    },
+    {
+      "text": "but fundamentally\nit's the same thing.",
+      "start": 1664.38,
+      "duration": 1.845
+    },
+    {
+      "text": "And that makes sense.",
+      "start": 1666.225,
+      "duration": 0.875
+    },
+    {
+      "text": "An MLP is basically\na big MAmmoTH.",
+      "start": 1667.1,
+      "duration": 3.52
+    },
+    {
+      "text": "And it also makes sense\nbecause the batch dimension",
+      "start": 1670.62,
+      "duration": 5.14
+    },
+    {
+      "text": "and the sequence\nlength dimension are--",
+      "start": 1675.76,
+      "duration": 3.9
+    },
+    {
+      "text": "everything is independent.",
+      "start": 1679.66,
+      "duration": 2.18
+    },
+    {
+      "text": "And for the MLP,\nthey don't interact.",
+      "start": 1681.84,
+      "duration": 3.02
+    },
+    {
+      "text": "Attention is different story.",
+      "start": 1684.86,
+      "duration": 1.74
+    },
+    {
+      "text": "And so B times T. So\nas long as you have--",
+      "start": 1686.6,
+      "duration": 5.75
+    },
+    {
+      "text": "in the pre-fill, if\nyou make B times T",
+      "start": 1692.35,
+      "duration": 2.92
+    },
+    {
+      "text": "large enough-- large batches,\nlong sequences-- you'll be fine.",
+      "start": 1695.27,
+      "duration": 3.76
+    },
+    {
+      "text": "Now, let's look at generation.",
+      "start": 1699.03,
+      "duration": 1.66
+    },
+    {
+      "text": "So remember, generation,\nthere's two problems here.",
+      "start": 1700.69,
+      "duration": 3.74
+    },
+    {
+      "text": "One is that\ngeneration T equals 1.",
+      "start": 1704.43,
+      "duration": 4.5
+    },
+    {
+      "text": "You're only generating\none token at a time.",
+      "start": 1708.93,
+      "duration": 4.1
+    },
+    {
+      "text": "And so that means your\narithmetic intensity",
+      "start": 1713.03,
+      "duration": 2.68
+    },
+    {
+      "text": "is going to be B,\nbut B in generation",
+      "start": 1715.71,
+      "duration": 4.52
+    },
+    {
+      "text": "is the number of\nconcurrent requests.",
+      "start": 1720.23,
+      "duration": 3.04
+    },
+    {
+      "text": "And so if you're in a batch\nsetting, you can control that.",
+      "start": 1723.27,
+      "duration": 3.46
+    },
+    {
+      "text": "But if you're, let's\nsay, serving a chatbot,",
+      "start": 1726.73,
+      "duration": 2.237
+    },
+    {
+      "text": "it's the number of\nconcurrent requests",
+      "start": 1728.967,
+      "duration": 1.583
+    },
+    {
+      "text": "is essentially how many users,\nconcurrent users there are?",
+      "start": 1730.55,
+      "duration": 4.6
+    },
+    {
+      "text": "Which can be high.",
+      "start": 1735.15,
+      "duration": 1.02
+    },
+    {
+      "text": "It be low.",
+      "start": 1736.17,
+      "duration": 0.68
+    },
+    {
+      "text": "So it's a bit unpredictable.",
+      "start": 1736.85,
+      "duration": 1.48
+    },
+    {
+      "text": "It can be changing over time.",
+      "start": 1738.33,
+      "duration": 1.217
+    },
+    {
+      "text": "So that's something we're\ngoing to address when we",
+      "start": 1739.547,
+      "duration": 2.083
+    },
+    {
+      "text": "talk about continuous batching.",
+      "start": 1741.63,
+      "duration": 5.0
+    },
+    {
+      "text": "But overall, this is\nnot bad because as long",
+      "start": 1746.63,
+      "duration": 4.35
+    },
+    {
+      "text": "as you have large batches,\nthe sequence length",
+      "start": 1750.98,
+      "duration": 3.408
+    },
+    {
+      "text": "isn't going to really help you.",
+      "start": 1754.388,
+      "duration": 1.292
+    },
+    {
+      "text": "But if you have large\nbatches, you should be good.",
+      "start": 1755.68,
+      "duration": 3.18
+    },
+    {
+      "text": "So now let's look at\nthe attention layer.",
+      "start": 1758.86,
+      "duration": 3.6
+    },
+    {
+      "text": "So again, S is in the previous\ntokens already generated.",
+      "start": 1762.46,
+      "duration": 3.3
+    },
+    {
+      "text": "T is the number of tokens you\nwant to generate logits for.",
+      "start": 1765.76,
+      "duration": 4.14
+    },
+    {
+      "text": "So in attention, you read\nthe QKV matrices from HPM.",
+      "start": 1769.9,
+      "duration": 10.6
+    },
+    {
+      "text": "You compute the attention.",
+      "start": 1780.5,
+      "duration": 3.08
+    },
+    {
+      "text": "You compute the softmax\nwhich doesn't really matter,",
+      "start": 1783.58,
+      "duration": 3.8
+    },
+    {
+      "text": "and compute the value\nmatrix, and then you",
+      "start": 1787.38,
+      "duration": 4.44
+    },
+    {
+      "text": "write the result to HBM.",
+      "start": 1791.82,
+      "duration": 2.64
+    },
+    {
+      "text": "So the FLOPs is B times\nS times T times D,",
+      "start": 1794.46,
+      "duration": 4.56
+    },
+    {
+      "text": "and the bytes transferred\nis this expression.",
+      "start": 1799.02,
+      "duration": 5.4
+    },
+    {
+      "text": "Everything's is\na MAmmoTH, right?",
+      "start": 1804.42,
+      "duration": 3.41
+    },
+    {
+      "text": "So this should be always one\ndegree higher of a polynomial",
+      "start": 1807.83,
+      "duration": 5.82
+    },
+    {
+      "text": "than the bytes transferred\nbecause it's a MAmmoTH.",
+      "start": 1813.65,
+      "duration": 3.8
+    },
+    {
+      "text": "The only question is, what\nis that factor look like?",
+      "start": 1817.45,
+      "duration": 4.4
+    },
+    {
+      "text": "So that factor for attention\nis S times T over S plus T.",
+      "start": 1821.85,
+      "duration": 7.72
+    },
+    {
+      "text": "So let's look at the prefill.",
+      "start": 1829.57,
+      "duration": 3.6
+    },
+    {
+      "text": "So prefill, what\nthis is saying is",
+      "start": 1833.17,
+      "duration": 4.04
+    },
+    {
+      "text": "that the prefill intensity\nis S over 2 when T equals",
+      "start": 1837.21,
+      "duration": 4.76
+    },
+    {
+      "text": "S. So this is good, right?",
+      "start": 1841.97,
+      "duration": 2.3
+    },
+    {
+      "text": "Because as long as you have long\nsequence lengths for attention,",
+      "start": 1844.27,
+      "duration": 4.94
+    },
+    {
+      "text": "you're going to maintain\nhigh arithmetic intensity.",
+      "start": 1849.21,
+      "duration": 5.68
+    },
+    {
+      "text": "Notice that the batching\ndimension doesn't happen here.",
+      "start": 1854.89,
+      "duration": 3.3
+    },
+    {
+      "text": "I'll explain a bit why later.",
+      "start": 1858.19,
+      "duration": 4.14
+    },
+    {
+      "text": "But for generation,\nthis is bad news.",
+      "start": 1862.33,
+      "duration": 5.03
+    },
+    {
+      "text": "So the generated nation\nintensity is S over S plus 1,",
+      "start": 1867.36,
+      "duration": 4.84
+    },
+    {
+      "text": "and that's less than 1, or\neven let's just call it 1.",
+      "start": 1872.2,
+      "duration": 4.76
+    },
+    {
+      "text": "And aromatic intensity,\nremember 1 is bad.",
+      "start": 1876.96,
+      "duration": 2.38
+    },
+    {
+      "text": "We want it to be something\nlike 295 for H100",
+      "start": 1879.34,
+      "duration": 2.78
+    },
+    {
+      "text": "to be to saturate the compute.",
+      "start": 1882.12,
+      "duration": 2.4
+    },
+    {
+      "text": "And so this is really\nthe bottleneck.",
+      "start": 1884.52,
+      "duration": 5.34
+    },
+    {
+      "text": "So we did all this\nanalysis for MLP attention,",
+      "start": 1889.86,
+      "duration": 5.82
+    },
+    {
+      "text": "prefilled generation, and we've\nfound this to be a bottleneck.",
+      "start": 1895.68,
+      "duration": 3.96
+    },
+    {
+      "text": "So let's try to contemplate\nwhy this is a bottleneck.",
+      "start": 1899.64,
+      "duration": 6.76
+    },
+    {
+      "text": "So unlike MLPs-- so MLP is\nfor generation is actually OK",
+      "start": 1906.4,
+      "duration": 4.4
+    },
+    {
+      "text": "as long as your sequence is--",
+      "start": 1910.8,
+      "duration": 1.96
+    },
+    {
+      "text": "sorry, your batch\nis large enough.",
+      "start": 1912.76,
+      "duration": 6.32
+    },
+    {
+      "text": "So the problem with this\nML attention is that--",
+      "start": 1919.08,
+      "duration": 8.71
+    },
+    {
+      "text": "let's look at MLPs.",
+      "start": 1927.79,
+      "duration": 1.64
+    },
+    {
+      "text": "Every sequence hits\nthe same MLP weights.",
+      "start": 1929.43,
+      "duration": 5.24
+    },
+    {
+      "text": "So these don't depend on B.\nWhereas, in attention layer,",
+      "start": 1934.67,
+      "duration": 5.16
+    },
+    {
+      "text": "each sequence has\nits own KV cache.",
+      "start": 1939.83,
+      "duration": 3.56
+    },
+    {
+      "text": "So these all depend on MLP.",
+      "start": 1943.39,
+      "duration": 4.44
+    },
+    {
+      "text": "And so you can think about\nthis as what's going on here",
+      "start": 1947.83,
+      "duration": 8.4
+    },
+    {
+      "text": "is that in the MLP case,\nhaving B being big actually",
+      "start": 1956.23,
+      "duration": 6.84
+    },
+    {
+      "text": "is helpful because you get to\nload these MLP weights once.",
+      "start": 1963.07,
+      "duration": 5.44
+    },
+    {
+      "text": "And you can use it for\nall your sequences.",
+      "start": 1968.51,
+      "duration": 3.72
+    },
+    {
+      "text": "That's how you get high\narithmetic intensity",
+      "start": 1972.23,
+      "duration": 2.6
+    },
+    {
+      "text": "because you use it--",
+      "start": 1974.83,
+      "duration": 1.8
+    },
+    {
+      "text": "simplifying a bit,\nyou load it once.",
+      "start": 1976.63,
+      "duration": 1.88
+    },
+    {
+      "text": "You do all your\nbatch processing,",
+      "start": 1978.51,
+      "duration": 1.48
+    },
+    {
+      "text": "and then that is good.",
+      "start": 1979.99,
+      "duration": 2.8
+    },
+    {
+      "text": "Whereas, in attention, all these\ndepend on B. So increasing B",
+      "start": 1982.79,
+      "duration": 6.22
+    },
+    {
+      "text": "doesn't help.",
+      "start": 1989.01,
+      "duration": 0.94
+    },
+    {
+      "text": "It's like for every\nsequence, you're",
+      "start": 1989.95,
+      "duration": 2.86
+    },
+    {
+      "text": "basically doing a MAmmoTH.",
+      "start": 1992.81,
+      "duration": 2.68
+    },
+    {
+      "text": "So they're all independent.",
+      "start": 1995.49,
+      "duration": 1.94
+    },
+    {
+      "text": "So doing more MAmmoTHs\nisn't helpful.",
+      "start": 1997.43,
+      "duration": 4.46
+    },
+    {
+      "text": "Just if you remember\nin the very beginning,",
+      "start": 2001.89,
+      "duration": 2.86
+    },
+    {
+      "text": "I showed you this example.",
+      "start": 2004.75,
+      "duration": 2.5
+    },
+    {
+      "text": "This also has pretty bad\narithmetic intensity.",
+      "start": 2007.25,
+      "duration": 4.02
+    },
+    {
+      "text": "It's not a MAmmoTH\nbecause we're essentially",
+      "start": 2011.27,
+      "duration": 2.22
+    },
+    {
+      "text": "batching by a coordinate.",
+      "start": 2013.49,
+      "duration": 3.64
+    },
+    {
+      "text": "And this is essentially\nbasically the same",
+      "start": 2017.13,
+      "duration": 2.08
+    },
+    {
+      "text": "as doing a dot product,\nwhich has horrible arithmetic",
+      "start": 2019.21,
+      "duration": 4.16
+    },
+    {
+      "text": "intensity.",
+      "start": 2023.37,
+      "duration": 0.84
+    },
+    {
+      "text": "And remember, this\nis in the attention.",
+      "start": 2024.21,
+      "duration": 2.22
+    },
+    {
+      "text": "This blue B is the cause\nof why the attention is",
+      "start": 2026.43,
+      "duration": 5.78
+    },
+    {
+      "text": "arithmetic intensity\ndoesn't scale with B,",
+      "start": 2032.21,
+      "duration": 2.2
+    },
+    {
+      "text": "and why that is a bottleneck.",
+      "start": 2034.41,
+      "duration": 3.88
+    },
+    {
+      "text": "So just to summarize here.",
+      "start": 2038.29,
+      "duration": 1.88
+    },
+    {
+      "text": "So prefill is compute-bound.",
+      "start": 2040.17,
+      "duration": 2.09
+    },
+    {
+      "text": "Generation is memory-bound.",
+      "start": 2042.26,
+      "duration": 2.38
+    },
+    {
+      "text": "So if you look at the MLP\nintensity for prefill,",
+      "start": 2044.64,
+      "duration": 5.92
+    },
+    {
+      "text": "it's B times S, great.",
+      "start": 2050.56,
+      "duration": 1.92
+    },
+    {
+      "text": "Prefill for attention,\nintensity S over 2--",
+      "start": 2052.48,
+      "duration": 5.56
+    },
+    {
+      "text": "not as good, but workable.",
+      "start": 2058.04,
+      "duration": 2.36
+    },
+    {
+      "text": "Generation MLP\nintensity, also workable,",
+      "start": 2060.4,
+      "duration": 3.64
+    },
+    {
+      "text": "requires long\nconcurrent requests.",
+      "start": 2064.04,
+      "duration": 2.639
+    },
+    {
+      "text": "But it is really the\ngeneration attention",
+      "start": 2066.679,
+      "duration": 3.241
+    },
+    {
+      "text": "intensity which is a fundamental\nbottleneck, and that's it.",
+      "start": 2069.92,
+      "duration": 6.96
+    },
+    {
+      "text": "If you're sticking\nwith a transformer,",
+      "start": 2076.88,
+      "duration": 1.779
+    },
+    {
+      "text": "you can't really improve this.",
+      "start": 2078.659,
+      "duration": 4.98
+    },
+    {
+      "text": "OK.",
+      "start": 2083.639,
+      "duration": 1.241
+    },
+    {
+      "text": "Pause there for questions.",
+      "start": 2084.88,
+      "duration": 1.98
+    },
+    {
+      "text": "So now whenever you hear\npeople say, oh, inference",
+      "start": 2097.56,
+      "duration": 2.99
+    },
+    {
+      "text": "is memory bound, you know why.",
+      "start": 2100.55,
+      "duration": 2.96
+    },
+    {
+      "text": "OK.",
+      "start": 2107.07,
+      "duration": 0.68
+    },
+    {
+      "text": "So let's now use these\nintuitions and calculations",
+      "start": 2107.75,
+      "duration": 5.52
+    },
+    {
+      "text": "to think about our\ninference metrics",
+      "start": 2113.27,
+      "duration": 4.28
+    },
+    {
+      "text": "throughput and\nlatency and also TFRT.",
+      "start": 2117.55,
+      "duration": 3.68
+    },
+    {
+      "text": "All right.",
+      "start": 2121.23,
+      "duration": 0.5
+    },
+    {
+      "text": "So inference is memory bound.",
+      "start": 2121.73,
+      "duration": 2.68
+    },
+    {
+      "text": "Now the main-- I\nmean, in some ways",
+      "start": 2127.31,
+      "duration": 2.8
+    },
+    {
+      "text": "this simplifies a lot\nof things because when",
+      "start": 2130.11,
+      "duration": 2.2
+    },
+    {
+      "text": "we think about how\nlong things take,",
+      "start": 2132.31,
+      "duration": 1.84
+    },
+    {
+      "text": "you just look at how much memory\nneeds to be transferred, OK?",
+      "start": 2134.15,
+      "duration": 4.44
+    },
+    {
+      "text": "Because assuming you overlap\ncommunication and computation,",
+      "start": 2138.59,
+      "duration": 5.64
+    },
+    {
+      "text": "the bottleneck is going to\nbe just the amount of memory",
+      "start": 2144.23,
+      "duration": 3.4
+    },
+    {
+      "text": "that you have to deal with.",
+      "start": 2147.63,
+      "duration": 1.84
+    },
+    {
+      "text": "So in some ways, it's\nnice because it's simpler.",
+      "start": 2149.47,
+      "duration": 2.7
+    },
+    {
+      "text": "But in other ways,\nit's frustrating",
+      "start": 2152.17,
+      "duration": 2.54
+    },
+    {
+      "text": "that your accelerators\nare sitting there not",
+      "start": 2154.71,
+      "duration": 2.55
+    },
+    {
+      "text": "doing anything.",
+      "start": 2157.26,
+      "duration": 0.82
+    },
+    {
+      "text": "So let's walk\nthrough an example.",
+      "start": 2160.66,
+      "duration": 3.58
+    },
+    {
+      "text": "So for Llama 2.13B on an H100.",
+      "start": 2164.24,
+      "duration": 5.22
+    },
+    {
+      "text": "So what is the latency\nand the throughput?",
+      "start": 2169.46,
+      "duration": 3.04
+    },
+    {
+      "text": "So remember Llama 2.13B\nhas a particular shape.",
+      "start": 2172.5,
+      "duration": 4.46
+    },
+    {
+      "text": "So this is a sequence\nlength, the model dimension,",
+      "start": 2176.96,
+      "duration": 4.1
+    },
+    {
+      "text": "feedforward dimension, number of\nquery, number key value heads.",
+      "start": 2181.06,
+      "duration": 4.5
+    },
+    {
+      "text": "There's no GQA here.",
+      "start": 2185.56,
+      "duration": 1.2
+    },
+    {
+      "text": "So the N equals\nk, head dimension,",
+      "start": 2186.76,
+      "duration": 2.94
+    },
+    {
+      "text": "number of layers of vocab\nsize, and the memory bandwidth",
+      "start": 2189.7,
+      "duration": 4.8
+    },
+    {
+      "text": "for H100.",
+      "start": 2194.5,
+      "duration": 7.32
+    },
+    {
+      "text": "So now, using this\nconfig, let's compute",
+      "start": 2201.82,
+      "duration": 4.92
+    },
+    {
+      "text": "the transformer\nperformance statistics, OK?",
+      "start": 2206.74,
+      "duration": 4.22
+    },
+    {
+      "text": "So these are our inputs here.",
+      "start": 2210.96,
+      "duration": 4.49
+    },
+    {
+      "text": "And just the statistics\nI'm going to compute",
+      "start": 2215.45,
+      "duration": 3.48
+    },
+    {
+      "text": "are going to be number of\nparameters, the memory, usage",
+      "start": 2218.93,
+      "duration": 6.64
+    },
+    {
+      "text": "latency, and throughput.",
+      "start": 2225.57,
+      "duration": 2.24
+    },
+    {
+      "text": "So first of all,\nwhat takes memory?",
+      "start": 2227.81,
+      "duration": 8.48
+    },
+    {
+      "text": "So the parameters take memory.",
+      "start": 2236.29,
+      "duration": 2.32
+    },
+    {
+      "text": "So we compute the\nnumber of parameters.",
+      "start": 2238.61,
+      "duration": 4.56
+    },
+    {
+      "text": "And so you look at the\nembeddings, the MLP layers,",
+      "start": 2243.17,
+      "duration": 6.76
+    },
+    {
+      "text": "the projections of the KQV.",
+      "start": 2249.93,
+      "duration": 4.08
+    },
+    {
+      "text": "At the end of the day, you\nget some number of parameters.",
+      "start": 2254.01,
+      "duration": 5.44
+    },
+    {
+      "text": "Assuming that we're doing\na bf16, which is always",
+      "start": 2259.45,
+      "duration": 4.92
+    },
+    {
+      "text": "the case for inference,\nthen parameters",
+      "start": 2264.37,
+      "duration": 2.12
+    },
+    {
+      "text": "take up this many bytes.",
+      "start": 2266.49,
+      "duration": 2.84
+    },
+    {
+      "text": "Also in memory is the KV cache.",
+      "start": 2269.33,
+      "duration": 3.95
+    },
+    {
+      "text": "And the KV cache is the number\nof tokens in your sequence",
+      "start": 2273.28,
+      "duration": 5.52
+    },
+    {
+      "text": "times the number of heads and\nthe KV heads times the head",
+      "start": 2278.8,
+      "duration": 8.4
+    },
+    {
+      "text": "dimension times the\nnumber of layers.",
+      "start": 2287.2,
+      "duration": 2.0
+    },
+    {
+      "text": "You have one for the key\nand one for the value,",
+      "start": 2289.2,
+      "duration": 3.58
+    },
+    {
+      "text": "and then you have\nmultiple two for bf16.",
+      "start": 2292.78,
+      "duration": 3.8
+    },
+    {
+      "text": "So that's the size\nof the KV cache.",
+      "start": 2296.58,
+      "duration": 2.38
+    },
+    {
+      "text": "And the total memory usage is--",
+      "start": 2298.96,
+      "duration": 2.76
+    },
+    {
+      "text": "this is for each sequence\nyou have B sequences.",
+      "start": 2301.72,
+      "duration": 3.02
+    },
+    {
+      "text": "So that's B times that\nplus the parameter size.",
+      "start": 2304.74,
+      "duration": 3.38
+    },
+    {
+      "text": "And that's the amount\nof memory you need.",
+      "start": 2308.12,
+      "duration": 3.88
+    },
+    {
+      "text": "And now, what's the latency?",
+      "start": 2312.0,
+      "duration": 2.3
+    },
+    {
+      "text": "The latency is determined\nby the memory I/O, OK?",
+      "start": 2314.3,
+      "duration": 7.22
+    },
+    {
+      "text": "Because inference is\nmemory-bound, most assuming you",
+      "start": 2321.52,
+      "duration": 4.64
+    },
+    {
+      "text": "overlap communication\nand compute.",
+      "start": 2326.16,
+      "duration": 3.56
+    },
+    {
+      "text": "All the memory, it's going to\nbe on shuffling parameters back",
+      "start": 2329.72,
+      "duration": 6.79
+    },
+    {
+      "text": "and forth between HPM and SRAM.",
+      "start": 2336.51,
+      "duration": 5.16
+    },
+    {
+      "text": "So that's how long it takes\nto move memory around.",
+      "start": 2341.67,
+      "duration": 5.2
+    },
+    {
+      "text": "Throughput is the\ninverse of latency,",
+      "start": 2346.87,
+      "duration": 2.82
+    },
+    {
+      "text": "but we're generating\nB tokens in parallel.",
+      "start": 2349.69,
+      "duration": 2.52
+    },
+    {
+      "text": "So this is tokens per second.",
+      "start": 2352.21,
+      "duration": 3.96
+    },
+    {
+      "text": "This is seconds per token.",
+      "start": 2356.17,
+      "duration": 1.12
+    },
+    {
+      "text": "This is tokens per\nsecond, as well as",
+      "start": 2357.29,
+      "duration": 2.54
+    },
+    {
+      "text": "having an additional B because\nyou're processing a batch of B.",
+      "start": 2359.83,
+      "duration": 7.46
+    },
+    {
+      "text": "So now, let's compute\nfor this config what",
+      "start": 2367.29,
+      "duration": 4.58
+    },
+    {
+      "text": "are these actual values?",
+      "start": 2371.87,
+      "duration": 1.72
+    },
+    {
+      "text": "So num parameters is 13 billion.",
+      "start": 2373.59,
+      "duration": 5.8
+    },
+    {
+      "text": "So a good sanity check-- that\nis advertised as a 13 billion",
+      "start": 2379.39,
+      "duration": 3.12
+    },
+    {
+      "text": "parameter model.",
+      "start": 2382.51,
+      "duration": 1.88
+    },
+    {
+      "text": "Memory is this term, which\nis about 838 million times B.",
+      "start": 2384.39,
+      "duration": 8.7
+    },
+    {
+      "text": "So it's basically\na linear function",
+      "start": 2393.09,
+      "duration": 2.56
+    },
+    {
+      "text": "of B plus some other term.",
+      "start": 2395.65,
+      "duration": 2.86
+    },
+    {
+      "text": "So this is a KV\ncache which grows",
+      "start": 2398.51,
+      "duration": 2.06
+    },
+    {
+      "text": "as B. This is the\nparameters, which",
+      "start": 2400.57,
+      "duration": 2.36
+    },
+    {
+      "text": "is double the number of params.",
+      "start": 2402.93,
+      "duration": 3.44
+    },
+    {
+      "text": "Now, latency is just this\nscale by the memory bandwidth,",
+      "start": 2406.37,
+      "duration": 4.26
+    },
+    {
+      "text": "so it has the same\nform as the memory.",
+      "start": 2410.63,
+      "duration": 4.42
+    },
+    {
+      "text": "And throughput is B over that.",
+      "start": 2415.05,
+      "duration": 2.38
+    },
+    {
+      "text": "So notice that latency,\nas you increase B,",
+      "start": 2420.85,
+      "duration": 3.76
+    },
+    {
+      "text": "grows because the\nKV cache grows.",
+      "start": 2424.61,
+      "duration": 4.02
+    },
+    {
+      "text": "And in order to\nprocess stuff, you",
+      "start": 2428.63,
+      "duration": 1.46
+    },
+    {
+      "text": "have to copy the KV\ncache back and forth.",
+      "start": 2430.09,
+      "duration": 3.36
+    },
+    {
+      "text": "And now, throughput\nis more interesting",
+      "start": 2433.45,
+      "duration": 2.48
+    },
+    {
+      "text": "because, as you\nincrease B, throughput",
+      "start": 2435.93,
+      "duration": 3.32
+    },
+    {
+      "text": "does improve but up to a limit.",
+      "start": 2439.25,
+      "duration": 6.0
+    },
+    {
+      "text": "Throughput improves\nbecause now you're",
+      "start": 2445.25,
+      "duration": 2.28
+    },
+    {
+      "text": "amortizing the cost\nover a larger batch.",
+      "start": 2447.53,
+      "duration": 3.23
+    },
+    {
+      "text": "But also, the speed at which\nyou're processing this obviously",
+      "start": 2450.76,
+      "duration": 3.52
+    },
+    {
+      "text": "is also increasing over time.",
+      "start": 2454.28,
+      "duration": 4.2
+    },
+    {
+      "text": "So this asymptotes.",
+      "start": 2458.48,
+      "duration": 2.24
+    },
+    {
+      "text": "It's not going to--",
+      "start": 2460.72,
+      "duration": 0.88
+    },
+    {
+      "text": "throughput can't\npossibly go to infinity.",
+      "start": 2461.6,
+      "duration": 2.38
+    },
+    {
+      "text": "Any questions about this so far?",
+      "start": 2466.6,
+      "duration": 4.22
+    },
+    {
+      "text": "So basically, you\njust have to remember",
+      "start": 2474.36,
+      "duration": 2.36
+    },
+    {
+      "text": "latency is a linear function in\nB. This is where the constant is",
+      "start": 2476.72,
+      "duration": 4.6
+    },
+    {
+      "text": "the size of KV\ncache, and then this",
+      "start": 2481.32,
+      "duration": 1.56
+    },
+    {
+      "text": "is the number of parameters.",
+      "start": 2482.88,
+      "duration": 1.28
+    },
+    {
+      "text": "And then throughput is some\nproportional to B over B",
+      "start": 2484.16,
+      "duration": 6.56
+    },
+    {
+      "text": "plus something.",
+      "start": 2490.72,
+      "duration": 1.1
+    },
+    {
+      "text": "So now, let's instantiate this\nfor a bunch of situations, OK?",
+      "start": 2495.04,
+      "duration": 5.1
+    },
+    {
+      "text": "So if you have batch size 1,\nso this is what you would get.",
+      "start": 2500.14,
+      "duration": 6.14
+    },
+    {
+      "text": "You get a latency of\n0.008 seconds per token.",
+      "start": 2506.28,
+      "duration": 9.19
+    },
+    {
+      "text": "And the throughput is\n124 tokens per second.",
+      "start": 2515.47,
+      "duration": 3.64
+    },
+    {
+      "text": "So what happens if you\nincrease the batch size,",
+      "start": 2519.11,
+      "duration": 2.96
+    },
+    {
+      "text": "you'll see that the\nlatency goes up,",
+      "start": 2522.07,
+      "duration": 5.4
+    },
+    {
+      "text": "but the throughput also goes up.",
+      "start": 2527.47,
+      "duration": 1.86
+    },
+    {
+      "text": "So latency gets worse, but\nthe throughput improves.",
+      "start": 2529.33,
+      "duration": 3.74
+    },
+    {
+      "text": "So this is an interesting thing\nbecause we think about, oh, we",
+      "start": 2533.07,
+      "duration": 3.64
+    },
+    {
+      "text": "just want to make it go fast.",
+      "start": 2536.71,
+      "duration": 1.66
+    },
+    {
+      "text": "But fast actually\nhas two meanings",
+      "start": 2538.37,
+      "duration": 1.54
+    },
+    {
+      "text": "here, which actually, depending\non which one you care about,",
+      "start": 2539.91,
+      "duration": 2.96
+    },
+    {
+      "text": "is completely opposite.",
+      "start": 2542.87,
+      "duration": 1.74
+    },
+    {
+      "text": "If you want to tune\nyour batch size,",
+      "start": 2544.61,
+      "duration": 2.5
+    },
+    {
+      "text": "that's going to really\ndetermine if you",
+      "start": 2547.11,
+      "duration": 3.56
+    },
+    {
+      "text": "want latency or throughput.",
+      "start": 2550.67,
+      "duration": 2.96
+    },
+    {
+      "text": "And what happens if you\nincrease-- let's say, increase--",
+      "start": 2553.63,
+      "duration": 3.08
+    },
+    {
+      "text": "we really want high\nthroughput because we're",
+      "start": 2556.71,
+      "duration": 2.08
+    },
+    {
+      "text": "processing lots of documents.",
+      "start": 2558.79,
+      "duration": 1.62
+    },
+    {
+      "text": "Let's increase the batch\nsize even more, OK?",
+      "start": 2560.41,
+      "duration": 2.56
+    },
+    {
+      "text": "So the latency gets even worse.",
+      "start": 2562.97,
+      "duration": 2.65
+    },
+    {
+      "text": "I mean, yeah, it gets worse.",
+      "start": 2565.62,
+      "duration": 1.76
+    },
+    {
+      "text": "Throughput gets even better.",
+      "start": 2567.38,
+      "duration": 2.2
+    },
+    {
+      "text": "But the main problem here is\nthat your memory, you run out",
+      "start": 2569.58,
+      "duration": 4.32
+    },
+    {
+      "text": "of memory because the memory,\nfor storing this KV cache,",
+      "start": 2573.9,
+      "duration": 5.76
+    },
+    {
+      "text": "is going to exceed\nyour H100 memory.",
+      "start": 2579.66,
+      "duration": 4.16
+    },
+    {
+      "text": "And if you have B200s, you can\nincrease the batch size more,",
+      "start": 2583.82,
+      "duration": 2.62
+    },
+    {
+      "text": "but eventually you\nhit some of limit.",
+      "start": 2586.44,
+      "duration": 2.74
+    },
+    {
+      "text": "So there's limitations\nto how much",
+      "start": 2589.18,
+      "duration": 2.6
+    },
+    {
+      "text": "you can increase\nyour throughput.",
+      "start": 2591.78,
+      "duration": 1.54
+    },
+    {
+      "text": "You'll never get\nto the asymptote",
+      "start": 2593.32,
+      "duration": 2.66
+    },
+    {
+      "text": "because you'll hit the memory.",
+      "start": 2595.98,
+      "duration": 4.72
+    },
+    {
+      "text": "And also, your\nthroughput is getting--",
+      "start": 2600.7,
+      "duration": 4.24
+    },
+    {
+      "text": "your gains are kind of\ndiminishing as well.",
+      "start": 2604.94,
+      "duration": 2.46
+    },
+    {
+      "text": "So increasing batch\nsize worsens the latency",
+      "start": 2610.78,
+      "duration": 4.0
+    },
+    {
+      "text": "because now you have a larger\nKV cache to read and write.",
+      "start": 2614.78,
+      "duration": 5.48
+    },
+    {
+      "text": "And remember, it's batched.",
+      "start": 2620.26,
+      "duration": 1.72
+    },
+    {
+      "text": "So if you're an\nindividual query,",
+      "start": 2621.98,
+      "duration": 1.77
+    },
+    {
+      "text": "you have to wait for\neveryone to finish.",
+      "start": 2623.75,
+      "duration": 1.74
+    },
+    {
+      "text": "So you have to basically--\nyou're waiting for a bus,",
+      "start": 2625.49,
+      "duration": 3.16
+    },
+    {
+      "text": "and the latency is pretty high.",
+      "start": 2628.65,
+      "duration": 2.4
+    },
+    {
+      "text": "You wait and then you go.",
+      "start": 2631.05,
+      "duration": 3.12
+    },
+    {
+      "text": "Whereas, the throughput\nof a bus is pretty good",
+      "start": 2634.17,
+      "duration": 2.04
+    },
+    {
+      "text": "because you can move\neveryone at once.",
+      "start": 2636.21,
+      "duration": 3.72
+    },
+    {
+      "text": "So the throughput improves\nas batch size increases",
+      "start": 2639.93,
+      "duration": 4.26
+    },
+    {
+      "text": "because, remember, the\nparameters are shared,",
+      "start": 2644.19,
+      "duration": 4.0
+    },
+    {
+      "text": "and you load that\nonce into memory.",
+      "start": 2648.19,
+      "duration": 3.88
+    },
+    {
+      "text": "And you can process\na lot of sequences.",
+      "start": 2652.07,
+      "duration": 2.56
+    },
+    {
+      "text": "So trade-off between\nlatency and throughput,",
+      "start": 2657.33,
+      "duration": 2.96
+    },
+    {
+      "text": "just to make sure everyone's\naligned-- smaller batch sizes",
+      "start": 2660.29,
+      "duration": 2.92
+    },
+    {
+      "text": "use better latency\nbut worse throughput.",
+      "start": 2663.21,
+      "duration": 2.22
+    },
+    {
+      "text": "Large batch sizes yield better\nthroughput but worse latency.",
+      "start": 2665.43,
+      "duration": 4.34
+    },
+    {
+      "text": "OK.",
+      "start": 2669.77,
+      "duration": 1.2
+    },
+    {
+      "text": "I'm not going to really talk\nabout parallelism too much.",
+      "start": 2670.97,
+      "duration": 2.66
+    },
+    {
+      "text": "There's also another\ndimension of inference,",
+      "start": 2673.63,
+      "duration": 1.88
+    },
+    {
+      "text": "which is you can\nshard your model",
+      "start": 2675.51,
+      "duration": 4.02
+    },
+    {
+      "text": "across multiple all devices.",
+      "start": 2679.53,
+      "duration": 3.47
+    },
+    {
+      "text": "You can look at the scaling\nbook chapter on inference",
+      "start": 2683.0,
+      "duration": 2.44
+    },
+    {
+      "text": "if you want to know more.",
+      "start": 2685.44,
+      "duration": 2.16
+    },
+    {
+      "text": "Just as a very trivial\nexample, if you",
+      "start": 2687.6,
+      "duration": 3.08
+    },
+    {
+      "text": "launch M copies of the model,\nthe latency is the same,",
+      "start": 2690.68,
+      "duration": 3.08
+    },
+    {
+      "text": "and the throughput\nincreases by M.",
+      "start": 2693.76,
+      "duration": 5.0
+    },
+    {
+      "text": "And then the other metric\nwe didn't talk about",
+      "start": 2698.76,
+      "duration": 2.24
+    },
+    {
+      "text": "is time to first token.",
+      "start": 2701.0,
+      "duration": 1.88
+    },
+    {
+      "text": "And this is\nessentially the time it",
+      "start": 2702.88,
+      "duration": 1.88
+    },
+    {
+      "text": "takes to do prefill because\nafter you finish prefill,",
+      "start": 2704.76,
+      "duration": 3.08
+    },
+    {
+      "text": "then you can basically\nstart generating.",
+      "start": 2707.84,
+      "duration": 4.0
+    },
+    {
+      "text": "So if you want to fast--",
+      "start": 2711.84,
+      "duration": 8.84
+    },
+    {
+      "text": "if you want faster TTFT, you\nshould use smaller batch sizes,",
+      "start": 2720.68,
+      "duration": 5.68
+    },
+    {
+      "text": "and you want larger batch\nsizes to improve throughput.",
+      "start": 2726.36,
+      "duration": 4.2
+    },
+    {
+      "text": "So hopefully, that is clear.",
+      "start": 2730.56,
+      "duration": 4.26
+    },
+    {
+      "text": "Any questions about\nthroughput and latency",
+      "start": 2734.82,
+      "duration": 2.5
+    },
+    {
+      "text": "and how their intention\nwith each other?",
+      "start": 2737.32,
+      "duration": 2.1
+    },
+    {
+      "text": "OK.",
+      "start": 2747.83,
+      "duration": 0.8
+    },
+    {
+      "text": "So now that we have a conceptual\nframework for thinking",
+      "start": 2748.63,
+      "duration": 2.88
+    },
+    {
+      "text": "about how efficient inference is\nin terms of arithmetic intensity",
+      "start": 2751.51,
+      "duration": 6.32
+    },
+    {
+      "text": "and throughput and latency, now\nlet's try to make it faster.",
+      "start": 2757.83,
+      "duration": 5.98
+    },
+    {
+      "text": "How do we make inference faster?",
+      "start": 2763.81,
+      "duration": 1.4
+    },
+    {
+      "text": "There's a bunch of\ndifferent techniques which",
+      "start": 2765.21,
+      "duration": 2.62
+    },
+    {
+      "text": "are quite varied, ranging from\nchanging the model architecture",
+      "start": 2767.83,
+      "duration": 3.32
+    },
+    {
+      "text": "to doing systems optimization\nand everything in between.",
+      "start": 2771.15,
+      "duration": 2.54
+    },
+    {
+      "text": "So inference in some sense is a\nfairly rich cross-cutting topic.",
+      "start": 2773.69,
+      "duration": 6.66
+    },
+    {
+      "text": "So the most maybe now in\nhindsight obvious thing",
+      "start": 2780.35,
+      "duration": 7.2
+    },
+    {
+      "text": "you can think about is\nhopefully beat it into your head",
+      "start": 2787.55,
+      "duration": 3.88
+    },
+    {
+      "text": "that memory is the\nbottleneck for inference,",
+      "start": 2791.43,
+      "duration": 4.2
+    },
+    {
+      "text": "and the KV cache takes\nup a lot of memory.",
+      "start": 2795.63,
+      "duration": 3.42
+    },
+    {
+      "text": "And it could even be larger\nthan the number of parameters",
+      "start": 2799.05,
+      "duration": 3.36
+    },
+    {
+      "text": "if for a large\nenough batch size.",
+      "start": 2802.41,
+      "duration": 1.92
+    },
+    {
+      "text": "So let's just try to reduce\nthe size of the KV cache.",
+      "start": 2804.33,
+      "duration": 4.12
+    },
+    {
+      "text": "Now, you have to be careful\nabout how you do this",
+      "start": 2808.45,
+      "duration": 2.36
+    },
+    {
+      "text": "because you want to make\nsure you don't lose too",
+      "start": 2810.81,
+      "duration": 2.0
+    },
+    {
+      "text": "much accuracy in the process.",
+      "start": 2812.81,
+      "duration": 3.24
+    },
+    {
+      "text": "So here is one thing you can do,\nwhich we already talked about,",
+      "start": 2816.05,
+      "duration": 4.7
+    },
+    {
+      "text": "which is grouped\nquery attention.",
+      "start": 2820.75,
+      "duration": 2.7
+    },
+    {
+      "text": "And just as a reminder here,\nso multi-headed attention--",
+      "start": 2823.45,
+      "duration": 6.04
+    },
+    {
+      "text": "basically for every\ntoken, you have",
+      "start": 2829.49,
+      "duration": 1.76
+    },
+    {
+      "text": "a key and a value and a query.",
+      "start": 2831.25,
+      "duration": 2.6
+    },
+    {
+      "text": "And if you do grouped\nquery attention,",
+      "start": 2833.85,
+      "duration": 3.08
+    },
+    {
+      "text": "you basically compute the\nsame number of queries,",
+      "start": 2836.93,
+      "duration": 3.68
+    },
+    {
+      "text": "but you have only a\nsmaller number of groups,",
+      "start": 2840.61,
+      "duration": 3.96
+    },
+    {
+      "text": "and you compute key and\nvalue for each group.",
+      "start": 2844.57,
+      "duration": 4.36
+    },
+    {
+      "text": "So K is the number\nof groups here.",
+      "start": 2848.93,
+      "duration": 7.75
+    },
+    {
+      "text": "And so in the multi-headed\nattention, K is N, no reduction.",
+      "start": 2856.68,
+      "duration": 4.88
+    },
+    {
+      "text": "There's something called multi\nquery attention, which no one",
+      "start": 2861.56,
+      "duration": 2.64
+    },
+    {
+      "text": "uses because it's really bad.",
+      "start": 2864.2,
+      "duration": 1.92
+    },
+    {
+      "text": "K equals 1.",
+      "start": 2866.12,
+      "duration": 1.32
+    },
+    {
+      "text": "And somewhere in\nbetween is hopefully",
+      "start": 2867.44,
+      "duration": 2.84
+    },
+    {
+      "text": "where we'll find a balance\nbetween accuracy and speed.",
+      "start": 2870.28,
+      "duration": 4.64
+    },
+    {
+      "text": "So this is the paper that\nintroduces GQA from 2023.",
+      "start": 2874.92,
+      "duration": 4.8
+    },
+    {
+      "text": "And they show that if you\nlook at time per sample, which",
+      "start": 2879.72,
+      "duration": 5.88
+    },
+    {
+      "text": "is related to both\nlatency and throughput,",
+      "start": 2885.6,
+      "duration": 4.32
+    },
+    {
+      "text": "you see that the MHA--\nso Multi-Head Attention.",
+      "start": 2889.92,
+      "duration": 5.56
+    },
+    {
+      "text": "Full attention has\nthis high time.",
+      "start": 2895.48,
+      "duration": 4.6
+    },
+    {
+      "text": "Whereas, if you start K\nequals 1, it's much faster.",
+      "start": 2900.08,
+      "duration": 4.8
+    },
+    {
+      "text": "And then you can actually\nkeep on increasing the K to K",
+      "start": 2904.88,
+      "duration": 4.238
+    },
+    {
+      "text": "equals 8, and it's\nstill pretty good.",
+      "start": 2909.118,
+      "duration": 1.542
+    },
+    {
+      "text": "And eventually, your\ntime goes up quite a bit.",
+      "start": 2910.66,
+      "duration": 6.25
+    },
+    {
+      "text": "OK.",
+      "start": 2916.91,
+      "duration": 2.92
+    },
+    {
+      "text": "So why does GQA improve\nlatency and throughput?",
+      "start": 2919.83,
+      "duration": 4.12
+    },
+    {
+      "text": "Well, it reduces the KV cache by\na factor of N over K. And just",
+      "start": 2923.95,
+      "duration": 9.24
+    },
+    {
+      "text": "as a friendly reminder, reducing\nmemory usage leads to speed up",
+      "start": 2933.19,
+      "duration": 5.0
+    },
+    {
+      "text": "because we're memory-bound.",
+      "start": 2938.19,
+      "duration": 2.08
+    },
+    {
+      "text": "So let's revisit our\nfriendly Llama model here.",
+      "start": 2940.27,
+      "duration": 6.497
+    },
+    {
+      "text": "Remember in the\ninitial configuration,",
+      "start": 2946.767,
+      "duration": 1.583
+    },
+    {
+      "text": "we're just using K\nequals N. So there's",
+      "start": 2948.35,
+      "duration": 2.88
+    },
+    {
+      "text": "no multi-headed-- there's\nmulti-head attention,",
+      "start": 2951.23,
+      "duration": 3.88
+    },
+    {
+      "text": "no reduction in the\nnumber key and values.",
+      "start": 2955.11,
+      "duration": 4.0
+    },
+    {
+      "text": "And so for this one, remember\nusing a batch size of 64,",
+      "start": 2959.11,
+      "duration": 5.92
+    },
+    {
+      "text": "we get this throughput\nand latency.",
+      "start": 2965.03,
+      "duration": 2.48
+    },
+    {
+      "text": "Now if you do GQA, we're\ngoing to put in, let's say,",
+      "start": 2967.51,
+      "duration": 4.86
+    },
+    {
+      "text": "a kind of a sparsity\nof 1 one five.",
+      "start": 2972.37,
+      "duration": 3.89
+    },
+    {
+      "text": "That reduces the\nmemory quite a bit,",
+      "start": 2976.26,
+      "duration": 8.32
+    },
+    {
+      "text": "which, in turn,\nimproves the latency",
+      "start": 2984.58,
+      "duration": 2.48
+    },
+    {
+      "text": "and also improves\nthe throughput.",
+      "start": 2987.06,
+      "duration": 2.68
+    },
+    {
+      "text": "So it's not that latency and\nthroughput are always at odds.",
+      "start": 2989.74,
+      "duration": 3.04
+    },
+    {
+      "text": "If you reduce the amount of\nmemory, then it improves both.",
+      "start": 2992.78,
+      "duration": 3.76
+    },
+    {
+      "text": "It's mainly the batch\ndimension that allows.",
+      "start": 2996.54,
+      "duration": 2.88
+    },
+    {
+      "text": "That is the point of tension.",
+      "start": 2999.42,
+      "duration": 2.38
+    },
+    {
+      "text": "OK.",
+      "start": 3001.8,
+      "duration": 0.5
+    },
+    {
+      "text": "So this is great.",
+      "start": 3002.3,
+      "duration": 3.92
+    },
+    {
+      "text": "And let's actually just increase\nthe batch size even more",
+      "start": 3006.22,
+      "duration": 7.32
+    },
+    {
+      "text": "and see what happens.",
+      "start": 3013.54,
+      "duration": 2.32
+    },
+    {
+      "text": "So before, if we had\na batch size of 256,",
+      "start": 3015.86,
+      "duration": 4.92
+    },
+    {
+      "text": "we ran out of memory.",
+      "start": 3020.78,
+      "duration": 1.46
+    },
+    {
+      "text": "But now, it fits in memory.",
+      "start": 3022.24,
+      "duration": 2.1
+    },
+    {
+      "text": "And we see that, the latency\nsuffers a bit because we're",
+      "start": 3024.34,
+      "duration": 8.35
+    },
+    {
+      "text": "increasing the batch\nsize, but the throughput",
+      "start": 3032.69,
+      "duration": 3.88
+    },
+    {
+      "text": "goes up proportionally.",
+      "start": 3036.57,
+      "duration": 4.2
+    },
+    {
+      "text": "So sometimes you play with\nthese parameters jointly.",
+      "start": 3040.77,
+      "duration": 4.54
+    },
+    {
+      "text": "You can reduce the\nKV cache, but that",
+      "start": 3045.31,
+      "duration": 1.78
+    },
+    {
+      "text": "allows you to increase\nthe batch size",
+      "start": 3047.09,
+      "duration": 1.76
+    },
+    {
+      "text": "and allow making\nother trade-offs.",
+      "start": 3048.85,
+      "duration": 3.96
+    },
+    {
+      "text": "So the final thing you\nhave to do whenever",
+      "start": 3052.81,
+      "duration": 2.2
+    },
+    {
+      "text": "you do some lossy\nchange is that you make",
+      "start": 3055.01,
+      "duration": 3.12
+    },
+    {
+      "text": "sure the accuracy doesn't drop.",
+      "start": 3058.13,
+      "duration": 1.84
+    },
+    {
+      "text": "And this paper shows that for\na GQA, the time is better.",
+      "start": 3059.97,
+      "duration": 8.5
+    },
+    {
+      "text": "But across a bunch of evals,\nbasically it works well.",
+      "start": 3068.47,
+      "duration": 6.38
+    },
+    {
+      "text": "So now with these\naccuracy values,",
+      "start": 3074.85,
+      "duration": 1.688
+    },
+    {
+      "text": "I think you always have to\ntake it with a grain of salt",
+      "start": 3076.538,
+      "duration": 2.292
+    },
+    {
+      "text": "because this is for\na particular model.",
+      "start": 3078.83,
+      "duration": 1.96
+    },
+    {
+      "text": "Later, the deep sea paper should\nshow that it actually does hurt.",
+      "start": 3080.79,
+      "duration": 3.6
+    },
+    {
+      "text": "So I guess, take\neverything that's",
+      "start": 3084.39,
+      "duration": 4.14
+    },
+    {
+      "text": "not just math with a\ngrain of salt here.",
+      "start": 3088.53,
+      "duration": 4.23
+    },
+    {
+      "text": "OK.",
+      "start": 3092.76,
+      "duration": 0.5
+    },
+    {
+      "text": "So speaking of DeepSeek,\nhere's another idea",
+      "start": 3093.26,
+      "duration": 3.06
+    },
+    {
+      "text": "to reduce the KV cache.",
+      "start": 3096.32,
+      "duration": 3.56
+    },
+    {
+      "text": "So the theme is reduce the KV\ncache and latency and throughput",
+      "start": 3099.88,
+      "duration": 3.84
+    },
+    {
+      "text": "improve.",
+      "start": 3103.72,
+      "duration": 2.04
+    },
+    {
+      "text": "So this is\nmulti-headed attention,",
+      "start": 3105.76,
+      "duration": 3.52
+    },
+    {
+      "text": "same number of queries and keys\nand values for every token.",
+      "start": 3109.28,
+      "duration": 5.04
+    },
+    {
+      "text": "And GQA, remember, we have\nreduced the number of keys",
+      "start": 3114.32,
+      "duration": 4.28
+    },
+    {
+      "text": "and values for every token.",
+      "start": 3118.6,
+      "duration": 2.88
+    },
+    {
+      "text": "Sorry, not for every token.",
+      "start": 3121.48,
+      "duration": 1.14
+    },
+    {
+      "text": "We basically have reduced the\nnumber of values and keys.",
+      "start": 3122.62,
+      "duration": 4.66
+    },
+    {
+      "text": "And now, the multi-latent\nattention for DeepSeek",
+      "start": 3127.28,
+      "duration": 4.16
+    },
+    {
+      "text": "says we're actually going\nto leave the number of keys",
+      "start": 3131.44,
+      "duration": 4.52
+    },
+    {
+      "text": "and values the same one for\nevery token essentially.",
+      "start": 3135.96,
+      "duration": 5.188
+    },
+    {
+      "text": "But I'm going to parameterize--",
+      "start": 3141.148,
+      "duration": 1.292
+    },
+    {
+      "text": "I'm going to compress these.",
+      "start": 3142.44,
+      "duration": 2.04
+    },
+    {
+      "text": "So normally, you have some--",
+      "start": 3144.48,
+      "duration": 3.51
+    },
+    {
+      "text": "how do you compute\nyour keys and values?",
+      "start": 3147.99,
+      "duration": 1.7
+    },
+    {
+      "text": "You have your activations,\nand you multiply them",
+      "start": 3149.69,
+      "duration": 3.34
+    },
+    {
+      "text": "by some matrix to get K and\nsome other matrix to get V.",
+      "start": 3153.03,
+      "duration": 2.84
+    },
+    {
+      "text": "And these are generally N times\nH dimensions, like your model",
+      "start": 3155.87,
+      "duration": 4.36
+    },
+    {
+      "text": "dim, which is big.",
+      "start": 3160.23,
+      "duration": 3.08
+    },
+    {
+      "text": "So MLA says I'm going\nto actually project",
+      "start": 3163.31,
+      "duration": 3.6
+    },
+    {
+      "text": "these activations down\ninto C dimensions.",
+      "start": 3166.91,
+      "duration": 3.6
+    },
+    {
+      "text": "So DeepSeek-V2 reduced\nit from 16,000 to 512,",
+      "start": 3170.51,
+      "duration": 4.54
+    },
+    {
+      "text": "so this is quite aggressive\ncompression here.",
+      "start": 3175.05,
+      "duration": 2.58
+    },
+    {
+      "text": "And then I'm going to\ncompute the k and the V",
+      "start": 3177.63,
+      "duration": 3.2
+    },
+    {
+      "text": "from this compressed\nrepresentation.",
+      "start": 3180.83,
+      "duration": 3.68
+    },
+    {
+      "text": "So now, I can just store\nC. This is much smaller.",
+      "start": 3184.51,
+      "duration": 3.48
+    },
+    {
+      "text": "And then when I need\nmy keys and values,",
+      "start": 3187.99,
+      "duration": 1.8
+    },
+    {
+      "text": "I can just materialize them.",
+      "start": 3189.79,
+      "duration": 2.06
+    },
+    {
+      "text": "So there is one\nwrinkle here, which",
+      "start": 3194.39,
+      "duration": 1.68
+    },
+    {
+      "text": "is that MLA is not\ncompatible with rope,",
+      "start": 3196.07,
+      "duration": 3.0
+    },
+    {
+      "text": "which operates directly\non the keys and values.",
+      "start": 3199.07,
+      "duration": 3.04
+    },
+    {
+      "text": "So what they do is add\nadditional dimensions",
+      "start": 3202.11,
+      "duration": 3.43
+    },
+    {
+      "text": "for handling the rope.",
+      "start": 3205.54,
+      "duration": 5.4
+    },
+    {
+      "text": "But more or less, it's still\na pretty big reduction.",
+      "start": 3210.94,
+      "duration": 5.16
+    },
+    {
+      "text": "So the latency and\nthroughput improvements",
+      "start": 3216.1,
+      "duration": 3.08
+    },
+    {
+      "text": "follow by just simple math.",
+      "start": 3219.18,
+      "duration": 3.02
+    },
+    {
+      "text": "The smaller the KV\ncache, the faster you go.",
+      "start": 3222.2,
+      "duration": 5.74
+    },
+    {
+      "text": "It's almost kind of linear\nscaling up until at some point.",
+      "start": 3227.94,
+      "duration": 4.48
+    },
+    {
+      "text": "And then, remember,\nyou need to check",
+      "start": 3232.42,
+      "duration": 1.6
+    },
+    {
+      "text": "whether your model is accurate.",
+      "start": 3234.02,
+      "duration": 2.88
+    },
+    {
+      "text": "So first of all,\nthis is the result",
+      "start": 3236.9,
+      "duration": 3.56
+    },
+    {
+      "text": "that kind of contradicts or is\nin tension with the GQA paper.",
+      "start": 3240.46,
+      "duration": 6.6
+    },
+    {
+      "text": "They show that GQA\nactually isn't that great.",
+      "start": 3247.06,
+      "duration": 3.98
+    },
+    {
+      "text": "So this is MHA.",
+      "start": 3257.68,
+      "duration": 1.1
+    },
+    {
+      "text": "This is GQA.",
+      "start": 3258.78,
+      "duration": 0.86
+    },
+    {
+      "text": "These numbers are smaller\nthan these numbers.",
+      "start": 3259.64,
+      "duration": 3.5
+    },
+    {
+      "text": "But they show that their method,\nMLA, Multi-Latent Attention",
+      "start": 3263.14,
+      "duration": 6.5
+    },
+    {
+      "text": "works even a little\nbit better than MHA.",
+      "start": 3269.64,
+      "duration": 3.1
+    },
+    {
+      "text": "But let's just say\nit's about the same.",
+      "start": 3272.74,
+      "duration": 3.08
+    },
+    {
+      "text": "So this column and this\ncolumn are much better than--",
+      "start": 3275.82,
+      "duration": 3.54
+    },
+    {
+      "text": "I guess there's no\nGQA on this table.",
+      "start": 3279.36,
+      "duration": 2.22
+    },
+    {
+      "text": "You have to compare over here.",
+      "start": 3281.58,
+      "duration": 2.16
+    },
+    {
+      "text": "So I'll show you an-- yeah.",
+      "start": 3287.08,
+      "duration": 3.52
+    },
+    {
+      "text": "How does this compare\nto reducing the number",
+      "start": 3290.6,
+      "duration": 3.56
+    },
+    {
+      "text": "of dimensions, the model?",
+      "start": 3294.16,
+      "duration": 2.385
+    },
+    {
+      "text": "So the question\nis, how does this",
+      "start": 3296.545,
+      "duration": 1.375
+    },
+    {
+      "text": "compare with reducing the\ndimension of the model?",
+      "start": 3297.92,
+      "duration": 4.24
+    },
+    {
+      "text": "So that's a good question.",
+      "start": 3302.16,
+      "duration": 1.72
+    },
+    {
+      "text": "These ablations don't show that.",
+      "start": 3303.88,
+      "duration": 2.2
+    },
+    {
+      "text": "My guess is that reducing\nthe model dimension",
+      "start": 3306.08,
+      "duration": 2.2
+    },
+    {
+      "text": "just makes things worse\nbecause you're indiscriminately",
+      "start": 3308.28,
+      "duration": 4.64
+    },
+    {
+      "text": "just reducing everything.",
+      "start": 3312.92,
+      "duration": 2.52
+    },
+    {
+      "text": "I think the trick in\nall of this kind of",
+      "start": 3315.44,
+      "duration": 4.28
+    },
+    {
+      "text": "is to find places in the\nmodel where you can squeeze.",
+      "start": 3319.72,
+      "duration": 3.83
+    },
+    {
+      "text": "And this apiary,\nI don't think you",
+      "start": 3323.55,
+      "duration": 2.16
+    },
+    {
+      "text": "can necessarily know for sure.",
+      "start": 3325.71,
+      "duration": 1.54
+    },
+    {
+      "text": "You just have to do a\nbunch of experimentation",
+      "start": 3327.25,
+      "duration": 1.917
+    },
+    {
+      "text": "and see what works.",
+      "start": 3329.167,
+      "duration": 1.743
+    },
+    {
+      "text": "So here's another idea\nto reduce your KV cache.",
+      "start": 3330.91,
+      "duration": 3.56
+    },
+    {
+      "text": "This is called\ncross-layer attention.",
+      "start": 3334.47,
+      "duration": 3.04
+    },
+    {
+      "text": "So the idea is that normally,\nevery layer has KV, K's and V's.",
+      "start": 3337.51,
+      "duration": 6.28
+    },
+    {
+      "text": "But let's say instead of\ndoing that, we're just",
+      "start": 3343.79,
+      "duration": 4.0
+    },
+    {
+      "text": "going to compute KVs for\na subset of the layers.",
+      "start": 3347.79,
+      "duration": 5.52
+    },
+    {
+      "text": "And then, just for\nthis layer, I'm",
+      "start": 3353.31,
+      "duration": 3.28
+    },
+    {
+      "text": "just going to use the\nprevious layers on KV cache.",
+      "start": 3356.59,
+      "duration": 3.26
+    },
+    {
+      "text": "So this is another\nway of sharing.",
+      "start": 3365.15,
+      "duration": 1.86
+    },
+    {
+      "text": "Just like GQA shares\nK across heads,",
+      "start": 3367.01,
+      "duration": 4.02
+    },
+    {
+      "text": "now I'm sharing\nKVs across layers.",
+      "start": 3371.03,
+      "duration": 4.0
+    },
+    {
+      "text": "And empirically, this\npaper shows that doing this",
+      "start": 3375.03,
+      "duration": 4.76
+    },
+    {
+      "text": "improves the Pareto frontier.",
+      "start": 3379.79,
+      "duration": 2.21
+    },
+    {
+      "text": "So each of these\nmodels is better than--",
+      "start": 3382.0,
+      "duration": 6.38
+    },
+    {
+      "text": "given a method you can always\nsweep this the size of the KV",
+      "start": 3388.38,
+      "duration": 5.48
+    },
+    {
+      "text": "cache by changing the K and the\nhead dimension, which, I guess,",
+      "start": 3393.86,
+      "duration": 7.2
+    },
+    {
+      "text": "kind of relates to your point\nabout changing model dimension.",
+      "start": 3401.06,
+      "duration": 4.38
+    },
+    {
+      "text": "But if you do this CLA cross\nlayer attention, it's better.",
+      "start": 3405.44,
+      "duration": 8.26
+    },
+    {
+      "text": "So moving on, whirlwind\ntour of different techniques",
+      "start": 3413.7,
+      "duration": 5.48
+    },
+    {
+      "text": "for reducing KV cache.",
+      "start": 3419.18,
+      "duration": 2.1
+    },
+    {
+      "text": "There's a local or\nsliding window attention.",
+      "start": 3421.28,
+      "duration": 3.34
+    },
+    {
+      "text": "This is a fairly\nkind of old idea",
+      "start": 3424.62,
+      "duration": 2.28
+    },
+    {
+      "text": "and a very kind of natural idea.",
+      "start": 3426.9,
+      "duration": 2.26
+    },
+    {
+      "text": "So if you look at the\nfull attention matrix,",
+      "start": 3429.16,
+      "duration": 3.62
+    },
+    {
+      "text": "it's N squared.",
+      "start": 3432.78,
+      "duration": 1.48
+    },
+    {
+      "text": "And instead of doing\nthat, if you're",
+      "start": 3434.26,
+      "duration": 2.56
+    },
+    {
+      "text": "going to generate a token, you\njust look at the last K tokens.",
+      "start": 3436.82,
+      "duration": 5.19
+    },
+    {
+      "text": "So you essentially\nhave a sliding window.",
+      "start": 3442.01,
+      "duration": 2.2
+    },
+    {
+      "text": "For every token you generate,\nyou just depend on the last K.",
+      "start": 3444.21,
+      "duration": 5.4
+    },
+    {
+      "text": "And now, if you do\nthat, the effective--",
+      "start": 3449.61,
+      "duration": 5.36
+    },
+    {
+      "text": "so the KV cache is now\nindependent of the sequence",
+      "start": 3454.97,
+      "duration": 2.48
+    },
+    {
+      "text": "length.",
+      "start": 3457.45,
+      "duration": 0.5
+    },
+    {
+      "text": "It's just the number of the\nbatch times the other variables,",
+      "start": 3457.95,
+      "duration": 8.22
+    },
+    {
+      "text": "which is great.",
+      "start": 3466.17,
+      "duration": 1.02
+    },
+    {
+      "text": "And this is especially\ngreat for long context.",
+      "start": 3467.19,
+      "duration": 4.14
+    },
+    {
+      "text": "Now, because of the\nnumber of layers,",
+      "start": 3471.33,
+      "duration": 2.78
+    },
+    {
+      "text": "the effective context\nlength is actually",
+      "start": 3474.11,
+      "duration": 2.22
+    },
+    {
+      "text": "larger than the number of\nthe stated context length",
+      "start": 3476.33,
+      "duration": 2.82
+    },
+    {
+      "text": "because information can\npropagate farther in",
+      "start": 3479.15,
+      "duration": 4.42
+    },
+    {
+      "text": "if you go down the layers.",
+      "start": 3483.57,
+      "duration": 2.32
+    },
+    {
+      "text": "Now, you can do fancier things.",
+      "start": 3485.89,
+      "duration": 1.4
+    },
+    {
+      "text": "You can maybe not do a\ndense selection of layers,",
+      "start": 3487.29,
+      "duration": 4.66
+    },
+    {
+      "text": "but you can space it out.",
+      "start": 3491.95,
+      "duration": 1.8
+    },
+    {
+      "text": "You can also do this\nglobal plus sliding window",
+      "start": 3493.75,
+      "duration": 2.46
+    },
+    {
+      "text": "where aware you have\nattention to a fixed",
+      "start": 3496.21,
+      "duration": 4.55
+    },
+    {
+      "text": "grid of different token points,\nplus a local sliding window.",
+      "start": 3500.76,
+      "duration": 5.06
+    },
+    {
+      "text": "So you can do various things.",
+      "start": 3505.82,
+      "duration": 1.94
+    },
+    {
+      "text": "Now, the problem with\nthis is that it actually",
+      "start": 3507.76,
+      "duration": 2.36
+    },
+    {
+      "text": "still hurts accuracy.",
+      "start": 3510.12,
+      "duration": 2.32
+    },
+    {
+      "text": "So this reduces expressivity.",
+      "start": 3512.44,
+      "duration": 1.98
+    },
+    {
+      "text": "There's no free lunch\nhere, or at least this",
+      "start": 3514.42,
+      "duration": 4.1
+    },
+    {
+      "text": "was an expensive lunch.",
+      "start": 3518.52,
+      "duration": 3.08
+    },
+    {
+      "text": "So the solution that\npeople come up with",
+      "start": 3521.6,
+      "duration": 1.88
+    },
+    {
+      "text": "is that they interleave local\nattention with global attention.",
+      "start": 3523.48,
+      "duration": 4.22
+    },
+    {
+      "text": "So these hybrid models have full\nattention for some of the layers",
+      "start": 3527.7,
+      "duration": 5.18
+    },
+    {
+      "text": "and some local layers for\nsome of the other layers.",
+      "start": 3532.88,
+      "duration": 4.92
+    },
+    {
+      "text": "And you're basically\nalways trying",
+      "start": 3537.8,
+      "duration": 1.76
+    },
+    {
+      "text": "to-- and then so that allows\nyou to essentially reduce",
+      "start": 3539.56,
+      "duration": 4.8
+    },
+    {
+      "text": "the KV cache a little bit.",
+      "start": 3544.36,
+      "duration": 1.58
+    },
+    {
+      "text": "And you're always trying to\nbalance accuracy with the speed.",
+      "start": 3545.94,
+      "duration": 6.5
+    },
+    {
+      "text": "Yeah.",
+      "start": 3552.44,
+      "duration": 0.9
+    },
+    {
+      "text": "Hybrid model-wise,\nis there a difference",
+      "start": 3553.34,
+      "duration": 1.916
+    },
+    {
+      "text": "between the trade-off in\nusing a linear time invariant",
+      "start": 3555.256,
+      "duration": 2.854
+    },
+    {
+      "text": "versus a sliding window?",
+      "start": 3558.11,
+      "duration": 1.42
+    },
+    {
+      "text": "Yeah.",
+      "start": 3559.53,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question is, what about\nlinear attention versus sliding",
+      "start": 3560.03,
+      "duration": 3.76
+    },
+    {
+      "text": "window attention?",
+      "start": 3563.79,
+      "duration": 1.14
+    },
+    {
+      "text": "So I'm not going to talk\nabout linear attention.",
+      "start": 3564.93,
+      "duration": 3.6
+    },
+    {
+      "text": "But very quickly, there's a\nbunch of methods that where,",
+      "start": 3568.53,
+      "duration": 5.1
+    },
+    {
+      "text": "instead of storing KV\ncache, since you basically",
+      "start": 3573.63,
+      "duration": 6.64
+    },
+    {
+      "text": "compute some of compressed\nrepresentation of all",
+      "start": 3580.27,
+      "duration": 4.04
+    },
+    {
+      "text": "the history.",
+      "start": 3584.31,
+      "duration": 1.06
+    },
+    {
+      "text": "So linear, the most\nnaive linear attention",
+      "start": 3585.37,
+      "duration": 2.42
+    },
+    {
+      "text": "is you just sum the KV values\nup into a single vector.",
+      "start": 3587.79,
+      "duration": 5.247
+    },
+    {
+      "text": "So that's definitely independent\nof the sequence length.",
+      "start": 3593.037,
+      "duration": 2.333
+    },
+    {
+      "text": "You can do fancier things.",
+      "start": 3595.37,
+      "duration": 1.12
+    },
+    {
+      "text": "There's gated net,\ndelta nets, and Mamba",
+      "start": 3596.49,
+      "duration": 2.46
+    },
+    {
+      "text": "which allows you to try to\ncompress but not forget as much.",
+      "start": 3598.95,
+      "duration": 5.68
+    },
+    {
+      "text": "Now the question is,\nhow do those compare?",
+      "start": 3604.63,
+      "duration": 2.38
+    },
+    {
+      "text": "Those have also\nbeen used in place",
+      "start": 3607.01,
+      "duration": 2.54
+    },
+    {
+      "text": "of sliding window attention, and\npeople have gotten good results",
+      "start": 3609.55,
+      "duration": 4.67
+    },
+    {
+      "text": "with them.",
+      "start": 3614.22,
+      "duration": 0.66
+    },
+    {
+      "text": "You can also use a\ncombination of full attention,",
+      "start": 3614.88,
+      "duration": 2.6
+    },
+    {
+      "text": "sliding window intention,\nand the linear attention",
+      "start": 3617.48,
+      "duration": 2.98
+    },
+    {
+      "text": "because they capture\ndifferent aspects.",
+      "start": 3620.46,
+      "duration": 3.48
+    },
+    {
+      "text": "If you care about local\nhigh-resolution stuff,",
+      "start": 3623.94,
+      "duration": 4.14
+    },
+    {
+      "text": "then sliding attentions better.",
+      "start": 3628.08,
+      "duration": 2.46
+    },
+    {
+      "text": "If you just want broad\nsummaries of the past,",
+      "start": 3630.54,
+      "duration": 3.6
+    },
+    {
+      "text": "then the other linear\nattention might be better.",
+      "start": 3634.14,
+      "duration": 4.32
+    },
+    {
+      "text": "So then for a long\ncontext sentence,",
+      "start": 3638.46,
+      "duration": 2.02
+    },
+    {
+      "text": "would you say your\nattention would",
+      "start": 3640.48,
+      "duration": 1.74
+    },
+    {
+      "text": "be a better setting for that?",
+      "start": 3642.22,
+      "duration": 3.64
+    },
+    {
+      "text": "So the question is, for long\ncontext with linear attention",
+      "start": 3645.86,
+      "duration": 2.76
+    },
+    {
+      "text": "be better?",
+      "start": 3648.62,
+      "duration": 1.62
+    },
+    {
+      "text": "So there's no free lunch, right?",
+      "start": 3654.14,
+      "duration": 3.52
+    },
+    {
+      "text": "Let's say you have\na very long context,",
+      "start": 3657.66,
+      "duration": 2.08
+    },
+    {
+      "text": "and you're solving a needle\nin a haystack problem.",
+      "start": 3659.74,
+      "duration": 3.36
+    },
+    {
+      "text": "If you have to compress\nyour entire history",
+      "start": 3663.1,
+      "duration": 4.12
+    },
+    {
+      "text": "into a small context, you're\njust going to lose information,",
+      "start": 3667.22,
+      "duration": 4.78
+    },
+    {
+      "text": "and you might just not\nbe able to retrieve it.",
+      "start": 3672.0,
+      "duration": 5.36
+    },
+    {
+      "text": "I guess I feel like what\nit seems like people",
+      "start": 3677.36,
+      "duration": 2.562
+    },
+    {
+      "text": "go with hybrid architectures\nthat you'll always",
+      "start": 3679.922,
+      "duration": 1.958
+    },
+    {
+      "text": "need some of longer\nattention, but I'm just",
+      "start": 3681.88,
+      "duration": 2.72
+    },
+    {
+      "text": "trying to understand in my head,\nwhat the trade-off between using",
+      "start": 3684.6,
+      "duration": 3.04
+    },
+    {
+      "text": "a sliding window versus some\nof a Mamba, delta net layer",
+      "start": 3687.64,
+      "duration": 3.24
+    },
+    {
+      "text": "would be.",
+      "start": 3690.88,
+      "duration": 0.92
+    },
+    {
+      "text": "Is using a delta\nnet layer better",
+      "start": 3691.8,
+      "duration": 2.52
+    },
+    {
+      "text": "than using sliding\nwindow consistently?",
+      "start": 3694.32,
+      "duration": 1.8
+    },
+    {
+      "text": "Or what is the actual maybe\nrepresentative trade-offs?",
+      "start": 3696.12,
+      "duration": 4.1
+    },
+    {
+      "text": "Yeah.",
+      "start": 3700.22,
+      "duration": 1.06
+    },
+    {
+      "text": "Maybe I'll say that\nthe Mamba and delta net",
+      "start": 3701.28,
+      "duration": 1.92
+    },
+    {
+      "text": "are more powerful than\nthe sliding window.",
+      "start": 3703.2,
+      "duration": 3.605
+    },
+    {
+      "text": "Attention maybe you can\nthink about the Mamba",
+      "start": 3706.805,
+      "duration": 1.875
+    },
+    {
+      "text": "as probably can--",
+      "start": 3708.68,
+      "duration": 2.96
+    },
+    {
+      "text": "it certainly can represent some\nof the aspects of sliding window",
+      "start": 3711.64,
+      "duration": 2.88
+    },
+    {
+      "text": "attention because you can just--\nas you're doing the recurrence,",
+      "start": 3714.52,
+      "duration": 3.14
+    },
+    {
+      "text": "it can just look\nat the last state.",
+      "start": 3717.66,
+      "duration": 2.2
+    },
+    {
+      "text": "So yeah, maybe you can think\nabout the linear attention",
+      "start": 3719.86,
+      "duration": 6.5
+    },
+    {
+      "text": "or its extensions\nas being better.",
+      "start": 3726.36,
+      "duration": 4.35
+    },
+    {
+      "text": "They have more room.",
+      "start": 3730.71,
+      "duration": 1.52
+    },
+    {
+      "text": "Once you do sliding window\nattention, you're done.",
+      "start": 3732.23,
+      "duration": 2.49
+    },
+    {
+      "text": "There's nothing else you can--",
+      "start": 3734.72,
+      "duration": 1.25
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3735.97,
+      "duration": 0.5
+    },
+    {
+      "text": "Yeah.",
+      "start": 3736.47,
+      "duration": 1.16
+    },
+    {
+      "text": "OK.",
+      "start": 3737.63,
+      "duration": 0.54
+    },
+    {
+      "text": "So let me just quickly\ngo through this.",
+      "start": 3738.17,
+      "duration": 2.62
+    },
+    {
+      "text": "Just highlight this DeepSeek.",
+      "start": 3740.79,
+      "duration": 2.6
+    },
+    {
+      "text": "DeepSeek continues to innovate\ndifferent types of attention",
+      "start": 3743.39,
+      "duration": 5.76
+    },
+    {
+      "text": "mechanisms.",
+      "start": 3749.15,
+      "duration": 1.52
+    },
+    {
+      "text": "So remember, they came up with\nthe multi-latent attention,",
+      "start": 3750.67,
+      "duration": 3.06
+    },
+    {
+      "text": "which compresses the key values.",
+      "start": 3753.73,
+      "duration": 2.34
+    },
+    {
+      "text": "There is this thing called--",
+      "start": 3756.07,
+      "duration": 2.52
+    },
+    {
+      "text": "now they have compressed\nsparse attention, DeepSeek",
+      "start": 3758.59,
+      "duration": 2.615
+    },
+    {
+      "text": "sparse attention, and\nheavily compressed attention.",
+      "start": 3761.205,
+      "duration": 2.125
+    },
+    {
+      "text": "I never remember all these\nacronyms and what they mean,",
+      "start": 3763.33,
+      "duration": 5.228
+    },
+    {
+      "text": "but let's look at this diagram.",
+      "start": 3768.558,
+      "duration": 1.292
+    },
+    {
+      "text": "So normally, have your KV\ntokens and your query token.",
+      "start": 3769.85,
+      "duration": 6.46
+    },
+    {
+      "text": "So compressed attention is\ngoing to basically compress",
+      "start": 3776.31,
+      "duration": 4.8
+    },
+    {
+      "text": "every M tokens into one token.",
+      "start": 3781.11,
+      "duration": 3.84
+    },
+    {
+      "text": "And then there's\nthis thing called",
+      "start": 3784.95,
+      "duration": 1.72
+    },
+    {
+      "text": "DeepSeek sparse attention,\nwhich basically selects",
+      "start": 3786.67,
+      "duration": 4.59
+    },
+    {
+      "text": "a subset of those to keep.",
+      "start": 3791.26,
+      "duration": 4.04
+    },
+    {
+      "text": "And the way you select a\nsubset is that you actually",
+      "start": 3795.3,
+      "duration": 3.24
+    },
+    {
+      "text": "compute some LiDAR\nweight queries and keys,",
+      "start": 3798.54,
+      "duration": 3.62
+    },
+    {
+      "text": "and then you do a\nsmaller attention",
+      "start": 3802.16,
+      "duration": 2.18
+    },
+    {
+      "text": "to get these index scores\nso you know to keep.",
+      "start": 3804.34,
+      "duration": 3.08
+    },
+    {
+      "text": "So a lightning fast\nway to figure out",
+      "start": 3807.42,
+      "duration": 2.72
+    },
+    {
+      "text": "what tokens you need to keep.",
+      "start": 3810.14,
+      "duration": 1.86
+    },
+    {
+      "text": "And then you use those.",
+      "start": 3812.0,
+      "duration": 2.5
+    },
+    {
+      "text": "And then, there's some more\ncompression that happens.",
+      "start": 3814.5,
+      "duration": 5.56
+    },
+    {
+      "text": "So in the interest of\ntime, I'll move on.",
+      "start": 3820.06,
+      "duration": 4.08
+    },
+    {
+      "text": "The goal of this section is to\nreduce the KV cache because KV",
+      "start": 3824.14,
+      "duration": 4.72
+    },
+    {
+      "text": "cache is related to memory.",
+      "start": 3828.86,
+      "duration": 1.5
+    },
+    {
+      "text": "And we saw that inference\nis memory-bound.",
+      "start": 3830.36,
+      "duration": 2.92
+    },
+    {
+      "text": "So that directly\ntranslates to improvements",
+      "start": 3833.28,
+      "duration": 3.74
+    },
+    {
+      "text": "in throughput and latency.",
+      "start": 3837.02,
+      "duration": 2.36
+    },
+    {
+      "text": "And the key is to do this\nwithout hurting accuracy.",
+      "start": 3839.38,
+      "duration": 2.96
+    },
+    {
+      "text": "So you can do lower dimensional\nKV caches across layers",
+      "start": 3842.34,
+      "duration": 5.31
+    },
+    {
+      "text": "by across heads and\nacross head dimension.",
+      "start": 3847.65,
+      "duration": 5.36
+    },
+    {
+      "text": "You can do local attention.",
+      "start": 3853.01,
+      "duration": 1.86
+    },
+    {
+      "text": "You can do linear attention,\nwhich was discussed earlier,",
+      "start": 3854.87,
+      "duration": 4.18
+    },
+    {
+      "text": "and there's much more.",
+      "start": 3859.05,
+      "duration": 1.08
+    },
+    {
+      "text": "And there's also\ndiffusion models,",
+      "start": 3860.13,
+      "duration": 2.02
+    },
+    {
+      "text": "which is a\nnon-autoregressive way",
+      "start": 3862.15,
+      "duration": 2.54
+    },
+    {
+      "text": "to generate which\ncan be much faster.",
+      "start": 3864.69,
+      "duration": 3.64
+    },
+    {
+      "text": "OK.",
+      "start": 3868.33,
+      "duration": 1.28
+    },
+    {
+      "text": "So let's talk about a few other\nideas which are important.",
+      "start": 3869.61,
+      "duration": 3.66
+    },
+    {
+      "text": "So quantization is\nmore of a, I would",
+      "start": 3873.27,
+      "duration": 2.62
+    },
+    {
+      "text": "say, less of a\narchitecture and much more",
+      "start": 3875.89,
+      "duration": 2.44
+    },
+    {
+      "text": "of a systems of perspective\non how to make things smaller.",
+      "start": 3878.33,
+      "duration": 5.8
+    },
+    {
+      "text": "So the key idea here is just\nreduce the precision of numbers.",
+      "start": 3884.13,
+      "duration": 3.94
+    },
+    {
+      "text": "Less memory means higher\nlatency and throughput.",
+      "start": 3888.07,
+      "duration": 3.54
+    },
+    {
+      "text": "And obviously, you have\nto worry about accuracy.",
+      "start": 3891.61,
+      "duration": 3.16
+    },
+    {
+      "text": "So quantization is-- there's\nmany options here all the way",
+      "start": 3894.77,
+      "duration": 10.31
+    },
+    {
+      "text": "from bf16 all the\nway down to int4.",
+      "start": 3905.08,
+      "duration": 3.08
+    },
+    {
+      "text": "And so one thing you\ncan do, if you're",
+      "start": 3911.24,
+      "duration": 4.52
+    },
+    {
+      "text": "scared that quantization\nis going to mess you up,",
+      "start": 3915.76,
+      "duration": 3.3
+    },
+    {
+      "text": "is that you train a model\nwith quantization in mind.",
+      "start": 3919.06,
+      "duration": 2.64
+    },
+    {
+      "text": "So this is quantization\naware training.",
+      "start": 3921.7,
+      "duration": 3.22
+    },
+    {
+      "text": "And during the feedforward\npass during training,",
+      "start": 3924.92,
+      "duration": 3.0
+    },
+    {
+      "text": "you quantize and dequantize,\nand you're basically",
+      "start": 3927.92,
+      "duration": 3.16
+    },
+    {
+      "text": "simulating these quantization\nerrors as you train.",
+      "start": 3931.08,
+      "duration": 3.92
+    },
+    {
+      "text": "So then, generally,\nnow the weights",
+      "start": 3935.0,
+      "duration": 2.52
+    },
+    {
+      "text": "are adapted towards\nquantization.",
+      "start": 3937.52,
+      "duration": 2.18
+    },
+    {
+      "text": "Things will work better.",
+      "start": 3939.7,
+      "duration": 1.16
+    },
+    {
+      "text": "But the con is that it requires\nexpensive large-scale training.",
+      "start": 3940.86,
+      "duration": 4.74
+    },
+    {
+      "text": "And so what typically people\ndo is they train models,",
+      "start": 3945.6,
+      "duration": 3.6
+    },
+    {
+      "text": "and then they quantize\nafter the fact.",
+      "start": 3949.2,
+      "duration": 3.84
+    },
+    {
+      "text": "So this is post-training\nquantization.",
+      "start": 3953.04,
+      "duration": 3.0
+    },
+    {
+      "text": "It's much cheaper often.",
+      "start": 3956.04,
+      "duration": 3.88
+    },
+    {
+      "text": "There's a naive way to do it is\nthat for every layer or tensor,",
+      "start": 3959.92,
+      "duration": 5.47
+    },
+    {
+      "text": "you basically determine the\nscale and the 0 point for each,",
+      "start": 3965.39,
+      "duration": 4.92
+    },
+    {
+      "text": "let's say, tensor.",
+      "start": 3970.31,
+      "duration": 1.08
+    },
+    {
+      "text": "And then you quantize\nthat separately.",
+      "start": 3971.39,
+      "duration": 4.36
+    },
+    {
+      "text": "This generally\ndoesn't work as well.",
+      "start": 3975.75,
+      "duration": 3.16
+    },
+    {
+      "text": "You can use this\nidea called GPTQ,",
+      "start": 3978.91,
+      "duration": 4.72
+    },
+    {
+      "text": "which uses some Hessian\ninformation to quantize layer",
+      "start": 3983.63,
+      "duration": 3.72
+    },
+    {
+      "text": "by layer.",
+      "start": 3987.35,
+      "duration": 0.74
+    },
+    {
+      "text": "And then you keep track of the\nerrors which get propagated",
+      "start": 3988.09,
+      "duration": 4.1
+    },
+    {
+      "text": "into the non-quantized weights.",
+      "start": 3992.19,
+      "duration": 1.74
+    },
+    {
+      "text": "And so it allows you to\ncorrect for the errors.",
+      "start": 3993.93,
+      "duration": 3.62
+    },
+    {
+      "text": "And now, activation-aware\nquantizing",
+      "start": 3997.55,
+      "duration": 2.6
+    },
+    {
+      "text": "is more of a sophisticated\nway where the observation is",
+      "start": 4000.15,
+      "duration": 7.8
+    },
+    {
+      "text": "that some activation\nchannels are large",
+      "start": 4007.95,
+      "duration": 3.04
+    },
+    {
+      "text": "and those the weights that\ninteract with those matter more.",
+      "start": 4010.99,
+      "duration": 3.64
+    },
+    {
+      "text": "So let's allocate more\nprecision to these weights.",
+      "start": 4014.63,
+      "duration": 2.6
+    },
+    {
+      "text": "So let's look at this picture.",
+      "start": 4017.23,
+      "duration": 2.48
+    },
+    {
+      "text": "So normally, if you\ntake fp16 weight matrix,",
+      "start": 4019.71,
+      "duration": 5.79
+    },
+    {
+      "text": "and you quantize it,\nyou get-- let's say",
+      "start": 4025.5,
+      "duration": 1.72
+    },
+    {
+      "text": "you quantize it down to int3.",
+      "start": 4027.22,
+      "duration": 2.24
+    },
+    {
+      "text": "But what you're going\nto do is you figure out",
+      "start": 4029.46,
+      "duration": 4.24
+    },
+    {
+      "text": "which of these are active?",
+      "start": 4033.7,
+      "duration": 2.9
+    },
+    {
+      "text": "So these are maybe\nactivation channels.",
+      "start": 4036.6,
+      "duration": 2.74
+    },
+    {
+      "text": "And some of these activation\nchannels are large.",
+      "start": 4039.34,
+      "duration": 2.44
+    },
+    {
+      "text": "So if they're large\nin general, then you",
+      "start": 4041.78,
+      "duration": 3.4
+    },
+    {
+      "text": "basically allocate like, let's\nsay, fp16 for this channel.",
+      "start": 4045.18,
+      "duration": 4.88
+    },
+    {
+      "text": "You keep everything\nelse as in three.",
+      "start": 4050.06,
+      "duration": 2.0
+    },
+    {
+      "text": "And for a few\nimportant channels,",
+      "start": 4052.06,
+      "duration": 1.86
+    },
+    {
+      "text": "you use higher precision.",
+      "start": 4053.92,
+      "duration": 5.1
+    },
+    {
+      "text": "So another idea here\nis to do model pruning.",
+      "start": 4059.02,
+      "duration": 6.2
+    },
+    {
+      "text": "So here you just\ntake a large model,",
+      "start": 4065.22,
+      "duration": 2.56
+    },
+    {
+      "text": "and you rip out pieces\nof it, and you fix it up.",
+      "start": 4067.78,
+      "duration": 3.3
+    },
+    {
+      "text": "It's a very crude way,\nbut it turns out to work.",
+      "start": 4071.08,
+      "duration": 3.84
+    },
+    {
+      "text": "So there's this paper from\nNVIDIA where, essentially--",
+      "start": 4074.92,
+      "duration": 5.84
+    },
+    {
+      "text": "let me actually-- let's see.",
+      "start": 4080.76,
+      "duration": 4.54
+    },
+    {
+      "text": "So you first have to\nestimate the importance",
+      "start": 4085.3,
+      "duration": 3.38
+    },
+    {
+      "text": "of the different\nparts of the model",
+      "start": 4088.68,
+      "duration": 2.76
+    },
+    {
+      "text": "and choose the most\nimportant parts.",
+      "start": 4091.44,
+      "duration": 2.56
+    },
+    {
+      "text": "And then you basically\nremove different hidden units",
+      "start": 4094.0,
+      "duration": 5.6
+    },
+    {
+      "text": "and different even layers.",
+      "start": 4099.6,
+      "duration": 4.719
+    },
+    {
+      "text": "And now, we have a model.",
+      "start": 4104.319,
+      "duration": 2.521
+    },
+    {
+      "text": "It's not going to be very good.",
+      "start": 4106.84,
+      "duration": 2.639
+    },
+    {
+      "text": "And so what you do\nis you post-train it.",
+      "start": 4109.479,
+      "duration": 2.38
+    },
+    {
+      "text": "You train it some more\non the data or the tasks",
+      "start": 4111.859,
+      "duration": 2.781
+    },
+    {
+      "text": "that you care about to heal it.",
+      "start": 4114.64,
+      "duration": 3.32
+    },
+    {
+      "text": "So this is, in some sense, a\ntraining way to reduce the KV",
+      "start": 4117.96,
+      "duration": 8.88
+    },
+    {
+      "text": "cache, but where you initialize\nit with parts of a good model.",
+      "start": 4126.84,
+      "duration": 5.96
+    },
+    {
+      "text": "So this seems to\nwork pretty well.",
+      "start": 4132.8,
+      "duration": 3.019
+    },
+    {
+      "text": "So they were able to take a 15B\nmodel and reduce it to an 8B",
+      "start": 4135.819,
+      "duration": 4.011
+    },
+    {
+      "text": "model.",
+      "start": 4139.83,
+      "duration": 1.68
+    },
+    {
+      "text": "And it doesn't really\nhurt accuracy by too much.",
+      "start": 4141.51,
+      "duration": 4.88
+    },
+    {
+      "text": "And the amount that you\nuse to train the model",
+      "start": 4146.39,
+      "duration": 4.36
+    },
+    {
+      "text": "or through this\nprocess is much less.",
+      "start": 4150.75,
+      "duration": 3.02
+    },
+    {
+      "text": "OK.",
+      "start": 4156.59,
+      "duration": 0.5
+    },
+    {
+      "text": "So just to summarize\nhere, the game",
+      "start": 4157.09,
+      "duration": 4.34
+    },
+    {
+      "text": "is to reduce the\ninference complexity",
+      "start": 4161.43,
+      "duration": 3.599
+    },
+    {
+      "text": "without hurting accuracy.",
+      "start": 4165.029,
+      "duration": 1.801
+    },
+    {
+      "text": "You can think about this as\nmostly reducing the number",
+      "start": 4166.83,
+      "duration": 2.8
+    },
+    {
+      "text": "of parameters or CPU cache.",
+      "start": 4169.63,
+      "duration": 2.28
+    },
+    {
+      "text": "You can define a faster model\narchitecture to train it,",
+      "start": 4171.91,
+      "duration": 3.02
+    },
+    {
+      "text": "or you can define a\nfaster model architecture.",
+      "start": 4174.93,
+      "duration": 4.16
+    },
+    {
+      "text": "Initialize the weights\nfrom original model, which",
+      "start": 4179.09,
+      "duration": 3.82
+    },
+    {
+      "text": "might have a different\narchitecture,",
+      "start": 4182.91,
+      "duration": 1.6
+    },
+    {
+      "text": "but you just make this\nFrankenstein thing,",
+      "start": 4184.51,
+      "duration": 2.8
+    },
+    {
+      "text": "and then you repair the faster\nmodel with distillation.",
+      "start": 4187.31,
+      "duration": 5.799
+    },
+    {
+      "text": "OK.",
+      "start": 4193.109,
+      "duration": 1.321
+    },
+    {
+      "text": "Yeah.",
+      "start": 4194.43,
+      "duration": 0.5
+    },
+    {
+      "text": "Could you say more about you\ndistinguish the important",
+      "start": 4194.93,
+      "duration": 2.85
+    },
+    {
+      "text": "from the unimportant layers?",
+      "start": 4197.78,
+      "duration": 2.56
+    },
+    {
+      "text": "So how do you distinguish\nthe important layers",
+      "start": 4200.34,
+      "duration": 2.52
+    },
+    {
+      "text": "from the unimportant layers?",
+      "start": 4202.86,
+      "duration": 2.32
+    },
+    {
+      "text": "So in general, you\nhave a calibration set,",
+      "start": 4205.18,
+      "duration": 5.56
+    },
+    {
+      "text": "and you pass the inputs\nthrough the model.",
+      "start": 4210.74,
+      "duration": 4.16
+    },
+    {
+      "text": "And you're basically\nlooking at the magnitude",
+      "start": 4214.9,
+      "duration": 3.32
+    },
+    {
+      "text": "of the activations.",
+      "start": 4218.22,
+      "duration": 1.96
+    },
+    {
+      "text": "And the ones that\nare-- some of them,",
+      "start": 4220.18,
+      "duration": 2.385
+    },
+    {
+      "text": "especially if\nthey're dead units,",
+      "start": 4222.565,
+      "duration": 1.375
+    },
+    {
+      "text": "will be kind of close to 0.",
+      "start": 4223.94,
+      "duration": 1.66
+    },
+    {
+      "text": "And the ones that are\nlarge, you want to keep.",
+      "start": 4225.6,
+      "duration": 2.98
+    },
+    {
+      "text": "So that's a high-level idea.",
+      "start": 4228.58,
+      "duration": 2.28
+    },
+    {
+      "text": "I guess why does it matter\nif the activation is high?",
+      "start": 4230.86,
+      "duration": 2.8
+    },
+    {
+      "text": "It could just be\nlike-- what if it's",
+      "start": 4233.66,
+      "duration": 2.16
+    },
+    {
+      "text": "just always high, for instance?",
+      "start": 4235.82,
+      "duration": 1.92
+    },
+    {
+      "text": "Or is that--",
+      "start": 4237.74,
+      "duration": 2.44
+    },
+    {
+      "text": "So the question is, what if\nall the activations are high?",
+      "start": 4240.18,
+      "duration": 3.74
+    },
+    {
+      "text": "So in general, this is a kind\nof an empirical observation",
+      "start": 4243.92,
+      "duration": 3.42
+    },
+    {
+      "text": "that some of the channels will\nbe much higher than others.",
+      "start": 4247.34,
+      "duration": 4.72
+    },
+    {
+      "text": "If this weren't true, then these\ntechniques wouldn't necessarily",
+      "start": 4252.06,
+      "duration": 2.75
+    },
+    {
+      "text": "work, but it happens to\nbe true because that's",
+      "start": 4254.81,
+      "duration": 5.24
+    },
+    {
+      "text": "how these models ended\nup being trained.",
+      "start": 4260.05,
+      "duration": 3.6
+    },
+    {
+      "text": "And then you can exploit that.",
+      "start": 4263.65,
+      "duration": 3.64
+    },
+    {
+      "text": "Say a neuron, which\nis always value",
+      "start": 4267.29,
+      "duration": 1.96
+    },
+    {
+      "text": "100 across all the samples.",
+      "start": 4269.25,
+      "duration": 2.56
+    },
+    {
+      "text": "Would that mean that it's\nnecessarily meaningful?",
+      "start": 4271.81,
+      "duration": 2.94
+    },
+    {
+      "text": "Or maybe it's just an\nartifact of training",
+      "start": 4274.75,
+      "duration": 2.06
+    },
+    {
+      "text": "that I'm just like [INAUDIBLE]?",
+      "start": 4276.81,
+      "duration": 3.52
+    },
+    {
+      "text": "Yeah, I see.",
+      "start": 4280.33,
+      "duration": 0.62
+    },
+    {
+      "text": "So the question is, what\nif a neuron is always 100?",
+      "start": 4280.95,
+      "duration": 3.9
+    },
+    {
+      "text": "I mean, if that's the\ncase, you can also look",
+      "start": 4284.85,
+      "duration": 2.52
+    },
+    {
+      "text": "at variance-related questions.",
+      "start": 4287.37,
+      "duration": 3.6
+    },
+    {
+      "text": "If it's 100, you\ncan't just remove it",
+      "start": 4290.97,
+      "duration": 1.68
+    },
+    {
+      "text": "because then everything\nis going to be broken.",
+      "start": 4292.65,
+      "duration": 2.28
+    },
+    {
+      "text": "If it's high mean\nand low variance,",
+      "start": 4294.93,
+      "duration": 2.06
+    },
+    {
+      "text": "maybe there's another a way\nto just incorporate the bias",
+      "start": 4296.99,
+      "duration": 4.06
+    },
+    {
+      "text": "essentially.",
+      "start": 4301.05,
+      "duration": 2.18
+    },
+    {
+      "text": "OK.",
+      "start": 4303.23,
+      "duration": 0.5
+    },
+    {
+      "text": "Let me quickly go\nthrough this other idea.",
+      "start": 4303.73,
+      "duration": 2.42
+    },
+    {
+      "text": "So far, we've looked at\nlossy methods which basically",
+      "start": 4306.15,
+      "duration": 4.58
+    },
+    {
+      "text": "really crunch down the KV cache,\nbut it could hurt accuracy.",
+      "start": 4310.73,
+      "duration": 3.91
+    },
+    {
+      "text": "This is a very elegant way of\ndoing this in a lossless way.",
+      "start": 4314.64,
+      "duration": 4.08
+    },
+    {
+      "text": "This is called speculative\nsampling or speculative",
+      "start": 4318.72,
+      "duration": 2.24
+    },
+    {
+      "text": "decoding.",
+      "start": 4320.96,
+      "duration": 1.12
+    },
+    {
+      "text": "So remember that if\nyou're doing prefill,",
+      "start": 4322.08,
+      "duration": 3.18
+    },
+    {
+      "text": "you can encode all the\ntokens in parallel.",
+      "start": 4325.26,
+      "duration": 2.58
+    },
+    {
+      "text": "This also gives\nyou probabilities.",
+      "start": 4327.84,
+      "duration": 1.54
+    },
+    {
+      "text": "This is fast.",
+      "start": 4329.38,
+      "duration": 1.04
+    },
+    {
+      "text": "This is compute-bound\nand all nice things.",
+      "start": 4330.42,
+      "duration": 2.9
+    },
+    {
+      "text": "And in generation,\nit's one at a time.",
+      "start": 4333.32,
+      "duration": 2.96
+    },
+    {
+      "text": "So checking is faster\nthan generation.",
+      "start": 4336.28,
+      "duration": 3.18
+    },
+    {
+      "text": "If I give you a sequence,\nit's fast to tell me",
+      "start": 4339.46,
+      "duration": 3.06
+    },
+    {
+      "text": "how good it is, much faster than\nit is to generate one at a time.",
+      "start": 4342.52,
+      "duration": 3.8
+    },
+    {
+      "text": "So you can exploit\nthis asymmetry",
+      "start": 4346.32,
+      "duration": 2.4
+    },
+    {
+      "text": "using the following idea.",
+      "start": 4348.72,
+      "duration": 2.04
+    },
+    {
+      "text": "So what we're going to do\nis use a cheap draft model",
+      "start": 4350.76,
+      "duration": 3.96
+    },
+    {
+      "text": "to basically generate from\nthe guest a few tokens,",
+      "start": 4354.72,
+      "duration": 4.06
+    },
+    {
+      "text": "let's say four tokens.",
+      "start": 4358.78,
+      "duration": 1.318
+    },
+    {
+      "text": "And then we're going to use the\nmodel we actually care about,",
+      "start": 4360.098,
+      "duration": 2.542
+    },
+    {
+      "text": "the target model Q, which to\nbasically review these tokens",
+      "start": 4362.64,
+      "duration": 4.8
+    },
+    {
+      "text": "and accept or not accept them.",
+      "start": 4367.44,
+      "duration": 2.76
+    },
+    {
+      "text": "So things are kind of\nchosen to be balanced.",
+      "start": 4370.2,
+      "duration": 4.01
+    },
+    {
+      "text": "The draft model is just\nsmaller and cheaper.",
+      "start": 4374.21,
+      "duration": 2.06
+    },
+    {
+      "text": "And so even though\nit's memory-bound,",
+      "start": 4376.27,
+      "duration": 1.96
+    },
+    {
+      "text": "and it has to generate one\nat a time, is not too bad.",
+      "start": 4378.23,
+      "duration": 2.92
+    },
+    {
+      "text": "Whereas, the target model\nis big and expensive,",
+      "start": 4381.15,
+      "duration": 2.86
+    },
+    {
+      "text": "but what we're\ndoing is asking it",
+      "start": 4384.01,
+      "duration": 1.66
+    },
+    {
+      "text": "to process a batch\nof tokens in parallel",
+      "start": 4385.67,
+      "duration": 2.78
+    },
+    {
+      "text": "so it won't also be too bad.",
+      "start": 4388.45,
+      "duration": 2.9
+    },
+    {
+      "text": "OK, so here's the video\nthat shows how things work.",
+      "start": 4391.35,
+      "duration": 5.7
+    },
+    {
+      "text": "So if you use a big\nmodel token by token,",
+      "start": 4397.05,
+      "duration": 2.46
+    },
+    {
+      "text": "it's going to be pretty slow.",
+      "start": 4399.51,
+      "duration": 2.64
+    },
+    {
+      "text": "But if you are doing\nspeculative decoding,",
+      "start": 4402.15,
+      "duration": 5.52
+    },
+    {
+      "text": "then you can see the small model\ngenerating a bunch of tokens,",
+      "start": 4407.67,
+      "duration": 7.48
+    },
+    {
+      "text": "and then the large model\nbasically critiquing them.",
+      "start": 4415.15,
+      "duration": 7.08
+    },
+    {
+      "text": "And then, so you basically\ncan get this burst",
+      "start": 4422.23,
+      "duration": 2.76
+    },
+    {
+      "text": "of tokens and then maybe\nanother burst of tokens",
+      "start": 4424.99,
+      "duration": 2.8
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 4427.79,
+      "duration": 1.18
+    },
+    {
+      "text": "OK.",
+      "start": 4431.82,
+      "duration": 0.96
+    },
+    {
+      "text": "So here is the\nalgorithm for-- there's",
+      "start": 4432.78,
+      "duration": 3.96
+    },
+    {
+      "text": "a few papers that came out\nwith speculative decoding",
+      "start": 4436.74,
+      "duration": 2.92
+    },
+    {
+      "text": "around the same time.",
+      "start": 4439.66,
+      "duration": 1.62
+    },
+    {
+      "text": "This is one of them.",
+      "start": 4441.28,
+      "duration": 3.1
+    },
+    {
+      "text": "And so the idea here is\nthat in order to generate,",
+      "start": 4444.38,
+      "duration": 4.84
+    },
+    {
+      "text": "we're going to\ngenerate K tokens.",
+      "start": 4449.22,
+      "duration": 2.732
+    },
+    {
+      "text": "And we're just going to\nsample from this draft model.",
+      "start": 4451.952,
+      "duration": 2.208
+    },
+    {
+      "text": "So p is the draft model.",
+      "start": 4454.16,
+      "duration": 2.4
+    },
+    {
+      "text": "We're going to sample K tokens.",
+      "start": 4456.56,
+      "duration": 1.94
+    },
+    {
+      "text": "And then in\nparallel, we're going",
+      "start": 4458.5,
+      "duration": 1.88
+    },
+    {
+      "text": "to compute the logits of\nthese draft tokens using q.",
+      "start": 4460.38,
+      "duration": 6.84
+    },
+    {
+      "text": "And then now we\nhave to determine",
+      "start": 4467.22,
+      "duration": 2.0
+    },
+    {
+      "text": "whether we accept or not.",
+      "start": 4469.22,
+      "duration": 1.82
+    },
+    {
+      "text": "And this is where you do a\nbit of math and probability",
+      "start": 4471.04,
+      "duration": 3.86
+    },
+    {
+      "text": "and statistics.",
+      "start": 4474.9,
+      "duration": 1.16
+    },
+    {
+      "text": "You basically are going to\naccept with probability Min 1",
+      "start": 4476.06,
+      "duration": 5.36
+    },
+    {
+      "text": "over this ratio of q over p.",
+      "start": 4481.42,
+      "duration": 3.84
+    },
+    {
+      "text": "So if q is much larger than\np, the larger the q is,",
+      "start": 4485.26,
+      "duration": 7.37
+    },
+    {
+      "text": "the more likely you\nwant to accept it.",
+      "start": 4492.63,
+      "duration": 1.76
+    },
+    {
+      "text": "And otherwise you sample from\nthis residual distribution",
+      "start": 4497.69,
+      "duration": 5.6
+    },
+    {
+      "text": "and exit.",
+      "start": 4503.29,
+      "duration": 1.48
+    },
+    {
+      "text": "So this is basically\nrejection sampling",
+      "start": 4504.77,
+      "duration": 4.96
+    },
+    {
+      "text": "except for rejection sampling.",
+      "start": 4509.73,
+      "duration": 1.58
+    },
+    {
+      "text": "Sometimes when you\nreject you get nothing.",
+      "start": 4511.31,
+      "duration": 3.64
+    },
+    {
+      "text": "But here we always\nare guaranteed",
+      "start": 4514.95,
+      "duration": 2.18
+    },
+    {
+      "text": "to get an exact sample\nfrom the target model.",
+      "start": 4517.13,
+      "duration": 3.48
+    },
+    {
+      "text": "I'm going to skip\nthis simple proof.",
+      "start": 4520.61,
+      "duration": 7.72
+    },
+    {
+      "text": "It's basically\nthe same arguments",
+      "start": 4528.33,
+      "duration": 1.68
+    },
+    {
+      "text": "as rejection sampling\nto show that it's",
+      "start": 4530.01,
+      "duration": 3.08
+    },
+    {
+      "text": "the exact probabilities\nfrom the target model.",
+      "start": 4533.09,
+      "duration": 7.76
+    },
+    {
+      "text": "And the initial paper\nshows that this fast.",
+      "start": 4540.85,
+      "duration": 4.46
+    },
+    {
+      "text": "And generally, if you\nhave too few draft tokens,",
+      "start": 4545.31,
+      "duration": 5.02
+    },
+    {
+      "text": "you're not really leveraging\nthe batching on the target model",
+      "start": 4550.33,
+      "duration": 4.26
+    },
+    {
+      "text": "side.",
+      "start": 4554.59,
+      "duration": 0.62
+    },
+    {
+      "text": "And if you have too\nmany, then you're",
+      "start": 4555.21,
+      "duration": 1.86
+    },
+    {
+      "text": "going to reject more often.",
+      "start": 4557.07,
+      "duration": 1.58
+    },
+    {
+      "text": "So there's a sweet spot around,\nin this case, three or four.",
+      "start": 4558.65,
+      "duration": 5.82
+    },
+    {
+      "text": "And in general, the draft\nmodel is much smaller",
+      "start": 4564.47,
+      "duration": 3.12
+    },
+    {
+      "text": "than the target model.",
+      "start": 4567.59,
+      "duration": 1.3
+    },
+    {
+      "text": "And ideally, you want\nthe model draft model",
+      "start": 4568.89,
+      "duration": 2.78
+    },
+    {
+      "text": "to be as close to\nthe target, which",
+      "start": 4571.67,
+      "duration": 1.84
+    },
+    {
+      "text": "means that you\nwant to distill it,",
+      "start": 4573.51,
+      "duration": 4.04
+    },
+    {
+      "text": "which means that actually a lot\nof the same ideas that we just",
+      "start": 4577.55,
+      "duration": 3.12
+    },
+    {
+      "text": "talked about are applicable to\nspeculative decoding as well.",
+      "start": 4580.67,
+      "duration": 3.84
+    },
+    {
+      "text": "So basically, the\nidea is that let's try",
+      "start": 4584.51,
+      "duration": 3.52
+    },
+    {
+      "text": "to reduce your KV cache via\nall the different shenanigans.",
+      "start": 4588.03,
+      "duration": 4.26
+    },
+    {
+      "text": "And if you end up with a\nmodel you're happy with,",
+      "start": 4592.29,
+      "duration": 2.74
+    },
+    {
+      "text": "just serve that.",
+      "start": 4595.03,
+      "duration": 1.06
+    },
+    {
+      "text": "If you're not\nhappy with it, then",
+      "start": 4596.09,
+      "duration": 1.82
+    },
+    {
+      "text": "it at least can be a draft model\nand you can use your main model",
+      "start": 4597.91,
+      "duration": 3.32
+    },
+    {
+      "text": "to fix things up.",
+      "start": 4601.23,
+      "duration": 2.16
+    },
+    {
+      "text": "There's a bunch of\nwhole literature",
+      "start": 4603.39,
+      "duration": 2.19
+    },
+    {
+      "text": "on speculative\ndecoding right now",
+      "start": 4605.58,
+      "duration": 2.52
+    },
+    {
+      "text": "that improve over the original,\nwhich I'll skip for now.",
+      "start": 4608.1,
+      "duration": 7.68
+    },
+    {
+      "text": "So very quickly now,\ndynamic workloads.",
+      "start": 4615.78,
+      "duration": 5.7
+    },
+    {
+      "text": "So this is the use case, is\nyou're serving a live website,",
+      "start": 4621.48,
+      "duration": 4.64
+    },
+    {
+      "text": "and users come and\nchat with your model.",
+      "start": 4626.12,
+      "duration": 2.94
+    },
+    {
+      "text": "The requests arrive\nat different times.",
+      "start": 4629.06,
+      "duration": 3.4
+    },
+    {
+      "text": "They have different\nshared prefixes,",
+      "start": 4632.46,
+      "duration": 2.14
+    },
+    {
+      "text": "and they have different lengths.",
+      "start": 4634.6,
+      "duration": 2.66
+    },
+    {
+      "text": "So it's kind of pretty messy.",
+      "start": 4637.26,
+      "duration": 2.56
+    },
+    {
+      "text": "It's far from this very\nsimple training where",
+      "start": 4639.82,
+      "duration": 3.2
+    },
+    {
+      "text": "you have these blocks of\nthe same number of tokens",
+      "start": 4643.02,
+      "duration": 4.88
+    },
+    {
+      "text": "all at once.",
+      "start": 4647.9,
+      "duration": 1.24
+    },
+    {
+      "text": "So what do you do in this case?",
+      "start": 4649.14,
+      "duration": 1.54
+    },
+    {
+      "text": "So there's this idea--\nthere's a system called",
+      "start": 4650.68,
+      "duration": 4.34
+    },
+    {
+      "text": "Orca that was built.\nThis is actually",
+      "start": 4655.02,
+      "duration": 1.72
+    },
+    {
+      "text": "very early on which\nintroduced this idea",
+      "start": 4656.74,
+      "duration": 2.6
+    },
+    {
+      "text": "of continuous batching.",
+      "start": 4659.34,
+      "duration": 2.0
+    },
+    {
+      "text": "So the idea is that you\nget a bunch of requests",
+      "start": 4661.34,
+      "duration": 4.43
+    },
+    {
+      "text": "that look like this.",
+      "start": 4665.77,
+      "duration": 0.94
+    },
+    {
+      "text": "So here's a prefix\nof the first request,",
+      "start": 4666.71,
+      "duration": 2.58
+    },
+    {
+      "text": "and you're generating\nthis token.",
+      "start": 4669.29,
+      "duration": 1.74
+    },
+    {
+      "text": "Here's the second one.",
+      "start": 4671.03,
+      "duration": 1.418
+    },
+    {
+      "text": "Here's the third\none, the fourth one.",
+      "start": 4672.448,
+      "duration": 1.542
+    },
+    {
+      "text": "It's jagged because every\nprefix has a different length.",
+      "start": 4673.99,
+      "duration": 2.94
+    },
+    {
+      "text": "And what we're\ngoing to do is we're",
+      "start": 4676.93,
+      "duration": 1.64
+    },
+    {
+      "text": "going to decode step by step.",
+      "start": 4678.57,
+      "duration": 2.36
+    },
+    {
+      "text": "So every step you decode one\ntoken for all the sequences.",
+      "start": 4680.93,
+      "duration": 4.78
+    },
+    {
+      "text": "Next step, you decode another\ntoken for all the sequences.",
+      "start": 4685.71,
+      "duration": 2.8
+    },
+    {
+      "text": "And then if you end, you\njust eject that sequence.",
+      "start": 4688.51,
+      "duration": 5.34
+    },
+    {
+      "text": "And then as new requests\narrive to the batch,",
+      "start": 4693.85,
+      "duration": 2.88
+    },
+    {
+      "text": "then you basically\nput it in the batch,",
+      "start": 4696.73,
+      "duration": 3.0
+    },
+    {
+      "text": "and then you just continue.",
+      "start": 4699.73,
+      "duration": 3.183
+    },
+    {
+      "text": "So that's why it's called\ncontinuous batching because it's",
+      "start": 4702.913,
+      "duration": 2.417
+    },
+    {
+      "text": "this batch is\ndynamically being updated",
+      "start": 4705.33,
+      "duration": 4.04
+    },
+    {
+      "text": "with either old finished\nsequences being evicted",
+      "start": 4709.37,
+      "duration": 3.6
+    },
+    {
+      "text": "and new ones coming in.",
+      "start": 4712.97,
+      "duration": 1.8
+    },
+    {
+      "text": "So now, one problem\nhere is that everything",
+      "start": 4714.77,
+      "duration": 4.48
+    },
+    {
+      "text": "we've seen batching works\nwhen all the sequences have",
+      "start": 4719.25,
+      "duration": 2.51
+    },
+    {
+      "text": "the same dimensionality.",
+      "start": 4721.76,
+      "duration": 1.4
+    },
+    {
+      "text": "You have tensors.",
+      "start": 4723.16,
+      "duration": 1.44
+    },
+    {
+      "text": "Every slice has the\nsame dimensionality.",
+      "start": 4724.6,
+      "duration": 2.36
+    },
+    {
+      "text": "But if you request here\nhas a different length,",
+      "start": 4726.96,
+      "duration": 3.3
+    },
+    {
+      "text": "so what do you do about that?",
+      "start": 4730.26,
+      "duration": 1.58
+    },
+    {
+      "text": "So there's this idea\ncalled selective batching",
+      "start": 4731.84,
+      "duration": 2.36
+    },
+    {
+      "text": "where let's say you have a\nlength 3, length 9, and a length",
+      "start": 4734.2,
+      "duration": 6.44
+    },
+    {
+      "text": "5.",
+      "start": 4740.64,
+      "duration": 1.04
+    },
+    {
+      "text": "So here in the\nattention computation,",
+      "start": 4741.68,
+      "duration": 3.14
+    },
+    {
+      "text": "you can't really do\nanything about this",
+      "start": 4744.82,
+      "duration": 1.74
+    },
+    {
+      "text": "because attention depends on\nthe length of your sequence.",
+      "start": 4746.56,
+      "duration": 5.38
+    },
+    {
+      "text": "So if you have a 3 by\n3, a 9 by 9 computation,",
+      "start": 4751.94,
+      "duration": 4.2
+    },
+    {
+      "text": "you can't really share\nthe tensor effectively.",
+      "start": 4756.14,
+      "duration": 5.18
+    },
+    {
+      "text": "But for the non-attention,\nthe MLP layers,",
+      "start": 4761.32,
+      "duration": 2.46
+    },
+    {
+      "text": "which takes up a lot of\nFLOPs, you can actually just",
+      "start": 4763.78,
+      "duration": 4.38
+    },
+    {
+      "text": "concatenate all the\nsequences together",
+      "start": 4768.16,
+      "duration": 2.52
+    },
+    {
+      "text": "to form a mega sequence,\nand you process that.",
+      "start": 4770.68,
+      "duration": 4.04
+    },
+    {
+      "text": "So final idea is page attention.",
+      "start": 4774.72,
+      "duration": 3.92
+    },
+    {
+      "text": "This was introduced\nin the BLM paper.",
+      "start": 4778.64,
+      "duration": 3.27
+    },
+    {
+      "text": "Of course, BLM has many\nother bells and whistles now,",
+      "start": 4781.91,
+      "duration": 2.34
+    },
+    {
+      "text": "but this is the core\nidea at that time.",
+      "start": 4784.25,
+      "duration": 4.78
+    },
+    {
+      "text": "So the question is, how\nis the KV cache stored?",
+      "start": 4789.03,
+      "duration": 5.8
+    },
+    {
+      "text": "So if you think about\nrequests coming in,",
+      "start": 4794.83,
+      "duration": 5.43
+    },
+    {
+      "text": "you have to put them\nin memory somewhere.",
+      "start": 4800.26,
+      "duration": 2.75
+    },
+    {
+      "text": "And in general,\nthere's this problem",
+      "start": 4803.01,
+      "duration": 1.74
+    },
+    {
+      "text": "that you get fragmentation.",
+      "start": 4804.75,
+      "duration": 1.5
+    },
+    {
+      "text": "This is what happens to--",
+      "start": 4806.25,
+      "duration": 1.82
+    },
+    {
+      "text": "or used to happen\nto your hard drive.",
+      "start": 4808.07,
+      "duration": 3.24
+    },
+    {
+      "text": "And you have to defrag your\nhard drive back in the day.",
+      "start": 4811.31,
+      "duration": 4.32
+    },
+    {
+      "text": "So there's two types\nof fragmentation.",
+      "start": 4815.63,
+      "duration": 4.1
+    },
+    {
+      "text": "One is that you have to\nallocate enough buffer so",
+      "start": 4819.73,
+      "duration": 4.18
+    },
+    {
+      "text": "that-- because you don't\nwhen you're going to stop.",
+      "start": 4823.91,
+      "duration": 3.0
+    },
+    {
+      "text": "So you might have a max\ntoken limit of 1,024.",
+      "start": 4826.91,
+      "duration": 4.12
+    },
+    {
+      "text": "So you have to allocate\nall this memory.",
+      "start": 4831.03,
+      "duration": 1.74
+    },
+    {
+      "text": "And you can't put\nanything in there",
+      "start": 4832.77,
+      "duration": 1.458
+    },
+    {
+      "text": "because you're going\nto just generate",
+      "start": 4834.228,
+      "duration": 1.922
+    },
+    {
+      "text": "until you hit the max tokens,\nand that's very wasteful.",
+      "start": 4836.15,
+      "duration": 3.57
+    },
+    {
+      "text": "That's internal fragmentation.",
+      "start": 4839.72,
+      "duration": 1.66
+    },
+    {
+      "text": "And then there's also you\nhave-- there could be space",
+      "start": 4841.38,
+      "duration": 3.08
+    },
+    {
+      "text": "between different requests.",
+      "start": 4844.46,
+      "duration": 1.9
+    },
+    {
+      "text": "And that space is maybe too\nsmall to get used effectively.",
+      "start": 4846.36,
+      "duration": 3.68
+    },
+    {
+      "text": "So that's just wasted space.",
+      "start": 4850.04,
+      "duration": 2.62
+    },
+    {
+      "text": "So the solution here is just\nthese are systems people.",
+      "start": 4852.66,
+      "duration": 4.078
+    },
+    {
+      "text": "So they know their\noperating systems.",
+      "start": 4856.738,
+      "duration": 1.542
+    },
+    {
+      "text": "They said, OK, well we've\nsolved this problem once before,",
+      "start": 4858.28,
+      "duration": 3.1
+    },
+    {
+      "text": "so let's just use\nthe same idea here.",
+      "start": 4861.38,
+      "duration": 2.8
+    },
+    {
+      "text": "So we're going to divide\nthe KV cache of a sequence",
+      "start": 4864.18,
+      "duration": 2.6
+    },
+    {
+      "text": "into non-contiguous blocks, OK?",
+      "start": 4866.78,
+      "duration": 4.66
+    },
+    {
+      "text": "So if you have this sequence,\nfour score and seven years",
+      "start": 4871.44,
+      "duration": 3.34
+    },
+    {
+      "text": "ago our fathers\nbrought forth, we're",
+      "start": 4874.78,
+      "duration": 1.72
+    },
+    {
+      "text": "just going to chunk it up\ninto these blocks of size 4.",
+      "start": 4876.5,
+      "duration": 2.96
+    },
+    {
+      "text": "Doesn't matter where the\nblocks go, but they're",
+      "start": 4879.46,
+      "duration": 2.4
+    },
+    {
+      "text": "going to be aligned\naccording to the block.",
+      "start": 4881.86,
+      "duration": 3.22
+    },
+    {
+      "text": "So there's some\nuniformity there.",
+      "start": 4885.08,
+      "duration": 2.7
+    },
+    {
+      "text": "So when two requests\nshare the same--",
+      "start": 4887.78,
+      "duration": 5.2
+    },
+    {
+      "text": "can actually share\nthe same KV cache.",
+      "start": 4892.98,
+      "duration": 2.1
+    },
+    {
+      "text": "So you might have this\nblock and this block.",
+      "start": 4900.41,
+      "duration": 4.72
+    },
+    {
+      "text": "So this block might\ngo here and here,",
+      "start": 4905.13,
+      "duration": 3.04
+    },
+    {
+      "text": "and this block\nmight be over there.",
+      "start": 4908.17,
+      "duration": 1.7
+    },
+    {
+      "text": "So they're interspersed.",
+      "start": 4909.87,
+      "duration": 2.84
+    },
+    {
+      "text": "But as long as you\nhave the indices",
+      "start": 4912.71,
+      "duration": 1.6
+    },
+    {
+      "text": "and keep track of where\neverything is, it's fine.",
+      "start": 4914.31,
+      "duration": 4.1
+    },
+    {
+      "text": "So in particular, if you\nhave, system prompts, then",
+      "start": 4918.41,
+      "duration": 6.92
+    },
+    {
+      "text": "you can actually just\ncache these system prompts,",
+      "start": 4925.33,
+      "duration": 4.56
+    },
+    {
+      "text": "the KV cache and the\nsystem prompts, once.",
+      "start": 4929.89,
+      "duration": 2.44
+    },
+    {
+      "text": "And that can be useful\nfor all the queries, OK?",
+      "start": 4932.33,
+      "duration": 3.38
+    },
+    {
+      "text": "So this is very useful\nbecause if a lot of people",
+      "start": 4935.71,
+      "duration": 2.1
+    },
+    {
+      "text": "are using the same\nsystem prompt,",
+      "start": 4937.81,
+      "duration": 1.375
+    },
+    {
+      "text": "then you don't have to compute\nthe cache for every request.",
+      "start": 4939.185,
+      "duration": 5.265
+    },
+    {
+      "text": "Also there are many applications\nwhere you have the same prompt,",
+      "start": 4944.45,
+      "duration": 4.64
+    },
+    {
+      "text": "and you actually want to\ngenerate multiple responses.",
+      "start": 4949.09,
+      "duration": 2.56
+    },
+    {
+      "text": "So in that case, you\ncan also just share",
+      "start": 4951.65,
+      "duration": 2.9
+    },
+    {
+      "text": "the KB cache for\nthe prompt and just",
+      "start": 4954.55,
+      "duration": 4.52
+    },
+    {
+      "text": "have unique\nresponses coming out.",
+      "start": 4959.07,
+      "duration": 3.6
+    },
+    {
+      "text": "OK, So for example, if\nyou were to generate,",
+      "start": 4962.67,
+      "duration": 4.32
+    },
+    {
+      "text": "let's say, multiple\ngenerations from score",
+      "start": 4966.99,
+      "duration": 3.16
+    },
+    {
+      "text": "and seven years ago are, blank,\nand so what would happen here",
+      "start": 4970.15,
+      "duration": 5.4
+    },
+    {
+      "text": "is that you would\nhave score and seven.",
+      "start": 4975.55,
+      "duration": 2.4
+    },
+    {
+      "text": "And you would start by\nhaving years ago or our.",
+      "start": 4977.95,
+      "duration": 4.8
+    },
+    {
+      "text": "And then this is called\ncopy on write semantics.",
+      "start": 4982.75,
+      "duration": 4.42
+    },
+    {
+      "text": "You keep this.",
+      "start": 4987.17,
+      "duration": 0.96
+    },
+    {
+      "text": "And then we have\nthese two samples.",
+      "start": 4988.13,
+      "duration": 2.16
+    },
+    {
+      "text": "And if they had happened to\nsample let's say the same token,",
+      "start": 4990.29,
+      "duration": 4.22
+    },
+    {
+      "text": "you just continue with that.",
+      "start": 4994.51,
+      "duration": 2.5
+    },
+    {
+      "text": "But if they sample different\ntokens, you split the block,",
+      "start": 4997.01,
+      "duration": 2.66
+    },
+    {
+      "text": "and then you can continue there.",
+      "start": 4999.67,
+      "duration": 2.36
+    },
+    {
+      "text": "So you're basically sharing\nas much of the prefix cache",
+      "start": 5002.03,
+      "duration": 3.08
+    },
+    {
+      "text": "as you can.",
+      "start": 5005.11,
+      "duration": 3.2
+    },
+    {
+      "text": "There's a bunch of other\noptimizations like kernels",
+      "start": 5008.31,
+      "duration": 4.75
+    },
+    {
+      "text": "that I'm not going to\nhave time to go over.",
+      "start": 5013.06,
+      "duration": 3.84
+    },
+    {
+      "text": "But the general\nidea is that you're",
+      "start": 5016.9,
+      "duration": 2.24
+    },
+    {
+      "text": "using these operating\nsystems metaphors to manage",
+      "start": 5019.14,
+      "duration": 5.28
+    },
+    {
+      "text": "your inference.",
+      "start": 5024.42,
+      "duration": 2.04
+    },
+    {
+      "text": "So summary here-- inference\nis really, really important.",
+      "start": 5026.46,
+      "duration": 5.28
+    },
+    {
+      "text": "It's very different\nfrom training.",
+      "start": 5031.74,
+      "duration": 2.48
+    },
+    {
+      "text": "Even though it's the same model,\nbut you're asking the model",
+      "start": 5034.22,
+      "duration": 2.84
+    },
+    {
+      "text": "to do something very different,\nends up being very memory-bound.",
+      "start": 5037.06,
+      "duration": 3.44
+    },
+    {
+      "text": "And it's also dynamic if you're\nin a live chatbot use case.",
+      "start": 5040.5,
+      "duration": 6.32
+    },
+    {
+      "text": "We saw a variety of different\ntechniques to improve inference.",
+      "start": 5046.82,
+      "duration": 4.74
+    },
+    {
+      "text": "You can quantize.",
+      "start": 5051.56,
+      "duration": 0.8
+    },
+    {
+      "text": "You can come up with\nnew architectures.",
+      "start": 5052.36,
+      "duration": 2.08
+    },
+    {
+      "text": "You can prune and distill.",
+      "start": 5054.44,
+      "duration": 1.84
+    },
+    {
+      "text": "You can also use\nspeculative sampling.",
+      "start": 5056.28,
+      "duration": 3.1
+    },
+    {
+      "text": "But all of these are driven\nby the same principle",
+      "start": 5059.38,
+      "duration": 3.0
+    },
+    {
+      "text": "here, which is\nreduce your KV cache",
+      "start": 5062.38,
+      "duration": 2.56
+    },
+    {
+      "text": "but don't hurt\naccuracy too much.",
+      "start": 5064.94,
+      "duration": 3.6
+    },
+    {
+      "text": "And then there's ideas\nfrom systems like paging",
+      "start": 5068.54,
+      "duration": 5.19
+    },
+    {
+      "text": "and speculative\nexecution that can",
+      "start": 5073.73,
+      "duration": 2.12
+    },
+    {
+      "text": "be brought to bear for actually\nlive inference servers.",
+      "start": 5075.85,
+      "duration": 4.57
+    },
+    {
+      "text": "One thing we didn't really\nget a chance to talk about,",
+      "start": 5080.42,
+      "duration": 2.25
+    },
+    {
+      "text": "which was discussed\nbriefly, is that I",
+      "start": 5082.67,
+      "duration": 2.06
+    },
+    {
+      "text": "think that new architectures\nhave actually a huge potential",
+      "start": 5084.73,
+      "duration": 3.48
+    },
+    {
+      "text": "for improvement, things\nlike state space models",
+      "start": 5088.21,
+      "duration": 3.2
+    },
+    {
+      "text": "or linear attention\nor diffusion.",
+      "start": 5091.41,
+      "duration": 3.4
+    },
+    {
+      "text": "At some level, the\nKV cache and the way",
+      "start": 5094.81,
+      "duration": 3.52
+    },
+    {
+      "text": "that attention is\nbuilt fundamentally",
+      "start": 5098.33,
+      "duration": 2.8
+    },
+    {
+      "text": "makes it an inference\nunfriendly kind of architecture.",
+      "start": 5101.13,
+      "duration": 4.88
+    },
+    {
+      "text": "So if you can come up with\na new architecture that",
+      "start": 5106.01,
+      "duration": 2.68
+    },
+    {
+      "text": "is designed for\ninference in the way",
+      "start": 5108.69,
+      "duration": 2.12
+    },
+    {
+      "text": "that the transformer was not,\nthis can maybe unlock a lot.",
+      "start": 5110.81,
+      "duration": 4.52
+    },
+    {
+      "text": "OK, so I will stop there.",
+      "start": 5115.33,
+      "duration": 2.76
+    },
+    {
+      "text": "And next class, Tatsu\nwill return and talk",
+      "start": 5118.09,
+      "duration": 3.12
+    },
+    {
+      "text": "about scaling laws part 2.",
+      "start": 5121.21,
+      "duration": 3.07
+    }
+  ]
+}

@@ -1,0 +1,6568 @@
+{
+  "video_id": "SzpOcwdIL0Y",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 7: Parallelism",
+  "position": 7,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "OK.",
+      "start": 5.16,
+      "duration": 1.4
+    },
+    {
+      "text": "Let's get started.",
+      "start": 6.56,
+      "duration": 1.72
+    },
+    {
+      "text": "So welcome back, everyone.",
+      "start": 8.28,
+      "duration": 1.56
+    },
+    {
+      "text": "So today we're going to\ntalk about parallelism.",
+      "start": 9.84,
+      "duration": 3.48
+    },
+    {
+      "text": "And remember in\nthe last week, we",
+      "start": 13.32,
+      "duration": 2.0
+    },
+    {
+      "text": "introduced how to make a single\nGPU go fast by writing kernels.",
+      "start": 15.32,
+      "duration": 4.88
+    },
+    {
+      "text": "And we really looked\ninside this GPU.",
+      "start": 20.2,
+      "duration": 3.0
+    },
+    {
+      "text": "And this week,\nwe're going to talk",
+      "start": 23.2,
+      "duration": 1.8
+    },
+    {
+      "text": "about how to leverage\nmultiple GPUs to make",
+      "start": 25.0,
+      "duration": 2.72
+    },
+    {
+      "text": "your code go even faster.",
+      "start": 27.72,
+      "duration": 3.168
+    },
+    {
+      "text": "So the picture you\nshould have in your head",
+      "start": 30.888,
+      "duration": 1.792
+    },
+    {
+      "text": "is something like this.",
+      "start": 32.68,
+      "duration": 1.72
+    },
+    {
+      "text": "So for the last week, we\nfocused on one of these boxes,",
+      "start": 34.4,
+      "duration": 3.36
+    },
+    {
+      "text": "where you have your GPU.",
+      "start": 37.76,
+      "duration": 2.32
+    },
+    {
+      "text": "Remember, you have your High\nBandwidth Memory, HBM, L2 cache,",
+      "start": 40.08,
+      "duration": 4.02
+    },
+    {
+      "text": "L1 cache, registers, and a bunch\nof streaming multiprocessors.",
+      "start": 44.1,
+      "duration": 7.58
+    },
+    {
+      "text": "So now the picture\ngets extended,",
+      "start": 51.68,
+      "duration": 1.96
+    },
+    {
+      "text": "because instead of having\none GPU, you might have four,",
+      "start": 53.64,
+      "duration": 3.22
+    },
+    {
+      "text": "you might have 1,000 GPUs.",
+      "start": 56.86,
+      "duration": 2.4
+    },
+    {
+      "text": "And those are going\nto be connected.",
+      "start": 59.26,
+      "duration": 1.86
+    },
+    {
+      "text": "And I'll talk later\nabout how those GPUs are",
+      "start": 61.12,
+      "duration": 2.96
+    },
+    {
+      "text": "going to get connected.",
+      "start": 64.08,
+      "duration": 1.968
+    },
+    {
+      "text": "And then you're going\nto have to figure out",
+      "start": 66.048,
+      "duration": 1.792
+    },
+    {
+      "text": "how to leverage all of this\ncompute to train models.",
+      "start": 67.84,
+      "duration": 5.0
+    },
+    {
+      "text": "So in both cases, meaning\nboth in the single GPU case",
+      "start": 72.84,
+      "duration": 4.04
+    },
+    {
+      "text": "and in the multi-GPU case,\nas we'll talk about today,",
+      "start": 76.88,
+      "duration": 3.4
+    },
+    {
+      "text": "the situation is kind of\nsimilar if you zoom out,",
+      "start": 80.28,
+      "duration": 2.98
+    },
+    {
+      "text": "which is that the compute,\nthe arithmetic logic units,",
+      "start": 83.26,
+      "duration": 4.4
+    },
+    {
+      "text": "the tensor core, and so on,\nis far away from your data.",
+      "start": 87.66,
+      "duration": 3.42
+    },
+    {
+      "text": "And far away for a single\nGPU means all the way",
+      "start": 91.08,
+      "duration": 2.32
+    },
+    {
+      "text": "over here in HBM.",
+      "start": 93.4,
+      "duration": 2.36
+    },
+    {
+      "text": "And now if you have multi GPUs,\nthe thing that you need here",
+      "start": 95.76,
+      "duration": 4.16
+    },
+    {
+      "text": "might be all the way\non a different GPU,",
+      "start": 99.92,
+      "duration": 2.16
+    },
+    {
+      "text": "and you're going to have to\nshuffle that over somehow.",
+      "start": 102.08,
+      "duration": 3.12
+    },
+    {
+      "text": "But the same\nprinciples are going",
+      "start": 105.2,
+      "duration": 1.68
+    },
+    {
+      "text": "to be the same,\nbecause the game is",
+      "start": 106.88,
+      "duration": 2.64
+    },
+    {
+      "text": "to orchestrate the computation\nto try to avoid data transfer",
+      "start": 109.52,
+      "duration": 4.8
+    },
+    {
+      "text": "bottlenecks.",
+      "start": 114.32,
+      "duration": 0.96
+    },
+    {
+      "text": "It's very easy to\nuse a ton of GPUs,",
+      "start": 115.28,
+      "duration": 2.6
+    },
+    {
+      "text": "but it's hard to use\nthem effectively.",
+      "start": 117.88,
+      "duration": 3.47
+    },
+    {
+      "text": "So taking a little\nbit of liberty,",
+      "start": 121.35,
+      "duration": 2.74
+    },
+    {
+      "text": "we can think about the\ngeneralized hierarchy",
+      "start": 124.09,
+      "duration": 2.62
+    },
+    {
+      "text": "where at the local\nlevel next to the SMs",
+      "start": 126.71,
+      "duration": 7.04
+    },
+    {
+      "text": "a single node single GPU\nwhere you have an L1 cache",
+      "start": 133.75,
+      "duration": 4.44
+    },
+    {
+      "text": "shared memory.",
+      "start": 138.19,
+      "duration": 0.78
+    },
+    {
+      "text": "This was the fastest.",
+      "start": 138.97,
+      "duration": 1.5
+    },
+    {
+      "text": "And then you had HBM, which\nwe lamented was so slow.",
+      "start": 140.47,
+      "duration": 5.44
+    },
+    {
+      "text": "But in this lecture, HBM is\ngoing to be considered fast.",
+      "start": 145.91,
+      "duration": 4.68
+    },
+    {
+      "text": "Now we're going to think about\nthe single node multi-GPU",
+      "start": 150.59,
+      "duration": 3.28
+    },
+    {
+      "text": "setting where the GPUs\nare going to be connected",
+      "start": 153.87,
+      "duration": 2.52
+    },
+    {
+      "text": "via NVLink and NVSwitch.",
+      "start": 156.39,
+      "duration": 2.56
+    },
+    {
+      "text": "And then finally, the\nmulti-node and multi-GPU,",
+      "start": 158.95,
+      "duration": 3.42
+    },
+    {
+      "text": "where we have to\nresort to InfiniBand",
+      "start": 162.37,
+      "duration": 1.86
+    },
+    {
+      "text": "and ethernet depending\non what network you have.",
+      "start": 164.23,
+      "duration": 5.14
+    },
+    {
+      "text": "So last week, we talked\nabout various tricks",
+      "start": 169.37,
+      "duration": 5.42
+    },
+    {
+      "text": "for in reducing memory\naccesses, fusion and tiling.",
+      "start": 174.79,
+      "duration": 5.48
+    },
+    {
+      "text": "Read into shared memory,\ndo as much as you can,",
+      "start": 180.27,
+      "duration": 3.56
+    },
+    {
+      "text": "and then write it back out.",
+      "start": 183.83,
+      "duration": 2.16
+    },
+    {
+      "text": "And this week,\nwe're going to talk",
+      "start": 185.99,
+      "duration": 1.6
+    },
+    {
+      "text": "about how you can reduce\nthe amount of communication",
+      "start": 187.59,
+      "duration": 3.24
+    },
+    {
+      "text": "across GPUs by replicating\nand sharding appropriately.",
+      "start": 190.83,
+      "duration": 6.64
+    },
+    {
+      "text": "So why do you do multi-GPUs?",
+      "start": 197.47,
+      "duration": 3.76
+    },
+    {
+      "text": "The obvious answer is,\nwell, you want to scale.",
+      "start": 201.23,
+      "duration": 2.68
+    },
+    {
+      "text": "But to put a finer point on\nit, there's really two reasons.",
+      "start": 203.91,
+      "duration": 4.76
+    },
+    {
+      "text": "One is that your parameters\nor activations or gradients",
+      "start": 208.67,
+      "duration": 4.32
+    },
+    {
+      "text": "and optimizer state don't fit on\nthe HBM memory of a single GPU.",
+      "start": 212.99,
+      "duration": 4.9
+    },
+    {
+      "text": "So B21 has 192 gigabytes.",
+      "start": 217.89,
+      "duration": 2.78
+    },
+    {
+      "text": "If you're training a 1\ntrillion parameter model,",
+      "start": 220.67,
+      "duration": 2.26
+    },
+    {
+      "text": "that's not going to\nfit on a single GPU.",
+      "start": 222.93,
+      "duration": 3.14
+    },
+    {
+      "text": "And the other reason is that\neven if your model could",
+      "start": 226.07,
+      "duration": 3.0
+    },
+    {
+      "text": "fit on a single\nGPU, you might want",
+      "start": 229.07,
+      "duration": 2.08
+    },
+    {
+      "text": "to leverage more GPUs by\nsplitting everything up",
+      "start": 231.15,
+      "duration": 3.48
+    },
+    {
+      "text": "to train faster.",
+      "start": 234.63,
+      "duration": 1.88
+    },
+    {
+      "text": "So sometimes there\nwill be some decisions",
+      "start": 236.51,
+      "duration": 2.48
+    },
+    {
+      "text": "to be made because you could\nfit everything on GPUs,",
+      "start": 238.99,
+      "duration": 3.94
+    },
+    {
+      "text": "but you have fewer cores.",
+      "start": 242.93,
+      "duration": 3.26
+    },
+    {
+      "text": "But if you spread\nit out, then you're",
+      "start": 246.19,
+      "duration": 2.04
+    },
+    {
+      "text": "going to have to pay the\ncommunication bandwidth.",
+      "start": 248.23,
+      "duration": 3.32
+    },
+    {
+      "text": "So that's some\ncalculation you're",
+      "start": 251.55,
+      "duration": 1.56
+    },
+    {
+      "text": "going to have to do to figure\nout how to parallelize.",
+      "start": 253.11,
+      "duration": 5.36
+    },
+    {
+      "text": "So just one note here is that\nso far this lecture is Python.",
+      "start": 258.47,
+      "duration": 6.02
+    },
+    {
+      "text": "You execute it and you\ncan just show everything.",
+      "start": 264.49,
+      "duration": 2.86
+    },
+    {
+      "text": "Now, in this lecture, if\nyou run this directly,",
+      "start": 267.35,
+      "duration": 3.2
+    },
+    {
+      "text": "it uses multiprocessing.",
+      "start": 270.55,
+      "duration": 3.08
+    },
+    {
+      "text": "But when I trace through\nit, I'm putting in some",
+      "start": 273.63,
+      "duration": 2.44
+    },
+    {
+      "text": "of special single process mode.",
+      "start": 276.07,
+      "duration": 2.577
+    },
+    {
+      "text": "So if you want to\nsee the standard out",
+      "start": 278.647,
+      "duration": 1.583
+    },
+    {
+      "text": "for this lecture run in\nthe multiprocessing setup,",
+      "start": 280.23,
+      "duration": 4.84
+    },
+    {
+      "text": "you can click here.",
+      "start": 285.07,
+      "duration": 0.98
+    },
+    {
+      "text": "And I'll show this as we\ngo through the lecture.",
+      "start": 286.05,
+      "duration": 2.7
+    },
+    {
+      "text": "But just remember as we\nstep through this lecture,",
+      "start": 288.75,
+      "duration": 2.34
+    },
+    {
+      "text": "we're not actually\ndoing multiprocessing,",
+      "start": 291.09,
+      "duration": 2.06
+    },
+    {
+      "text": "because we're just stepping\nthrough single lines of code.",
+      "start": 293.15,
+      "duration": 3.84
+    },
+    {
+      "text": "So this lecture is going\nto include two parts.",
+      "start": 296.99,
+      "duration": 4.92
+    },
+    {
+      "text": "One is we're going to\nlearn about the building",
+      "start": 301.91,
+      "duration": 2.52
+    },
+    {
+      "text": "blocks of distributed\ncommunication and computation,",
+      "start": 304.43,
+      "duration": 4.08
+    },
+    {
+      "text": "starting with the\nprogramming model.",
+      "start": 308.51,
+      "duration": 2.42
+    },
+    {
+      "text": "Talk a little bit\nabout the hardware.",
+      "start": 310.93,
+      "duration": 2.5
+    },
+    {
+      "text": "Start to implement\nthings in Torch,",
+      "start": 313.43,
+      "duration": 2.64
+    },
+    {
+      "text": "which you're going to do\non your assignment two.",
+      "start": 316.07,
+      "duration": 4.72
+    },
+    {
+      "text": "And then the second\npart is we're going",
+      "start": 320.79,
+      "duration": 1.96
+    },
+    {
+      "text": "to look at actual training.",
+      "start": 322.75,
+      "duration": 2.72
+    },
+    {
+      "text": "We're going to look at\nthree types of parallelism.",
+      "start": 325.47,
+      "duration": 2.96
+    },
+    {
+      "text": "Data parallelism,\ntensor parallelism,",
+      "start": 328.43,
+      "duration": 1.76
+    },
+    {
+      "text": "pipeline parallelism.",
+      "start": 330.19,
+      "duration": 1.28
+    },
+    {
+      "text": "Each is going to cut up our\nmodel in different ways.",
+      "start": 331.47,
+      "duration": 3.06
+    },
+    {
+      "text": "We're going to do this\nfor MLPs rather than",
+      "start": 334.53,
+      "duration": 3.7
+    },
+    {
+      "text": "the full transformer.",
+      "start": 338.23,
+      "duration": 1.26
+    },
+    {
+      "text": "But it's really the\ncore computation",
+      "start": 339.49,
+      "duration": 3.38
+    },
+    {
+      "text": "is going to be shown here.",
+      "start": 342.87,
+      "duration": 2.76
+    },
+    {
+      "text": "So let's dive in.",
+      "start": 345.63,
+      "duration": 4.76
+    },
+    {
+      "text": "So the first thing to\ntalk about is these things",
+      "start": 350.39,
+      "duration": 3.15
+    },
+    {
+      "text": "called collective operations.",
+      "start": 353.54,
+      "duration": 2.84
+    },
+    {
+      "text": "So collective operations\nare these primitives from",
+      "start": 356.38,
+      "duration": 3.24
+    },
+    {
+      "text": "distributed programming\nthat go back to the '80s.",
+      "start": 359.62,
+      "duration": 3.58
+    },
+    {
+      "text": "So the idea of parallel\nprogramming is very old.",
+      "start": 363.2,
+      "duration": 4.26
+    },
+    {
+      "text": "It wasn't invented\nfor LLM training.",
+      "start": 367.46,
+      "duration": 3.36
+    },
+    {
+      "text": "And it's still the case\nthat these primitives",
+      "start": 370.82,
+      "duration": 3.36
+    },
+    {
+      "text": "are the ones that we use today.",
+      "start": 374.18,
+      "duration": 3.96
+    },
+    {
+      "text": "And here, collective\njust means that you're",
+      "start": 378.14,
+      "duration": 2.0
+    },
+    {
+      "text": "specifying a general\ncommunication",
+      "start": 380.14,
+      "duration": 2.12
+    },
+    {
+      "text": "pattern or a template\nacross multiple devices,",
+      "start": 382.26,
+      "duration": 3.3
+    },
+    {
+      "text": "rather than managing\npoint to point how",
+      "start": 385.56,
+      "duration": 3.1
+    },
+    {
+      "text": "this GPU is going to\ncommunicate with another GPU.",
+      "start": 388.66,
+      "duration": 3.36
+    },
+    {
+      "text": "And this is going\nto be much easier,",
+      "start": 392.02,
+      "duration": 2.34
+    },
+    {
+      "text": "and the system can do a\nlot more work for you.",
+      "start": 394.36,
+      "duration": 2.36
+    },
+    {
+      "text": "So this is a very tried\nand trued interface",
+      "start": 396.72,
+      "duration": 4.02
+    },
+    {
+      "text": "for doing parallel programming.",
+      "start": 400.74,
+      "duration": 3.4
+    },
+    {
+      "text": "So the general\nsetup is as follows.",
+      "start": 404.14,
+      "duration": 3.44
+    },
+    {
+      "text": "The terminology here\nis a little bit--",
+      "start": 407.58,
+      "duration": 1.96
+    },
+    {
+      "text": "I find it a little bit\nstrange, but this is standard",
+      "start": 409.54,
+      "duration": 2.32
+    },
+    {
+      "text": "in parallel programming.",
+      "start": 411.86,
+      "duration": 3.24
+    },
+    {
+      "text": "The idea is that you\nhave a bunch of ranks",
+      "start": 415.1,
+      "duration": 3.64
+    },
+    {
+      "text": "where rank corresponds to a\nparticular device, in our case",
+      "start": 418.74,
+      "duration": 3.28
+    },
+    {
+      "text": "a GPU.",
+      "start": 422.02,
+      "duration": 0.62
+    },
+    {
+      "text": "It could be a TPU.",
+      "start": 422.64,
+      "duration": 1.34
+    },
+    {
+      "text": "But the point is that you have,\nlet's say, four ranks here.",
+      "start": 423.98,
+      "duration": 2.8
+    },
+    {
+      "text": "The world size corresponds\nto the number of devices,",
+      "start": 426.78,
+      "duration": 3.18
+    },
+    {
+      "text": "so the world size here is four.",
+      "start": 429.96,
+      "duration": 3.1
+    },
+    {
+      "text": "So there is a few operations\nwe're going to go through.",
+      "start": 433.06,
+      "duration": 4.56
+    },
+    {
+      "text": "Broadcast, scatter,\ngather, reduce,",
+      "start": 437.62,
+      "duration": 2.32
+    },
+    {
+      "text": "all gather, reduce scatter,\nall reduce, and all to all.",
+      "start": 439.94,
+      "duration": 4.0
+    },
+    {
+      "text": "And each of these\noperations is going",
+      "start": 443.94,
+      "duration": 1.88
+    },
+    {
+      "text": "to specify how this\nset of ranks or devices",
+      "start": 445.82,
+      "duration": 3.96
+    },
+    {
+      "text": "is going to transfer\nsome amount of data",
+      "start": 449.78,
+      "duration": 3.24
+    },
+    {
+      "text": "slash compute with it to\nsome other set of devices.",
+      "start": 453.02,
+      "duration": 4.2
+    },
+    {
+      "text": "So the first three, broadcast,\nscatter, gather, reduce,",
+      "start": 457.22,
+      "duration": 3.44
+    },
+    {
+      "text": "are really just warm\nups, I would say.",
+      "start": 460.66,
+      "duration": 3.72
+    },
+    {
+      "text": "They allow you to get a sense of\nhow these collective operations",
+      "start": 464.38,
+      "duration": 7.16
+    },
+    {
+      "text": "work, but they're\nnot really going",
+      "start": 471.54,
+      "duration": 1.48
+    },
+    {
+      "text": "to be the ones that are\ndriving most of training.",
+      "start": 473.02,
+      "duration": 3.08
+    },
+    {
+      "text": "All gather, reduce\nscatter, and all",
+      "start": 476.1,
+      "duration": 1.6
+    },
+    {
+      "text": "reduce are the\nones that are going",
+      "start": 477.7,
+      "duration": 1.92
+    },
+    {
+      "text": "to show up again and again for\ndistributed training of language",
+      "start": 479.62,
+      "duration": 4.56
+    },
+    {
+      "text": "models.",
+      "start": 484.18,
+      "duration": 0.9
+    },
+    {
+      "text": "And finally, all\nto all I'll just",
+      "start": 485.08,
+      "duration": 1.38
+    },
+    {
+      "text": "mention here, which\nis important for MOEs,",
+      "start": 486.46,
+      "duration": 4.82
+    },
+    {
+      "text": "but we're not going to\nactually spend too much time",
+      "start": 491.28,
+      "duration": 2.42
+    },
+    {
+      "text": "on this this lecture.",
+      "start": 493.7,
+      "duration": 2.36
+    },
+    {
+      "text": "OK, so let's dive in with\nthe simplest operation, which",
+      "start": 496.06,
+      "duration": 5.72
+    },
+    {
+      "text": "is broadcast.",
+      "start": 501.78,
+      "duration": 1.56
+    },
+    {
+      "text": "So in broadcasting,\nyou have a rank 0.",
+      "start": 503.34,
+      "duration": 3.58
+    },
+    {
+      "text": "It could be any rank, but let's\njust say for sake of picking",
+      "start": 506.92,
+      "duration": 3.74
+    },
+    {
+      "text": "one, rank 0, has\nsome tensor 0123.",
+      "start": 510.66,
+      "duration": 5.72
+    },
+    {
+      "text": "And it broadcasts\nit to all the ranks.",
+      "start": 516.38,
+      "duration": 2.799
+    },
+    {
+      "text": "So at the end of this operation,\nwe have that each of the ranks",
+      "start": 519.179,
+      "duration": 5.241
+    },
+    {
+      "text": "has the same tensor on it.",
+      "start": 524.42,
+      "duration": 3.68
+    },
+    {
+      "text": "That should be pretty\nstraightforward.",
+      "start": 528.1,
+      "duration": 3.48
+    },
+    {
+      "text": "And this, again,\ndoesn't really show up",
+      "start": 531.58,
+      "duration": 2.72
+    },
+    {
+      "text": "in the core path of training.",
+      "start": 534.3,
+      "duration": 2.8
+    },
+    {
+      "text": "Generally, broadcasts are\nused for initialization,",
+      "start": 537.1,
+      "duration": 4.1
+    },
+    {
+      "text": "where let's say you initialize\na load initial checkpoint",
+      "start": 541.2,
+      "duration": 3.34
+    },
+    {
+      "text": "and then you broadcast\nit to all the ranks.",
+      "start": 544.54,
+      "duration": 2.6
+    },
+    {
+      "text": "So something that's\ndone like once.",
+      "start": 547.14,
+      "duration": 3.12
+    },
+    {
+      "text": "So the second\noperation is a scatter.",
+      "start": 550.26,
+      "duration": 5.12
+    },
+    {
+      "text": "And a scatter basically says,\nI have a tensor at rank 0",
+      "start": 555.38,
+      "duration": 7.96
+    },
+    {
+      "text": "who is split up\ninto the world size.",
+      "start": 563.34,
+      "duration": 3.92
+    },
+    {
+      "text": "And I'm going to\nbasically scatter",
+      "start": 567.26,
+      "duration": 2.64
+    },
+    {
+      "text": "my tensor onto the other ranks.",
+      "start": 569.9,
+      "duration": 2.96
+    },
+    {
+      "text": "So rank 0 gets 0,\nthe zeroth component.",
+      "start": 572.86,
+      "duration": 3.92
+    },
+    {
+      "text": "Rank 1 gets this, rank 2 gets\nthis, and rank 3 gets that.",
+      "start": 576.78,
+      "duration": 4.96
+    },
+    {
+      "text": "So again, this is\nnot directly used,",
+      "start": 581.74,
+      "duration": 4.0
+    },
+    {
+      "text": "but scatter is an\nimportant stepping stone",
+      "start": 585.74,
+      "duration": 2.87
+    },
+    {
+      "text": "to understand reduced scatter.",
+      "start": 588.61,
+      "duration": 1.58
+    },
+    {
+      "text": "So, as the name implies,\nscatter just takes a big tensor",
+      "start": 590.19,
+      "duration": 4.5
+    },
+    {
+      "text": "at one place and spreads it\nout onto multiple places.",
+      "start": 594.69,
+      "duration": 4.92
+    },
+    {
+      "text": "And you can see how\nthis might be helpful,",
+      "start": 599.61,
+      "duration": 2.2
+    },
+    {
+      "text": "because you want\nall the GPUs you're",
+      "start": 601.81,
+      "duration": 4.12
+    },
+    {
+      "text": "scattering to do some\nlocal computation",
+      "start": 605.93,
+      "duration": 3.48
+    },
+    {
+      "text": "on the different parts.",
+      "start": 609.41,
+      "duration": 1.38
+    },
+    {
+      "text": "So the inverse of\nscatter is scatter.",
+      "start": 613.69,
+      "duration": 3.48
+    },
+    {
+      "text": "So this should be\nvery predictable.",
+      "start": 617.17,
+      "duration": 2.84
+    },
+    {
+      "text": "The input is you have a bunch\nof pieces, each of which",
+      "start": 620.01,
+      "duration": 4.16
+    },
+    {
+      "text": "reside on a particular rank.",
+      "start": 624.17,
+      "duration": 2.52
+    },
+    {
+      "text": "And then when you\ndo a gather, that's",
+      "start": 626.69,
+      "duration": 3.08
+    },
+    {
+      "text": "with respect to a\nparticular rank, rank 0,",
+      "start": 629.77,
+      "duration": 3.04
+    },
+    {
+      "text": "it's going to just concatenate\nall the pieces together.",
+      "start": 632.81,
+      "duration": 2.62
+    },
+    {
+      "text": "Again, gather isn't\ndirectly used,",
+      "start": 638.17,
+      "duration": 2.34
+    },
+    {
+      "text": "but it's going to be a stepping\nstone to understand all gather.",
+      "start": 640.51,
+      "duration": 5.02
+    },
+    {
+      "text": "So next is reduce.",
+      "start": 645.53,
+      "duration": 1.94
+    },
+    {
+      "text": "So those of you who do\nfunctional programming are",
+      "start": 647.47,
+      "duration": 3.5
+    },
+    {
+      "text": "probably familiar\nwith what reduce is.",
+      "start": 650.97,
+      "duration": 1.8
+    },
+    {
+      "text": "It's exactly the same.",
+      "start": 652.77,
+      "duration": 2.16
+    },
+    {
+      "text": "The idea is that you start\nin the same starting point",
+      "start": 654.93,
+      "duration": 3.52
+    },
+    {
+      "text": "as a gather.",
+      "start": 658.45,
+      "duration": 3.88
+    },
+    {
+      "text": "And where the tensor is split\nup across multiple-- well,",
+      "start": 662.33,
+      "duration": 5.16
+    },
+    {
+      "text": "you have some piece of data on\neach of the different ranks.",
+      "start": 667.49,
+      "duration": 3.44
+    },
+    {
+      "text": "And then you're going\nto apply your reduction",
+      "start": 670.93,
+      "duration": 2.32
+    },
+    {
+      "text": "operation to all of these and\nget that in, put that on rank 0.",
+      "start": 673.25,
+      "duration": 6.76
+    },
+    {
+      "text": "So in this case, if you\ndo a reduction with sum,",
+      "start": 680.01,
+      "duration": 3.24
+    },
+    {
+      "text": "then you add these\nall up, you get six.",
+      "start": 683.25,
+      "duration": 3.56
+    },
+    {
+      "text": "So you can think about\ngather as a reduction",
+      "start": 686.81,
+      "duration": 2.72
+    },
+    {
+      "text": "where the operation is\nconcatenation, if you will.",
+      "start": 689.53,
+      "duration": 4.86
+    },
+    {
+      "text": "And of course, reduce is\nimportant to understanding",
+      "start": 697.17,
+      "duration": 2.68
+    },
+    {
+      "text": "all reduce.",
+      "start": 699.85,
+      "duration": 1.8
+    },
+    {
+      "text": "So let me pause there.",
+      "start": 701.65,
+      "duration": 2.16
+    },
+    {
+      "text": "Those were just the warm\nups. Just in case people",
+      "start": 703.81,
+      "duration": 2.48
+    },
+    {
+      "text": "have any questions about what\na collective operation is,",
+      "start": 706.29,
+      "duration": 4.56
+    },
+    {
+      "text": "broadcast, scatter,\ngather, reduce.",
+      "start": 710.85,
+      "duration": 3.66
+    },
+    {
+      "text": "Yeah?",
+      "start": 719.85,
+      "duration": 1.6
+    },
+    {
+      "text": "[INAUDIBLE] NumPy, where is it?",
+      "start": 721.45,
+      "duration": 4.8
+    },
+    {
+      "text": "So the question\nis, is this related",
+      "start": 726.25,
+      "duration": 2.04
+    },
+    {
+      "text": "to broadcasting and NumPy?",
+      "start": 728.29,
+      "duration": 4.12
+    },
+    {
+      "text": "I mean, I think it's\nconceptually the same idea,",
+      "start": 732.41,
+      "duration": 4.68
+    },
+    {
+      "text": "where you have one thing\nthat goes to many things.",
+      "start": 737.09,
+      "duration": 2.56
+    },
+    {
+      "text": "Like in NumPy, if\nyou have a scalar,",
+      "start": 739.65,
+      "duration": 1.54
+    },
+    {
+      "text": "get broadcast to a tensor.",
+      "start": 741.19,
+      "duration": 1.58
+    },
+    {
+      "text": "But the instantiation, this is\nfor collective communication.",
+      "start": 742.77,
+      "duration": 4.9
+    },
+    {
+      "text": "So it's a bit different.",
+      "start": 747.67,
+      "duration": 1.36
+    },
+    {
+      "text": "So let's move on to\nsomething more interesting.",
+      "start": 752.65,
+      "duration": 3.3
+    },
+    {
+      "text": "So all gather is what\nyou do to-- basically,",
+      "start": 755.95,
+      "duration": 5.14
+    },
+    {
+      "text": "you perform gather to all\nranks, not just rank 0.",
+      "start": 761.09,
+      "duration": 4.07
+    },
+    {
+      "text": "So remember what gather does.",
+      "start": 765.16,
+      "duration": 1.88
+    },
+    {
+      "text": "It basically takes all\nthe different pieces",
+      "start": 767.04,
+      "duration": 4.24
+    },
+    {
+      "text": "and it just puts it\non one rank, rank 0.",
+      "start": 771.28,
+      "duration": 4.2
+    },
+    {
+      "text": "And now all gather just does\nit for every single rank.",
+      "start": 775.48,
+      "duration": 4.84
+    },
+    {
+      "text": "That's what the all is for.",
+      "start": 780.32,
+      "duration": 1.58
+    },
+    {
+      "text": "All means do it for all the\noutput to all the ranks,",
+      "start": 781.9,
+      "duration": 4.14
+    },
+    {
+      "text": "and gather is what you're\ndoing to all the ranks.",
+      "start": 786.04,
+      "duration": 2.5
+    },
+    {
+      "text": "So this is going\nto come up a bunch.",
+      "start": 792.56,
+      "duration": 3.6
+    },
+    {
+      "text": "It's not important that you\nunderstand this statement",
+      "start": 796.16,
+      "duration": 2.28
+    },
+    {
+      "text": "precisely, but later we'll\nsee that each rank holds",
+      "start": 798.44,
+      "duration": 4.72
+    },
+    {
+      "text": "part of the parameters.",
+      "start": 803.16,
+      "duration": 1.88
+    },
+    {
+      "text": "And then what you\nneed to do is all",
+      "start": 805.04,
+      "duration": 2.68
+    },
+    {
+      "text": "gather the parameters to\nget the full parameters",
+      "start": 807.72,
+      "duration": 2.44
+    },
+    {
+      "text": "for the full forward pass.",
+      "start": 810.16,
+      "duration": 2.0
+    },
+    {
+      "text": "So in general, as\nwe're doing training,",
+      "start": 812.16,
+      "duration": 2.22
+    },
+    {
+      "text": "we're going to see a lot of\nthis gather to do something",
+      "start": 814.38,
+      "duration": 3.78
+    },
+    {
+      "text": "and then scatter and then\ngather and scatter again.",
+      "start": 818.16,
+      "duration": 4.88
+    },
+    {
+      "text": "So reduce scatter is performing\nreduce on each dimension",
+      "start": 823.04,
+      "duration": 6.68
+    },
+    {
+      "text": "and then scattering the results.",
+      "start": 829.72,
+      "duration": 3.08
+    },
+    {
+      "text": "So let's say you have four\ndevices and each of them",
+      "start": 832.8,
+      "duration": 9.52
+    },
+    {
+      "text": "has some vector.",
+      "start": 842.32,
+      "duration": 3.08
+    },
+    {
+      "text": "And so when we did a reduce\nbefore, we just had 0123,",
+      "start": 845.4,
+      "duration": 6.86
+    },
+    {
+      "text": "and that got reduced to 6.",
+      "start": 852.26,
+      "duration": 2.26
+    },
+    {
+      "text": "But now reduce scatter says\nthat for each component",
+      "start": 854.52,
+      "duration": 3.2
+    },
+    {
+      "text": "of this tensor, I'm\ngoing to do a reduction,",
+      "start": 857.72,
+      "duration": 3.0
+    },
+    {
+      "text": "and then I'm going to put\nit on a different rank.",
+      "start": 860.72,
+      "duration": 3.9
+    },
+    {
+      "text": "So the first dimension, I'm\ngoing to add these up, I get 6.",
+      "start": 867.84,
+      "duration": 5.785
+    },
+    {
+      "text": "Now, for the second dimension,\nI'm going to add these up.",
+      "start": 873.625,
+      "duration": 2.375
+    },
+    {
+      "text": "I get 10.",
+      "start": 876.0,
+      "duration": 1.0
+    },
+    {
+      "text": "For third dimension, I'm\ngoing to process these.",
+      "start": 877.0,
+      "duration": 2.012
+    },
+    {
+      "text": "For the fourth dimension,\nI'm going to process those.",
+      "start": 879.012,
+      "duration": 2.208
+    },
+    {
+      "text": "So where this is going to show\nup, just to foreshadow things,",
+      "start": 887.74,
+      "duration": 4.7
+    },
+    {
+      "text": "after the backward pass, when\nyou sum what you're going to do",
+      "start": 892.44,
+      "duration": 5.0
+    },
+    {
+      "text": "is each GPU will be dealing\nwith different data.",
+      "start": 897.44,
+      "duration": 5.2
+    },
+    {
+      "text": "And what you're doing is you\nneed to sum all of the gradients",
+      "start": 902.64,
+      "duration": 5.12
+    },
+    {
+      "text": "from the different shards.",
+      "start": 907.76,
+      "duration": 2.4
+    },
+    {
+      "text": "And then you're going to\nredistribute this storage.",
+      "start": 910.16,
+      "duration": 4.66
+    },
+    {
+      "text": "And then finally, all reduce.",
+      "start": 918.36,
+      "duration": 2.72
+    },
+    {
+      "text": "If you understand all reduce\ngather and all gather,",
+      "start": 921.08,
+      "duration": 4.2
+    },
+    {
+      "text": "it's basically you do one\nand then you do the other.",
+      "start": 925.28,
+      "duration": 3.46
+    },
+    {
+      "text": "So what this does is reduce\nscatter, the same input as we",
+      "start": 928.74,
+      "duration": 6.54
+    },
+    {
+      "text": "had before.",
+      "start": 935.28,
+      "duration": 2.36
+    },
+    {
+      "text": "And remember, in\nreduce scatter, we",
+      "start": 937.64,
+      "duration": 3.88
+    },
+    {
+      "text": "had 6, 10, 14, and 18\nsit on different ranks.",
+      "start": 941.52,
+      "duration": 4.6
+    },
+    {
+      "text": "And the all gather\npart of all reduce just",
+      "start": 946.12,
+      "duration": 3.16
+    },
+    {
+      "text": "puts them all on the same--",
+      "start": 949.28,
+      "duration": 2.76
+    },
+    {
+      "text": "everything on the same node.",
+      "start": 952.04,
+      "duration": 1.66
+    },
+    {
+      "text": "So all reduce is in some sense\nthe easiest to understand.",
+      "start": 956.5,
+      "duration": 3.12
+    },
+    {
+      "text": "You have a bunch of tensors.",
+      "start": 959.62,
+      "duration": 1.84
+    },
+    {
+      "text": "You reduce, in this case, some.",
+      "start": 961.46,
+      "duration": 2.22
+    },
+    {
+      "text": "And then you replicate\nthem on all the nodes.",
+      "start": 963.68,
+      "duration": 2.26
+    },
+    {
+      "text": "So we're going to see\nthis one actually first",
+      "start": 969.4,
+      "duration": 3.12
+    },
+    {
+      "text": "when we do a data parallel\nwhere we sum the gradients",
+      "start": 972.52,
+      "duration": 3.72
+    },
+    {
+      "text": "and then we replicate\nthe full parameters.",
+      "start": 976.24,
+      "duration": 4.32
+    },
+    {
+      "text": "So that's where we're\nactually going to start.",
+      "start": 980.56,
+      "duration": 2.1
+    },
+    {
+      "text": "So maybe just focus your\nattention on all reduce.",
+      "start": 982.66,
+      "duration": 2.38
+    },
+    {
+      "text": "Later, we're going to see how\nto get to fancier things like 0",
+      "start": 985.04,
+      "duration": 5.76
+    },
+    {
+      "text": "or FSDP.",
+      "start": 990.8,
+      "duration": 1.48
+    },
+    {
+      "text": "We need to break the all reduce\ninto reduce scatter and all",
+      "start": 992.28,
+      "duration": 4.16
+    },
+    {
+      "text": "gather, because then\nyou can intervene",
+      "start": 996.44,
+      "duration": 2.75
+    },
+    {
+      "text": "and you can manage\nthings a bit more.",
+      "start": 999.19,
+      "duration": 2.22
+    },
+    {
+      "text": "But for the basic version,\nall reduce is fine.",
+      "start": 1001.41,
+      "duration": 4.12
+    },
+    {
+      "text": "Finally, all to all.",
+      "start": 1008.39,
+      "duration": 3.32
+    },
+    {
+      "text": "This one is, in some\nways, the most general.",
+      "start": 1011.71,
+      "duration": 2.66
+    },
+    {
+      "text": "You basically specify how each\nrank sends a particular message",
+      "start": 1014.37,
+      "duration": 5.82
+    },
+    {
+      "text": "to another rank.",
+      "start": 1020.19,
+      "duration": 3.04
+    },
+    {
+      "text": "And so here's a simple\nexample where you",
+      "start": 1023.23,
+      "duration": 3.48
+    },
+    {
+      "text": "have the same input as before.",
+      "start": 1026.71,
+      "duration": 2.6
+    },
+    {
+      "text": "And what this is\nsaying is that I",
+      "start": 1029.31,
+      "duration": 2.24
+    },
+    {
+      "text": "want to send 0 to this\nelement to rank 0,",
+      "start": 1031.55,
+      "duration": 6.24
+    },
+    {
+      "text": "meaning keep it myself.",
+      "start": 1037.79,
+      "duration": 1.76
+    },
+    {
+      "text": "I'm going to send\none to rank 1, two",
+      "start": 1039.55,
+      "duration": 3.279
+    },
+    {
+      "text": "to rank 2, and three to rank 3.",
+      "start": 1042.829,
+      "duration": 3.0
+    },
+    {
+      "text": "And then if I'm rank 1, I want\nto send four to rank 0, five",
+      "start": 1045.829,
+      "duration": 5.321
+    },
+    {
+      "text": "to rank 1, six to rank\n2, and seven to rank 3.",
+      "start": 1051.15,
+      "duration": 4.96
+    },
+    {
+      "text": "So basically, the\nposition here is",
+      "start": 1056.11,
+      "duration": 3.12
+    },
+    {
+      "text": "going to denote\nwhich rank is going",
+      "start": 1059.23,
+      "duration": 3.0
+    },
+    {
+      "text": "to be the ultimate destination.",
+      "start": 1062.23,
+      "duration": 2.44
+    },
+    {
+      "text": "And so if you look at\nthe output, what happens",
+      "start": 1064.67,
+      "duration": 4.56
+    },
+    {
+      "text": "is that the first rank is\ngoing to receive everyone",
+      "start": 1069.23,
+      "duration": 5.72
+    },
+    {
+      "text": "who sent everything in column\n0, because all these ranks are",
+      "start": 1074.95,
+      "duration": 5.44
+    },
+    {
+      "text": "sending these things to rank 0.",
+      "start": 1080.39,
+      "duration": 3.12
+    },
+    {
+      "text": "Similarly, for rank\n1, all of the ranks",
+      "start": 1083.51,
+      "duration": 5.16
+    },
+    {
+      "text": "are sending this column to\nrank 1, and so on and so forth.",
+      "start": 1088.67,
+      "duration": 3.7
+    },
+    {
+      "text": "So this is going to be useful\nwhen for training MOEs.",
+      "start": 1096.87,
+      "duration": 5.84
+    },
+    {
+      "text": "And the intuition\nhere is that each rank",
+      "start": 1102.71,
+      "duration": 3.64
+    },
+    {
+      "text": "has both a split of the data\nand also a subset of experts.",
+      "start": 1106.35,
+      "duration": 3.64
+    },
+    {
+      "text": "And basically, and the\nkey idea of the MOE",
+      "start": 1109.99,
+      "duration": 4.08
+    },
+    {
+      "text": "is that it's dynamic routing.",
+      "start": 1114.07,
+      "duration": 2.1
+    },
+    {
+      "text": "You have to look at\nyour data to figure out",
+      "start": 1116.17,
+      "duration": 2.22
+    },
+    {
+      "text": "which experts you need to\nroute those activations to.",
+      "start": 1118.39,
+      "duration": 6.24
+    },
+    {
+      "text": "So it ends up being a\nall to all communication.",
+      "start": 1124.63,
+      "duration": 5.32
+    },
+    {
+      "text": "So if everything were balanced,\nmeaning that every rank sent",
+      "start": 1129.95,
+      "duration": 6.24
+    },
+    {
+      "text": "the same number of bytes\nto every other rank,",
+      "start": 1136.19,
+      "duration": 4.615
+    },
+    {
+      "text": "then all to all, you\ncan think about it",
+      "start": 1140.805,
+      "duration": 1.625
+    },
+    {
+      "text": "as essentially a transpose.",
+      "start": 1142.43,
+      "duration": 1.512
+    },
+    {
+      "text": "If you think about this as\na matrix, all you're doing",
+      "start": 1143.942,
+      "duration": 2.208
+    },
+    {
+      "text": "is transposing that matrix.",
+      "start": 1146.15,
+      "duration": 2.8
+    },
+    {
+      "text": "But in general, all to all\nalso handles unbalanced splits.",
+      "start": 1148.95,
+      "duration": 4.76
+    },
+    {
+      "text": "And I'm not showing\nthis here, but you",
+      "start": 1153.71,
+      "duration": 2.32
+    },
+    {
+      "text": "can configure it to\nsend any number of bytes",
+      "start": 1156.03,
+      "duration": 3.36
+    },
+    {
+      "text": "to any other rank.",
+      "start": 1159.39,
+      "duration": 3.84
+    },
+    {
+      "text": "But in general,\nyou want the splits",
+      "start": 1163.23,
+      "duration": 1.76
+    },
+    {
+      "text": "to be as balanced as possible.",
+      "start": 1164.99,
+      "duration": 2.3
+    },
+    {
+      "text": "So remember\n[INAUDIBLE] MOE lecture",
+      "start": 1167.29,
+      "duration": 2.26
+    },
+    {
+      "text": "where we had load balancing to\nmake sure that things were as",
+      "start": 1169.55,
+      "duration": 3.43
+    },
+    {
+      "text": "balanced as possible.",
+      "start": 1172.98,
+      "duration": 1.36
+    },
+    {
+      "text": "So morally, the ideal\ngoal is to have all",
+      "start": 1174.34,
+      "duration": 4.48
+    },
+    {
+      "text": "to all look kind of like this.",
+      "start": 1178.82,
+      "duration": 1.46
+    },
+    {
+      "text": "So just to summarize, maybe a\nfew helpful tips to remember",
+      "start": 1184.32,
+      "duration": 4.38
+    },
+    {
+      "text": "the terminology, because\nI just went through quite",
+      "start": 1188.7,
+      "duration": 4.0
+    },
+    {
+      "text": "a few different operations.",
+      "start": 1192.7,
+      "duration": 3.96
+    },
+    {
+      "text": "So reduce is,\nwell, it's reduced.",
+      "start": 1196.66,
+      "duration": 3.38
+    },
+    {
+      "text": "It performs on some of\nassociative commutative",
+      "start": 1200.04,
+      "duration": 3.62
+    },
+    {
+      "text": "operation.",
+      "start": 1203.66,
+      "duration": 0.74
+    },
+    {
+      "text": "Could be some, could\nbe max, could be min.",
+      "start": 1204.4,
+      "duration": 3.18
+    },
+    {
+      "text": "Scatter is the inverse gather.",
+      "start": 1207.58,
+      "duration": 2.08
+    },
+    {
+      "text": "Scatter distributes,\ngather centralizes.",
+      "start": 1209.66,
+      "duration": 3.12
+    },
+    {
+      "text": "And all just means that the\ndestination is all devices.",
+      "start": 1212.78,
+      "duration": 4.34
+    },
+    {
+      "text": "So that explains all\nreduce and all gather.",
+      "start": 1217.12,
+      "duration": 6.32
+    },
+    {
+      "text": "Let me pause there\nto take any questions",
+      "start": 1223.44,
+      "duration": 2.86
+    },
+    {
+      "text": "about collective communications.",
+      "start": 1226.3,
+      "duration": 2.02
+    },
+    {
+      "text": "Yeah?",
+      "start": 1231.78,
+      "duration": 0.64
+    },
+    {
+      "text": "For operations such as gathering\nwhere we basically [INAUDIBLE]",
+      "start": 1232.42,
+      "duration": 5.56
+    },
+    {
+      "text": "to rank 0, does that\nrank 0 [INAUDIBLE]?",
+      "start": 1237.98,
+      "duration": 4.32
+    },
+    {
+      "text": "Is it a particular GPU every\ntime or can that rank 0 change?",
+      "start": 1242.3,
+      "duration": 5.38
+    },
+    {
+      "text": "Yeah.",
+      "start": 1247.68,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question is when you\ndo a gather or a reduce,",
+      "start": 1248.18,
+      "duration": 4.36
+    },
+    {
+      "text": "the target where you write the\noutput, right now I said rank 0.",
+      "start": 1252.54,
+      "duration": 8.04
+    },
+    {
+      "text": "You'll see later in\nthe code, you basically",
+      "start": 1260.58,
+      "duration": 2.08
+    },
+    {
+      "text": "specify the GPU ID or the\nrank and it goes there.",
+      "start": 1262.66,
+      "duration": 7.52
+    },
+    {
+      "text": "So it doesn't have to be\ndetermined way in advance,",
+      "start": 1270.18,
+      "duration": 3.04
+    },
+    {
+      "text": "but it has to be\ndetermined basically",
+      "start": 1273.22,
+      "duration": 2.72
+    },
+    {
+      "text": "when you execute the call.",
+      "start": 1275.94,
+      "duration": 2.3
+    },
+    {
+      "text": "Cool.",
+      "start": 1283.34,
+      "duration": 1.42
+    },
+    {
+      "text": "Anything else?",
+      "start": 1284.76,
+      "duration": 2.3
+    },
+    {
+      "text": "Yeah.",
+      "start": 1287.06,
+      "duration": 0.92
+    },
+    {
+      "text": "These are just conceptual\nbuilding blocks, right?",
+      "start": 1287.98,
+      "duration": 2.6
+    },
+    {
+      "text": "They're not actually\n[INAUDIBLE].",
+      "start": 1290.58,
+      "duration": 4.36
+    },
+    {
+      "text": "Are these the\nactual [INAUDIBLE]?",
+      "start": 1294.94,
+      "duration": 5.12
+    },
+    {
+      "text": "Yeah, so the question is, are\nthese just conceptual building",
+      "start": 1300.06,
+      "duration": 2.76
+    },
+    {
+      "text": "blocks or are they code?",
+      "start": 1302.82,
+      "duration": 1.22
+    },
+    {
+      "text": "So I'm showing these right now\nas just conceptual building",
+      "start": 1304.04,
+      "duration": 2.7
+    },
+    {
+      "text": "blocks, but we'll\nvery quickly see how",
+      "start": 1306.74,
+      "duration": 2.0
+    },
+    {
+      "text": "these are implemented in code.",
+      "start": 1308.74,
+      "duration": 1.58
+    },
+    {
+      "text": "So before getting\ninto the code, I",
+      "start": 1313.46,
+      "duration": 2.64
+    },
+    {
+      "text": "want to talk a bit\nabout the hardware,",
+      "start": 1316.1,
+      "duration": 2.84
+    },
+    {
+      "text": "in particular how\nGPUs are connected,",
+      "start": 1318.94,
+      "duration": 2.2
+    },
+    {
+      "text": "because we already\nwhat's inside a GPU.",
+      "start": 1321.14,
+      "duration": 3.8
+    },
+    {
+      "text": "So let's talk about\nnetworking in general.",
+      "start": 1324.94,
+      "duration": 5.16
+    },
+    {
+      "text": "So this is a very\nclassic picture.",
+      "start": 1330.1,
+      "duration": 2.26
+    },
+    {
+      "text": "You can tell from this\nvery old looking image",
+      "start": 1332.36,
+      "duration": 4.98
+    },
+    {
+      "text": "that this is how computers,\nI mean, generally work.",
+      "start": 1337.34,
+      "duration": 5.24
+    },
+    {
+      "text": "So you have this server and\nthen you have a bunch of CPUs.",
+      "start": 1342.58,
+      "duration": 4.26
+    },
+    {
+      "text": "There's a PCIe bus, which you\nconnect things like your--",
+      "start": 1346.84,
+      "duration": 4.82
+    },
+    {
+      "text": "or used to connect things\nlike your mouse and keyboard.",
+      "start": 1351.66,
+      "duration": 4.04
+    },
+    {
+      "text": "And then you have a bunch\nof GPUs sitting off of them",
+      "start": 1355.7,
+      "duration": 3.48
+    },
+    {
+      "text": "and you have some RAM.",
+      "start": 1359.18,
+      "duration": 1.64
+    },
+    {
+      "text": "And then this\ncomputer is connected",
+      "start": 1360.82,
+      "duration": 2.24
+    },
+    {
+      "text": "to ethernet to another computer,\nand so on and so forth.",
+      "start": 1363.06,
+      "duration": 3.96
+    },
+    {
+      "text": "So this is a particular setup.",
+      "start": 1367.02,
+      "duration": 3.42
+    },
+    {
+      "text": "It's a particular topology.",
+      "start": 1370.44,
+      "duration": 2.5
+    },
+    {
+      "text": "And GPUs on the same node, you\nuse PCIe to communicate and GPUs",
+      "start": 1372.94,
+      "duration": 7.12
+    },
+    {
+      "text": "on different nodes, you have to\ngo all the way through ethernet.",
+      "start": 1380.06,
+      "duration": 4.28
+    },
+    {
+      "text": "So this is like if you\nbought your gaming GPU",
+      "start": 1384.34,
+      "duration": 3.28
+    },
+    {
+      "text": "and you had hooked it up with\nyour friend and was like,",
+      "start": 1387.62,
+      "duration": 2.62
+    },
+    {
+      "text": "I'm going to train\nsome big model.",
+      "start": 1390.24,
+      "duration": 2.26
+    },
+    {
+      "text": "That's what you\nwould have to do.",
+      "start": 1392.5,
+      "duration": 1.66
+    },
+    {
+      "text": "But if you're really\nserious about training,",
+      "start": 1394.16,
+      "duration": 3.38
+    },
+    {
+      "text": "then things look more like this.",
+      "start": 1397.54,
+      "duration": 4.06
+    },
+    {
+      "text": "This is the picture I\nshowed in the very beginning",
+      "start": 1401.6,
+      "duration": 3.58
+    },
+    {
+      "text": "where you have the\nGPU and there's",
+      "start": 1405.18,
+      "duration": 2.03
+    },
+    {
+      "text": "something called NVLink and\nNVSwitch and InfiniBand.",
+      "start": 1407.21,
+      "duration": 4.12
+    },
+    {
+      "text": "So the typical setup is this.",
+      "start": 1411.33,
+      "duration": 4.6
+    },
+    {
+      "text": "And these numbers,\neight is typical,",
+      "start": 1415.93,
+      "duration": 2.1
+    },
+    {
+      "text": "but this 256 is kind of made up.",
+      "start": 1418.03,
+      "duration": 2.9
+    },
+    {
+      "text": "So typically, you have\neight GPUs per node.",
+      "start": 1420.93,
+      "duration": 3.92
+    },
+    {
+      "text": "And these are connected via\nNVIDIA's NVLink to a switch.",
+      "start": 1424.85,
+      "duration": 7.48
+    },
+    {
+      "text": "And just for calibration,\nif you use NVLink 5,",
+      "start": 1432.33,
+      "duration": 4.52
+    },
+    {
+      "text": "then you're getting\n1.8 terabytes",
+      "start": 1436.85,
+      "duration": 3.48
+    },
+    {
+      "text": "per second of total bandwidth.",
+      "start": 1440.33,
+      "duration": 2.92
+    },
+    {
+      "text": "And remember, HBM for B200\nwas 8 terabytes per second.",
+      "start": 1443.25,
+      "duration": 5.54
+    },
+    {
+      "text": "So it's about 4x slower.",
+      "start": 1448.79,
+      "duration": 5.18
+    },
+    {
+      "text": "So I mean, this is\nstill pretty fast",
+      "start": 1453.97,
+      "duration": 2.0
+    },
+    {
+      "text": "if you think about going\nbetween devices, but obviously,",
+      "start": 1455.97,
+      "duration": 3.68
+    },
+    {
+      "text": "not as fast as high\nbandwidth memory,",
+      "start": 1459.65,
+      "duration": 2.94
+    },
+    {
+      "text": "which is much slower than\nshared memory or L1 cache.",
+      "start": 1462.59,
+      "duration": 5.86
+    },
+    {
+      "text": "So basically, NVLink\nconnects to the switch,",
+      "start": 1468.45,
+      "duration": 4.84
+    },
+    {
+      "text": "which means that from a\nprogramming perspective,",
+      "start": 1473.29,
+      "duration": 3.44
+    },
+    {
+      "text": "you can think about GPUs as\nconnected to any other GPU.",
+      "start": 1476.73,
+      "duration": 4.1
+    },
+    {
+      "text": "You go GPU to any other\nGPU, and the hardware",
+      "start": 1480.83,
+      "duration": 3.42
+    },
+    {
+      "text": "takes care of transmitting\nthat to the switch,",
+      "start": 1484.25,
+      "duration": 3.3
+    },
+    {
+      "text": "and the switch routes it.",
+      "start": 1487.55,
+      "duration": 3.98
+    },
+    {
+      "text": "So typically, what you will\nalso have is that at some point,",
+      "start": 1491.53,
+      "duration": 4.52
+    },
+    {
+      "text": "you can't have\nNVSwitch and NVLink.",
+      "start": 1496.05,
+      "duration": 6.28
+    },
+    {
+      "text": "Because as your\nnumber of GPUs grows,",
+      "start": 1502.33,
+      "duration": 3.68
+    },
+    {
+      "text": "then you're going to have to\nput these nodes into pods, which",
+      "start": 1506.01,
+      "duration": 5.64
+    },
+    {
+      "text": "are connected by InfiniBand.",
+      "start": 1511.65,
+      "duration": 2.84
+    },
+    {
+      "text": "And the way InfiniBand\nworks is that now there's",
+      "start": 1514.49,
+      "duration": 4.04
+    },
+    {
+      "text": "a bit more the-- so now the\nGPU doesn't connect directly",
+      "start": 1518.53,
+      "duration": 5.48
+    },
+    {
+      "text": "to another GPU.",
+      "start": 1524.01,
+      "duration": 1.38
+    },
+    {
+      "text": "It has to go through PCIe\nand goes through this kind",
+      "start": 1525.39,
+      "duration": 5.5
+    },
+    {
+      "text": "of special InfiniBand cable.",
+      "start": 1530.89,
+      "duration": 1.86
+    },
+    {
+      "text": "And you see that the speeds\nare much, much lower.",
+      "start": 1532.75,
+      "duration": 6.62
+    },
+    {
+      "text": "And then finally, if you\nrun out of InfiniBand",
+      "start": 1539.37,
+      "duration": 2.72
+    },
+    {
+      "text": "and you have these\nhuge pods, then",
+      "start": 1542.09,
+      "duration": 3.68
+    },
+    {
+      "text": "you need to connect\nthem via ethernet.",
+      "start": 1545.77,
+      "duration": 3.92
+    },
+    {
+      "text": "And in ethernet, you\nhave to go through PCIe",
+      "start": 1549.69,
+      "duration": 5.36
+    },
+    {
+      "text": "and that actually goes through\nthe CPU, which as we'll see,",
+      "start": 1555.05,
+      "duration": 3.64
+    },
+    {
+      "text": "is even slower.",
+      "start": 1558.69,
+      "duration": 4.12
+    },
+    {
+      "text": "So it's kind of analogous to\nthe kind of memory situation.",
+      "start": 1562.81,
+      "duration": 3.78
+    },
+    {
+      "text": "The more nodes you have, then\nthe slower it's going to be.",
+      "start": 1566.59,
+      "duration": 4.48
+    },
+    {
+      "text": "You can't have an NVSwitch\nhandling 100,000 GPUs.",
+      "start": 1571.07,
+      "duration": 7.78
+    },
+    {
+      "text": "So one note is that I\nalluded to this bypassing",
+      "start": 1578.85,
+      "duration": 4.6
+    },
+    {
+      "text": "the CPU, which is going to be an\nimportant thing from a hardware",
+      "start": 1583.45,
+      "duration": 5.6
+    },
+    {
+      "text": "perspective.",
+      "start": 1589.05,
+      "duration": 2.68
+    },
+    {
+      "text": "So if you have traditional\nethernet, what happens",
+      "start": 1591.73,
+      "duration": 3.6
+    },
+    {
+      "text": "is that the GPU has to talk to\nthe CPU to get its data copied.",
+      "start": 1595.33,
+      "duration": 5.62
+    },
+    {
+      "text": "So it basically has to\ncopy the data to this.",
+      "start": 1600.95,
+      "duration": 4.42
+    },
+    {
+      "text": "The CPU has a kernel\nsocket buffer.",
+      "start": 1605.37,
+      "duration": 2.54
+    },
+    {
+      "text": "Here kernel means\nnot the GPU kernel,",
+      "start": 1607.91,
+      "duration": 2.84
+    },
+    {
+      "text": "but the CPU, traditional\nnotion of a kernel.",
+      "start": 1610.75,
+      "duration": 3.5
+    },
+    {
+      "text": "And then it has to build\nsome network packets,",
+      "start": 1614.25,
+      "duration": 3.18
+    },
+    {
+      "text": "copy to the network interface,\nand then ship it over.",
+      "start": 1617.43,
+      "duration": 3.02
+    },
+    {
+      "text": "So this generally\nintroduces a lot of latency.",
+      "start": 1620.45,
+      "duration": 4.56
+    },
+    {
+      "text": "And so there's this technology\ncalled Remote Direct Memory",
+      "start": 1625.01,
+      "duration": 3.0
+    },
+    {
+      "text": "Access, RDMA, which allows a\nGPU to directly write or read",
+      "start": 1628.01,
+      "duration": 5.56
+    },
+    {
+      "text": "from another GPU's memory\nwithout using the CPU at all.",
+      "start": 1633.57,
+      "duration": 5.88
+    },
+    {
+      "text": "So obviously, if you're in\nNVLink land and NVSwitch land,",
+      "start": 1639.45,
+      "duration": 4.27
+    },
+    {
+      "text": "then you have RDMA.",
+      "start": 1643.72,
+      "duration": 2.28
+    },
+    {
+      "text": "InfiniBand also supports RDMA.",
+      "start": 1646.0,
+      "duration": 2.84
+    },
+    {
+      "text": "So if you're connected\nvia InfiniBand,",
+      "start": 1648.84,
+      "duration": 1.92
+    },
+    {
+      "text": "then you can directly have\nGPUs connect to each other",
+      "start": 1650.76,
+      "duration": 3.68
+    },
+    {
+      "text": "without involving the CPU.",
+      "start": 1654.44,
+      "duration": 3.44
+    },
+    {
+      "text": "But standard ethernet does not.",
+      "start": 1657.88,
+      "duration": 4.48
+    },
+    {
+      "text": "There's two notable\nadvancements I will mention.",
+      "start": 1662.36,
+      "duration": 3.6
+    },
+    {
+      "text": "So NVIDIA has been\nreally pushing",
+      "start": 1668.96,
+      "duration": 2.32
+    },
+    {
+      "text": "the limits on what you can do\nwith larger and larger pods.",
+      "start": 1671.28,
+      "duration": 3.66
+    },
+    {
+      "text": "So they have four of basically\nthe B200's and the B300's.",
+      "start": 1674.94,
+      "duration": 4.94
+    },
+    {
+      "text": "They have something\ncalled NVL72,",
+      "start": 1679.88,
+      "duration": 2.48
+    },
+    {
+      "text": "which means that they have\nthese trays of eight GPUs",
+      "start": 1682.36,
+      "duration": 4.6
+    },
+    {
+      "text": "but have nine of them.",
+      "start": 1686.96,
+      "duration": 1.38
+    },
+    {
+      "text": "And so basically, at\nthe end of the day,",
+      "start": 1688.34,
+      "duration": 1.68
+    },
+    {
+      "text": "you have 72 GPUs that are\nall kind of NV switched",
+      "start": 1690.02,
+      "duration": 3.7
+    },
+    {
+      "text": "into one NVLink domain.",
+      "start": 1693.72,
+      "duration": 1.5
+    },
+    {
+      "text": "And if you remember, the NV\nlink speeds are very fast.",
+      "start": 1695.22,
+      "duration": 6.86
+    },
+    {
+      "text": "So normally, if\nyou're mortal, you",
+      "start": 1702.08,
+      "duration": 4.24
+    },
+    {
+      "text": "think, well OK, I\nhave eight GPUs that",
+      "start": 1706.32,
+      "duration": 3.0
+    },
+    {
+      "text": "are interlinked really fast.",
+      "start": 1709.32,
+      "duration": 1.74
+    },
+    {
+      "text": "And then outside of that, then\nthings get slowed down a lot.",
+      "start": 1711.06,
+      "duration": 4.122
+    },
+    {
+      "text": "But if you have a\nlot of money, you",
+      "start": 1715.182,
+      "duration": 1.458
+    },
+    {
+      "text": "can buy this really\nfancy hardware",
+      "start": 1716.64,
+      "duration": 2.4
+    },
+    {
+      "text": "and you can get really fast\ninterconnects up to 72 GPUs.",
+      "start": 1719.04,
+      "duration": 7.142
+    },
+    {
+      "text": "And the other thing\nI'll mention is",
+      "start": 1726.182,
+      "duration": 1.458
+    },
+    {
+      "text": "that I said standard ethernet\ndoesn't support RDMA,",
+      "start": 1727.64,
+      "duration": 4.04
+    },
+    {
+      "text": "but there has been progress\non the ethernet front as well.",
+      "start": 1731.68,
+      "duration": 3.42
+    },
+    {
+      "text": "So there's something\ncalled RoCE, RDMA",
+      "start": 1735.1,
+      "duration": 4.14
+    },
+    {
+      "text": "over converged ethernet,\nwhere the ethernet actually",
+      "start": 1739.24,
+      "duration": 3.6
+    },
+    {
+      "text": "bypasses the CPU.",
+      "start": 1742.84,
+      "duration": 3.0
+    },
+    {
+      "text": "And this is sort of their\nanswer to InfiniBand.",
+      "start": 1745.84,
+      "duration": 4.82
+    },
+    {
+      "text": "So InfiniBand generally\nis very expensive,",
+      "start": 1750.66,
+      "duration": 2.94
+    },
+    {
+      "text": "as is a lot of NVIDIA products.",
+      "start": 1753.6,
+      "duration": 3.44
+    },
+    {
+      "text": "But you can get pretty\ngood performance",
+      "start": 1757.04,
+      "duration": 4.84
+    },
+    {
+      "text": "by using RDMA over\nconverged ethernet.",
+      "start": 1761.88,
+      "duration": 7.8
+    },
+    {
+      "text": "And Meta had some paper showing\nthat they were exploring this.",
+      "start": 1769.68,
+      "duration": 5.34
+    },
+    {
+      "text": "So [INAUDIBLE] may or\nmay not have been trained",
+      "start": 1775.02,
+      "duration": 3.46
+    },
+    {
+      "text": "over converged ethernet.",
+      "start": 1778.48,
+      "duration": 2.3
+    },
+    {
+      "text": "So that's just a brief overview\nof what the hardware looks like.",
+      "start": 1783.38,
+      "duration": 4.16
+    },
+    {
+      "text": "You have GPUs.",
+      "start": 1787.54,
+      "duration": 1.08
+    },
+    {
+      "text": "They're connected via NVLink\nto NVSwitch over some domain,",
+      "start": 1788.62,
+      "duration": 5.18
+    },
+    {
+      "text": "maybe 8, maybe 72.",
+      "start": 1793.8,
+      "duration": 1.64
+    },
+    {
+      "text": "And then it's\nInfiniBand from there.",
+      "start": 1795.44,
+      "duration": 3.48
+    },
+    {
+      "text": "And now let's talk about\nhow do you program this.",
+      "start": 1798.92,
+      "duration": 4.2
+    },
+    {
+      "text": "So at the very lowest level,\nthere's something called",
+      "start": 1803.12,
+      "duration": 2.72
+    },
+    {
+      "text": "the NVIDIA Collective\nCommunications Library,",
+      "start": 1805.84,
+      "duration": 3.16
+    },
+    {
+      "text": "NCCL or \"nickel,\" which\ntranslates the collective",
+      "start": 1809.0,
+      "duration": 3.56
+    },
+    {
+      "text": "operations, the all\nreduce, reduce broadcasts,",
+      "start": 1812.56,
+      "duration": 4.47
+    },
+    {
+      "text": "into the actual low level\npackets that are sent between",
+      "start": 1817.03,
+      "duration": 3.44
+    },
+    {
+      "text": "GPUs.",
+      "start": 1820.47,
+      "duration": 1.76
+    },
+    {
+      "text": "So what a NCCL does\nis when you use NCCL,",
+      "start": 1822.23,
+      "duration": 5.42
+    },
+    {
+      "text": "it's basically like saying,\nI want to all reduce.",
+      "start": 1827.65,
+      "duration": 3.42
+    },
+    {
+      "text": "And then NCCL goes\nand figures out what",
+      "start": 1831.07,
+      "duration": 2.84
+    },
+    {
+      "text": "is the topology of the\nhardware, figures out",
+      "start": 1833.91,
+      "duration": 2.76
+    },
+    {
+      "text": "the path between\ndifferent GPUs, and then",
+      "start": 1836.67,
+      "duration": 2.8
+    },
+    {
+      "text": "it actually launches the GPU\nkernels to send and receive",
+      "start": 1839.47,
+      "duration": 2.96
+    },
+    {
+      "text": "data.",
+      "start": 1842.43,
+      "duration": 1.053
+    },
+    {
+      "text": "Because at the end\nof the day, remember,",
+      "start": 1843.483,
+      "duration": 1.667
+    },
+    {
+      "text": "everything that runs\non a GPU is a kernel.",
+      "start": 1845.15,
+      "duration": 2.76
+    },
+    {
+      "text": "So there are communication\nkernels as well",
+      "start": 1847.91,
+      "duration": 2.96
+    },
+    {
+      "text": "that actually do\ncommunication with other GPUs.",
+      "start": 1850.87,
+      "duration": 5.2
+    },
+    {
+      "text": "So we're not going to look\ntoo much more into NCCL,",
+      "start": 1856.07,
+      "duration": 3.54
+    },
+    {
+      "text": "but just know that it exists.",
+      "start": 1859.61,
+      "duration": 2.28
+    },
+    {
+      "text": "And then we're going to\nactually go to PyTorch.",
+      "start": 1864.71,
+      "duration": 2.62
+    },
+    {
+      "text": "So maybe before that, any\nquestions about hardware?",
+      "start": 1867.33,
+      "duration": 5.9
+    },
+    {
+      "text": "Yeah.",
+      "start": 1873.23,
+      "duration": 0.96
+    },
+    {
+      "text": "Can you describe--\nthere's a rack and a tray.",
+      "start": 1874.19,
+      "duration": 4.52
+    },
+    {
+      "text": "Can I describe physically a rack\nand a tray, like what a rack is",
+      "start": 1881.83,
+      "duration": 3.4
+    },
+    {
+      "text": "and what a tray is?",
+      "start": 1885.23,
+      "duration": 2.88
+    },
+    {
+      "text": "So for the NV72, so I'm\nnot a hardware expert,",
+      "start": 1888.11,
+      "duration": 4.8
+    },
+    {
+      "text": "but a rack, I mean,\nis literally, I mean,",
+      "start": 1892.91,
+      "duration": 5.08
+    },
+    {
+      "text": "you've seen data centers,\nliterally a rack.",
+      "start": 1897.99,
+      "duration": 3.46
+    },
+    {
+      "text": "And each tray is\nsomething that has--",
+      "start": 1901.45,
+      "duration": 3.78
+    },
+    {
+      "text": "so the G stands\nfor a [? great. ?]",
+      "start": 1905.23,
+      "duration": 3.02
+    },
+    {
+      "text": "So there's two CPUs.",
+      "start": 1908.25,
+      "duration": 2.18
+    },
+    {
+      "text": "And each CPU is\nconnected to four GPUs.",
+      "start": 1910.43,
+      "duration": 2.66
+    },
+    {
+      "text": "So each tray has\neight GPUs on it.",
+      "start": 1913.09,
+      "duration": 4.4
+    },
+    {
+      "text": "And they're stacked\nand everything",
+      "start": 1917.49,
+      "duration": 2.62
+    },
+    {
+      "text": "is connected to this NVSwitch.",
+      "start": 1920.11,
+      "duration": 2.98
+    },
+    {
+      "text": "Yeah.",
+      "start": 1927.07,
+      "duration": 0.84
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 1927.91,
+      "duration": 2.152
+    },
+    {
+      "text": "Yeah, so the question is,\nwhat is the difference between",
+      "start": 1935.337,
+      "duration": 2.333
+    },
+    {
+      "text": "[INAUDIBLE].",
+      "start": 1937.67,
+      "duration": 1.33
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 1939.0,
+      "duration": 2.91
+    },
+    {
+      "text": "Yeah.",
+      "start": 1941.91,
+      "duration": 0.5
+    },
+    {
+      "text": "So RDMA, you can think about\nit as more of a desiderata.",
+      "start": 1942.41,
+      "duration": 5.2
+    },
+    {
+      "text": "RDMA means that one\nGPU can read and write",
+      "start": 1947.61,
+      "duration": 3.02
+    },
+    {
+      "text": "from another GPU's memory.",
+      "start": 1950.63,
+      "duration": 2.08
+    },
+    {
+      "text": "And there's multiple\nways to do RDMA.",
+      "start": 1952.71,
+      "duration": 3.08
+    },
+    {
+      "text": "One is to use\nNVLink and NVSwitch",
+      "start": 1955.79,
+      "duration": 3.56
+    },
+    {
+      "text": "and another way is\nto use InfiniBand.",
+      "start": 1959.35,
+      "duration": 2.7
+    },
+    {
+      "text": "So InfiniBand and\nNVSwitch and NVLink",
+      "start": 1964.91,
+      "duration": 3.8
+    },
+    {
+      "text": "are more the hardware, what\npieces, what cables and switches",
+      "start": 1968.71,
+      "duration": 6.84
+    },
+    {
+      "text": "are there.",
+      "start": 1975.55,
+      "duration": 1.08
+    },
+    {
+      "text": "And RDMA is more\noperation, what happens",
+      "start": 1976.63,
+      "duration": 5.96
+    },
+    {
+      "text": "when you're communicating.",
+      "start": 1982.59,
+      "duration": 1.44
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 1984.03,
+      "duration": 2.312
+    },
+    {
+      "text": "Yeah.",
+      "start": 1995.21,
+      "duration": 0.5
+    },
+    {
+      "text": "For example, this\n[? advancement ?] RDMA",
+      "start": 1995.71,
+      "duration": 3.12
+    },
+    {
+      "text": "over converged ethernet\nis another way to do RDMA.",
+      "start": 1998.83,
+      "duration": 3.02
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2001.85,
+      "duration": 1.62
+    },
+    {
+      "text": "Yeah?",
+      "start": 2012.61,
+      "duration": 0.74
+    },
+    {
+      "text": "Is NCCL optimized for\nmulti-node clusters?",
+      "start": 2013.35,
+      "duration": 6.12
+    },
+    {
+      "text": "Because obviously, it seems\nintuitive [INAUDIBLE].",
+      "start": 2019.47,
+      "duration": 3.88
+    },
+    {
+      "text": "But for RDMA based processes,\nwould NCCL be optimal for that?",
+      "start": 2023.35,
+      "duration": 7.6
+    },
+    {
+      "text": "So the question is,\nis NCCL optimized",
+      "start": 2030.95,
+      "duration": 2.56
+    },
+    {
+      "text": "for multi-node clusters?",
+      "start": 2033.51,
+      "duration": 3.26
+    },
+    {
+      "text": "So I don't know the details\nof how they have or have not",
+      "start": 2039.71,
+      "duration": 6.04
+    },
+    {
+      "text": "optimized it.",
+      "start": 2045.75,
+      "duration": 1.02
+    },
+    {
+      "text": "All I can say is that NVIDIA\nhas been basically optimizing",
+      "start": 2046.77,
+      "duration": 5.61
+    },
+    {
+      "text": "their entire stack for\ninference and training",
+      "start": 2052.38,
+      "duration": 3.799
+    },
+    {
+      "text": "of these large models, because\ntheir main customers are",
+      "start": 2056.179,
+      "duration": 3.321
+    },
+    {
+      "text": "the major providers\nof language models.",
+      "start": 2059.5,
+      "duration": 3.86
+    },
+    {
+      "text": "So I would be surprised if they\nhaven't thought of optimizing",
+      "start": 2063.36,
+      "duration": 3.94
+    },
+    {
+      "text": "for those type of workloads.",
+      "start": 2067.3,
+      "duration": 1.78
+    },
+    {
+      "text": "Yeah?",
+      "start": 2071.94,
+      "duration": 0.88
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2072.82,
+      "duration": 2.24
+    },
+    {
+      "text": "So the question is, what\nhappens if you have nine GPUs?",
+      "start": 2084.26,
+      "duration": 3.5
+    },
+    {
+      "text": "How do you distribute the\nworkload across those?",
+      "start": 2087.76,
+      "duration": 4.0
+    },
+    {
+      "text": "I guess it kind\nof depends on how",
+      "start": 2095.98,
+      "duration": 1.76
+    },
+    {
+      "text": "the nine lands in your setup.",
+      "start": 2097.74,
+      "duration": 3.0
+    },
+    {
+      "text": "For example, a lot of\ntimes you'll have--",
+      "start": 2100.74,
+      "duration": 2.44
+    },
+    {
+      "text": "let's say you have\neight GPUs per node.",
+      "start": 2103.18,
+      "duration": 3.8
+    },
+    {
+      "text": "So then the ninth one would\nbe on a different node.",
+      "start": 2106.98,
+      "duration": 2.36
+    },
+    {
+      "text": "And if you don't have\nNVLink connecting them,",
+      "start": 2109.34,
+      "duration": 5.14
+    },
+    {
+      "text": "then that's going to be\nreally bad, because that's",
+      "start": 2114.48,
+      "duration": 2.5
+    },
+    {
+      "text": "going to be one node\nwhich is not providing",
+      "start": 2116.98,
+      "duration": 1.92
+    },
+    {
+      "text": "that much compute and also very\nexpensive to communicate with.",
+      "start": 2118.9,
+      "duration": 4.96
+    },
+    {
+      "text": "But if you, let's\nsay, had everything",
+      "start": 2123.86,
+      "duration": 3.44
+    },
+    {
+      "text": "were connected by\nNVSwitch, then it",
+      "start": 2127.3,
+      "duration": 2.56
+    },
+    {
+      "text": "would be much more reasonable.",
+      "start": 2129.86,
+      "duration": 4.12
+    },
+    {
+      "text": "One more question and\nI'm going to move on.",
+      "start": 2133.98,
+      "duration": 2.36
+    },
+    {
+      "text": "So how is this\ndifferent from TPUs?",
+      "start": 2139.06,
+      "duration": 3.96
+    },
+    {
+      "text": "So [INAUDIBLE] described\nTPUs a bit more.",
+      "start": 2143.02,
+      "duration": 4.4
+    },
+    {
+      "text": "So I mean, let's see.",
+      "start": 2147.42,
+      "duration": 5.8
+    },
+    {
+      "text": "What can I say\nquickly about this?",
+      "start": 2153.22,
+      "duration": 3.72
+    },
+    {
+      "text": "So TPUs are generally\nmuch simpler objects.",
+      "start": 2156.94,
+      "duration": 6.24
+    },
+    {
+      "text": "I'm not too familiar\nwith the details of what",
+      "start": 2163.18,
+      "duration": 4.28
+    },
+    {
+      "text": "each of these components\ncorresponds to,",
+      "start": 2167.46,
+      "duration": 1.98
+    },
+    {
+      "text": "but maybe we can talk\nabout it offline.",
+      "start": 2169.44,
+      "duration": 1.88
+    },
+    {
+      "text": "So let's actually\nget down to some code",
+      "start": 2173.9,
+      "duration": 2.56
+    },
+    {
+      "text": "to take advantage\nof this hardware.",
+      "start": 2176.46,
+      "duration": 3.86
+    },
+    {
+      "text": "So PyTorch conveniently\nhas a torch",
+      "start": 2180.32,
+      "duration": 3.18
+    },
+    {
+      "text": "distributed library\nthat provides",
+      "start": 2183.5,
+      "duration": 2.24
+    },
+    {
+      "text": "a clean interface into\nthese collective operations.",
+      "start": 2185.74,
+      "duration": 3.8
+    },
+    {
+      "text": "So you don't have to\nexplicitly think about NCCL.",
+      "start": 2189.54,
+      "duration": 4.6
+    },
+    {
+      "text": "And in fact, this library also\nsupports different backends",
+      "start": 2194.14,
+      "duration": 3.96
+    },
+    {
+      "text": "for different hardware.",
+      "start": 2198.1,
+      "duration": 1.56
+    },
+    {
+      "text": "So if you are on GPUs, then\nyou would use the NCCL backend.",
+      "start": 2199.66,
+      "duration": 3.52
+    },
+    {
+      "text": "And if you were on\nCPUs, then there's",
+      "start": 2203.18,
+      "duration": 2.08
+    },
+    {
+      "text": "something called gloo\nwhich still allows you to--",
+      "start": 2205.26,
+      "duration": 3.46
+    },
+    {
+      "text": "like I said, parallel\nprocessing has been around",
+      "start": 2208.72,
+      "duration": 2.58
+    },
+    {
+      "text": "for a long time before GPUs.",
+      "start": 2211.3,
+      "duration": 3.6
+    },
+    {
+      "text": "And you can do these collect\noperations on CPUs as well.",
+      "start": 2214.9,
+      "duration": 6.48
+    },
+    {
+      "text": "This library also supports\nhigher level models",
+      "start": 2221.38,
+      "duration": 2.76
+    },
+    {
+      "text": "and algorithms such\nas SFTP, but we're not",
+      "start": 2224.14,
+      "duration": 3.91
+    },
+    {
+      "text": "going to use those in the course\nbecause we're building things",
+      "start": 2228.05,
+      "duration": 2.72
+    },
+    {
+      "text": "from scratch.",
+      "start": 2230.77,
+      "duration": 2.0
+    },
+    {
+      "text": "All right.",
+      "start": 2232.77,
+      "duration": 0.54
+    },
+    {
+      "text": "So let's walk through\nsome basic examples",
+      "start": 2233.31,
+      "duration": 3.46
+    },
+    {
+      "text": "of collective operations.",
+      "start": 2236.77,
+      "duration": 2.8
+    },
+    {
+      "text": "So there's this\nfunction called spawn,",
+      "start": 2239.57,
+      "duration": 2.64
+    },
+    {
+      "text": "which takes another\nfunction I'm going to call,",
+      "start": 2242.21,
+      "duration": 2.92
+    },
+    {
+      "text": "and it says I'm going to run\nthis replicated four times where",
+      "start": 2245.13,
+      "duration": 5.08
+    },
+    {
+      "text": "four is the world size.",
+      "start": 2250.21,
+      "duration": 1.88
+    },
+    {
+      "text": "So let's see what this does.",
+      "start": 2252.09,
+      "duration": 2.68
+    },
+    {
+      "text": "This is actually a\nwrapper I wrote just",
+      "start": 2254.77,
+      "duration": 4.2
+    },
+    {
+      "text": "to hack around the fact that\nI can't do multiprocessing",
+      "start": 2258.97,
+      "duration": 4.16
+    },
+    {
+      "text": "in this lecture.",
+      "start": 2263.13,
+      "duration": 1.64
+    },
+    {
+      "text": "So normally what\nyou would do is you",
+      "start": 2264.77,
+      "duration": 2.6
+    },
+    {
+      "text": "call Torch's\nmultiprocessing.spawn",
+      "start": 2267.37,
+      "duration": 6.0
+    },
+    {
+      "text": "and you call the function.",
+      "start": 2273.37,
+      "duration": 2.64
+    },
+    {
+      "text": "But I'm going to do this branch\nwhich disables distributed.",
+      "start": 2276.01,
+      "duration": 4.7
+    },
+    {
+      "text": "So let's just go through that.",
+      "start": 2280.71,
+      "duration": 1.94
+    },
+    {
+      "text": "So now I'm in this\nfunction that it's",
+      "start": 2282.65,
+      "duration": 4.28
+    },
+    {
+      "text": "supposed to be running\nasynchronously for each process.",
+      "start": 2286.93,
+      "duration": 4.92
+    },
+    {
+      "text": "So remember, world size\nis the number of processes",
+      "start": 2291.85,
+      "duration": 3.16
+    },
+    {
+      "text": "and the rank is either 0 or 1\nor 2 all the way up to world",
+      "start": 2295.01,
+      "duration": 5.2
+    },
+    {
+      "text": "size minus 1.",
+      "start": 2300.21,
+      "duration": 1.48
+    },
+    {
+      "text": "And so there are\nworld size number",
+      "start": 2301.69,
+      "duration": 1.76
+    },
+    {
+      "text": "of these functions\nthat are each running",
+      "start": 2303.45,
+      "duration": 1.96
+    },
+    {
+      "text": "on a process at the same time.",
+      "start": 2305.41,
+      "duration": 2.76
+    },
+    {
+      "text": "So I'm on rank 0 right now.",
+      "start": 2308.17,
+      "duration": 2.94
+    },
+    {
+      "text": "So what do I do?",
+      "start": 2311.11,
+      "duration": 1.98
+    },
+    {
+      "text": "There's a setup.",
+      "start": 2313.09,
+      "duration": 1.92
+    },
+    {
+      "text": "You basically configure the\nmaster address and port.",
+      "start": 2315.01,
+      "duration": 6.44
+    },
+    {
+      "text": "Notice that this is not\nactually how the GPUs are",
+      "start": 2321.45,
+      "duration": 3.665
+    },
+    {
+      "text": "going to communicate.",
+      "start": 2325.115,
+      "duration": 0.875
+    },
+    {
+      "text": "This is more for general\nmetadata and coordination.",
+      "start": 2325.99,
+      "duration": 3.76
+    },
+    {
+      "text": "The actual data\ngoes through NCCL.",
+      "start": 2329.75,
+      "duration": 1.88
+    },
+    {
+      "text": "Otherwise, it would\nbe very, very slow.",
+      "start": 2331.63,
+      "duration": 3.34
+    },
+    {
+      "text": "And if you have Cuda\navailable, then you",
+      "start": 2334.97,
+      "duration": 2.56
+    },
+    {
+      "text": "can use the NCCL backend.",
+      "start": 2337.53,
+      "duration": 2.08
+    },
+    {
+      "text": "I'm on my laptop, so I'm\ngoing to use the gloo backend.",
+      "start": 2339.61,
+      "duration": 4.64
+    },
+    {
+      "text": "OK, so now I'm here.",
+      "start": 2344.25,
+      "duration": 4.44
+    },
+    {
+      "text": "Pretend I have four of\nthese processes running.",
+      "start": 2348.69,
+      "duration": 4.36
+    },
+    {
+      "text": "So there's this barrier\nfunction, which is useful as--",
+      "start": 2353.05,
+      "duration": 6.0
+    },
+    {
+      "text": "it's a synchronization barrier.",
+      "start": 2359.05,
+      "duration": 1.46
+    },
+    {
+      "text": "So basically, if I\nsee this, then it",
+      "start": 2360.51,
+      "duration": 3.9
+    },
+    {
+      "text": "waits for all the processes\nto get to this point.",
+      "start": 2364.41,
+      "duration": 3.04
+    },
+    {
+      "text": "So basically, you can think\nabout all the processes",
+      "start": 2370.41,
+      "duration": 3.16
+    },
+    {
+      "text": "are running asynchronously.",
+      "start": 2373.57,
+      "duration": 2.117
+    },
+    {
+      "text": "So I don't really control.",
+      "start": 2375.687,
+      "duration": 1.083
+    },
+    {
+      "text": "One could completely\nfinish before the other.",
+      "start": 2376.77,
+      "duration": 2.3
+    },
+    {
+      "text": "They might finish\ninterleaved in any way.",
+      "start": 2379.07,
+      "duration": 3.26
+    },
+    {
+      "text": "So if I want to make\nsure that there's",
+      "start": 2382.33,
+      "duration": 2.8
+    },
+    {
+      "text": "some code that is executed\nbefore other code,",
+      "start": 2385.13,
+      "duration": 3.76
+    },
+    {
+      "text": "I put these synchronization\nbarriers in.",
+      "start": 2388.89,
+      "duration": 3.6
+    },
+    {
+      "text": "So now the downside of\nputting more barriers in",
+      "start": 2392.49,
+      "duration": 2.36
+    },
+    {
+      "text": "is that, well, you end up\nkind of waiting potentially",
+      "start": 2394.85,
+      "duration": 3.64
+    },
+    {
+      "text": "unnecessarily.",
+      "start": 2398.49,
+      "duration": 3.3
+    },
+    {
+      "text": "So let's try an all reduce.",
+      "start": 2401.79,
+      "duration": 2.82
+    },
+    {
+      "text": "So I'm going to create\nthis tensor, 0, 1, 2, 3.",
+      "start": 2404.61,
+      "duration": 6.48
+    },
+    {
+      "text": "And I have my rank.",
+      "start": 2411.09,
+      "duration": 2.705
+    },
+    {
+      "text": "Just to make it\nmore interesting,",
+      "start": 2413.795,
+      "duration": 1.375
+    },
+    {
+      "text": "each rank is going to\nhave a different tensor.",
+      "start": 2415.17,
+      "duration": 5.36
+    },
+    {
+      "text": "I'm going to print out what\nI have before the all reduce.",
+      "start": 2420.53,
+      "duration": 3.18
+    },
+    {
+      "text": "So now I'm going to\nskip over here and see",
+      "start": 2423.71,
+      "duration": 3.7
+    },
+    {
+      "text": "what gets printed out.",
+      "start": 2427.41,
+      "duration": 3.08
+    },
+    {
+      "text": "So rank 0 before all\nreduce has 0, 1, 2, 3.",
+      "start": 2430.49,
+      "duration": 5.56
+    },
+    {
+      "text": "Rank 1 has 1, 2,\n3, 4, and so on.",
+      "start": 2436.05,
+      "duration": 2.26
+    },
+    {
+      "text": "It's the same example\nas I showed before.",
+      "start": 2438.31,
+      "duration": 2.46
+    },
+    {
+      "text": "Notice that the print statements\nare coming in whatever order",
+      "start": 2440.77,
+      "duration": 3.36
+    },
+    {
+      "text": "the hardware feels like it,\nbecause it's running async.",
+      "start": 2444.13,
+      "duration": 3.12
+    },
+    {
+      "text": "But all the data is there.",
+      "start": 2447.25,
+      "duration": 1.38
+    },
+    {
+      "text": "So now if I do all reduce,\nand this you pass in--",
+      "start": 2451.17,
+      "duration": 6.24
+    },
+    {
+      "text": "this is a PyTorch function.",
+      "start": 2457.41,
+      "duration": 1.22
+    },
+    {
+      "text": "It passes in this tensor.",
+      "start": 2458.63,
+      "duration": 2.97
+    },
+    {
+      "text": "You pass in the reduction\noperation, which is a sum.",
+      "start": 2461.6,
+      "duration": 3.32
+    },
+    {
+      "text": "And I'm going to\nsay don't do async.",
+      "start": 2464.92,
+      "duration": 3.56
+    },
+    {
+      "text": "And what this does is it calls,\nin this case, it would be gloo,",
+      "start": 2468.48,
+      "duration": 4.04
+    },
+    {
+      "text": "but it could be NCCL,\nin which case, it",
+      "start": 2472.52,
+      "duration": 3.04
+    },
+    {
+      "text": "would spin up the Cuda kernels.",
+      "start": 2475.56,
+      "duration": 2.46
+    },
+    {
+      "text": "It would do the communication.",
+      "start": 2478.02,
+      "duration": 1.36
+    },
+    {
+      "text": "It takes care of\neverything for you.",
+      "start": 2479.38,
+      "duration": 2.5
+    },
+    {
+      "text": "And then it basically\nwrites in place to the data.",
+      "start": 2481.88,
+      "duration": 4.12
+    },
+    {
+      "text": "So after the all reduce, I\nhave the all reduce operation,",
+      "start": 2486.0,
+      "duration": 5.38
+    },
+    {
+      "text": "remember, which is the sum\nof each of these columns",
+      "start": 2491.38,
+      "duration": 2.98
+    },
+    {
+      "text": "but replicated\nacross all the ranks.",
+      "start": 2494.36,
+      "duration": 2.14
+    },
+    {
+      "text": "So that's all reduce.",
+      "start": 2500.92,
+      "duration": 3.88
+    },
+    {
+      "text": "And if you wanted to be\nfancier and do async,",
+      "start": 2504.8,
+      "duration": 4.12
+    },
+    {
+      "text": "then you could say\nasync equals true.",
+      "start": 2508.92,
+      "duration": 2.24
+    },
+    {
+      "text": "But then it would screw up\nall these print statements.",
+      "start": 2511.16,
+      "duration": 2.26
+    },
+    {
+      "text": "So I'm trying to put more\nbarriers than I would normally",
+      "start": 2513.42,
+      "duration": 3.14
+    },
+    {
+      "text": "would.",
+      "start": 2516.56,
+      "duration": 2.44
+    },
+    {
+      "text": "Yeah, question?",
+      "start": 2519.0,
+      "duration": 2.04
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2521.04,
+      "duration": 2.912
+    },
+    {
+      "text": "So the question is\nthe rank the GPU.",
+      "start": 2528.56,
+      "duration": 3.04
+    },
+    {
+      "text": "For this class, the\nrank is the GPU.",
+      "start": 2531.6,
+      "duration": 3.58
+    },
+    {
+      "text": "So let's try another\nexample here.",
+      "start": 2539.34,
+      "duration": 3.5
+    },
+    {
+      "text": "So I'm going to do\na reduce scatter.",
+      "start": 2542.84,
+      "duration": 3.32
+    },
+    {
+      "text": "So here, I'm going to\ncreate an input, which",
+      "start": 2546.16,
+      "duration": 4.76
+    },
+    {
+      "text": "is 0 through the world size.",
+      "start": 2550.92,
+      "duration": 5.16
+    },
+    {
+      "text": "And I'm going to\nhave the output.",
+      "start": 2556.08,
+      "duration": 8.32
+    },
+    {
+      "text": "I'm going to\nallocate the output.",
+      "start": 2564.4,
+      "duration": 2.04
+    },
+    {
+      "text": "And so what does this look like\nbefore I do the reduce scatter?",
+      "start": 2566.44,
+      "duration": 3.44
+    },
+    {
+      "text": "It looks like, let's see,\nthis, where it's the same input",
+      "start": 2569.88,
+      "duration": 9.52
+    },
+    {
+      "text": "and the output\nhappens to be zeros,",
+      "start": 2579.4,
+      "duration": 1.98
+    },
+    {
+      "text": "but it could be just anything.",
+      "start": 2581.38,
+      "duration": 3.26
+    },
+    {
+      "text": "And then I do the\nreduce scatter tensor.",
+      "start": 2584.64,
+      "duration": 4.04
+    },
+    {
+      "text": "Here instead of\nwriting in place,",
+      "start": 2588.68,
+      "duration": 1.4
+    },
+    {
+      "text": "I have an output tensor\nand an input tensor.",
+      "start": 2590.08,
+      "duration": 3.12
+    },
+    {
+      "text": "I say I want to do\nthe sum and then",
+      "start": 2593.2,
+      "duration": 3.32
+    },
+    {
+      "text": "afterwards, I get basically\nthe input is not touched,",
+      "start": 2596.52,
+      "duration": 5.18
+    },
+    {
+      "text": "but the output I\nget the reduction",
+      "start": 2601.7,
+      "duration": 3.94
+    },
+    {
+      "text": "of each component written\ninto the respective ranks.",
+      "start": 2605.64,
+      "duration": 3.26
+    },
+    {
+      "text": "So yeah, question?",
+      "start": 2616.88,
+      "duration": 4.16
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2621.04,
+      "duration": 2.79
+    },
+    {
+      "text": "So the question is,\nhow does it work",
+      "start": 2631.04,
+      "duration": 1.76
+    },
+    {
+      "text": "to do the all\nreduces asynchronous?",
+      "start": 2632.8,
+      "duration": 2.9
+    },
+    {
+      "text": "So what this means is that this\nis like a monolithic operation.",
+      "start": 2635.7,
+      "duration": 5.64
+    },
+    {
+      "text": "You say go do the all reduce.",
+      "start": 2641.34,
+      "duration": 1.98
+    },
+    {
+      "text": "And it's spinning\nup Cuda kernels.",
+      "start": 2643.32,
+      "duration": 2.7
+    },
+    {
+      "text": "It's going to do\nthe communication.",
+      "start": 2646.02,
+      "duration": 3.38
+    },
+    {
+      "text": "And remember, Cuda is already\nkind of async with respect",
+      "start": 2649.4,
+      "duration": 4.44
+    },
+    {
+      "text": "to the processes,\nand now we have",
+      "start": 2653.84,
+      "duration": 2.56
+    },
+    {
+      "text": "all the processes being async.",
+      "start": 2656.4,
+      "duration": 1.96
+    },
+    {
+      "text": "And the point is that this\ncode just would return.",
+      "start": 2658.36,
+      "duration": 6.44
+    },
+    {
+      "text": "And then you could\ndo other things.",
+      "start": 2664.8,
+      "duration": 4.64
+    },
+    {
+      "text": "So a typical thing,\nwhich I'm not",
+      "start": 2669.44,
+      "duration": 3.0
+    },
+    {
+      "text": "going to talk about this class,\nis overlapping computation",
+      "start": 2672.44,
+      "duration": 4.0
+    },
+    {
+      "text": "and communication.",
+      "start": 2676.44,
+      "duration": 1.92
+    },
+    {
+      "text": "So for example, you\ncan do this operation,",
+      "start": 2678.36,
+      "duration": 4.7
+    },
+    {
+      "text": "and then you can go ahead\nand load some other data",
+      "start": 2683.06,
+      "duration": 2.5
+    },
+    {
+      "text": "for the next step, which is\nindependent of this operation.",
+      "start": 2685.56,
+      "duration": 4.72
+    },
+    {
+      "text": "And then when you want to make\nsure that you actually are done,",
+      "start": 2690.28,
+      "duration": 5.85
+    },
+    {
+      "text": "then you can call a\nweight or a barrier.",
+      "start": 2696.13,
+      "duration": 2.48
+    },
+    {
+      "text": "So let's do the final\none, which is all gather.",
+      "start": 2703.99,
+      "duration": 4.26
+    },
+    {
+      "text": "So by now, I think\nyou get the idea.",
+      "start": 2708.25,
+      "duration": 2.62
+    },
+    {
+      "text": "Here I'm going to\nset as the input",
+      "start": 2710.87,
+      "duration": 2.56
+    },
+    {
+      "text": "the output of the\nreduce scatter.",
+      "start": 2713.43,
+      "duration": 3.8
+    },
+    {
+      "text": "I'm going to allocate an output.",
+      "start": 2717.23,
+      "duration": 2.88
+    },
+    {
+      "text": "So before the all gather,\nit looks like this.",
+      "start": 2720.11,
+      "duration": 3.94
+    },
+    {
+      "text": "I have my results from\nthe reduce scatter here.",
+      "start": 2724.05,
+      "duration": 4.58
+    },
+    {
+      "text": "The output is just allocated.",
+      "start": 2728.63,
+      "duration": 3.62
+    },
+    {
+      "text": "It happens to have some values\nin it, but don't worry about it.",
+      "start": 2732.25,
+      "duration": 5.54
+    },
+    {
+      "text": "And then after I do the\nall gather into tensor,",
+      "start": 2737.79,
+      "duration": 6.84
+    },
+    {
+      "text": "and then I will have all the\ndifferent inputs gathered",
+      "start": 2744.63,
+      "duration": 10.56
+    },
+    {
+      "text": "onto all the different ranks.",
+      "start": 2755.19,
+      "duration": 3.92
+    },
+    {
+      "text": "And you can see\nhere that, indeed,",
+      "start": 2759.11,
+      "duration": 3.8
+    },
+    {
+      "text": "proof via example\nthat all reduce",
+      "start": 2762.91,
+      "duration": 2.28
+    },
+    {
+      "text": "is equal to reduce\nscatter plus all gather.",
+      "start": 2765.19,
+      "duration": 2.78
+    },
+    {
+      "text": "And then just to wrap things up,\njust as I started by setup, then",
+      "start": 2773.27,
+      "duration": 7.28
+    },
+    {
+      "text": "I clean up, which it's\ngood practice to clean up.",
+      "start": 2780.55,
+      "duration": 6.66
+    },
+    {
+      "text": "So that was your first example\nof a Torch distributed program.",
+      "start": 2789.99,
+      "duration": 8.08
+    },
+    {
+      "text": "So let's do some benchmarking.",
+      "start": 2798.07,
+      "duration": 6.12
+    },
+    {
+      "text": "This will be quick, since I want\nto actually move on to part two.",
+      "start": 2804.19,
+      "duration": 5.64
+    },
+    {
+      "text": "So how fast does\ncommunication happen?",
+      "start": 2809.83,
+      "duration": 3.08
+    },
+    {
+      "text": "So let's do an all reduce.",
+      "start": 2812.91,
+      "duration": 2.6
+    },
+    {
+      "text": "So here, I'm going to all reduce\nwith 100 million elements.",
+      "start": 2815.51,
+      "duration": 9.04
+    },
+    {
+      "text": "Oops.",
+      "start": 2824.55,
+      "duration": 0.54
+    },
+    {
+      "text": "Sorry, I messed this up.",
+      "start": 2829.91,
+      "duration": 1.22
+    },
+    {
+      "text": "So all reduce.",
+      "start": 2834.75,
+      "duration": 2.36
+    },
+    {
+      "text": "So I'm going to\ncreate this tensor",
+      "start": 2837.11,
+      "duration": 4.04
+    },
+    {
+      "text": "with this number of elements.",
+      "start": 2841.15,
+      "duration": 2.64
+    },
+    {
+      "text": "And remember, just like before\nwhen we do benchmarking,",
+      "start": 2843.79,
+      "duration": 2.56
+    },
+    {
+      "text": "we warm up first.",
+      "start": 2846.35,
+      "duration": 2.48
+    },
+    {
+      "text": "And here, I'm going to call\nthe Cuda synchronize and also",
+      "start": 2848.83,
+      "duration": 4.0
+    },
+    {
+      "text": "the barrier, just to make\nsure that because there's",
+      "start": 2852.83,
+      "duration": 3.92
+    },
+    {
+      "text": "two forms of asynchrony\nhere, the Cuda kernels",
+      "start": 2856.75,
+      "duration": 2.44
+    },
+    {
+      "text": "and the different processes.",
+      "start": 2859.19,
+      "duration": 1.218
+    },
+    {
+      "text": "And just want to\nmake sure everything",
+      "start": 2860.408,
+      "duration": 1.542
+    },
+    {
+      "text": "is kind of not running and is\ndone before I start the time.",
+      "start": 2861.95,
+      "duration": 7.48
+    },
+    {
+      "text": "And I'm going to\ndo the all reduce.",
+      "start": 2869.43,
+      "duration": 3.71
+    },
+    {
+      "text": "And then wait again with the\nsynchronize in the barrier",
+      "start": 2873.14,
+      "duration": 6.48
+    },
+    {
+      "text": "and stop the time.",
+      "start": 2879.62,
+      "duration": 1.92
+    },
+    {
+      "text": "So remember, this is running\nfor every single rank.",
+      "start": 2881.54,
+      "duration": 7.4
+    },
+    {
+      "text": "So if I look at the output,\nhere for rank 0, 2, 1, 3,",
+      "start": 2888.94,
+      "duration": 5.26
+    },
+    {
+      "text": "I have a different\ntime potentially,",
+      "start": 2894.2,
+      "duration": 2.26
+    },
+    {
+      "text": "because they're all\ndifferent processes.",
+      "start": 2896.46,
+      "duration": 2.64
+    },
+    {
+      "text": "Each of them is going to\nreport a certain measurement.",
+      "start": 2899.1,
+      "duration": 4.298
+    },
+    {
+      "text": "And if you want to\nreport one number,",
+      "start": 2903.398,
+      "duration": 1.542
+    },
+    {
+      "text": "you can take the\naverage, for example.",
+      "start": 2904.94,
+      "duration": 2.3
+    },
+    {
+      "text": "So now one thing\nthat is useful to do,",
+      "start": 2910.3,
+      "duration": 4.94
+    },
+    {
+      "text": "which is analogous to when\nwe were computing MFU,",
+      "start": 2915.24,
+      "duration": 2.82
+    },
+    {
+      "text": "is to measure the\neffective bandwidth.",
+      "start": 2918.06,
+      "duration": 3.84
+    },
+    {
+      "text": "And the idea here is that, well,\nthis took 1.6 milliseconds.",
+      "start": 2921.9,
+      "duration": 5.92
+    },
+    {
+      "text": "How much-- is that good or bad?",
+      "start": 2927.82,
+      "duration": 4.88
+    },
+    {
+      "text": "So to compute the\neffective bandwidth, what",
+      "start": 2932.7,
+      "duration": 2.88
+    },
+    {
+      "text": "we're going to do is\nto compute essentially",
+      "start": 2935.58,
+      "duration": 2.64
+    },
+    {
+      "text": "how many bytes were\nsent and should be",
+      "start": 2938.22,
+      "duration": 4.12
+    },
+    {
+      "text": "sent during this computation.",
+      "start": 2942.34,
+      "duration": 3.56
+    },
+    {
+      "text": "And then if you divide\nby the total time,",
+      "start": 2945.9,
+      "duration": 2.3
+    },
+    {
+      "text": "then you get the\neffective bandwidth.",
+      "start": 2948.2,
+      "duration": 2.26
+    },
+    {
+      "text": "So the size of what\nI'm sending around",
+      "start": 2950.46,
+      "duration": 4.12
+    },
+    {
+      "text": "is the size of each element\ntimes the number of elements.",
+      "start": 2954.58,
+      "duration": 4.14
+    },
+    {
+      "text": "So that's basically the number\nof bytes of this data tensor.",
+      "start": 2958.72,
+      "duration": 5.86
+    },
+    {
+      "text": "How many bytes\nget actually sent?",
+      "start": 2964.58,
+      "duration": 1.94
+    },
+    {
+      "text": "So this needs some unpacking.",
+      "start": 2966.52,
+      "duration": 3.1
+    },
+    {
+      "text": "So for all reduce,\nif you think about,",
+      "start": 2969.62,
+      "duration": 5.28
+    },
+    {
+      "text": "let's just say for simplicity,\nyou do a rank 0 plus rank 1",
+      "start": 2974.9,
+      "duration": 4.56
+    },
+    {
+      "text": "plus rank 2 plus rank 3.",
+      "start": 2979.46,
+      "duration": 2.36
+    },
+    {
+      "text": "You need to iterate this\nworld size minus 1 steps,",
+      "start": 2981.82,
+      "duration": 3.6
+    },
+    {
+      "text": "because there's a world size\nminus 1 addition operations.",
+      "start": 2985.42,
+      "duration": 4.4
+    },
+    {
+      "text": "So that's this factor.",
+      "start": 2989.82,
+      "duration": 1.84
+    },
+    {
+      "text": "There's a 2, because you\nneed to both send and reduce.",
+      "start": 2991.66,
+      "duration": 4.12
+    },
+    {
+      "text": "And then you multiply by\nthe size of the payload.",
+      "start": 2995.78,
+      "duration": 4.0
+    },
+    {
+      "text": "So that's the total\nnumber of sent bytes.",
+      "start": 2999.78,
+      "duration": 3.24
+    },
+    {
+      "text": "And the total duration is the\nwall clock time that it took.",
+      "start": 3003.02,
+      "duration": 8.76
+    },
+    {
+      "text": "And then you multiply\nby the world size,",
+      "start": 3011.78,
+      "duration": 4.16
+    },
+    {
+      "text": "because it's the total amount\nthat all the ranks have waited.",
+      "start": 3015.94,
+      "duration": 5.4
+    },
+    {
+      "text": "And the bandwidth\nis the bytes sent",
+      "start": 3021.34,
+      "duration": 5.28
+    },
+    {
+      "text": "divided by the total duration.",
+      "start": 3026.62,
+      "duration": 3.72
+    },
+    {
+      "text": "So in this case,\nyou get something",
+      "start": 3030.34,
+      "duration": 3.12
+    },
+    {
+      "text": "like about 400\ngigabytes per second.",
+      "start": 3033.46,
+      "duration": 4.06
+    },
+    {
+      "text": "So a few notes here.",
+      "start": 3040.62,
+      "duration": 4.4
+    },
+    {
+      "text": "One is that the\neffective bandwidth,",
+      "start": 3045.02,
+      "duration": 2.7
+    },
+    {
+      "text": "if you look at this\nexpression, size times 2 times",
+      "start": 3047.72,
+      "duration": 2.98
+    },
+    {
+      "text": "world size minus 1 divided\nby world size times duration.",
+      "start": 3050.7,
+      "duration": 3.1
+    },
+    {
+      "text": "So as world size\nincreases, this world size",
+      "start": 3053.8,
+      "duration": 3.3
+    },
+    {
+      "text": "minus 1 divided by world size\nessentially converges to 1.",
+      "start": 3057.1,
+      "duration": 3.22
+    },
+    {
+      "text": "So you're effectively\nleft with 2 times the size",
+      "start": 3060.32,
+      "duration": 2.98
+    },
+    {
+      "text": "bytes over the duration.",
+      "start": 3063.3,
+      "duration": 2.44
+    },
+    {
+      "text": "So this is essentially\nthe bandwidth.",
+      "start": 3065.74,
+      "duration": 3.18
+    },
+    {
+      "text": "Notice that this is\nindependent of the world size,",
+      "start": 3068.92,
+      "duration": 3.537
+    },
+    {
+      "text": "which is good.",
+      "start": 3072.457,
+      "duration": 0.583
+    },
+    {
+      "text": "So if you grow the\nnumber of GPUs you have,",
+      "start": 3073.04,
+      "duration": 3.9
+    },
+    {
+      "text": "the bandwidth doesn't change.",
+      "start": 3076.94,
+      "duration": 2.2
+    },
+    {
+      "text": "It is also independent\nof the topology, which",
+      "start": 3079.14,
+      "duration": 2.8
+    },
+    {
+      "text": "is something that kind of NCCL\nfigures out whether you're",
+      "start": 3081.94,
+      "duration": 4.32
+    },
+    {
+      "text": "going to pass the messages\nin a kind of a ring or a tree",
+      "start": 3086.26,
+      "duration": 4.24
+    },
+    {
+      "text": "topology.",
+      "start": 3090.5,
+      "duration": 0.86
+    },
+    {
+      "text": "So yeah.",
+      "start": 3094.06,
+      "duration": 3.24
+    },
+    {
+      "text": "So that is all reduce.",
+      "start": 3097.3,
+      "duration": 3.28
+    },
+    {
+      "text": "And for reduce scatter,\nthis is very similar.",
+      "start": 3100.58,
+      "duration": 5.55
+    },
+    {
+      "text": "So I'm going to create the\ninputs and the outputs,",
+      "start": 3106.13,
+      "duration": 2.8
+    },
+    {
+      "text": "warm up, perform the\noperation, and time it.",
+      "start": 3108.93,
+      "duration": 5.24
+    },
+    {
+      "text": "So notice that the reduce\nscatter has these timings.",
+      "start": 3114.17,
+      "duration": 8.52
+    },
+    {
+      "text": "And you can also measure the\neffective bandwidth here,",
+      "start": 3122.69,
+      "duration": 5.4
+    },
+    {
+      "text": "the number of bytes\nthat were in the input.",
+      "start": 3128.09,
+      "duration": 5.24
+    },
+    {
+      "text": "You have the number of\nbytes that were sent.",
+      "start": 3133.33,
+      "duration": 3.16
+    },
+    {
+      "text": "Here there is no 2x here.",
+      "start": 3136.49,
+      "duration": 4.36
+    },
+    {
+      "text": "And then the total duration,\nyou divide by that,",
+      "start": 3140.85,
+      "duration": 2.2
+    },
+    {
+      "text": "you get the bandwidth.",
+      "start": 3143.05,
+      "duration": 1.1
+    },
+    {
+      "text": "So here, the bandwidth is--",
+      "start": 3144.15,
+      "duration": 4.3
+    },
+    {
+      "text": "it should be very similar.",
+      "start": 3148.45,
+      "duration": 1.48
+    },
+    {
+      "text": "I guess sometimes there's\nsome stochasticity,",
+      "start": 3149.93,
+      "duration": 2.16
+    },
+    {
+      "text": "but it's in the kind of 400s.",
+      "start": 3152.09,
+      "duration": 4.84
+    },
+    {
+      "text": "So a few notes here.",
+      "start": 3156.93,
+      "duration": 3.16
+    },
+    {
+      "text": "All reduce is, remember,\nas we stated, reduce",
+      "start": 3160.09,
+      "duration": 4.44
+    },
+    {
+      "text": "scatter plus an all gather.",
+      "start": 3164.53,
+      "duration": 2.64
+    },
+    {
+      "text": "And so all reduce, naturally, is\nmoving twice the amount of data,",
+      "start": 3167.17,
+      "duration": 7.0
+    },
+    {
+      "text": "because reduce scatter has some\ncost, all gather has some cost,",
+      "start": 3174.17,
+      "duration": 4.72
+    },
+    {
+      "text": "and all reduce is doing\ntwice as much work.",
+      "start": 3178.89,
+      "duration": 4.08
+    },
+    {
+      "text": "And it takes twice\nthe amount of time.",
+      "start": 3182.97,
+      "duration": 3.84
+    },
+    {
+      "text": "But the two cancel out, so you\nget the same kind of bandwidth.",
+      "start": 3186.81,
+      "duration": 4.98
+    },
+    {
+      "text": "So that is the end of part one.",
+      "start": 3200.15,
+      "duration": 2.54
+    },
+    {
+      "text": "Maybe any questions\nbefore I move to part two?",
+      "start": 3202.69,
+      "duration": 3.86
+    },
+    {
+      "text": "Yeah.",
+      "start": 3210.31,
+      "duration": 0.5
+    },
+    {
+      "text": "Why did you do that\nsynchronized for [INAUDIBLE]?",
+      "start": 3210.81,
+      "duration": 4.011
+    },
+    {
+      "text": "So why do we have to do the\nsynchronized for the Cuda",
+      "start": 3220.455,
+      "duration": 2.715
+    },
+    {
+      "text": "kernel?",
+      "start": 3223.17,
+      "duration": 0.88
+    },
+    {
+      "text": "So at the end of the day, we\nare still doing Cuda operations.",
+      "start": 3224.05,
+      "duration": 5.4
+    },
+    {
+      "text": "We have just multiple\nprocesses, each with a GPU,",
+      "start": 3229.45,
+      "duration": 4.52
+    },
+    {
+      "text": "doing some Cuda operations.",
+      "start": 3233.97,
+      "duration": 3.64
+    },
+    {
+      "text": "So if you're doing a Cuda\noperation, remember, by default,",
+      "start": 3237.61,
+      "duration": 3.54
+    },
+    {
+      "text": "it's async.",
+      "start": 3241.15,
+      "duration": 1.58
+    },
+    {
+      "text": "So when you reach the\nnext line in Python,",
+      "start": 3242.73,
+      "duration": 2.68
+    },
+    {
+      "text": "that Cuda operation\nmight not be done.",
+      "start": 3245.41,
+      "duration": 2.28
+    },
+    {
+      "text": "So we need to wait\nalways to make sure it's",
+      "start": 3247.69,
+      "duration": 3.56
+    },
+    {
+      "text": "done by synchronizing.",
+      "start": 3251.25,
+      "duration": 2.4
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3253.65,
+      "duration": 1.2
+    },
+    {
+      "text": "So do you have to do barrier\nfirst and then synchronize?",
+      "start": 3258.21,
+      "duration": 6.89
+    },
+    {
+      "text": "I'm not sure.",
+      "start": 3265.1,
+      "duration": 1.99
+    },
+    {
+      "text": "Yeah.",
+      "start": 3267.09,
+      "duration": 0.88
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3267.97,
+      "duration": 2.24
+    },
+    {
+      "text": "Yeah.",
+      "start": 3278.57,
+      "duration": 0.5
+    },
+    {
+      "text": "I think one problem is\nif you barrier first",
+      "start": 3279.07,
+      "duration": 3.13
+    },
+    {
+      "text": "and then the Cuda might\nnot be done running,",
+      "start": 3282.2,
+      "duration": 4.68
+    },
+    {
+      "text": "and you just immediately\ngo to the barrier.",
+      "start": 3286.88,
+      "duration": 2.56
+    },
+    {
+      "text": "And then you are still each\nindependently synchronizing",
+      "start": 3289.44,
+      "duration": 4.8
+    },
+    {
+      "text": "the different Cuda kernels,\nwhich means that you're not",
+      "start": 3294.24,
+      "duration": 3.32
+    },
+    {
+      "text": "really synchronized.",
+      "start": 3297.56,
+      "duration": 3.02
+    },
+    {
+      "text": "If all those\noperations just return,",
+      "start": 3300.58,
+      "duration": 2.24
+    },
+    {
+      "text": "the barrier doesn't\nreally do anything.",
+      "start": 3302.82,
+      "duration": 4.26
+    },
+    {
+      "text": "OK, let me move on.",
+      "start": 3307.08,
+      "duration": 1.48
+    },
+    {
+      "text": "So now let's actually\nstart thinking",
+      "start": 3308.56,
+      "duration": 2.32
+    },
+    {
+      "text": "about how you train models.",
+      "start": 3310.88,
+      "duration": 2.08
+    },
+    {
+      "text": "So we're just going to walk\nthrough a very bare bones",
+      "start": 3312.96,
+      "duration": 2.32
+    },
+    {
+      "text": "implementation of training\nMLPs, multilayer MLPs.",
+      "start": 3315.28,
+      "duration": 4.64
+    },
+    {
+      "text": "I guess that's redundant.",
+      "start": 3319.92,
+      "duration": 1.22
+    },
+    {
+      "text": "It's multilayer\nperceptrons already.",
+      "start": 3321.14,
+      "duration": 3.74
+    },
+    {
+      "text": "And remember that\nMLPs are the ones that",
+      "start": 3324.88,
+      "duration": 2.8
+    },
+    {
+      "text": "are the actual compute\nbottleneck in the transformer.",
+      "start": 3327.68,
+      "duration": 2.22
+    },
+    {
+      "text": "So this is actually pretty\nrepresentative of what",
+      "start": 3329.9,
+      "duration": 2.58
+    },
+    {
+      "text": "you'll see.",
+      "start": 3332.48,
+      "duration": 1.28
+    },
+    {
+      "text": "So data parallelism,\ntensor parallelism,",
+      "start": 3333.76,
+      "duration": 4.16
+    },
+    {
+      "text": "and pipeline parallelism.",
+      "start": 3337.92,
+      "duration": 1.72
+    },
+    {
+      "text": "And the picture I want\nyou to have in your head",
+      "start": 3339.64,
+      "duration": 4.72
+    },
+    {
+      "text": "is this picture.",
+      "start": 3344.36,
+      "duration": 1.42
+    },
+    {
+      "text": "So this is a little\nbit of a schematic,",
+      "start": 3345.78,
+      "duration": 3.48
+    },
+    {
+      "text": "so don't think too\ndeeply about this,",
+      "start": 3349.26,
+      "duration": 2.16
+    },
+    {
+      "text": "but it's more of a way to\nconceptualize how you're cutting",
+      "start": 3351.42,
+      "duration": 4.22
+    },
+    {
+      "text": "your data and parameters.",
+      "start": 3355.64,
+      "duration": 2.44
+    },
+    {
+      "text": "So data parallelism\nsays, I'm going",
+      "start": 3358.08,
+      "duration": 3.48
+    },
+    {
+      "text": "to split the data into pieces.",
+      "start": 3361.56,
+      "duration": 3.2
+    },
+    {
+      "text": "And then each of\nthe GPUs is going",
+      "start": 3364.76,
+      "duration": 3.76
+    },
+    {
+      "text": "to be responsible\nfor part of the data,",
+      "start": 3368.52,
+      "duration": 2.18
+    },
+    {
+      "text": "and I'm going to\njust do normal--",
+      "start": 3370.7,
+      "duration": 3.5
+    },
+    {
+      "text": "I'm going to keep track\nof all the parameters",
+      "start": 3374.2,
+      "duration": 2.16
+    },
+    {
+      "text": "and do normal model training.",
+      "start": 3376.36,
+      "duration": 4.28
+    },
+    {
+      "text": "And then I need to synchronize.",
+      "start": 3380.64,
+      "duration": 1.64
+    },
+    {
+      "text": "So let me explain\nhow this works.",
+      "start": 3382.28,
+      "duration": 2.62
+    },
+    {
+      "text": "So I'm going to generate\nsome sample data.",
+      "start": 3384.9,
+      "duration": 2.4
+    },
+    {
+      "text": "So there's a batch size of 128.",
+      "start": 3387.3,
+      "duration": 2.44
+    },
+    {
+      "text": "Number of dimensions, 1,024.",
+      "start": 3389.74,
+      "duration": 2.74
+    },
+    {
+      "text": "So this is a batch size by\nnum dim matrix, data matrix.",
+      "start": 3392.48,
+      "duration": 5.92
+    },
+    {
+      "text": "And let's jump into\nthis data parallelism.",
+      "start": 3398.4,
+      "duration": 6.08
+    },
+    {
+      "text": "So the way that\nit's going to work",
+      "start": 3404.48,
+      "duration": 4.12
+    },
+    {
+      "text": "is that you have\nthis data matrix.",
+      "start": 3408.6,
+      "duration": 2.56
+    },
+    {
+      "text": "And I'm going to break up the\nrows into world size pieces.",
+      "start": 3411.16,
+      "duration": 9.52
+    },
+    {
+      "text": "And in this case, four.",
+      "start": 3420.68,
+      "duration": 1.56
+    },
+    {
+      "text": "And each rank is\ngoing to get a piece.",
+      "start": 3422.24,
+      "duration": 4.52
+    },
+    {
+      "text": "So the number of\ndimensions, the batch size.",
+      "start": 3426.76,
+      "duration": 2.62
+    },
+    {
+      "text": "So I'm going to call the local\nbatch size, basically the batch",
+      "start": 3432.12,
+      "duration": 6.48
+    },
+    {
+      "text": "size divided by the\nworld size, which",
+      "start": 3438.6,
+      "duration": 1.76
+    },
+    {
+      "text": "is every row that GPU sees, it's\ngoing to have 32 data points.",
+      "start": 3440.36,
+      "duration": 8.88
+    },
+    {
+      "text": "And this is just indexing.",
+      "start": 3449.24,
+      "duration": 1.4
+    },
+    {
+      "text": "Start index data start to end\ngets you the slice of that data.",
+      "start": 3450.64,
+      "duration": 7.2
+    },
+    {
+      "text": "And I'm going to just\nput it on that rank.",
+      "start": 3457.84,
+      "duration": 4.88
+    },
+    {
+      "text": "So at this point,\neach GPU has now",
+      "start": 3462.72,
+      "duration": 4.0
+    },
+    {
+      "text": "a distinct data tensor,\nwhich is the part",
+      "start": 3466.72,
+      "duration": 3.12
+    },
+    {
+      "text": "that they're responsible for.",
+      "start": 3469.84,
+      "duration": 3.08
+    },
+    {
+      "text": "Now, in practice, each\nrank should probably",
+      "start": 3472.92,
+      "duration": 2.28
+    },
+    {
+      "text": "load its own data rather\nthan have this bottleneck,",
+      "start": 3475.2,
+      "duration": 3.5
+    },
+    {
+      "text": "but this is just for\nillustrative purposes.",
+      "start": 3478.7,
+      "duration": 2.72
+    },
+    {
+      "text": "So let's instantiate the MLP.",
+      "start": 3484.6,
+      "duration": 3.88
+    },
+    {
+      "text": "So here, I assume\nwe have layers.",
+      "start": 3488.48,
+      "duration": 7.48
+    },
+    {
+      "text": "And num layers.",
+      "start": 3495.96,
+      "duration": 3.6
+    },
+    {
+      "text": "And for each of the layers,\nI'm going to have just a num",
+      "start": 3499.56,
+      "duration": 3.64
+    },
+    {
+      "text": "dim by num dim matrix.",
+      "start": 3503.2,
+      "duration": 4.56
+    },
+    {
+      "text": "So I'm just going to initialize\na random set of parameters.",
+      "start": 3507.76,
+      "duration": 4.6
+    },
+    {
+      "text": "And then I'm going to\nfeed that into optimizer.",
+      "start": 3512.36,
+      "duration": 4.55
+    },
+    {
+      "text": "So here's the training loop.",
+      "start": 3516.91,
+      "duration": 2.68
+    },
+    {
+      "text": "So in the forward\npass, I take the data.",
+      "start": 3519.59,
+      "duration": 2.68
+    },
+    {
+      "text": "So remember, data\nis not all the data.",
+      "start": 3522.27,
+      "duration": 3.54
+    },
+    {
+      "text": "It's just if I'm rank 2, then\nI only get B2 part of the data.",
+      "start": 3525.81,
+      "duration": 5.18
+    },
+    {
+      "text": "I'm going to just go\nthrough the number of layers",
+      "start": 3530.99,
+      "duration": 3.56
+    },
+    {
+      "text": "and do a forward pass.",
+      "start": 3534.55,
+      "duration": 2.88
+    },
+    {
+      "text": "And then I'm going to\ndo a backward pass.",
+      "start": 3537.43,
+      "duration": 3.04
+    },
+    {
+      "text": "And then normally,\nthis would be it.",
+      "start": 3540.47,
+      "duration": 3.12
+    },
+    {
+      "text": "But now, remember, every\nrank has different data.",
+      "start": 3543.59,
+      "duration": 5.8
+    },
+    {
+      "text": "Therefore, the gradients are\ngoing to be different as well.",
+      "start": 3549.39,
+      "duration": 5.92
+    },
+    {
+      "text": "So this is the key step that\nmakes data parallelism work.",
+      "start": 3555.31,
+      "duration": 4.133
+    },
+    {
+      "text": "We're going to\nsynchronize the gradients",
+      "start": 3559.443,
+      "duration": 1.667
+    },
+    {
+      "text": "across all the workers.",
+      "start": 3561.11,
+      "duration": 0.958
+    },
+    {
+      "text": "This is the only difference\nbetween standard training",
+      "start": 3562.068,
+      "duration": 2.209
+    },
+    {
+      "text": "and DDP.",
+      "start": 3564.277,
+      "duration": 0.793
+    },
+    {
+      "text": "It's actually pretty\nnice and elegant.",
+      "start": 3565.07,
+      "duration": 2.1
+    },
+    {
+      "text": "So basically, for\nall the parameters,",
+      "start": 3567.17,
+      "duration": 2.3
+    },
+    {
+      "text": "I'm going to do an all\nreduce of parem.grad.",
+      "start": 3569.47,
+      "duration": 5.16
+    },
+    {
+      "text": "And I'm going to average.",
+      "start": 3577.19,
+      "duration": 2.92
+    },
+    {
+      "text": "And then after this all reduce\nis done, then now at this point,",
+      "start": 3580.11,
+      "duration": 7.5
+    },
+    {
+      "text": "each of the ranks has\nthe exact same gradients.",
+      "start": 3587.61,
+      "duration": 5.42
+    },
+    {
+      "text": "And then I'm just going\nto update the parameters.",
+      "start": 3593.03,
+      "duration": 6.32
+    },
+    {
+      "text": "So it's kind of really\nelegant, I find,",
+      "start": 3599.35,
+      "duration": 4.64
+    },
+    {
+      "text": "because it's basically standard\ntraining where you apply it",
+      "start": 3603.99,
+      "duration": 3.6
+    },
+    {
+      "text": "to your local batch,\nbut you just insert this",
+      "start": 3607.59,
+      "duration": 3.8
+    },
+    {
+      "text": "after the backward pass.",
+      "start": 3611.39,
+      "duration": 1.46
+    },
+    {
+      "text": "Let's just average all the\ngradients via this all reduce.",
+      "start": 3612.85,
+      "duration": 3.52
+    },
+    {
+      "text": "It's a one line code change, and\nthen the parameters get updated.",
+      "start": 3616.37,
+      "duration": 6.0
+    },
+    {
+      "text": "So as you're training,\neach rank is basically",
+      "start": 3622.37,
+      "duration": 5.18
+    },
+    {
+      "text": "performing parameter updates as\nif it had all the data on it,",
+      "start": 3627.55,
+      "duration": 4.58
+    },
+    {
+      "text": "but it's only actually\nprocessing a part of the data.",
+      "start": 3632.13,
+      "duration": 3.98
+    },
+    {
+      "text": "So that's basically DDP or the\nfirst type of data parallel.",
+      "start": 3636.11,
+      "duration": 7.64
+    },
+    {
+      "text": "Any questions about this?",
+      "start": 3643.75,
+      "duration": 3.36
+    },
+    {
+      "text": "Yeah.",
+      "start": 3647.11,
+      "duration": 1.373
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3648.483,
+      "duration": 3.52
+    },
+    {
+      "text": "So the question is,\ncan you only do this",
+      "start": 3652.003,
+      "duration": 1.667
+    },
+    {
+      "text": "with batch size greater than 1?",
+      "start": 3653.67,
+      "duration": 3.78
+    },
+    {
+      "text": "Yes.",
+      "start": 3657.45,
+      "duration": 0.5
+    },
+    {
+      "text": "So your batch size has to be\nat least world size for this",
+      "start": 3657.95,
+      "duration": 4.36
+    },
+    {
+      "text": "to really make sense.",
+      "start": 3662.31,
+      "duration": 1.58
+    },
+    {
+      "text": "And usually, it should\nprobably be quite a bit larger.",
+      "start": 3663.89,
+      "duration": 4.78
+    },
+    {
+      "text": "Yeah?",
+      "start": 3668.67,
+      "duration": 0.94
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3669.61,
+      "duration": 3.24
+    },
+    {
+      "text": "Yeah.",
+      "start": 3672.85,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question is,\nshould the batch size",
+      "start": 3673.35,
+      "duration": 3.08
+    },
+    {
+      "text": "be a multiple of world size?",
+      "start": 3676.43,
+      "duration": 1.42
+    },
+    {
+      "text": "And that also would be nice.",
+      "start": 3677.85,
+      "duration": 2.66
+    },
+    {
+      "text": "Yes.",
+      "start": 3680.51,
+      "duration": 1.56
+    },
+    {
+      "text": "I mean, if it's not,\nthen you can pad it",
+      "start": 3682.07,
+      "duration": 1.76
+    },
+    {
+      "text": "with zeros or something.",
+      "start": 3683.83,
+      "duration": 1.86
+    },
+    {
+      "text": "So there's ways, but it's just\neasier for everyone if it is.",
+      "start": 3685.69,
+      "duration": 5.9
+    },
+    {
+      "text": "[INAUDIBLE]?",
+      "start": 3691.59,
+      "duration": 1.12
+    },
+    {
+      "text": "What would it look like for a\ntransform-based [INAUDIBLE]?",
+      "start": 3699.87,
+      "duration": 4.84
+    },
+    {
+      "text": "Yeah, so the question\nis, what would this look",
+      "start": 3704.71,
+      "duration": 1.96
+    },
+    {
+      "text": "like for a transformer?",
+      "start": 3706.67,
+      "duration": 1.22
+    },
+    {
+      "text": "It would actually be\nbasically the same.",
+      "start": 3707.89,
+      "duration": 3.1
+    },
+    {
+      "text": "The DDP has the nice thing\nthat is very modular.",
+      "start": 3710.99,
+      "duration": 2.92
+    },
+    {
+      "text": "You do the forward pass.",
+      "start": 3713.91,
+      "duration": 2.0
+    },
+    {
+      "text": "I mean, DDP just averages\nthe parameters here.",
+      "start": 3715.91,
+      "duration": 3.34
+    },
+    {
+      "text": "It doesn't care what your\nforward pass looks like.",
+      "start": 3719.25,
+      "duration": 2.56
+    },
+    {
+      "text": "OK, let me move on.",
+      "start": 3724.47,
+      "duration": 3.66
+    },
+    {
+      "text": "So that's DDP.",
+      "start": 3728.13,
+      "duration": 3.34
+    },
+    {
+      "text": "So just to summarize, the losses\nare different across the ranks.",
+      "start": 3731.47,
+      "duration": 7.04
+    },
+    {
+      "text": "The gradients are also\ninitially different.",
+      "start": 3738.51,
+      "duration": 4.36
+    },
+    {
+      "text": "But they are all reduced to\nbe the same across the ranks.",
+      "start": 3742.87,
+      "duration": 3.28
+    },
+    {
+      "text": "And therefore,\nthe parameters all",
+      "start": 3746.15,
+      "duration": 1.68
+    },
+    {
+      "text": "remain the same across ranks.",
+      "start": 3747.83,
+      "duration": 4.67
+    },
+    {
+      "text": "So next lecture,\n[? Tatsu ?] is going",
+      "start": 3752.5,
+      "duration": 2.16
+    },
+    {
+      "text": "to talk about fancier data\nparallelism, FSDP and 0.",
+      "start": 3754.66,
+      "duration": 4.92
+    },
+    {
+      "text": "And the idea there is,\nas I've alluded to,",
+      "start": 3759.58,
+      "duration": 3.36
+    },
+    {
+      "text": "here we use all reduce.",
+      "start": 3762.94,
+      "duration": 1.62
+    },
+    {
+      "text": "It's a very simple\nmonolithic operation,",
+      "start": 3764.56,
+      "duration": 2.54
+    },
+    {
+      "text": "but it does require holding\nall the models, parameters",
+      "start": 3767.1,
+      "duration": 3.04
+    },
+    {
+      "text": "in memory.",
+      "start": 3770.14,
+      "duration": 1.24
+    },
+    {
+      "text": "But what if the model\nparameters don't fit in memory?",
+      "start": 3771.38,
+      "duration": 2.76
+    },
+    {
+      "text": "Then you're going to\nhave to be more clever,",
+      "start": 3774.14,
+      "duration": 1.86
+    },
+    {
+      "text": "and that's the topic\nfor the next class.",
+      "start": 3776.0,
+      "duration": 3.14
+    },
+    {
+      "text": "So let me talk about\ntensor parallelism.",
+      "start": 3779.14,
+      "duration": 4.84
+    },
+    {
+      "text": "So here, the idea is we're\ngoing to cut this way",
+      "start": 3783.98,
+      "duration": 3.72
+    },
+    {
+      "text": "and we're not going\nto cut the data.",
+      "start": 3787.7,
+      "duration": 1.5
+    },
+    {
+      "text": "We're going to cut\nessentially each layer.",
+      "start": 3789.2,
+      "duration": 6.94
+    },
+    {
+      "text": "And so each rank is going\nto get part of each layer.",
+      "start": 3796.14,
+      "duration": 6.52
+    },
+    {
+      "text": "And generally, this\nmeans that we're",
+      "start": 3802.66,
+      "duration": 3.6
+    },
+    {
+      "text": "going to have to\ntransfer a lot more data.",
+      "start": 3806.26,
+      "duration": 2.82
+    },
+    {
+      "text": "We'll discuss this a bit later.",
+      "start": 3809.08,
+      "duration": 1.76
+    },
+    {
+      "text": "So what does tensor\nparallel look like?",
+      "start": 3813.82,
+      "duration": 3.92
+    },
+    {
+      "text": "So we're just going to\nassume we have this data.",
+      "start": 3817.74,
+      "duration": 5.1
+    },
+    {
+      "text": "Every rank has all the\ndata just for simplicity.",
+      "start": 3822.84,
+      "duration": 5.14
+    },
+    {
+      "text": "And here, remember, the data\nis batch size times num dim.",
+      "start": 3827.98,
+      "duration": 6.32
+    },
+    {
+      "text": "And I'm going to\ndefine a local num dim",
+      "start": 3834.3,
+      "duration": 1.84
+    },
+    {
+      "text": "dim to be-- for\nthis rank, I only",
+      "start": 3836.14,
+      "duration": 4.52
+    },
+    {
+      "text": "am responsible for a\nsubset of the dimensions.",
+      "start": 3840.66,
+      "duration": 6.48
+    },
+    {
+      "text": "So the picture here is that each\nmodel still has all the layers",
+      "start": 3847.14,
+      "duration": 8.04
+    },
+    {
+      "text": "here for all the layers,\nbut the parameters now",
+      "start": 3855.18,
+      "duration": 3.32
+    },
+    {
+      "text": "are num dim times local num dim.",
+      "start": 3858.5,
+      "duration": 5.7
+    },
+    {
+      "text": "So if this were one\nof the parameter",
+      "start": 3864.2,
+      "duration": 2.26
+    },
+    {
+      "text": "matrices for one layer, I would\nbe splitting down the columns.",
+      "start": 3866.46,
+      "duration": 8.56
+    },
+    {
+      "text": "So this is also known as\ncolumn tensor parallel.",
+      "start": 3875.02,
+      "duration": 3.92
+    },
+    {
+      "text": "You can also do it by\nrows, but we're not going",
+      "start": 3878.94,
+      "duration": 1.96
+    },
+    {
+      "text": "to talk about that right now.",
+      "start": 3880.9,
+      "duration": 2.96
+    },
+    {
+      "text": "So now what does the\nforward pass look like?",
+      "start": 3883.86,
+      "duration": 4.44
+    },
+    {
+      "text": "So I'll go through\nall the layers",
+      "start": 3888.3,
+      "duration": 2.04
+    },
+    {
+      "text": "and I'm going to\ncompute activations.",
+      "start": 3890.34,
+      "duration": 3.0
+    },
+    {
+      "text": "So I start with x the data.",
+      "start": 3893.34,
+      "duration": 7.36
+    },
+    {
+      "text": "And I'm going to access\nthe parameters at layer.",
+      "start": 3900.7,
+      "duration": 6.88
+    },
+    {
+      "text": "And notice that this is only\na slice of the parameters.",
+      "start": 3907.58,
+      "duration": 3.46
+    },
+    {
+      "text": "So if I'm on rank 1, I only\nget this part of the matrix.",
+      "start": 3911.04,
+      "duration": 5.54
+    },
+    {
+      "text": "But I can still proceed.",
+      "start": 3916.58,
+      "duration": 1.62
+    },
+    {
+      "text": "I can apply this\nnon-linearity, because this",
+      "start": 3918.2,
+      "duration": 2.58
+    },
+    {
+      "text": "is element wise anyway.",
+      "start": 3920.78,
+      "duration": 2.92
+    },
+    {
+      "text": "But now what I'm going\nto do is I'm going",
+      "start": 3923.7,
+      "duration": 4.07
+    },
+    {
+      "text": "to communicate activations.",
+      "start": 3927.77,
+      "duration": 4.52
+    },
+    {
+      "text": "So if I have a\ndata matrix, rank 1",
+      "start": 3932.29,
+      "duration": 2.96
+    },
+    {
+      "text": "has activations for\npart of the activations",
+      "start": 3935.25,
+      "duration": 3.32
+    },
+    {
+      "text": "for this part of the matrix.",
+      "start": 3938.57,
+      "duration": 2.64
+    },
+    {
+      "text": "Rank 1 has part of the\nactivations for this matrix",
+      "start": 3941.21,
+      "duration": 2.72
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 3943.93,
+      "duration": 1.36
+    },
+    {
+      "text": "And I need to basically\nput all the activations",
+      "start": 3945.29,
+      "duration": 4.04
+    },
+    {
+      "text": "on all the ranks.",
+      "start": 3949.33,
+      "duration": 3.32
+    },
+    {
+      "text": "But we know how to do that.",
+      "start": 3952.65,
+      "duration": 1.82
+    },
+    {
+      "text": "We introduced all gather\nas a collective primitive.",
+      "start": 3954.47,
+      "duration": 4.52
+    },
+    {
+      "text": "So this is all the activations.",
+      "start": 3958.99,
+      "duration": 6.06
+    },
+    {
+      "text": "So this is the batch size\ntimes local num dim, which is",
+      "start": 3965.05,
+      "duration": 5.92
+    },
+    {
+      "text": "the shape of the activations.",
+      "start": 3970.97,
+      "duration": 4.32
+    },
+    {
+      "text": "And then I'm doing\nan all gather.",
+      "start": 3975.29,
+      "duration": 5.6
+    },
+    {
+      "text": "Sorry, so this is the allocating\nmemory for the activations.",
+      "start": 3980.89,
+      "duration": 3.04
+    },
+    {
+      "text": "So x is the actual\npart of the activation.",
+      "start": 3983.93,
+      "duration": 3.94
+    },
+    {
+      "text": "So this is batch size\ntimes local num dim.",
+      "start": 3987.87,
+      "duration": 3.18
+    },
+    {
+      "text": "And all gather says each\nrank has x and each rank",
+      "start": 3991.05,
+      "duration": 6.48
+    },
+    {
+      "text": "is going to allocate\nactivations,",
+      "start": 3997.53,
+      "duration": 4.28
+    },
+    {
+      "text": "which is a list, one\nfor each world size.",
+      "start": 4001.81,
+      "duration": 2.6
+    },
+    {
+      "text": "And then after the\nall gather, x is",
+      "start": 4004.41,
+      "duration": 2.2
+    },
+    {
+      "text": "going to be copied into each\nof the respective location",
+      "start": 4006.61,
+      "duration": 4.32
+    },
+    {
+      "text": "activations.",
+      "start": 4010.93,
+      "duration": 3.22
+    },
+    {
+      "text": "So then once I gather\nall the activations,",
+      "start": 4014.15,
+      "duration": 3.16
+    },
+    {
+      "text": "I concatenate them to form\nthe full dimensional x, which",
+      "start": 4017.31,
+      "duration": 3.58
+    },
+    {
+      "text": "is batch size times num dim.",
+      "start": 4020.89,
+      "duration": 1.7
+    },
+    {
+      "text": "Any questions about\ncolumn tensor parallel?",
+      "start": 4028.53,
+      "duration": 5.78
+    },
+    {
+      "text": "So this is done for every layer.",
+      "start": 4038.13,
+      "duration": 3.4
+    },
+    {
+      "text": "We now notice one difference\nbetween data parallel",
+      "start": 4041.53,
+      "duration": 4.92
+    },
+    {
+      "text": "is now we have to muck\naround with the model.",
+      "start": 4046.45,
+      "duration": 3.0
+    },
+    {
+      "text": "Data parallel is very elegant,\nbecause it's splitting by data.",
+      "start": 4049.45,
+      "duration": 2.78
+    },
+    {
+      "text": "The model is\ntreated as a module.",
+      "start": 4052.23,
+      "duration": 3.26
+    },
+    {
+      "text": "But now we have to muck\naround with the model.",
+      "start": 4055.49,
+      "duration": 3.4
+    },
+    {
+      "text": "And this is strongly\nleveraging the fact",
+      "start": 4058.89,
+      "duration": 3.4
+    },
+    {
+      "text": "that if you want to do\na matrix multiplication,",
+      "start": 4062.29,
+      "duration": 3.44
+    },
+    {
+      "text": "you can split it up into\na set of smaller matrix",
+      "start": 4065.73,
+      "duration": 4.32
+    },
+    {
+      "text": "multiplications.",
+      "start": 4070.05,
+      "duration": 1.1
+    },
+    {
+      "text": "We can do those on\ndifferent ranks,",
+      "start": 4071.15,
+      "duration": 1.62
+    },
+    {
+      "text": "and then we can\ngather the results.",
+      "start": 4072.77,
+      "duration": 2.54
+    },
+    {
+      "text": "When it comes to the\nback propagation,",
+      "start": 4078.29,
+      "duration": 1.76
+    },
+    {
+      "text": "[INAUDIBLE] gradients\nare still [INAUDIBLE].",
+      "start": 4080.05,
+      "duration": 7.96
+    },
+    {
+      "text": "Yeah.",
+      "start": 4088.01,
+      "duration": 0.64
+    },
+    {
+      "text": "So now the question is,\nwhat happens in backprop?",
+      "start": 4088.65,
+      "duration": 4.2
+    },
+    {
+      "text": "Now, in the backprop,\nyou have your activations",
+      "start": 4092.85,
+      "duration": 3.64
+    },
+    {
+      "text": "and you have to reduce scatter\nto all the different gradients.",
+      "start": 4096.49,
+      "duration": 6.38
+    },
+    {
+      "text": "So in some ways, all\ngather and reduce scatter",
+      "start": 4102.87,
+      "duration": 2.8
+    },
+    {
+      "text": "have this kind of duality,\nwhere in forward, you're",
+      "start": 4105.67,
+      "duration": 2.62
+    },
+    {
+      "text": "all gathering, in the backward,\nyou're reduce scattering.",
+      "start": 4108.29,
+      "duration": 5.2
+    },
+    {
+      "text": "Yeah?",
+      "start": 4113.49,
+      "duration": 0.94
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 4114.43,
+      "duration": 2.42
+    },
+    {
+      "text": "So the question is, is that\ndone automatically by autograd?",
+      "start": 4116.85,
+      "duration": 3.1
+    },
+    {
+      "text": "So none of this--",
+      "start": 4119.95,
+      "duration": 2.06
+    },
+    {
+      "text": "well, OK.",
+      "start": 4122.01,
+      "duration": 1.48
+    },
+    {
+      "text": "So if you just call .backward,\nit's not going to do it,",
+      "start": 4123.49,
+      "duration": 3.199
+    },
+    {
+      "text": "because there's no\nparallelism in that.",
+      "start": 4126.689,
+      "duration": 2.941
+    },
+    {
+      "text": "But PyTorch has all\nthese things that",
+      "start": 4129.63,
+      "duration": 3.5
+    },
+    {
+      "text": "are done automatically for you.",
+      "start": 4133.13,
+      "duration": 1.86
+    },
+    {
+      "text": "[INAUDIBLE] To what\nextent do I need to change",
+      "start": 4138.49,
+      "duration": 7.36
+    },
+    {
+      "text": "my code and [INAUDIBLE]?",
+      "start": 4145.85,
+      "duration": 3.44
+    },
+    {
+      "text": "So what is done for you\nand versus automatically?",
+      "start": 4149.29,
+      "duration": 5.439
+    },
+    {
+      "text": "Here we're managing\nthings fairly explicitly,",
+      "start": 4154.729,
+      "duration": 4.151
+    },
+    {
+      "text": "which means I'm not\ndoing the backward pass,",
+      "start": 4158.88,
+      "duration": 2.86
+    },
+    {
+      "text": "but you would have to manage\nand call the reduce scatter",
+      "start": 4161.74,
+      "duration": 3.46
+    },
+    {
+      "text": "yourself.",
+      "start": 4165.2,
+      "duration": 0.739
+    },
+    {
+      "text": "And that's by design,\nbecause this is 336,",
+      "start": 4170.439,
+      "duration": 3.558
+    },
+    {
+      "text": "building language\nmodels from scratch.",
+      "start": 4173.997,
+      "duration": 1.583
+    },
+    {
+      "text": "In practice, you probably\nwouldn't have to do that.",
+      "start": 4175.58,
+      "duration": 3.26
+    },
+    {
+      "text": "OK, so let's do pipeline\nparallelism quickly.",
+      "start": 4178.84,
+      "duration": 3.519
+    },
+    {
+      "text": "So the idea behind\npipeline parallelism",
+      "start": 4182.359,
+      "duration": 2.561
+    },
+    {
+      "text": "is we're going to split\nthe network this way.",
+      "start": 4184.92,
+      "duration": 2.84
+    },
+    {
+      "text": "So each rank is going to get\na subset of the layers now.",
+      "start": 4187.76,
+      "duration": 5.04
+    },
+    {
+      "text": "Within each layer, it's going\nto get all the dimensions,",
+      "start": 4192.8,
+      "duration": 3.56
+    },
+    {
+      "text": "and it's also going\nto get all the--",
+      "start": 4196.36,
+      "duration": 2.84
+    },
+    {
+      "text": "well, one of the ranks is\ngoing to get all the data.",
+      "start": 4199.2,
+      "duration": 4.88
+    },
+    {
+      "text": "Every rank is going to see\nall the data in some form.",
+      "start": 4204.08,
+      "duration": 4.56
+    },
+    {
+      "text": "So this is the way\nit's going to work.",
+      "start": 4208.64,
+      "duration": 5.54
+    },
+    {
+      "text": "So we have all the\ndata, which is, again,",
+      "start": 4214.18,
+      "duration": 5.92
+    },
+    {
+      "text": "the batch size times num dim.",
+      "start": 4220.1,
+      "duration": 3.22
+    },
+    {
+      "text": "And I'm going to\nsplit up the layers.",
+      "start": 4223.32,
+      "duration": 3.04
+    },
+    {
+      "text": "So local num layers is going\nto be the number of layers",
+      "start": 4226.36,
+      "duration": 2.68
+    },
+    {
+      "text": "that a particular rank\nis going to handle.",
+      "start": 4229.04,
+      "duration": 3.88
+    },
+    {
+      "text": "And so now I'm going to\nhave local params, which",
+      "start": 4232.92,
+      "duration": 4.6
+    },
+    {
+      "text": "is basically only-- there's\nlocal number of layers",
+      "start": 4237.52,
+      "duration": 3.4
+    },
+    {
+      "text": "number of them.",
+      "start": 4240.92,
+      "duration": 1.4
+    },
+    {
+      "text": "But within each layer, I'm going\nto do the num dim by num dim.",
+      "start": 4242.32,
+      "duration": 5.72
+    },
+    {
+      "text": "So one thing, maybe\n[INAUDIBLE] will talk more",
+      "start": 4248.04,
+      "duration": 5.72
+    },
+    {
+      "text": "about this on Wednesday, is\nthis idea of micro-batches.",
+      "start": 4253.76,
+      "duration": 5.76
+    },
+    {
+      "text": "So maybe I'll just\npresent this and explain",
+      "start": 4259.52,
+      "duration": 3.16
+    },
+    {
+      "text": "why I'm doing things this way.",
+      "start": 4262.68,
+      "duration": 2.28
+    },
+    {
+      "text": "So in addition to\nsplitting up the layers,",
+      "start": 4264.96,
+      "duration": 2.82
+    },
+    {
+      "text": "I'm also going to\nsplit up the batch",
+      "start": 4267.78,
+      "duration": 2.5
+    },
+    {
+      "text": "into a bunch of micro-batches.",
+      "start": 4270.28,
+      "duration": 4.12
+    },
+    {
+      "text": "So if I'm rank 0,\nthen I get the data,",
+      "start": 4274.4,
+      "duration": 6.24
+    },
+    {
+      "text": "and I'm going to chunk it up\ninto a number of micro-batches.",
+      "start": 4280.64,
+      "duration": 4.04
+    },
+    {
+      "text": "And for each micro-batch,\nwhat I'm going to do",
+      "start": 4284.68,
+      "duration": 7.56
+    },
+    {
+      "text": "is receive it from\nthe previous rank,",
+      "start": 4292.24,
+      "duration": 7.2
+    },
+    {
+      "text": "and then do the feed forward\npass only on the layers that",
+      "start": 4299.44,
+      "duration": 4.4
+    },
+    {
+      "text": "are assigned to this rank.",
+      "start": 4303.84,
+      "duration": 1.64
+    },
+    {
+      "text": "And then I'm going to\nsend to the next rank.",
+      "start": 4305.48,
+      "duration": 6.28
+    },
+    {
+      "text": "So here I'm actually using\nthese receive and send,",
+      "start": 4311.76,
+      "duration": 3.48
+    },
+    {
+      "text": "which are pointwise operations.",
+      "start": 4315.24,
+      "duration": 2.0
+    },
+    {
+      "text": "So I didn't cover those before,\nbut they're fairly explanatory.",
+      "start": 4317.24,
+      "duration": 4.98
+    },
+    {
+      "text": "This basically says\nI'm rank and I'm going",
+      "start": 4322.22,
+      "duration": 3.98
+    },
+    {
+      "text": "to send this tensor over to--",
+      "start": 4326.2,
+      "duration": 3.08
+    },
+    {
+      "text": "sorry, I'm going to receive\nthis tensor from rank minus 1.",
+      "start": 4329.28,
+      "duration": 4.95
+    },
+    {
+      "text": "And this says I'm going to\nsend tensor x to rank plus 1.",
+      "start": 4334.23,
+      "duration": 3.54
+    },
+    {
+      "text": "So basically, the reason why I'm\ntalking about micro-batches is--",
+      "start": 4348.75,
+      "duration": 6.96
+    },
+    {
+      "text": "and [? Tatsu ?] will talk\nmore about this on Wednesday--",
+      "start": 4355.71,
+      "duration": 2.8
+    },
+    {
+      "text": "is that in pipeline\nparallelism, so you have",
+      "start": 4358.51,
+      "duration": 3.48
+    },
+    {
+      "text": "one rank that gets the data.",
+      "start": 4361.99,
+      "duration": 4.04
+    },
+    {
+      "text": "It processes some of\nthe layers, and then",
+      "start": 4366.03,
+      "duration": 2.64
+    },
+    {
+      "text": "it sends it to the next GPU, and\nit process some of the layers.",
+      "start": 4368.67,
+      "duration": 5.26
+    },
+    {
+      "text": "And it then sends\nit to the next GPU.",
+      "start": 4373.93,
+      "duration": 2.78
+    },
+    {
+      "text": "So this is a very natural way\nof dividing a deep network.",
+      "start": 4376.71,
+      "duration": 4.06
+    },
+    {
+      "text": "But the problem is\nthat you get these",
+      "start": 4380.77,
+      "duration": 2.3
+    },
+    {
+      "text": "what are called pipeline\nbubbles, where while you're not",
+      "start": 4383.07,
+      "duration": 6.36
+    },
+    {
+      "text": "processing, you're kind of\nwaiting around for other tensors",
+      "start": 4389.43,
+      "duration": 3.76
+    },
+    {
+      "text": "to process.",
+      "start": 4393.19,
+      "duration": 1.44
+    },
+    {
+      "text": "And this ends up being\nquite inefficient.",
+      "start": 4394.63,
+      "duration": 3.68
+    },
+    {
+      "text": "So the idea behind micro-batches\nis that you break it up",
+      "start": 4398.31,
+      "duration": 4.4
+    },
+    {
+      "text": "into smaller batches, so\nyou can process it quickly,",
+      "start": 4402.71,
+      "duration": 2.72
+    },
+    {
+      "text": "send it on to the next one.",
+      "start": 4405.43,
+      "duration": 1.42
+    },
+    {
+      "text": "So this can reduce the\nnumber of pipeline bubbles.",
+      "start": 4406.85,
+      "duration": 5.62
+    },
+    {
+      "text": "So the other thing\nI will mention",
+      "start": 4412.47,
+      "duration": 1.92
+    },
+    {
+      "text": "that is not handled in this\nvery kind of naive version",
+      "start": 4414.39,
+      "duration": 3.24
+    },
+    {
+      "text": "is the idea of overlapping\ncommunication and computation,",
+      "start": 4417.63,
+      "duration": 3.78
+    },
+    {
+      "text": "which is actually very important\nto pipeline parallelism.",
+      "start": 4421.41,
+      "duration": 3.8
+    },
+    {
+      "text": "This basically gives\nyou the right structure.",
+      "start": 4425.21,
+      "duration": 2.18
+    },
+    {
+      "text": "If you put an I before these,\nthen it becomes kind of async.",
+      "start": 4427.39,
+      "duration": 6.16
+    },
+    {
+      "text": "You have to add more\nthings to manage the code.",
+      "start": 4433.55,
+      "duration": 4.96
+    },
+    {
+      "text": "And the idea here is\nthat you want to be--",
+      "start": 4438.51,
+      "duration": 4.24
+    },
+    {
+      "text": "while you're computing\nhere, you can be",
+      "start": 4442.75,
+      "duration": 4.76
+    },
+    {
+      "text": "receiving data or sending data.",
+      "start": 4447.51,
+      "duration": 3.76
+    },
+    {
+      "text": "So computation and\ncommunication should overlap.",
+      "start": 4451.27,
+      "duration": 3.22
+    },
+    {
+      "text": "So that reduces the amount of\ntime you actually spend waiting.",
+      "start": 4454.49,
+      "duration": 4.72
+    },
+    {
+      "text": "So a few things that are kind\nof missing here, which we'll",
+      "start": 4463.19,
+      "duration": 6.92
+    },
+    {
+      "text": "hopefully fill in next time.",
+      "start": 4470.11,
+      "duration": 2.0
+    },
+    {
+      "text": "So the communication\nversus computation overlap,",
+      "start": 4472.11,
+      "duration": 4.08
+    },
+    {
+      "text": "which is especially crucial\nin pipeline parallelism.",
+      "start": 4476.19,
+      "duration": 5.76
+    },
+    {
+      "text": "I didn't mention in\ndata parallelism,",
+      "start": 4481.95,
+      "duration": 2.42
+    },
+    {
+      "text": "this also happens, because\nI just did a forward pass",
+      "start": 4484.37,
+      "duration": 4.44
+    },
+    {
+      "text": "and then at the end, I'm just\ndoing all these all reduces.",
+      "start": 4488.81,
+      "duration": 2.84
+    },
+    {
+      "text": "But if you're clever,\nthen on the backward pass,",
+      "start": 4491.65,
+      "duration": 3.46
+    },
+    {
+      "text": "as soon as the\ngradients are done,",
+      "start": 4495.11,
+      "duration": 1.98
+    },
+    {
+      "text": "you can start sending that.",
+      "start": 4497.09,
+      "duration": 1.685
+    },
+    {
+      "text": "And that's something\nthat will be",
+      "start": 4498.775,
+      "duration": 1.375
+    },
+    {
+      "text": "explored in the assignment two.",
+      "start": 4500.15,
+      "duration": 2.36
+    },
+    {
+      "text": "And this, again, allows you\nto just overlap communication",
+      "start": 4502.51,
+      "duration": 4.4
+    },
+    {
+      "text": "and computation more.",
+      "start": 4506.91,
+      "duration": 3.72
+    },
+    {
+      "text": "We had some questions about\nwhat about general models.",
+      "start": 4510.63,
+      "duration": 3.78
+    },
+    {
+      "text": "Again, I think\nthis MLP gives you",
+      "start": 4514.41,
+      "duration": 4.86
+    },
+    {
+      "text": "essentially most\nof what you need",
+      "start": 4519.27,
+      "duration": 5.04
+    },
+    {
+      "text": "for understanding the basics.",
+      "start": 4524.31,
+      "duration": 3.44
+    },
+    {
+      "text": "Some of the larger models just\nrequire a lot more bookkeeping,",
+      "start": 4527.75,
+      "duration": 3.22
+    },
+    {
+      "text": "so it's harder to see\nthe core algorithms.",
+      "start": 4530.97,
+      "duration": 5.78
+    },
+    {
+      "text": "There are other\ntypes of parallelism",
+      "start": 4536.75,
+      "duration": 1.64
+    },
+    {
+      "text": "that we haven't covered.",
+      "start": 4538.39,
+      "duration": 1.56
+    },
+    {
+      "text": "So sequence parallelism\ntakes a whole sequence",
+      "start": 4539.95,
+      "duration": 3.28
+    },
+    {
+      "text": "and chops it up into pieces.",
+      "start": 4543.23,
+      "duration": 1.76
+    },
+    {
+      "text": "And that allows you to\nparallelize the attention",
+      "start": 4544.99,
+      "duration": 2.12
+    },
+    {
+      "text": "computation, expert parallelism,\nwhich allows you to parallelize",
+      "start": 4547.11,
+      "duration": 5.56
+    },
+    {
+      "text": "the experts for MOEs.",
+      "start": 4552.67,
+      "duration": 1.58
+    },
+    {
+      "text": "And this is where the all to\nall that I mentioned comes in.",
+      "start": 4554.25,
+      "duration": 3.34
+    },
+    {
+      "text": "And then also\ndifferent combinations",
+      "start": 4557.59,
+      "duration": 4.76
+    },
+    {
+      "text": "of different parallelization\ntechniques, which also",
+      "start": 4562.35,
+      "duration": 3.72
+    },
+    {
+      "text": "will show up in the assignment.",
+      "start": 4566.07,
+      "duration": 4.07
+    },
+    {
+      "text": "So one thing to\nnote is that which",
+      "start": 4570.14,
+      "duration": 4.32
+    },
+    {
+      "text": "parallelism technique\nyou choose is",
+      "start": 4574.46,
+      "duration": 3.12
+    },
+    {
+      "text": "going to be strongly\ndependent on the hardware.",
+      "start": 4577.58,
+      "duration": 3.92
+    },
+    {
+      "text": "For example, tensor parallelism.",
+      "start": 4581.5,
+      "duration": 2.16
+    },
+    {
+      "text": "There's a lot of communication,\nbecause for every layer,",
+      "start": 4583.66,
+      "duration": 3.8
+    },
+    {
+      "text": "you need to send all\nthese activations, which",
+      "start": 4587.46,
+      "duration": 2.76
+    },
+    {
+      "text": "are fairly big.",
+      "start": 4590.22,
+      "duration": 1.64
+    },
+    {
+      "text": "So generally, tensor parallelism\nhappens within a node on NVLink",
+      "start": 4591.86,
+      "duration": 4.36
+    },
+    {
+      "text": "or where you have\nhigh bandwidth.",
+      "start": 4596.22,
+      "duration": 4.52
+    },
+    {
+      "text": "Whereas you wouldn't\ndo tensor parallelism",
+      "start": 4600.74,
+      "duration": 2.0
+    },
+    {
+      "text": "past an NVLink domain.",
+      "start": 4602.74,
+      "duration": 4.08
+    },
+    {
+      "text": "Whereas a pipeline parallelism,\nyou'll see people using it.",
+      "start": 4606.82,
+      "duration": 3.98
+    },
+    {
+      "text": "And generally, this can tolerate\nmuch slower interconnects.",
+      "start": 4610.8,
+      "duration": 7.5
+    },
+    {
+      "text": "So some of the\ndecentralized training work",
+      "start": 4618.3,
+      "duration": 3.72
+    },
+    {
+      "text": "uses pipeline parallel,\nbecause your nodes are--",
+      "start": 4622.02,
+      "duration": 3.56
+    },
+    {
+      "text": "GPUs are halfway\nacross the world.",
+      "start": 4625.58,
+      "duration": 3.76
+    },
+    {
+      "text": "But you wouldn't want to do\ntensor parallel in that setting.",
+      "start": 4629.34,
+      "duration": 4.88
+    },
+    {
+      "text": "So sometimes when you look\nat these combinations,",
+      "start": 4634.22,
+      "duration": 4.0
+    },
+    {
+      "text": "it will be tensor\nparallel within a node",
+      "start": 4638.22,
+      "duration": 2.88
+    },
+    {
+      "text": "and then pipe data\nparallel or FSDP",
+      "start": 4641.1,
+      "duration": 7.78
+    },
+    {
+      "text": "and then pipeline\nparallelism if you need it.",
+      "start": 4648.88,
+      "duration": 6.54
+    },
+    {
+      "text": "There's other effects, such\nas if you do data parallel,",
+      "start": 4655.42,
+      "duration": 4.04
+    },
+    {
+      "text": "you might be able to do\ndata parallel quite a bit.",
+      "start": 4659.46,
+      "duration": 3.14
+    },
+    {
+      "text": "But then you start\nhitting to something",
+      "start": 4662.6,
+      "duration": 2.46
+    },
+    {
+      "text": "called the critical\nbatch size, where",
+      "start": 4665.06,
+      "duration": 2.28
+    },
+    {
+      "text": "if you start increasing\nthe batch size too much,",
+      "start": 4667.34,
+      "duration": 2.62
+    },
+    {
+      "text": "it doesn't actually\nhelp you, in which case",
+      "start": 4669.96,
+      "duration": 2.14
+    },
+    {
+      "text": "you're kind of\nwasting your compute",
+      "start": 4672.1,
+      "duration": 1.64
+    },
+    {
+      "text": "and then you're better\noff using tensor parallel.",
+      "start": 4673.74,
+      "duration": 2.42
+    },
+    {
+      "text": "So there's a bunch of\nthese considerations,",
+      "start": 4676.16,
+      "duration": 1.86
+    },
+    {
+      "text": "which we'll talk more about\nas we go through the class.",
+      "start": 4678.02,
+      "duration": 5.32
+    },
+    {
+      "text": "So final note.",
+      "start": 4683.34,
+      "duration": 1.36
+    },
+    {
+      "text": "So TPUs came up a little bit.",
+      "start": 4684.7,
+      "duration": 3.36
+    },
+    {
+      "text": "One thing to note is that on\npurpose, we are using PyTorch",
+      "start": 4688.06,
+      "duration": 6.64
+    },
+    {
+      "text": "and not just using\nPyTorch, but really using",
+      "start": 4694.7,
+      "duration": 2.52
+    },
+    {
+      "text": "the collective operations\nin a very primitive way,",
+      "start": 4697.22,
+      "duration": 4.56
+    },
+    {
+      "text": "so you can see mechanically\nwhat's happening.",
+      "start": 4701.78,
+      "duration": 3.88
+    },
+    {
+      "text": "Another approach, especially if\nyou're in [INAUDIBLE] TPU land,",
+      "start": 4705.66,
+      "duration": 4.04
+    },
+    {
+      "text": "is that you can simply define\nthe model and the starting",
+      "start": 4709.7,
+      "duration": 4.84
+    },
+    {
+      "text": "strategy.",
+      "start": 4714.54,
+      "duration": 1.2
+    },
+    {
+      "text": "And the compiler\nactually handles a lot",
+      "start": 4715.74,
+      "duration": 2.64
+    },
+    {
+      "text": "of the decision of how to--",
+      "start": 4718.38,
+      "duration": 5.68
+    },
+    {
+      "text": "basically, what kind of\ncommunication operations",
+      "start": 4724.06,
+      "duration": 3.36
+    },
+    {
+      "text": "you need.",
+      "start": 4727.42,
+      "duration": 0.98
+    },
+    {
+      "text": "You basically say,\nwell, this piece of data",
+      "start": 4728.4,
+      "duration": 2.78
+    },
+    {
+      "text": "needs to be here\nand here and here.",
+      "start": 4731.18,
+      "duration": 2.58
+    },
+    {
+      "text": "And then the compiler does\nsome magic to figure out what.",
+      "start": 4733.76,
+      "duration": 5.18
+    },
+    {
+      "text": "So that's appealing.",
+      "start": 4738.94,
+      "duration": 1.18
+    },
+    {
+      "text": "But obviously, it would\ntake a lot of the joy",
+      "start": 4740.12,
+      "duration": 4.34
+    },
+    {
+      "text": "out of actually building\nthings from scratch.",
+      "start": 4744.46,
+      "duration": 4.56
+    },
+    {
+      "text": "Just to summarize, so there's\nmany ways to parallelize.",
+      "start": 4749.02,
+      "duration": 5.64
+    },
+    {
+      "text": "You can cut by data,\ncut by tensor or expert,",
+      "start": 4754.66,
+      "duration": 5.2
+    },
+    {
+      "text": "cut by pipeline or sequence.",
+      "start": 4759.86,
+      "duration": 3.84
+    },
+    {
+      "text": "We looked at data parallelism.",
+      "start": 4763.7,
+      "duration": 2.76
+    },
+    {
+      "text": "We only did DDP.",
+      "start": 4766.46,
+      "duration": 1.72
+    },
+    {
+      "text": "Next time we'll do FSDP and 0.",
+      "start": 4768.18,
+      "duration": 3.96
+    },
+    {
+      "text": "Tensor parallelism,\nas I mentioned,",
+      "start": 4772.14,
+      "duration": 2.32
+    },
+    {
+      "text": "requires very fast\ninterconnects.",
+      "start": 4774.46,
+      "duration": 2.36
+    },
+    {
+      "text": "Pipeline less so.",
+      "start": 4776.82,
+      "duration": 2.16
+    },
+    {
+      "text": "But you need to really work\nhard to reduce these pipeline",
+      "start": 4778.98,
+      "duration": 3.16
+    },
+    {
+      "text": "bubbles.",
+      "start": 4782.14,
+      "duration": 2.16
+    },
+    {
+      "text": "And then maybe at\na high level, we",
+      "start": 4784.3,
+      "duration": 2.76
+    },
+    {
+      "text": "see this pattern come up a lot.",
+      "start": 4787.06,
+      "duration": 3.84
+    },
+    {
+      "text": "So you can either recompute\nor store in memory",
+      "start": 4790.9,
+      "duration": 5.585
+    },
+    {
+      "text": "when we were\ntalking about things",
+      "start": 4796.485,
+      "duration": 1.375
+    },
+    {
+      "text": "like activation checkpointing\nor when we're working with GPUs.",
+      "start": 4797.86,
+      "duration": 6.51
+    },
+    {
+      "text": "Or in this case, you can think\nabout an extension of this",
+      "start": 4804.37,
+      "duration": 3.04
+    },
+    {
+      "text": "as that you can store\non a different GPU.",
+      "start": 4807.41,
+      "duration": 4.72
+    },
+    {
+      "text": "From that perspective, you\nlook at the data parallel.",
+      "start": 4812.13,
+      "duration": 3.16
+    },
+    {
+      "text": "You're doing redundant\nwork in some sense,",
+      "start": 4815.29,
+      "duration": 2.52
+    },
+    {
+      "text": "because every rank is actually\nupdating its parameters",
+      "start": 4817.81,
+      "duration": 5.2
+    },
+    {
+      "text": "and keeping track of\nall the parameters.",
+      "start": 4823.01,
+      "duration": 2.12
+    },
+    {
+      "text": "But the reason\nyou're doing that is",
+      "start": 4825.13,
+      "duration": 1.76
+    },
+    {
+      "text": "that you don't have to move\nthe optimizer state across.",
+      "start": 4826.89,
+      "duration": 6.2
+    },
+    {
+      "text": "So one thing is that\nhardware is getting faster.",
+      "start": 4833.09,
+      "duration": 4.14
+    },
+    {
+      "text": "But in some sense, we'll\nalways want bigger models.",
+      "start": 4837.23,
+      "duration": 3.68
+    },
+    {
+      "text": "So this idea of having\na hierarchical structure",
+      "start": 4840.91,
+      "duration": 3.34
+    },
+    {
+      "text": "will always be there.",
+      "start": 4844.25,
+      "duration": 2.96
+    },
+    {
+      "text": "So that's it for today.",
+      "start": 4847.21,
+      "duration": 2.7
+    },
+    {
+      "text": "So next Wednesday, [? Tatsu ?]\nwill do more of a deep dive",
+      "start": 4849.91,
+      "duration": 4.46
+    },
+    {
+      "text": "on more parallelism techniques.",
+      "start": 4854.37,
+      "duration": 3.31
+    }
+  ]
+}

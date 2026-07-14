@@ -1,0 +1,7248 @@
+{
+  "video_id": "5sxHosTLPF8",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 14: Data",
+  "position": 14,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "OK, let's get started.",
+      "start": 5.24,
+      "duration": 2.44
+    },
+    {
+      "text": "So today is the\nsecond day on data.",
+      "start": 7.68,
+      "duration": 4.96
+    },
+    {
+      "text": "Last time we talked about\nhow data doesn't really",
+      "start": 12.64,
+      "duration": 3.68
+    },
+    {
+      "text": "just fall from the sky.",
+      "start": 16.32,
+      "duration": 1.22
+    },
+    {
+      "text": "You actually have to think\nabout where it comes from.",
+      "start": 17.54,
+      "duration": 3.02
+    },
+    {
+      "text": "So in general, the internet\nconsists of live services.",
+      "start": 20.56,
+      "duration": 3.3
+    },
+    {
+      "text": "That data on those services have\nto be either dumped or crawled.",
+      "start": 26.68,
+      "duration": 4.04
+    },
+    {
+      "text": "And then there's an\nadditional step where",
+      "start": 30.72,
+      "duration": 1.88
+    },
+    {
+      "text": "you have to process the data.",
+      "start": 32.6,
+      "duration": 2.84
+    },
+    {
+      "text": "And we also talked about\nvarious societal considerations,",
+      "start": 35.44,
+      "duration": 6.24
+    },
+    {
+      "text": "terms of service, copyright.",
+      "start": 41.68,
+      "duration": 1.86
+    },
+    {
+      "text": "You have to either get a\nlicense or appeal to fair use.",
+      "start": 43.54,
+      "duration": 2.74
+    },
+    {
+      "text": "So there's a lot of complexity\nthat goes into data.",
+      "start": 46.28,
+      "duration": 4.04
+    },
+    {
+      "text": "So today we're going to look\nmore at the data pipeline",
+      "start": 50.32,
+      "duration": 3.96
+    },
+    {
+      "text": "from transforming the\ndata, filtering the data,",
+      "start": 54.28,
+      "duration": 2.84
+    },
+    {
+      "text": "deduplication, and mixing.",
+      "start": 57.12,
+      "duration": 3.68
+    },
+    {
+      "text": "And then we're\ngoing to top it off",
+      "start": 60.8,
+      "duration": 1.56
+    },
+    {
+      "text": "by talking a bit about\npost-training data,",
+      "start": 62.36,
+      "duration": 4.44
+    },
+    {
+      "text": "in particular, how folks are\nusing synthetic data these days.",
+      "start": 66.8,
+      "duration": 5.0
+    },
+    {
+      "text": "So the first part is going to\nbe mostly about pre-training.",
+      "start": 71.8,
+      "duration": 3.06
+    },
+    {
+      "text": "That's what you\nshould have in mind.",
+      "start": 74.86,
+      "duration": 2.94
+    },
+    {
+      "text": "So we talked a little bit about\ndata transformation already,",
+      "start": 77.8,
+      "duration": 3.66
+    },
+    {
+      "text": "but just as a reminder.",
+      "start": 81.46,
+      "duration": 2.1
+    },
+    {
+      "text": "So raw data doesn't\ncome as text, even as",
+      "start": 83.56,
+      "duration": 4.36
+    },
+    {
+      "text": "if you've scraped something.",
+      "start": 87.92,
+      "duration": 2.42
+    },
+    {
+      "text": "If you ever look inside\nCommon Crawl, it's not text.",
+      "start": 90.34,
+      "duration": 3.48
+    },
+    {
+      "text": "It's either HTML.",
+      "start": 93.82,
+      "duration": 1.78
+    },
+    {
+      "text": "Sometimes it could be\nPDFs or directories",
+      "start": 95.6,
+      "duration": 3.84
+    },
+    {
+      "text": "in the case of GitHub.",
+      "start": 99.44,
+      "duration": 2.8
+    },
+    {
+      "text": "So most of the attention\non transforming data",
+      "start": 102.24,
+      "duration": 4.32
+    },
+    {
+      "text": "is dealing with HTML because\nmost of the web is in HTML.",
+      "start": 106.56,
+      "duration": 4.52
+    },
+    {
+      "text": "And for this processing, a lot\nof this is fairly heuristic.",
+      "start": 111.08,
+      "duration": 5.52
+    },
+    {
+      "text": "There's removing of boilerplate,\nlike navigation and ads,",
+      "start": 116.6,
+      "duration": 5.39
+    },
+    {
+      "text": "and extracting content, which\nis the main part of the page.",
+      "start": 121.99,
+      "duration": 4.04
+    },
+    {
+      "text": "And there's some subtleties\naround what constitutes content.",
+      "start": 126.03,
+      "duration": 4.74
+    },
+    {
+      "text": "Usually, you get rid of the\nfooters and headers, and maybe",
+      "start": 130.77,
+      "duration": 5.62
+    },
+    {
+      "text": "menus, and those things, and\nyou try to extract the content.",
+      "start": 136.39,
+      "duration": 4.08
+    },
+    {
+      "text": "But you could imagine\nin cases where",
+      "start": 140.47,
+      "duration": 2.08
+    },
+    {
+      "text": "some of the navigation\nelements might",
+      "start": 142.55,
+      "duration": 3.24
+    },
+    {
+      "text": "be helpful to learn what\nweb pages look like.",
+      "start": 145.79,
+      "duration": 2.26
+    },
+    {
+      "text": "So what is content and what is\nnot content is not always clear.",
+      "start": 148.05,
+      "duration": 5.14
+    },
+    {
+      "text": "And then what do you do\nabout images and tables that",
+      "start": 153.19,
+      "duration": 3.0
+    },
+    {
+      "text": "are in web pages?",
+      "start": 156.19,
+      "duration": 3.32
+    },
+    {
+      "text": "So inherently, this\nis a lossy process",
+      "start": 159.51,
+      "duration": 2.6
+    },
+    {
+      "text": "because you need to linearize\nHTML, which at least is",
+      "start": 162.11,
+      "duration": 4.04
+    },
+    {
+      "text": "either hierarchical\nor visual, if you",
+      "start": 166.15,
+      "duration": 2.28
+    },
+    {
+      "text": "think about the rendered output,\nand to a sequence of tokens.",
+      "start": 168.43,
+      "duration": 3.72
+    },
+    {
+      "text": "And particular tables are\na bit tricky to deal with.",
+      "start": 172.15,
+      "duration": 4.24
+    },
+    {
+      "text": "Simple tables, you can\nrender using markdown.",
+      "start": 176.39,
+      "duration": 3.84
+    },
+    {
+      "text": "But if you have nested\ntables, then that",
+      "start": 180.23,
+      "duration": 2.32
+    },
+    {
+      "text": "becomes quite challenging.",
+      "start": 182.55,
+      "duration": 2.06
+    },
+    {
+      "text": "You have to give\nup at some point",
+      "start": 184.61,
+      "duration": 3.18
+    },
+    {
+      "text": "or approximate at some point.",
+      "start": 187.79,
+      "duration": 2.96
+    },
+    {
+      "text": "So, typically, HTML to text\nprocessing is rule-based.",
+      "start": 190.75,
+      "duration": 5.48
+    },
+    {
+      "text": "And the reason for this is\nthat rule-based processors",
+      "start": 196.23,
+      "duration": 4.6
+    },
+    {
+      "text": "are very fast.",
+      "start": 200.83,
+      "duration": 3.08
+    },
+    {
+      "text": "And also, you're not\ntrying to do too much here.",
+      "start": 203.91,
+      "duration": 5.678
+    },
+    {
+      "text": "You don't need too\nmuch intelligence.",
+      "start": 209.588,
+      "duration": 1.542
+    },
+    {
+      "text": "So rule-based generally works.",
+      "start": 211.13,
+      "duration": 3.14
+    },
+    {
+      "text": "Now, I think there\ncould be a case",
+      "start": 214.27,
+      "duration": 1.8
+    },
+    {
+      "text": "for model-based\ninterventions at this point.",
+      "start": 216.07,
+      "duration": 3.9
+    },
+    {
+      "text": "They have to be\nvery fast, and they",
+      "start": 219.97,
+      "duration": 1.46
+    },
+    {
+      "text": "have to do something\nmore intelligent.",
+      "start": 221.43,
+      "duration": 4.16
+    },
+    {
+      "text": "But if you ever\nlook at data, you'll",
+      "start": 225.59,
+      "duration": 2.16
+    },
+    {
+      "text": "notice there are\nimperfections in the data",
+      "start": 227.75,
+      "duration": 2.74
+    },
+    {
+      "text": "just because any rule-based\nprocessing have some failure",
+      "start": 230.49,
+      "duration": 5.73
+    },
+    {
+      "text": "rate.",
+      "start": 236.22,
+      "duration": 1.08
+    },
+    {
+      "text": "As we showed last\ntime, the accuracy",
+      "start": 237.3,
+      "duration": 2.96
+    },
+    {
+      "text": "does matter, depending\non which tool you choose.",
+      "start": 240.26,
+      "duration": 5.36
+    },
+    {
+      "text": "If you use Resiliparse\nor Trafilatura, then--",
+      "start": 245.62,
+      "duration": 2.84
+    },
+    {
+      "text": "I guess Resiliparse on\nthese extended dclm evals",
+      "start": 248.46,
+      "duration": 6.44
+    },
+    {
+      "text": "works better than the others.",
+      "start": 254.9,
+      "duration": 5.2
+    },
+    {
+      "text": "I'll talk also\nbriefly about PDFs.",
+      "start": 260.1,
+      "duration": 2.26
+    },
+    {
+      "text": "So there's Hugging Face\nwork, which released",
+      "start": 262.36,
+      "duration": 3.54
+    },
+    {
+      "text": "a data set called FinePDFs.",
+      "start": 265.9,
+      "duration": 2.56
+    },
+    {
+      "text": "So PDF files, if you ever opened\nthem up, not in a PDF reader,",
+      "start": 268.46,
+      "duration": 5.44
+    },
+    {
+      "text": "looks like this, and this\nneeds to get rendered.",
+      "start": 273.9,
+      "duration": 6.4
+    },
+    {
+      "text": "So PDFs can be found on just\nweb pages on the internet.",
+      "start": 280.3,
+      "duration": 5.02
+    },
+    {
+      "text": "And Common Crawl\ndoes have some PDFs.",
+      "start": 285.32,
+      "duration": 5.7
+    },
+    {
+      "text": "Generally, Common\nCrawl focuses on text,",
+      "start": 291.02,
+      "duration": 1.86
+    },
+    {
+      "text": "but sometimes, if\nyou're just given a URL,",
+      "start": 292.88,
+      "duration": 2.677
+    },
+    {
+      "text": "you might not even know before\nyou fetch it whether it's a PDF",
+      "start": 295.557,
+      "duration": 2.583
+    },
+    {
+      "text": "or not, if it doesn't\nhave the extension.",
+      "start": 298.14,
+      "duration": 2.7
+    },
+    {
+      "text": "If you read this\nblog post, there's",
+      "start": 303.64,
+      "duration": 1.5
+    },
+    {
+      "text": "a lot of details, which\nI'll spare you of.",
+      "start": 305.14,
+      "duration": 3.48
+    },
+    {
+      "text": "For example, one thing\nis that many of the PDFs",
+      "start": 308.62,
+      "duration": 3.48
+    },
+    {
+      "text": "that are in Common Crawl are\ntruncated because PDFs are big,",
+      "start": 312.1,
+      "duration": 3.4
+    },
+    {
+      "text": "so then that demands that\nrecrawling is necessary.",
+      "start": 315.5,
+      "duration": 4.165
+    },
+    {
+      "text": "And then there's a question--\nonce you have the PDF file,",
+      "start": 319.665,
+      "duration": 2.375
+    },
+    {
+      "text": "how do you actually\nconvert it to text?",
+      "start": 322.04,
+      "duration": 2.58
+    },
+    {
+      "text": "And, some PDFs might\nbe just scans as well.",
+      "start": 324.62,
+      "duration": 3.74
+    },
+    {
+      "text": "So they're essentially images.",
+      "start": 328.36,
+      "duration": 1.9
+    },
+    {
+      "text": "So there's a bunch of tools\nthat this paper tried out,",
+      "start": 330.26,
+      "duration": 5.84
+    },
+    {
+      "text": "but mostly this involves\nrunning OCR using a VLM.",
+      "start": 336.1,
+      "duration": 5.44
+    },
+    {
+      "text": "And this obviously can be\nmuch more expensive than what",
+      "start": 341.54,
+      "duration": 3.52
+    },
+    {
+      "text": "we were doing before with text.",
+      "start": 345.06,
+      "duration": 2.3
+    },
+    {
+      "text": "Fortunately or\nunfortunately, the PDFs",
+      "start": 347.36,
+      "duration": 3.94
+    },
+    {
+      "text": "are a very small fraction\nof the whole internet.",
+      "start": 351.3,
+      "duration": 2.77
+    },
+    {
+      "text": "But they are very valuable\nbecause generally,",
+      "start": 354.07,
+      "duration": 4.2
+    },
+    {
+      "text": "if you bother to make a\nPDF, that means you probably",
+      "start": 358.27,
+      "duration": 2.46
+    },
+    {
+      "text": "have something interesting to\nsay as opposed to a web page.",
+      "start": 360.73,
+      "duration": 4.1
+    },
+    {
+      "text": "So the quality of an average\nPDF is generally higher",
+      "start": 364.83,
+      "duration": 4.9
+    },
+    {
+      "text": "than for HTML file.",
+      "start": 369.73,
+      "duration": 5.08
+    },
+    {
+      "text": "There's a lot of\ncleanup and filtering.",
+      "start": 374.81,
+      "duration": 1.76
+    },
+    {
+      "text": "And PDFs, more so\neven than web pages,",
+      "start": 376.57,
+      "duration": 4.28
+    },
+    {
+      "text": "a lot of layout\ninformation is missing,",
+      "start": 380.85,
+      "duration": 3.4
+    },
+    {
+      "text": "because in HTML you have\nvarious tags like h1 and p",
+      "start": 384.25,
+      "duration": 4.32
+    },
+    {
+      "text": "that gives you some\nsemantic information.",
+      "start": 388.57,
+      "duration": 2.46
+    },
+    {
+      "text": "PDFs are, by design,\nall about layout.",
+      "start": 391.03,
+      "duration": 3.04
+    },
+    {
+      "text": "So you don't necessarily\npreserve the semantic structure.",
+      "start": 394.07,
+      "duration": 8.3
+    },
+    {
+      "text": "So there's a bunch of\ntransformation that happens.",
+      "start": 402.37,
+      "duration": 2.84
+    },
+    {
+      "text": "At this point, you have\ntext, but you're not done.",
+      "start": 405.21,
+      "duration": 7.54
+    },
+    {
+      "text": "You're far from done.",
+      "start": 412.75,
+      "duration": 1.3
+    },
+    {
+      "text": "So the next step is filtering.",
+      "start": 414.05,
+      "duration": 2.72
+    },
+    {
+      "text": "So I'm going to talk somewhat\nabstractly about what filtering",
+      "start": 416.77,
+      "duration": 4.68
+    },
+    {
+      "text": "is.",
+      "start": 421.45,
+      "duration": 0.8
+    },
+    {
+      "text": "Here's the building block.",
+      "start": 422.25,
+      "duration": 2.28
+    },
+    {
+      "text": "So suppose you have some target\ndata that you want to get.",
+      "start": 424.53,
+      "duration": 5.44
+    },
+    {
+      "text": "This is usually a small amount\nof high-quality data and lots",
+      "start": 429.97,
+      "duration": 3.44
+    },
+    {
+      "text": "of raw data.",
+      "start": 433.41,
+      "duration": 1.66
+    },
+    {
+      "text": "This is the fresh\nshipment of the tokens",
+      "start": 435.07,
+      "duration": 4.98
+    },
+    {
+      "text": "that you transformed\nfrom the previous step.",
+      "start": 440.05,
+      "duration": 3.64
+    },
+    {
+      "text": "And the goal is to find a\nsubset of this raw data that",
+      "start": 443.69,
+      "duration": 4.92
+    },
+    {
+      "text": "is similar to target.",
+      "start": 448.61,
+      "duration": 2.24
+    },
+    {
+      "text": "So this is the general\nskeleton for filtering,",
+      "start": 450.85,
+      "duration": 2.62
+    },
+    {
+      "text": "and almost all\nkinds of filtering",
+      "start": 453.47,
+      "duration": 2.42
+    },
+    {
+      "text": "falls into this schema.",
+      "start": 455.89,
+      "duration": 3.52
+    },
+    {
+      "text": "So filtering,\nthere's many reasons",
+      "start": 459.41,
+      "duration": 1.76
+    },
+    {
+      "text": "you might want to filter.",
+      "start": 461.17,
+      "duration": 1.56
+    },
+    {
+      "text": "If you're training\nan English language",
+      "start": 462.73,
+      "duration": 2.44
+    },
+    {
+      "text": "model or a German\nlanguage model,",
+      "start": 465.17,
+      "duration": 2.6
+    },
+    {
+      "text": "you might want to identify the\nlanguage and filter things that",
+      "start": 467.77,
+      "duration": 3.15
+    },
+    {
+      "text": "don't match that language.",
+      "start": 470.92,
+      "duration": 2.44
+    },
+    {
+      "text": "The main reason for filtering\nis quality filtering.",
+      "start": 473.36,
+      "duration": 3.22
+    },
+    {
+      "text": "You want to find things that\nare high quality as opposed",
+      "start": 476.58,
+      "duration": 2.42
+    },
+    {
+      "text": "to low quality.",
+      "start": 479.0,
+      "duration": 1.18
+    },
+    {
+      "text": "You don't want just spam.",
+      "start": 480.18,
+      "duration": 2.08
+    },
+    {
+      "text": "You want encyclopedic\ninformation.",
+      "start": 482.26,
+      "duration": 4.34
+    },
+    {
+      "text": "And then another application\nis toxicity filtering.",
+      "start": 486.6,
+      "duration": 4.26
+    },
+    {
+      "text": "Of course, the internet has\nplenty of nasty content,",
+      "start": 490.86,
+      "duration": 2.782
+    },
+    {
+      "text": "and maybe you don't want\nto train your language",
+      "start": 493.642,
+      "duration": 1.958
+    },
+    {
+      "text": "model on that.",
+      "start": 495.6,
+      "duration": 3.32
+    },
+    {
+      "text": "So, for a filtering algorithm,\nyou want some generalization",
+      "start": 498.92,
+      "duration": 5.48
+    },
+    {
+      "text": "from the target data,\nbecause you already",
+      "start": 504.4,
+      "duration": 2.2
+    },
+    {
+      "text": "have the target data.",
+      "start": 506.6,
+      "duration": 1.2
+    },
+    {
+      "text": "You don't want to only\nget the target data,",
+      "start": 507.8,
+      "duration": 2.8
+    },
+    {
+      "text": "but you also want it\nto be extremely fast",
+      "start": 510.6,
+      "duration": 4.559
+    },
+    {
+      "text": "because you have to run\nit on the whole internet.",
+      "start": 515.159,
+      "duration": 2.981
+    },
+    {
+      "text": "So this could be 100 trillion\ntokens worth of data.",
+      "start": 518.14,
+      "duration": 6.26
+    },
+    {
+      "text": "So generally,\nfiltering is you end up",
+      "start": 524.4,
+      "duration": 2.44
+    },
+    {
+      "text": "with a very small fraction,\na single-digit fraction",
+      "start": 526.84,
+      "duration": 2.56
+    },
+    {
+      "text": "of your entire data.",
+      "start": 529.4,
+      "duration": 4.52
+    },
+    {
+      "text": "OK.",
+      "start": 533.92,
+      "duration": 0.92
+    },
+    {
+      "text": "So remember the\ngeneral framework",
+      "start": 534.84,
+      "duration": 1.4
+    },
+    {
+      "text": "given the target, and raw,\nyou're trying to find a subset.",
+      "start": 536.24,
+      "duration": 5.9
+    },
+    {
+      "text": "So the general scheme is that\nyou estimate some model based",
+      "start": 542.14,
+      "duration": 4.98
+    },
+    {
+      "text": "on R and T and derive\na scoring function,",
+      "start": 547.12,
+      "duration": 2.74
+    },
+    {
+      "text": "and then you keep the examples\nin R based on their score.",
+      "start": 549.86,
+      "duration": 3.98
+    },
+    {
+      "text": "So typically, there are\ntwo types of classifiers.",
+      "start": 553.84,
+      "duration": 3.7
+    },
+    {
+      "text": "One are generative models.",
+      "start": 557.54,
+      "duration": 2.5
+    },
+    {
+      "text": "So this is basically you\nhave your target data.",
+      "start": 560.04,
+      "duration": 5.18
+    },
+    {
+      "text": "You can just estimate\na model of that data.",
+      "start": 565.22,
+      "duration": 5.58
+    },
+    {
+      "text": "And remember, this\nhas to be cheap,",
+      "start": 570.8,
+      "duration": 1.94
+    },
+    {
+      "text": "so probably you're not\ntraining a big language model.",
+      "start": 572.74,
+      "duration": 2.98
+    },
+    {
+      "text": "Generally, KenLM basically says\nI'm going to train a 5-gram",
+      "start": 575.72,
+      "duration": 4.44
+    },
+    {
+      "text": "model.",
+      "start": 580.16,
+      "duration": 1.76
+    },
+    {
+      "text": "A more common\nthing, which I think",
+      "start": 581.92,
+      "duration": 2.44
+    },
+    {
+      "text": "we're mostly seeing these days,\nis just training a classifier.",
+      "start": 584.36,
+      "duration": 3.87
+    },
+    {
+      "text": "And the classifier\nsays, I'm going",
+      "start": 588.23,
+      "duration": 2.28
+    },
+    {
+      "text": "to predict a positive\nlabel, for example,",
+      "start": 590.51,
+      "duration": 4.2
+    },
+    {
+      "text": "that are in T, my target,\nand negative labels",
+      "start": 594.71,
+      "duration": 4.2
+    },
+    {
+      "text": "for things that are\nin raw but not in T.",
+      "start": 598.91,
+      "duration": 4.4
+    },
+    {
+      "text": "So basically, it looks like\nT are your positive examples,",
+      "start": 603.31,
+      "duration": 5.6
+    },
+    {
+      "text": "some random subset of R\nare your negative examples.",
+      "start": 608.91,
+      "duration": 2.98
+    },
+    {
+      "text": "Maybe you balance it, and\nthen you train a classifier.",
+      "start": 611.89,
+      "duration": 3.94
+    },
+    {
+      "text": "And the tool that\npeople generally use",
+      "start": 615.83,
+      "duration": 2.44
+    },
+    {
+      "text": "is fastText because it's fast.",
+      "start": 618.27,
+      "duration": 2.64
+    },
+    {
+      "text": "And generally, it's just\na linear classifier--",
+      "start": 620.91,
+      "duration": 3.22
+    },
+    {
+      "text": "a bag of words.",
+      "start": 624.13,
+      "duration": 1.94
+    },
+    {
+      "text": "And then once you\nhave this model now",
+      "start": 626.07,
+      "duration": 1.64
+    },
+    {
+      "text": "for every new document,\nyou can score it,",
+      "start": 627.71,
+      "duration": 3.08
+    },
+    {
+      "text": "and you set some\nappropriate threshold,",
+      "start": 630.79,
+      "duration": 2.0
+    },
+    {
+      "text": "depending on your quality bar,\nand you keep the examples.",
+      "start": 632.79,
+      "duration": 4.94
+    },
+    {
+      "text": "Sometimes stochastically,\nsometimes not.",
+      "start": 637.73,
+      "duration": 3.98
+    },
+    {
+      "text": "So this is very much a\nmodel-based filtering approach.",
+      "start": 641.71,
+      "duration": 5.0
+    },
+    {
+      "text": "Remember from the\nlast lecture, there",
+      "start": 646.71,
+      "duration": 2.12
+    },
+    {
+      "text": "are many data sets from\ngenerally a few years ago",
+      "start": 648.83,
+      "duration": 4.24
+    },
+    {
+      "text": "that did not use model-based\nfiltering because they wanted",
+      "start": 653.07,
+      "duration": 3.8
+    },
+    {
+      "text": "to not bias things too much.",
+      "start": 656.87,
+      "duration": 2.72
+    },
+    {
+      "text": "These days, I think\nbasically everyone",
+      "start": 659.59,
+      "duration": 2.88
+    },
+    {
+      "text": "does some amount of\nmodel-based filtering",
+      "start": 662.47,
+      "duration": 2.24
+    },
+    {
+      "text": "because unless you are\ncompute-plentiful, in which case",
+      "start": 664.71,
+      "duration": 6.537
+    },
+    {
+      "text": "you probably don't need to do\nas much filtering-- you can just",
+      "start": 671.247,
+      "duration": 2.583
+    },
+    {
+      "text": "train on everything.",
+      "start": 673.83,
+      "duration": 1.38
+    },
+    {
+      "text": "Most people are compute-poor.",
+      "start": 675.21,
+      "duration": 3.34
+    },
+    {
+      "text": "You have to be very smart\nabout how you're filtering;",
+      "start": 678.55,
+      "duration": 2.74
+    },
+    {
+      "text": "otherwise, you're just wasting\nflops on low-quality content.",
+      "start": 681.29,
+      "duration": 6.1
+    },
+    {
+      "text": "OK, so let me talk through some\ninstantiations of filtering.",
+      "start": 687.39,
+      "duration": 4.26
+    },
+    {
+      "text": "So remember, I mentioned\nlanguage identification.",
+      "start": 691.65,
+      "duration": 4.18
+    },
+    {
+      "text": "So the goal is just to\nfind-- given a piece of text,",
+      "start": 695.83,
+      "duration": 3.36
+    },
+    {
+      "text": "detect whether it's of\na particular language.",
+      "start": 699.19,
+      "duration": 3.75
+    },
+    {
+      "text": "So Meta has trained this set of\nfastText language identification",
+      "start": 702.94,
+      "duration": 4.2
+    },
+    {
+      "text": "models, which often you\ncan just use off the shelf.",
+      "start": 707.14,
+      "duration": 3.14
+    },
+    {
+      "text": "So it supports 176\ndifferent languages.",
+      "start": 710.28,
+      "duration": 2.62
+    },
+    {
+      "text": "It's been trained on a\nbunch of multilingual sites.",
+      "start": 712.9,
+      "duration": 3.54
+    },
+    {
+      "text": "So Wikipedia, remember,\nhas a lot of languages.",
+      "start": 716.44,
+      "duration": 2.72
+    },
+    {
+      "text": "There's also translation\nsites and sites",
+      "start": 719.16,
+      "duration": 3.1
+    },
+    {
+      "text": "for different languages.",
+      "start": 722.26,
+      "duration": 1.14
+    },
+    {
+      "text": "So a language ID is generally\na fairly easy problem",
+      "start": 723.4,
+      "duration": 5.34
+    },
+    {
+      "text": "compared to many other\ntasks that we're dealing",
+      "start": 728.74,
+      "duration": 3.32
+    },
+    {
+      "text": "with-- so a simple classifier.",
+      "start": 732.06,
+      "duration": 2.06
+    },
+    {
+      "text": "If you look at a few\nwords, you can tell",
+      "start": 734.12,
+      "duration": 2.14
+    },
+    {
+      "text": "that it's Spanish or Japanese.",
+      "start": 736.26,
+      "duration": 2.92
+    },
+    {
+      "text": "Now, there are subtleties\nbecause of code-switching",
+      "start": 739.18,
+      "duration": 4.04
+    },
+    {
+      "text": "and text, and there's\nsome dialects.",
+      "start": 743.22,
+      "duration": 1.86
+    },
+    {
+      "text": "So I wouldn't say it\nabsolutely solved problem,",
+      "start": 745.08,
+      "duration": 3.52
+    },
+    {
+      "text": "but this is not\nreally the bottleneck",
+      "start": 748.6,
+      "duration": 2.66
+    },
+    {
+      "text": "for training a good\nlanguage model.",
+      "start": 751.26,
+      "duration": 1.54
+    },
+    {
+      "text": "And then you can just-- so\nonce you have your classifier,",
+      "start": 755.46,
+      "duration": 2.52
+    },
+    {
+      "text": "you just choose some threshold.",
+      "start": 757.98,
+      "duration": 2.0
+    },
+    {
+      "text": "This is generally\nfairly heuristic.",
+      "start": 759.98,
+      "duration": 3.44
+    },
+    {
+      "text": "So another thing you can\ndo with filtering is that,",
+      "start": 763.42,
+      "duration": 3.56
+    },
+    {
+      "text": "suppose you're looking for\ndata of a certain type.",
+      "start": 766.98,
+      "duration": 3.5
+    },
+    {
+      "text": "So let's say you want to\nget really good at math,",
+      "start": 770.48,
+      "duration": 2.36
+    },
+    {
+      "text": "so you want to go and\nfind a bunch of math data.",
+      "start": 772.84,
+      "duration": 2.54
+    },
+    {
+      "text": "So OpenMathText is\nthis paper from 2023,",
+      "start": 775.38,
+      "duration": 5.4
+    },
+    {
+      "text": "where the goal is to create\na large corpus of math text.",
+      "start": 780.78,
+      "duration": 3.76
+    },
+    {
+      "text": "This pipeline consists\nof a few steps.",
+      "start": 784.54,
+      "duration": 4.32
+    },
+    {
+      "text": "So it's not training\na single classifier.",
+      "start": 788.86,
+      "duration": 1.74
+    },
+    {
+      "text": "So first, you use\nsome rules to filter.",
+      "start": 790.6,
+      "duration": 2.22
+    },
+    {
+      "text": "Does it contain latex commands?",
+      "start": 792.82,
+      "duration": 3.52
+    },
+    {
+      "text": "They also use KenLM.",
+      "start": 796.34,
+      "duration": 1.28
+    },
+    {
+      "text": "So this is a\ngenerative approach.",
+      "start": 797.62,
+      "duration": 2.84
+    },
+    {
+      "text": "And trained it on\nthe ProofPile, which",
+      "start": 800.46,
+      "duration": 1.76
+    },
+    {
+      "text": "is a known data set\nof math, and keep it",
+      "start": 802.22,
+      "duration": 3.3
+    },
+    {
+      "text": "if the perplexity is\nbelow some threshold.",
+      "start": 805.52,
+      "duration": 4.46
+    },
+    {
+      "text": "And then you also train\na fastText classifier",
+      "start": 809.98,
+      "duration": 3.28
+    },
+    {
+      "text": "to predict whether it's\nmathematical writing or not.",
+      "start": 813.26,
+      "duration": 4.88
+    },
+    {
+      "text": "And there's two\ndifferent thresholds",
+      "start": 818.14,
+      "duration": 3.21
+    },
+    {
+      "text": "if it has latex in it,\nthen it's a higher bar--",
+      "start": 821.35,
+      "duration": 3.06
+    },
+    {
+      "text": "sorry-- it's a lower bar, but\nif it doesn't have latex in it,",
+      "start": 824.41,
+      "duration": 4.02
+    },
+    {
+      "text": "it's a higher bar.",
+      "start": 828.43,
+      "duration": 2.98
+    },
+    {
+      "text": "And then, as a result,\nthey got 15 billion tokens,",
+      "start": 831.41,
+      "duration": 4.04
+    },
+    {
+      "text": "which they use to train models.",
+      "start": 835.45,
+      "duration": 2.1
+    },
+    {
+      "text": "And there's a paper that showed\nthat this more targeted, curated",
+      "start": 837.55,
+      "duration": 3.66
+    },
+    {
+      "text": "data collection\nresults in models",
+      "start": 841.21,
+      "duration": 2.04
+    },
+    {
+      "text": "that are better at math than\nmodels that were trained",
+      "start": 843.25,
+      "duration": 3.84
+    },
+    {
+      "text": "on 20 times as much data, which\nwere not filtered in this way.",
+      "start": 847.09,
+      "duration": 6.02
+    },
+    {
+      "text": "So the quality filtering again,\nthink about it as a tool.",
+      "start": 853.11,
+      "duration": 3.5
+    },
+    {
+      "text": "You can define quality\nhowever you want.",
+      "start": 856.61,
+      "duration": 3.24
+    },
+    {
+      "text": "There's no universal\nnotion of quality.",
+      "start": 859.85,
+      "duration": 1.78
+    },
+    {
+      "text": "If you want to define\nquality to be math,",
+      "start": 861.63,
+      "duration": 1.88
+    },
+    {
+      "text": "then you can go and get math,\nand you get better at it.",
+      "start": 863.51,
+      "duration": 3.78
+    },
+    {
+      "text": "So GPT-3, I think I\nmentioned this last time,",
+      "start": 867.29,
+      "duration": 3.04
+    },
+    {
+      "text": "but just to put it\nin this framework.",
+      "start": 870.33,
+      "duration": 1.86
+    },
+    {
+      "text": "So positive examples\nare Wikipedia, WebText.",
+      "start": 872.19,
+      "duration": 3.84
+    },
+    {
+      "text": "So these are pages that link\nout from high-star Reddit posts,",
+      "start": 876.03,
+      "duration": 6.84
+    },
+    {
+      "text": "and some books.",
+      "start": 882.87,
+      "duration": 1.1
+    },
+    {
+      "text": "And negatives are generally\nsampled from the web.",
+      "start": 883.97,
+      "duration": 3.48
+    },
+    {
+      "text": "They train a linear\nclassifier and keep documents",
+      "start": 887.45,
+      "duration": 2.2
+    },
+    {
+      "text": "if the linear classifier\nis scored highly enough.",
+      "start": 889.65,
+      "duration": 4.44
+    },
+    {
+      "text": "There's the first LLaMA paper.",
+      "start": 894.09,
+      "duration": 2.36
+    },
+    {
+      "text": "The positives were pages\nreferenced by Wikipedia, not",
+      "start": 896.45,
+      "duration": 3.92
+    },
+    {
+      "text": "Wikipedia articles themselves.",
+      "start": 900.37,
+      "duration": 2.6
+    },
+    {
+      "text": "And it's this same idea.",
+      "start": 902.97,
+      "duration": 2.92
+    },
+    {
+      "text": "So phi-1 from Microsoft\nis interestingly also",
+      "start": 905.89,
+      "duration": 9.68
+    },
+    {
+      "text": "falls into this framework.",
+      "start": 915.57,
+      "duration": 1.92
+    },
+    {
+      "text": "So they started with-- the\nraw data is not already",
+      "start": 917.49,
+      "duration": 6.04
+    },
+    {
+      "text": "a Python subset of the stack.",
+      "start": 923.53,
+      "duration": 1.56
+    },
+    {
+      "text": "Remember this is all code.",
+      "start": 925.09,
+      "duration": 3.04
+    },
+    {
+      "text": "And they define a prompt, which\ndetermines educational value.",
+      "start": 928.13,
+      "duration": 9.59
+    },
+    {
+      "text": "And then they use GPT-4\nto classify a subset of R,",
+      "start": 937.72,
+      "duration": 6.68
+    },
+    {
+      "text": "100k subset of R\nwith this prompt,",
+      "start": 944.4,
+      "duration": 5.64
+    },
+    {
+      "text": "and the ones that are positive\nare kept and called the target.",
+      "start": 950.04,
+      "duration": 5.24
+    },
+    {
+      "text": "So the target here is\nactually the output",
+      "start": 955.28,
+      "duration": 2.68
+    },
+    {
+      "text": "of an expensive classifier.",
+      "start": 957.96,
+      "duration": 3.96
+    },
+    {
+      "text": "And then you train a\ncheaper classifier,",
+      "start": 961.92,
+      "duration": 1.782
+    },
+    {
+      "text": "in their case, a Random Forest,\nbut you could have probably",
+      "start": 963.702,
+      "duration": 2.458
+    },
+    {
+      "text": "used fastText as well.",
+      "start": 966.16,
+      "duration": 2.1
+    },
+    {
+      "text": "And then you select data\nthat is classified positive",
+      "start": 970.9,
+      "duration": 3.74
+    },
+    {
+      "text": "by this classifier.",
+      "start": 974.64,
+      "duration": 2.6
+    },
+    {
+      "text": "And they also showed\nthat using this data set,",
+      "start": 977.24,
+      "duration": 2.92
+    },
+    {
+      "text": "you do much better than if\nyou're just using the raw data.",
+      "start": 980.16,
+      "duration": 5.68
+    },
+    {
+      "text": "So this performance goes up in\nfewer steps to a higher value.",
+      "start": 985.84,
+      "duration": 3.78
+    },
+    {
+      "text": "So toxicity works the same way.",
+      "start": 992.84,
+      "duration": 3.843
+    },
+    {
+      "text": "There's this Dataset--",
+      "start": 996.683,
+      "duration": 0.917
+    },
+    {
+      "text": "Jigsaw Toxic Comments, where\nit came from this project",
+      "start": 997.6,
+      "duration": 5.0
+    },
+    {
+      "text": "where the goal is to help people\nhave better discussions online.",
+      "start": 1002.6,
+      "duration": 3.1
+    },
+    {
+      "text": "So here the data is the\nWikipedia talk pages, which can,",
+      "start": 1005.7,
+      "duration": 5.14
+    },
+    {
+      "text": "I guess, for controversial\nsites get quite heated.",
+      "start": 1010.84,
+      "duration": 4.32
+    },
+    {
+      "text": "And this has been annotated\nwith whether there are",
+      "start": 1015.16,
+      "duration": 3.2
+    },
+    {
+      "text": "any toxic comments on there.",
+      "start": 1018.36,
+      "duration": 2.84
+    },
+    {
+      "text": "And you can similarly define\npositive and negative examples,",
+      "start": 1021.2,
+      "duration": 3.04
+    },
+    {
+      "text": "and you can train a\nclassifier on that.",
+      "start": 1024.24,
+      "duration": 3.96
+    },
+    {
+      "text": "So now I think you have\nthe tools, or some examples",
+      "start": 1028.2,
+      "duration": 6.119
+    },
+    {
+      "text": "and inspiration.",
+      "start": 1034.319,
+      "duration": 1.02
+    },
+    {
+      "text": "You can identify a particular\ntype of data that you want.",
+      "start": 1035.339,
+      "duration": 5.181
+    },
+    {
+      "text": "You build a classifier\nfor it, and then you",
+      "start": 1040.52,
+      "duration": 2.04
+    },
+    {
+      "text": "can go filter Common\nCrawl for that.",
+      "start": 1042.56,
+      "duration": 3.32
+    },
+    {
+      "text": "I want to talk about\none subtlety here,",
+      "start": 1045.88,
+      "duration": 4.48
+    },
+    {
+      "text": "which is that-- no, the notion\nof what you want for data",
+      "start": 1050.36,
+      "duration": 5.47
+    },
+    {
+      "text": "actually depends on what\nmodel you want to train.",
+      "start": 1055.83,
+      "duration": 2.41
+    },
+    {
+      "text": "So in particular, it\ndepends on the number",
+      "start": 1058.24,
+      "duration": 1.75
+    },
+    {
+      "text": "of tokens you're training on.",
+      "start": 1059.99,
+      "duration": 2.18
+    },
+    {
+      "text": "And so there's no\noptimal threshold.",
+      "start": 1062.17,
+      "duration": 2.0
+    },
+    {
+      "text": "So before, when I looked\nat the classifier,",
+      "start": 1064.17,
+      "duration": 2.62
+    },
+    {
+      "text": "it gives you a score.",
+      "start": 1066.79,
+      "duration": 2.52
+    },
+    {
+      "text": "You can't say 0.9 and say\nthat's the best because it",
+      "start": 1069.31,
+      "duration": 2.72
+    },
+    {
+      "text": "depends on what you want to do.",
+      "start": 1072.03,
+      "duration": 1.72
+    },
+    {
+      "text": "Intuitively, if you\nare going to train",
+      "start": 1073.75,
+      "duration": 2.68
+    },
+    {
+      "text": "for a longer period\nof time, then you",
+      "start": 1076.43,
+      "duration": 3.04
+    },
+    {
+      "text": "can tolerate lower quality data.",
+      "start": 1079.47,
+      "duration": 2.88
+    },
+    {
+      "text": "If you're training\nfor shorter, then you",
+      "start": 1082.35,
+      "duration": 5.04
+    },
+    {
+      "text": "want higher quality\ndata, in general.",
+      "start": 1087.39,
+      "duration": 2.92
+    },
+    {
+      "text": "And of course, if you\ncould wave a magic wand,",
+      "start": 1090.31,
+      "duration": 5.515
+    },
+    {
+      "text": "if you're training for longer,\nyou want more high-quality data,",
+      "start": 1095.825,
+      "duration": 2.625
+    },
+    {
+      "text": "but that's not an option\nthat you're given.",
+      "start": 1098.45,
+      "duration": 2.28
+    },
+    {
+      "text": "The data pool is what it is.",
+      "start": 1100.73,
+      "duration": 3.18
+    },
+    {
+      "text": "So here's a\npreliminary experiment",
+      "start": 1103.91,
+      "duration": 5.72
+    },
+    {
+      "text": "that Michael Ryan did.",
+      "start": 1109.63,
+      "duration": 2.56
+    },
+    {
+      "text": "So basically, this plot shows\nfor a 157-million parameter",
+      "start": 1112.19,
+      "duration": 4.12
+    },
+    {
+      "text": "model.",
+      "start": 1116.31,
+      "duration": 1.16
+    },
+    {
+      "text": "We're taking a very small pool.",
+      "start": 1117.47,
+      "duration": 2.94
+    },
+    {
+      "text": "So 100 works, which is a tiny\nfraction of Common Crawl.",
+      "start": 1120.41,
+      "duration": 5.74
+    },
+    {
+      "text": "And we're training and\ntraining for more over time.",
+      "start": 1126.15,
+      "duration": 7.64
+    },
+    {
+      "text": "So let's take a look\nat the blue curve.",
+      "start": 1133.79,
+      "duration": 2.54
+    },
+    {
+      "text": "So the blue curve is dclm.",
+      "start": 1136.33,
+      "duration": 2.1
+    },
+    {
+      "text": "And so the loss starts here.",
+      "start": 1138.43,
+      "duration": 2.76
+    },
+    {
+      "text": "And then it comes down.",
+      "start": 1141.19,
+      "duration": 1.78
+    },
+    {
+      "text": "And each of these lines is\nwhen you epoch over the data.",
+      "start": 1142.97,
+      "duration": 4.96
+    },
+    {
+      "text": "So this is one epoch,\nand then the next blue",
+      "start": 1147.93,
+      "duration": 2.3
+    },
+    {
+      "text": "is the second epoch,\nand so on and so forth.",
+      "start": 1150.23,
+      "duration": 2.25
+    },
+    {
+      "text": "So there's not that much data.",
+      "start": 1152.48,
+      "duration": 1.25
+    },
+    {
+      "text": "So eventually, you have\nto repeat your data.",
+      "start": 1153.73,
+      "duration": 2.44
+    },
+    {
+      "text": "And the loss\ncontinues going down",
+      "start": 1156.17,
+      "duration": 4.02
+    },
+    {
+      "text": "because the second time\nyou look at the data,",
+      "start": 1160.19,
+      "duration": 2.16
+    },
+    {
+      "text": "you're still learning things.",
+      "start": 1162.35,
+      "duration": 1.58
+    },
+    {
+      "text": "And at some point,\nyou start to overfit.",
+      "start": 1163.93,
+      "duration": 4.66
+    },
+    {
+      "text": "Whereas if you look\nat Resiliparse,",
+      "start": 1168.59,
+      "duration": 1.85
+    },
+    {
+      "text": "this is basically no filtering.",
+      "start": 1170.44,
+      "duration": 2.7
+    },
+    {
+      "text": "So here, it's much\nworse in the beginning.",
+      "start": 1173.14,
+      "duration": 3.6
+    },
+    {
+      "text": "But as you continue and\ncontinue, at some point,",
+      "start": 1176.74,
+      "duration": 3.52
+    },
+    {
+      "text": "you also epoch.",
+      "start": 1180.26,
+      "duration": 1.84
+    },
+    {
+      "text": "It starts to go down slower.",
+      "start": 1182.1,
+      "duration": 2.52
+    },
+    {
+      "text": "So you see this trend\nwhere high-quality data",
+      "start": 1184.62,
+      "duration": 4.04
+    },
+    {
+      "text": "is better in this regime,\nwhere you're not epoching.",
+      "start": 1188.66,
+      "duration": 4.2
+    },
+    {
+      "text": "But once you get to\nlots and lots of tokens,",
+      "start": 1192.86,
+      "duration": 3.8
+    },
+    {
+      "text": "high-quality data is\nno longer that great.",
+      "start": 1196.66,
+      "duration": 3.84
+    },
+    {
+      "text": "And of course, with\nhigh-quality data,",
+      "start": 1200.5,
+      "duration": 3.24
+    },
+    {
+      "text": "you wouldn't want to\ngo into this regime",
+      "start": 1203.74,
+      "duration": 1.8
+    },
+    {
+      "text": "because you're overfitting--\nyou probably stop here.",
+      "start": 1205.54,
+      "duration": 2.42
+    },
+    {
+      "text": "But even at this\npoint, this is worse",
+      "start": 1207.96,
+      "duration": 1.9
+    },
+    {
+      "text": "than if you had trained for\nlonger using low-quality data.",
+      "start": 1209.86,
+      "duration": 4.72
+    },
+    {
+      "text": "Yeah.",
+      "start": 1214.58,
+      "duration": 1.04
+    },
+    {
+      "text": "Just a question about\ncomputing the metrics.",
+      "start": 1215.62,
+      "duration": 3.9
+    },
+    {
+      "text": "This is actually not\ntotally about the graph.",
+      "start": 1219.52,
+      "duration": 2.98
+    },
+    {
+      "text": "Each of those dots corresponds\nwith one training run, right?",
+      "start": 1222.5,
+      "duration": 3.66
+    },
+    {
+      "text": "Yes.",
+      "start": 1226.16,
+      "duration": 1.243
+    },
+    {
+      "text": "Do you ever need to do the\nconfidence interval when you're",
+      "start": 1227.403,
+      "duration": 2.417
+    },
+    {
+      "text": "doing these retraining\nexperiments,",
+      "start": 1229.82,
+      "duration": 1.74
+    },
+    {
+      "text": "or is it enough just\nto do it one time?",
+      "start": 1231.56,
+      "duration": 3.42
+    },
+    {
+      "text": "So the question is,\neach of these points",
+      "start": 1234.98,
+      "duration": 2.2
+    },
+    {
+      "text": "is a single training run,\nshould you do it multiple times",
+      "start": 1237.18,
+      "duration": 5.0
+    },
+    {
+      "text": "and get confidence intervals?",
+      "start": 1242.18,
+      "duration": 2.56
+    },
+    {
+      "text": "Ideally, that would\nbe a good practice.",
+      "start": 1244.74,
+      "duration": 2.8
+    },
+    {
+      "text": "Often, you'll see\nin these papers",
+      "start": 1247.54,
+      "duration": 1.8
+    },
+    {
+      "text": "that these are scarce\nbecause each training",
+      "start": 1249.34,
+      "duration": 4.48
+    },
+    {
+      "text": "run is fairly expensive.",
+      "start": 1253.82,
+      "duration": 1.7
+    },
+    {
+      "text": "But in reality, when we\nhave done these experiments,",
+      "start": 1258.78,
+      "duration": 3.52
+    },
+    {
+      "text": "it's generally\ntends to be stable,",
+      "start": 1262.3,
+      "duration": 2.54
+    },
+    {
+      "text": "I would say, at least\nfor pre-training.",
+      "start": 1264.84,
+      "duration": 3.64
+    },
+    {
+      "text": "Yeah.",
+      "start": 1268.48,
+      "duration": 1.1
+    },
+    {
+      "text": "So you mentioned training for\nlonger and high-quality data,",
+      "start": 1269.58,
+      "duration": 4.68
+    },
+    {
+      "text": "is that not a combination\nthat we're considering?",
+      "start": 1274.26,
+      "duration": 2.9
+    },
+    {
+      "text": "But if we are training longer\non this high-quality data,",
+      "start": 1277.16,
+      "duration": 6.7
+    },
+    {
+      "text": "would it have\ndiminishing returns",
+      "start": 1283.86,
+      "duration": 2.0
+    },
+    {
+      "text": "compared to training for longer\nwith the high-quality data?",
+      "start": 1285.86,
+      "duration": 3.73
+    },
+    {
+      "text": "Yeah.",
+      "start": 1289.59,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question is, if you were\nable to get higher quality data",
+      "start": 1290.09,
+      "duration": 3.2
+    },
+    {
+      "text": "and you trained for\nlonger, would it",
+      "start": 1293.29,
+      "duration": 2.16
+    },
+    {
+      "text": "still have diminishing returns?",
+      "start": 1295.45,
+      "duration": 2.16
+    },
+    {
+      "text": "Every data set is going to have\ndiminishing returns eventually.",
+      "start": 1297.61,
+      "duration": 4.0
+    },
+    {
+      "text": "That's finite.",
+      "start": 1301.61,
+      "duration": 2.28
+    },
+    {
+      "text": "But it would probably be here.",
+      "start": 1303.89,
+      "duration": 2.14
+    },
+    {
+      "text": "It would just be down here\nand just keep on going down.",
+      "start": 1306.03,
+      "duration": 3.4
+    },
+    {
+      "text": "OK.",
+      "start": 1313.29,
+      "duration": 1.04
+    },
+    {
+      "text": "Great.",
+      "start": 1314.33,
+      "duration": 0.5
+    },
+    {
+      "text": "Let's move on.",
+      "start": 1314.83,
+      "duration": 1.2
+    },
+    {
+      "text": "So summary, filtering is\npretty critical for building",
+      "start": 1316.03,
+      "duration": 3.66
+    },
+    {
+      "text": "a good model, especially when\nyou're compute-constrained",
+      "start": 1319.69,
+      "duration": 2.48
+    },
+    {
+      "text": "like most of us.",
+      "start": 1322.17,
+      "duration": 3.12
+    },
+    {
+      "text": "Technically, if you\nhave infinite compute,",
+      "start": 1325.29,
+      "duration": 2.12
+    },
+    {
+      "text": "you don't need to filter.",
+      "start": 1327.41,
+      "duration": 1.46
+    },
+    {
+      "text": "And you can train on everything,\nand it'll be a giant model.",
+      "start": 1328.87,
+      "duration": 3.16
+    },
+    {
+      "text": "But realistically,\neveryone has to filter.",
+      "start": 1332.03,
+      "duration": 4.94
+    },
+    {
+      "text": "So the recipe here is figure\nout what good data looks like.",
+      "start": 1336.97,
+      "duration": 4.96
+    },
+    {
+      "text": "And then you can\ntrain a classifier,",
+      "start": 1341.93,
+      "duration": 2.76
+    },
+    {
+      "text": "and that will extrapolate\nto the rest of your model.",
+      "start": 1344.69,
+      "duration": 4.04
+    },
+    {
+      "text": "And what good data looks like?",
+      "start": 1348.73,
+      "duration": 2.06
+    },
+    {
+      "text": "You can either\nfind it by saying,",
+      "start": 1350.79,
+      "duration": 1.9
+    },
+    {
+      "text": "aha, there's this data set\nout there that I really like",
+      "start": 1352.69,
+      "duration": 2.76
+    },
+    {
+      "text": "and I just want more of it.",
+      "start": 1355.45,
+      "duration": 1.64
+    },
+    {
+      "text": "Or you can craft a\nprompt to a language",
+      "start": 1357.09,
+      "duration": 2.96
+    },
+    {
+      "text": "model and then use\nthat to construct,",
+      "start": 1360.05,
+      "duration": 3.2
+    },
+    {
+      "text": "to do a preliminary\nfilter of a large pool,",
+      "start": 1363.25,
+      "duration": 3.2
+    },
+    {
+      "text": "and then use that good quality\ndata to train a smaller",
+      "start": 1366.45,
+      "duration": 3.52
+    },
+    {
+      "text": "classifier and extrapolate\nto everyone else.",
+      "start": 1369.97,
+      "duration": 5.0
+    },
+    {
+      "text": "OK.",
+      "start": 1374.97,
+      "duration": 0.76
+    },
+    {
+      "text": "Next, I'm going to talk\nabout deduplication.",
+      "start": 1375.73,
+      "duration": 2.46
+    },
+    {
+      "text": "So at this point, we have\nfiltered our data set.",
+      "start": 1378.19,
+      "duration": 4.08
+    },
+    {
+      "text": "So we only have what we deem\nto be high-quality data.",
+      "start": 1382.27,
+      "duration": 5.22
+    },
+    {
+      "text": "But often, data still\nhas duplicates in it.",
+      "start": 1387.49,
+      "duration": 6.68
+    },
+    {
+      "text": "And there's two\ntypes of duplicates.",
+      "start": 1394.17,
+      "duration": 4.3
+    },
+    {
+      "text": "There's exact duplicates.",
+      "start": 1398.47,
+      "duration": 1.9
+    },
+    {
+      "text": "So this happens\nwhen, for example,",
+      "start": 1400.37,
+      "duration": 2.9
+    },
+    {
+      "text": "if you look at\nthese mirror sites,",
+      "start": 1403.27,
+      "duration": 3.09
+    },
+    {
+      "text": "the whole point of a mirror\nis that it's a duplicate.",
+      "start": 1406.36,
+      "duration": 2.24
+    },
+    {
+      "text": "And sometimes the web\ncrawler isn't smart enough",
+      "start": 1408.6,
+      "duration": 3.68
+    },
+    {
+      "text": "to know that this mirror\nis exactly this mirror,",
+      "start": 1412.28,
+      "duration": 2.1
+    },
+    {
+      "text": "so it just crawls\nmany sites, and you'll",
+      "start": 1414.38,
+      "duration": 3.74
+    },
+    {
+      "text": "get this exact same content.",
+      "start": 1418.12,
+      "duration": 2.88
+    },
+    {
+      "text": "Also, when you fork a repo,\nthat is also a duplicate,",
+      "start": 1421.0,
+      "duration": 6.68
+    },
+    {
+      "text": "even if you make changes.",
+      "start": 1427.68,
+      "duration": 1.78
+    },
+    {
+      "text": "Probably you're making\nchanges to a few files,",
+      "start": 1429.46,
+      "duration": 2.12
+    },
+    {
+      "text": "so 99% of that repo\nmight be the same.",
+      "start": 1431.58,
+      "duration": 3.94
+    },
+    {
+      "text": "So duplicate is abundant.",
+      "start": 1435.52,
+      "duration": 3.96
+    },
+    {
+      "text": "And yeah, sometimes\nthere's actually",
+      "start": 1439.48,
+      "duration": 3.04
+    },
+    {
+      "text": "near duplicates which are\nnot mirrors or derivative,",
+      "start": 1442.52,
+      "duration": 3.3
+    },
+    {
+      "text": "but they just happen to\nbe the same text differing",
+      "start": 1445.82,
+      "duration": 3.14
+    },
+    {
+      "text": "by a few tokens.",
+      "start": 1448.96,
+      "duration": 2.08
+    },
+    {
+      "text": "Usually, probably\nthis came from--",
+      "start": 1451.04,
+      "duration": 2.12
+    },
+    {
+      "text": "it could be copying or came\nfrom a different common source.",
+      "start": 1453.16,
+      "duration": 4.8
+    },
+    {
+      "text": "So here are some examples\nof near duplicates.",
+      "start": 1457.96,
+      "duration": 4.22
+    },
+    {
+      "text": "So terms of service\nand licenses.",
+      "start": 1462.18,
+      "duration": 3.14
+    },
+    {
+      "text": "So I guess the MIT\nlicense probably",
+      "start": 1465.32,
+      "duration": 2.2
+    },
+    {
+      "text": "shows up on a lot of places.",
+      "start": 1467.52,
+      "duration": 5.94
+    },
+    {
+      "text": "And so in many cases,\nit is a exact copy,",
+      "start": 1473.46,
+      "duration": 6.12
+    },
+    {
+      "text": "but only of that license,\nunless someone made a typo",
+      "start": 1479.58,
+      "duration": 2.38
+    },
+    {
+      "text": "when they copied it.",
+      "start": 1481.96,
+      "duration": 1.56
+    },
+    {
+      "text": "But the rest of the page that\nthe license might be part of",
+      "start": 1483.52,
+      "duration": 4.08
+    },
+    {
+      "text": "might be different.",
+      "start": 1487.6,
+      "duration": 1.76
+    },
+    {
+      "text": "And we talked about\nhow a lot of websites",
+      "start": 1489.36,
+      "duration": 2.64
+    },
+    {
+      "text": "have the same\nheaders and footers.",
+      "start": 1492.0,
+      "duration": 2.9
+    },
+    {
+      "text": "Those are also duplicates.",
+      "start": 1494.9,
+      "duration": 2.74
+    },
+    {
+      "text": "There's also cases where,\nfor whatever reason,",
+      "start": 1497.64,
+      "duration": 4.52
+    },
+    {
+      "text": "this is from LM1B, so the\n1 billion per benchmark.",
+      "start": 1502.16,
+      "duration": 4.14
+    },
+    {
+      "text": "There's these articles\nwhere you just",
+      "start": 1506.3,
+      "duration": 2.46
+    },
+    {
+      "text": "have typographic differences.",
+      "start": 1508.76,
+      "duration": 2.66
+    },
+    {
+      "text": "There's one version with a comma\nand one version without a comma.",
+      "start": 1511.42,
+      "duration": 3.8
+    },
+    {
+      "text": "I don't really know\nwhy, but that happens.",
+      "start": 1515.22,
+      "duration": 2.64
+    },
+    {
+      "text": "And sometimes you\nsee these templates",
+      "start": 1517.86,
+      "duration": 1.66
+    },
+    {
+      "text": "where this is some probably\nlow-quality content, where",
+      "start": 1519.52,
+      "duration": 6.11
+    },
+    {
+      "text": "it essentially looks\nlike an ad or some sort,",
+      "start": 1525.63,
+      "duration": 2.36
+    },
+    {
+      "text": "and someone just templatized\nand replaced Canada with USA.",
+      "start": 1527.99,
+      "duration": 6.52
+    },
+    {
+      "text": "So if you train on this\ndata, but you are just",
+      "start": 1534.51,
+      "duration": 4.24
+    },
+    {
+      "text": "training on different variations\nof this with different entities,",
+      "start": 1538.75,
+      "duration": 3.26
+    },
+    {
+      "text": "this is going to be\nwasting your GPUs.",
+      "start": 1542.01,
+      "duration": 3.54
+    },
+    {
+      "text": "There's a more extreme cases.",
+      "start": 1545.55,
+      "duration": 2.06
+    },
+    {
+      "text": "So this is why it's good\nto look at your data.",
+      "start": 1547.61,
+      "duration": 2.08
+    },
+    {
+      "text": "So this audit of the C4 data set\nfound this product description",
+      "start": 1549.69,
+      "duration": 4.9
+    },
+    {
+      "text": "61,000 times in the data set.",
+      "start": 1554.59,
+      "duration": 3.28
+    },
+    {
+      "text": "And if you trace back--\nthis is really bizarre.",
+      "start": 1557.87,
+      "duration": 2.56
+    },
+    {
+      "text": "I don't know why.",
+      "start": 1560.43,
+      "duration": 1.64
+    },
+    {
+      "text": "This is some description\nof this gas mask.",
+      "start": 1562.07,
+      "duration": 4.04
+    },
+    {
+      "text": "And this just showed up in this\ndata set in Common Crawl 61,000",
+      "start": 1566.11,
+      "duration": 5.32
+    },
+    {
+      "text": "times.",
+      "start": 1571.43,
+      "duration": 1.32
+    },
+    {
+      "text": "So yeah, the web is weird.",
+      "start": 1572.75,
+      "duration": 4.44
+    },
+    {
+      "text": "So why deduplicate?",
+      "start": 1577.19,
+      "duration": 1.84
+    },
+    {
+      "text": "So the first idea\nis clear because you",
+      "start": 1579.03,
+      "duration": 3.48
+    },
+    {
+      "text": "want to train more efficiently.",
+      "start": 1582.51,
+      "duration": 1.5
+    },
+    {
+      "text": "Deduplication reduces\nyour data set size",
+      "start": 1584.01,
+      "duration": 2.3
+    },
+    {
+      "text": "without really losing\ninformation because you're just",
+      "start": 1586.31,
+      "duration": 3.8
+    },
+    {
+      "text": "removing duplicates.",
+      "start": 1590.11,
+      "duration": 1.4
+    },
+    {
+      "text": "And it also has this benefit\nof avoiding memorization,",
+      "start": 1591.51,
+      "duration": 4.18
+    },
+    {
+      "text": "which this paper talks about.",
+      "start": 1595.69,
+      "duration": 3.38
+    },
+    {
+      "text": "For example, if you have some\ncopyrighted content that's",
+      "start": 1599.07,
+      "duration": 3.32
+    },
+    {
+      "text": "duplicated a lot, then\nif you train on it,",
+      "start": 1602.39,
+      "duration": 2.78
+    },
+    {
+      "text": "then you'll memorize it,\nand also privacy concerns.",
+      "start": 1605.17,
+      "duration": 3.54
+    },
+    {
+      "text": "But mostly, I think,\nit's just to make sure",
+      "start": 1608.71,
+      "duration": 5.84
+    },
+    {
+      "text": "that you're not wasting flops.",
+      "start": 1614.55,
+      "duration": 3.88
+    },
+    {
+      "text": "Related to deduplication\nis also decontamination,",
+      "start": 1618.43,
+      "duration": 3.02
+    },
+    {
+      "text": "which is arguably even\nmore important, too.",
+      "start": 1621.45,
+      "duration": 2.66
+    },
+    {
+      "text": "And it's the same\ndeal, is that you",
+      "start": 1624.11,
+      "duration": 2.8
+    },
+    {
+      "text": "want to make sure that your test\nset is not in your training set.",
+      "start": 1626.91,
+      "duration": 7.64
+    },
+    {
+      "text": "So how do we dedupe?",
+      "start": 1634.55,
+      "duration": 2.87
+    },
+    {
+      "text": "So here's the design\nspace to think about.",
+      "start": 1637.42,
+      "duration": 3.08
+    },
+    {
+      "text": "So first of all, what are the\nitems that you're deduping?",
+      "start": 1640.5,
+      "duration": 3.032
+    },
+    {
+      "text": "Do you do at the sentence\nlevel, the paragraph level,",
+      "start": 1643.532,
+      "duration": 2.208
+    },
+    {
+      "text": "or the document level?",
+      "start": 1645.74,
+      "duration": 2.76
+    },
+    {
+      "text": "How do you determine a match?",
+      "start": 1648.5,
+      "duration": 1.66
+    },
+    {
+      "text": "Is it an exact match?",
+      "start": 1650.16,
+      "duration": 1.42
+    },
+    {
+      "text": "Is it existence of\na common subitem?",
+      "start": 1651.58,
+      "duration": 2.42
+    },
+    {
+      "text": "Is it the fraction of common\nsubitems for near deduplication?",
+      "start": 1654.0,
+      "duration": 5.14
+    },
+    {
+      "text": "And then once you find a\nduplicate between two pages,",
+      "start": 1659.14,
+      "duration": 3.6
+    },
+    {
+      "text": "what do you do?",
+      "start": 1662.74,
+      "duration": 1.0
+    },
+    {
+      "text": "Do you remove all the instances,\nor do you remove all but one?",
+      "start": 1663.74,
+      "duration": 3.46
+    },
+    {
+      "text": "And the key\nalgorithmic challenge",
+      "start": 1670.08,
+      "duration": 3.5
+    },
+    {
+      "text": "is that deduplication\nis fundamentally",
+      "start": 1673.58,
+      "duration": 3.0
+    },
+    {
+      "text": "about comparing\nitems to other items.",
+      "start": 1676.58,
+      "duration": 3.68
+    },
+    {
+      "text": "And normally, if\nyou're doing filtering,",
+      "start": 1680.26,
+      "duration": 3.36
+    },
+    {
+      "text": "this is about an\nindividual item.",
+      "start": 1683.62,
+      "duration": 2.22
+    },
+    {
+      "text": "Is this item good or not?",
+      "start": 1685.84,
+      "duration": 1.6
+    },
+    {
+      "text": "And this can be parallelized.",
+      "start": 1687.44,
+      "duration": 2.1
+    },
+    {
+      "text": "It's linear time, which is good.",
+      "start": 1689.54,
+      "duration": 3.458
+    },
+    {
+      "text": "And even in linear\ntime, we're trying",
+      "start": 1692.998,
+      "duration": 1.542
+    },
+    {
+      "text": "to make it fast by having\nrule-based or very small models.",
+      "start": 1694.54,
+      "duration": 3.66
+    },
+    {
+      "text": "But your duplication,\nclearly, you",
+      "start": 1698.2,
+      "duration": 1.445
+    },
+    {
+      "text": "can't do the n-squared thing\nwhere you compare everything",
+      "start": 1699.645,
+      "duration": 2.375
+    },
+    {
+      "text": "to everything.",
+      "start": 1702.02,
+      "duration": 1.16
+    },
+    {
+      "text": "You need linear-time\nalgorithms to scale, especially",
+      "start": 1703.18,
+      "duration": 3.36
+    },
+    {
+      "text": "at this web scale.",
+      "start": 1706.54,
+      "duration": 2.36
+    },
+    {
+      "text": "So typically, the\ndeduplication literature",
+      "start": 1708.9,
+      "duration": 4.76
+    },
+    {
+      "text": "uses hash functions\nto get around this.",
+      "start": 1713.66,
+      "duration": 3.28
+    },
+    {
+      "text": "So we'll develop\nsome of these ideas.",
+      "start": 1716.94,
+      "duration": 2.66
+    },
+    {
+      "text": "These are quite\nnice ideas from--",
+      "start": 1719.6,
+      "duration": 3.06
+    },
+    {
+      "text": "thanks to the\nalgorithms community.",
+      "start": 1722.66,
+      "duration": 4.24
+    },
+    {
+      "text": "So I think everyone knows\nwhat a hash function is.",
+      "start": 1726.9,
+      "duration": 2.7
+    },
+    {
+      "text": "It takes some value\nlike a string,",
+      "start": 1729.6,
+      "duration": 2.9
+    },
+    {
+      "text": "and maps it into something\nlike a string or an integer.",
+      "start": 1732.5,
+      "duration": 3.96
+    },
+    {
+      "text": "And the hash value is\nmuch smaller than item.",
+      "start": 1736.46,
+      "duration": 2.66
+    },
+    {
+      "text": "Hash collisions are\nwhen two distinct items",
+      "start": 1739.12,
+      "duration": 2.5
+    },
+    {
+      "text": "map to the same age.",
+      "start": 1741.62,
+      "duration": 3.04
+    },
+    {
+      "text": "So when you look\nat hash functions,",
+      "start": 1744.66,
+      "duration": 3.58
+    },
+    {
+      "text": "there are really fancy\nhash functions which",
+      "start": 1748.24,
+      "duration": 2.7
+    },
+    {
+      "text": "are cryptographic in nature.",
+      "start": 1750.94,
+      "duration": 2.42
+    },
+    {
+      "text": "These are collision-resistant\nusing cryptography and Bitcoin",
+      "start": 1753.36,
+      "duration": 6.13
+    },
+    {
+      "text": "and things like that.",
+      "start": 1759.49,
+      "duration": 1.1
+    },
+    {
+      "text": "And then there's\nthese faster ones,",
+      "start": 1760.59,
+      "duration": 3.18
+    },
+    {
+      "text": "which are used for hash tables,\nwhere hash collisions aren't",
+      "start": 1763.77,
+      "duration": 3.36
+    },
+    {
+      "text": "the end of the world.",
+      "start": 1767.13,
+      "duration": 1.24
+    },
+    {
+      "text": "And so we'll be using these.",
+      "start": 1768.37,
+      "duration": 2.88
+    },
+    {
+      "text": "So take a string and\nmap it to some values.",
+      "start": 1771.25,
+      "duration": 3.02
+    },
+    {
+      "text": "That's what hash functions do.",
+      "start": 1774.27,
+      "duration": 4.04
+    },
+    {
+      "text": "OK.",
+      "start": 1778.31,
+      "duration": 0.5
+    },
+    {
+      "text": "So exact duplication is\nconceptually very simple.",
+      "start": 1778.81,
+      "duration": 4.56
+    },
+    {
+      "text": "You take a string, you see\nif there's an exact match,",
+      "start": 1783.37,
+      "duration": 4.56
+    },
+    {
+      "text": "and you remove all but one.",
+      "start": 1787.93,
+      "duration": 2.58
+    },
+    {
+      "text": "So here you have a bunch of\nelements, and you hash them,",
+      "start": 1790.51,
+      "duration": 6.14
+    },
+    {
+      "text": "and you dedupe.",
+      "start": 1796.65,
+      "duration": 3.12
+    },
+    {
+      "text": "And exact duplication\nis very nice.",
+      "start": 1799.77,
+      "duration": 3.9
+    },
+    {
+      "text": "It's very clear\nwhat's happening.",
+      "start": 1803.67,
+      "duration": 2.94
+    },
+    {
+      "text": "But this isn't really good\nenough for the messy web data",
+      "start": 1806.61,
+      "duration": 3.4
+    },
+    {
+      "text": "because often you have\nthese near duplicates.",
+      "start": 1810.01,
+      "duration": 3.8
+    },
+    {
+      "text": "And one note is that there's\nmany ways to have written this.",
+      "start": 1813.81,
+      "duration": 4.8
+    },
+    {
+      "text": "This is written in a\nbit of a MapReduce style",
+      "start": 1818.61,
+      "duration": 5.88
+    },
+    {
+      "text": "way, which makes it more easily\nparallelizable and scale.",
+      "start": 1824.49,
+      "duration": 6.28
+    },
+    {
+      "text": "So, C4, this paper from the T5\npaper, which processed Common",
+      "start": 1830.77,
+      "duration": 8.56
+    },
+    {
+      "text": "Crawl, did exact deduplication.",
+      "start": 1839.33,
+      "duration": 2.32
+    },
+    {
+      "text": "The items they operate on\nwere three-sentence spans,",
+      "start": 1841.65,
+      "duration": 4.6
+    },
+    {
+      "text": "and you do an exact match,\nand they remove all but one.",
+      "start": 1846.25,
+      "duration": 7.04
+    },
+    {
+      "text": "So if you're paying\nattention, you",
+      "start": 1853.29,
+      "duration": 2.68
+    },
+    {
+      "text": "realize that there's\nsomething a bit",
+      "start": 1855.97,
+      "duration": 2.8
+    },
+    {
+      "text": "strange about this\nbecause you're looking",
+      "start": 1858.77,
+      "duration": 3.08
+    },
+    {
+      "text": "at three-sentence spans.",
+      "start": 1861.85,
+      "duration": 1.92
+    },
+    {
+      "text": "And if you find two documents\nwith three-sentence spans",
+      "start": 1863.77,
+      "duration": 2.62
+    },
+    {
+      "text": "and you remove all\nbut one, that means",
+      "start": 1866.39,
+      "duration": 3.62
+    },
+    {
+      "text": "you're just going to\nrip out three sentences",
+      "start": 1870.01,
+      "duration": 2.39
+    },
+    {
+      "text": "from that documents, which\nis a little bit strange,",
+      "start": 1872.4,
+      "duration": 3.687
+    },
+    {
+      "text": "because it breaks the coherence.",
+      "start": 1876.087,
+      "duration": 1.333
+    },
+    {
+      "text": "But this is what they did.",
+      "start": 1877.42,
+      "duration": 4.5
+    },
+    {
+      "text": "So that's exact deduplication.",
+      "start": 1881.92,
+      "duration": 4.72
+    },
+    {
+      "text": "So how do we do\nnear deduplication?",
+      "start": 1886.64,
+      "duration": 3.9
+    },
+    {
+      "text": "So first of all, we\nhave to define what",
+      "start": 1890.54,
+      "duration": 2.18
+    },
+    {
+      "text": "approximate match means here.",
+      "start": 1892.72,
+      "duration": 3.16
+    },
+    {
+      "text": "So to do that, we're going\nto define this called Jaccard",
+      "start": 1895.88,
+      "duration": 4.8
+    },
+    {
+      "text": "similarity, which is a\nfairly standard notion.",
+      "start": 1900.68,
+      "duration": 3.76
+    },
+    {
+      "text": "And Jaccard of two\nsets is basically",
+      "start": 1904.44,
+      "duration": 3.4
+    },
+    {
+      "text": "the size of the intersection\nover the size of the union.",
+      "start": 1907.84,
+      "duration": 2.8
+    },
+    {
+      "text": "So given these two sets--",
+      "start": 1910.64,
+      "duration": 1.76
+    },
+    {
+      "text": "1, 2, 3, 4, and 1, 2, 3, 5,\nwhen you compute Jaccard,",
+      "start": 1912.4,
+      "duration": 4.92
+    },
+    {
+      "text": "you take the intersection.",
+      "start": 1917.32,
+      "duration": 1.54
+    },
+    {
+      "text": "That's 1, 2, 3.",
+      "start": 1918.86,
+      "duration": 1.42
+    },
+    {
+      "text": "You take the union,\nthat's 1, 2, 3, 4, 5,",
+      "start": 1920.28,
+      "duration": 2.6
+    },
+    {
+      "text": "and you divide,\nand Jaccard is 0.6.",
+      "start": 1922.88,
+      "duration": 5.24
+    },
+    {
+      "text": "So Jaccard is a number\nbetween 0 and 1.",
+      "start": 1928.12,
+      "duration": 2.88
+    },
+    {
+      "text": "0 means that they're disjoint,\n1 means that they're identical.",
+      "start": 1931.0,
+      "duration": 4.96
+    },
+    {
+      "text": "So a fairly natural notion.",
+      "start": 1935.96,
+      "duration": 3.0
+    },
+    {
+      "text": "And we're going to say\nthat two documents are",
+      "start": 1938.96,
+      "duration": 4.32
+    },
+    {
+      "text": "near duplicates if their\nJaccard similarity is",
+      "start": 1943.28,
+      "duration": 2.12
+    },
+    {
+      "text": "above some threshold,\nlet's say 0.99.",
+      "start": 1945.4,
+      "duration": 3.44
+    },
+    {
+      "text": "So now the question is, how\ndo you find near duplicates",
+      "start": 1948.84,
+      "duration": 2.84
+    },
+    {
+      "text": "in linear time?",
+      "start": 1951.68,
+      "duration": 2.16
+    },
+    {
+      "text": "So fortunately, this is a\nsolved algorithms question.",
+      "start": 1953.84,
+      "duration": 4.44
+    },
+    {
+      "text": "And the answer is\nto use MinHash.",
+      "start": 1958.28,
+      "duration": 3.1
+    },
+    {
+      "text": "Well, OK.",
+      "start": 1965.84,
+      "duration": 0.66
+    },
+    {
+      "text": "So the first step\nis to use MinHash.",
+      "start": 1966.5,
+      "duration": 1.84
+    },
+    {
+      "text": "That's not the final answer.",
+      "start": 1968.34,
+      "duration": 2.06
+    },
+    {
+      "text": "So MinHash is a\nrandom hash function,",
+      "start": 1970.4,
+      "duration": 4.36
+    },
+    {
+      "text": "so that the probability\nof a hash collision",
+      "start": 1974.76,
+      "duration": 2.44
+    },
+    {
+      "text": "is exactly the\nJaccard of A and B.",
+      "start": 1977.2,
+      "duration": 4.28
+    },
+    {
+      "text": "So this is a very nice\nproperty because hashing",
+      "start": 1981.48,
+      "duration": 5.96
+    },
+    {
+      "text": "is good for making\nthings linear time.",
+      "start": 1987.44,
+      "duration": 2.39
+    },
+    {
+      "text": "Jaccard is the\nmetric that we want,",
+      "start": 1989.83,
+      "duration": 3.26
+    },
+    {
+      "text": "and we're connecting these\ntwo right now in expectation.",
+      "start": 1993.09,
+      "duration": 4.98
+    },
+    {
+      "text": "So what's interesting\nis normally,",
+      "start": 1998.07,
+      "duration": 2.16
+    },
+    {
+      "text": "you want hash functions\nto define hash functions",
+      "start": 2000.23,
+      "duration": 3.0
+    },
+    {
+      "text": "so that everything is hashing--",
+      "start": 2003.23,
+      "duration": 3.297
+    },
+    {
+      "text": "distinct elements are\nhashing to different things.",
+      "start": 2006.527,
+      "duration": 2.083
+    },
+    {
+      "text": "You don't want collisions.",
+      "start": 2008.61,
+      "duration": 1.38
+    },
+    {
+      "text": "But here you actually\nwant collisions--",
+      "start": 2009.99,
+      "duration": 2.625
+    },
+    {
+      "text": "not arbitrary\ncollisions, but you",
+      "start": 2012.615,
+      "duration": 1.375
+    },
+    {
+      "text": "want to control the\ncollisions in a certain way",
+      "start": 2013.99,
+      "duration": 2.64
+    },
+    {
+      "text": "to align with the similarity.",
+      "start": 2016.63,
+      "duration": 2.2
+    },
+    {
+      "text": "So similar things\nyou want to collide",
+      "start": 2018.83,
+      "duration": 1.72
+    },
+    {
+      "text": "more than disparate things.",
+      "start": 2020.55,
+      "duration": 2.7
+    },
+    {
+      "text": "So the MinHash is essentially,\nactually, let's see.",
+      "start": 2026.17,
+      "duration": 8.22
+    },
+    {
+      "text": "Maybe I will-- so\nhere's the MinHash.",
+      "start": 2034.39,
+      "duration": 4.48
+    },
+    {
+      "text": "It's fairly simple.",
+      "start": 2038.87,
+      "duration": 1.06
+    },
+    {
+      "text": "You take a set, and you hash\nevery element in that set,",
+      "start": 2039.93,
+      "duration": 3.38
+    },
+    {
+      "text": "and you take the\nminimum element.",
+      "start": 2043.31,
+      "duration": 2.6
+    },
+    {
+      "text": "So if you're seeing\nthis for the first time,",
+      "start": 2045.91,
+      "duration": 4.78
+    },
+    {
+      "text": "it may seem a\nlittle bit strange.",
+      "start": 2050.69,
+      "duration": 1.56
+    },
+    {
+      "text": "Why are you taking the min?",
+      "start": 2052.25,
+      "duration": 1.78
+    },
+    {
+      "text": "You can take the max, too.",
+      "start": 2054.03,
+      "duration": 1.18
+    },
+    {
+      "text": "It doesn't really matter.",
+      "start": 2055.21,
+      "duration": 1.042
+    },
+    {
+      "text": "It's just a way to break ties.",
+      "start": 2056.252,
+      "duration": 2.338
+    },
+    {
+      "text": "So here's the picture that\nyou should have in your mind.",
+      "start": 2058.59,
+      "duration": 4.18
+    },
+    {
+      "text": "So if you have A, remember\nA contains 1, 2, 3,",
+      "start": 2062.77,
+      "duration": 6.78
+    },
+    {
+      "text": "4, and B contains 1, 2, 3, 5.",
+      "start": 2069.55,
+      "duration": 2.46
+    },
+    {
+      "text": "So this is a characteristic\nmatrix representation",
+      "start": 2072.01,
+      "duration": 3.18
+    },
+    {
+      "text": "of these two sets.",
+      "start": 2075.19,
+      "duration": 3.04
+    },
+    {
+      "text": "And so what the random\nhash function is doing",
+      "start": 2078.23,
+      "duration": 5.239
+    },
+    {
+      "text": "is that it induces a\npermutation over the items.",
+      "start": 2083.469,
+      "duration": 4.201
+    },
+    {
+      "text": "So it might be 4, 3, 1,\n5, 2, or something else.",
+      "start": 2087.67,
+      "duration": 5.16
+    },
+    {
+      "text": "And then you look at\nwhich item is first,",
+      "start": 2092.83,
+      "duration": 2.88
+    },
+    {
+      "text": "according to this permutation in\nA, and which item is first in B.",
+      "start": 2095.71,
+      "duration": 4.84
+    },
+    {
+      "text": "So each item has the same\nprobability of being first.",
+      "start": 2100.55,
+      "duration": 6.83
+    },
+    {
+      "text": "So if the random hash function\nputs 1 first, then first in A",
+      "start": 2107.38,
+      "duration": 11.08
+    },
+    {
+      "text": "will be equal to first in\nB. And if it's 2 first,",
+      "start": 2118.46,
+      "duration": 5.48
+    },
+    {
+      "text": "then it's the same.",
+      "start": 2123.94,
+      "duration": 1.06
+    },
+    {
+      "text": "If it's 3 first,\nit's also the same.",
+      "start": 2125.0,
+      "duration": 2.5
+    },
+    {
+      "text": "But if the random\npermutation puts 4 first,",
+      "start": 2127.5,
+      "duration": 3.88
+    },
+    {
+      "text": "then the first\nelement in A is going",
+      "start": 2131.38,
+      "duration": 2.04
+    },
+    {
+      "text": "to be different from the first\nelement in B, and same with 5.",
+      "start": 2133.42,
+      "duration": 5.64
+    },
+    {
+      "text": "So look at this representation.",
+      "start": 2139.06,
+      "duration": 2.88
+    },
+    {
+      "text": "Basically, the\nrandom hash function",
+      "start": 2141.94,
+      "duration": 1.64
+    },
+    {
+      "text": "says elect one of\nthese rows to be first.",
+      "start": 2143.58,
+      "duration": 3.84
+    },
+    {
+      "text": "And then when the min\nis just telling me--",
+      "start": 2147.42,
+      "duration": 4.2
+    },
+    {
+      "text": "the min equal of A\nequal to min of B",
+      "start": 2155.06,
+      "duration": 3.04
+    },
+    {
+      "text": "is basically telling me\nwhether that row is the same.",
+      "start": 2158.1,
+      "duration": 5.62
+    },
+    {
+      "text": "OK.",
+      "start": 2168.42,
+      "duration": 0.5
+    },
+    {
+      "text": "So that is, I guess, the proof\nof why this property holds,",
+      "start": 2168.92,
+      "duration": 6.84
+    },
+    {
+      "text": "which is that you have a\nhash function in expectation",
+      "start": 2175.76,
+      "duration": 4.46
+    },
+    {
+      "text": "over your random choice\nof hash functions,",
+      "start": 2180.22,
+      "duration": 3.48
+    },
+    {
+      "text": "that the probability\nof collision",
+      "start": 2183.7,
+      "duration": 1.96
+    },
+    {
+      "text": "is the similarity\nmetric you want.",
+      "start": 2185.66,
+      "duration": 3.98
+    },
+    {
+      "text": "OK.",
+      "start": 2189.64,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's just\ncheck this in code.",
+      "start": 2190.14,
+      "duration": 3.0
+    },
+    {
+      "text": "So I'm going to generate 100\ndifferent hash functions.",
+      "start": 2193.14,
+      "duration": 5.62
+    },
+    {
+      "text": "Each hash function\nis given by a seed.",
+      "start": 2198.76,
+      "duration": 2.54
+    },
+    {
+      "text": "And I just check\nwhether the MinHash",
+      "start": 2201.3,
+      "duration": 2.4
+    },
+    {
+      "text": "is equal to MinHash, and\nthe estimated Jaccard.",
+      "start": 2203.7,
+      "duration": 3.9
+    },
+    {
+      "text": "So I'm going to just look at\nthe number of the fraction",
+      "start": 2207.6,
+      "duration": 3.78
+    },
+    {
+      "text": "of matches, and you get 0.6.",
+      "start": 2211.38,
+      "duration": 4.68
+    },
+    {
+      "text": "And the key thing\nwith the MinHash",
+      "start": 2216.06,
+      "duration": 3.0
+    },
+    {
+      "text": "is that I don't have to\ndo the n-squared thing.",
+      "start": 2219.06,
+      "duration": 6.37
+    },
+    {
+      "text": "I can compute the MinHash of A\nand the MinHash of B and MinHash",
+      "start": 2225.43,
+      "duration": 5.1
+    },
+    {
+      "text": "of a different set, and I\njust look for collisions.",
+      "start": 2230.53,
+      "duration": 2.7
+    },
+    {
+      "text": "Any questions so\nfar about MinHash?",
+      "start": 2236.01,
+      "duration": 3.9
+    },
+    {
+      "text": "So now we can hash our\nitems, but we're not",
+      "start": 2249.41,
+      "duration": 3.52
+    },
+    {
+      "text": "done yet because a\ncollision doesn't tell us",
+      "start": 2252.93,
+      "duration": 4.04
+    },
+    {
+      "text": "the Jaccard is above\nsome threshold, which",
+      "start": 2256.97,
+      "duration": 2.8
+    },
+    {
+      "text": "is what we want.",
+      "start": 2259.77,
+      "duration": 1.4
+    },
+    {
+      "text": "We want to find A and\nB such that Jaccard",
+      "start": 2261.17,
+      "duration": 1.88
+    },
+    {
+      "text": "is greater than 0.99.",
+      "start": 2263.05,
+      "duration": 1.8
+    },
+    {
+      "text": "All we've done is\nsaid, OK, well,",
+      "start": 2264.85,
+      "duration": 2.34
+    },
+    {
+      "text": "if we've got a collision, the\nprobability of that collision",
+      "start": 2267.19,
+      "duration": 3.46
+    },
+    {
+      "text": "of two things colliding\nis the Jaccard.",
+      "start": 2270.65,
+      "duration": 2.48
+    },
+    {
+      "text": "But that's not really\nthat useful by itself.",
+      "start": 2273.13,
+      "duration": 2.9
+    },
+    {
+      "text": "It's stochastic,\nand I can't really",
+      "start": 2276.03,
+      "duration": 1.7
+    },
+    {
+      "text": "get anything reliable here.",
+      "start": 2277.73,
+      "duration": 3.2
+    },
+    {
+      "text": "So the next idea is\nthis thing called",
+      "start": 2280.93,
+      "duration": 5.28
+    },
+    {
+      "text": "locality-sensitive\nhashing, which essentially",
+      "start": 2286.21,
+      "duration": 2.84
+    },
+    {
+      "text": "solves this problem.",
+      "start": 2289.05,
+      "duration": 1.46
+    },
+    {
+      "text": "So this is a very classic idea\nin theoretical computer science,",
+      "start": 2290.51,
+      "duration": 3.28
+    },
+    {
+      "text": "and it's quite nice.",
+      "start": 2293.79,
+      "duration": 3.74
+    },
+    {
+      "text": "The idea here is that we have A\nand B colliding with probability",
+      "start": 2297.53,
+      "duration": 6.2
+    },
+    {
+      "text": "equal to the Jaccard.",
+      "start": 2303.73,
+      "duration": 1.44
+    },
+    {
+      "text": "So it is true that more similar\nitems will collide more often,",
+      "start": 2305.17,
+      "duration": 6.16
+    },
+    {
+      "text": "but it's very stochastic.",
+      "start": 2311.33,
+      "duration": 2.02
+    },
+    {
+      "text": "The variance is\nquite large here.",
+      "start": 2313.35,
+      "duration": 3.06
+    },
+    {
+      "text": "So our goal is to\nhave A and B collide",
+      "start": 2316.41,
+      "duration": 3.4
+    },
+    {
+      "text": "if the Jaccard is greater\nthan some threshold.",
+      "start": 2319.81,
+      "duration": 3.04
+    },
+    {
+      "text": "So we, in some sense, have to\nsharpen these probabilities",
+      "start": 2322.85,
+      "duration": 4.76
+    },
+    {
+      "text": "somehow.",
+      "start": 2327.61,
+      "duration": 1.0
+    },
+    {
+      "text": "The probability can't just be\nliterally equal to the Jaccard.",
+      "start": 2328.61,
+      "duration": 4.8
+    },
+    {
+      "text": "So the solution is to\nuse more hash functions.",
+      "start": 2333.41,
+      "duration": 4.72
+    },
+    {
+      "text": "And these hash functions\nare going to be independent.",
+      "start": 2338.13,
+      "duration": 2.99
+    },
+    {
+      "text": "So this part gets\na bit technical,",
+      "start": 2341.12,
+      "duration": 4.86
+    },
+    {
+      "text": "but we'll walk through it.",
+      "start": 2345.98,
+      "duration": 1.88
+    },
+    {
+      "text": "So you break the\nn hash functions",
+      "start": 2347.86,
+      "duration": 2.74
+    },
+    {
+      "text": "into b bands of\nr hash functions.",
+      "start": 2350.6,
+      "duration": 3.78
+    },
+    {
+      "text": "So if you have 12 hash\nfunctions, you have three bands,",
+      "start": 2354.38,
+      "duration": 4.18
+    },
+    {
+      "text": "each band has 4 hash functions.",
+      "start": 2358.56,
+      "duration": 3.78
+    },
+    {
+      "text": "So there's a band\nhere, h1 through h4.",
+      "start": 2362.34,
+      "duration": 3.7
+    },
+    {
+      "text": "Here's a second\nband, h5 through h8.",
+      "start": 2366.04,
+      "duration": 3.0
+    },
+    {
+      "text": "Third band, h9 through h12.",
+      "start": 2369.04,
+      "duration": 1.92
+    },
+    {
+      "text": "And then so what we're\ngoing to try to do--",
+      "start": 2373.76,
+      "duration": 3.42
+    },
+    {
+      "text": "so each hash function\ngives us either a collision",
+      "start": 2377.18,
+      "duration": 3.38
+    },
+    {
+      "text": "or not collision.",
+      "start": 2380.56,
+      "duration": 0.92
+    },
+    {
+      "text": "And so every hash function,\na probability of colliding.",
+      "start": 2384.08,
+      "duration": 4.76
+    },
+    {
+      "text": "So the key here is that we want\nto say, compute the probability",
+      "start": 2388.84,
+      "duration": 6.24
+    },
+    {
+      "text": "that A and B collide.",
+      "start": 2395.08,
+      "duration": 2.56
+    },
+    {
+      "text": "We say that A and B\ncollide if for some band",
+      "start": 2397.64,
+      "duration": 4.52
+    },
+    {
+      "text": "all of its hash functions\nreturn the same value.",
+      "start": 2402.16,
+      "duration": 4.2
+    },
+    {
+      "text": "So if h5 and h6 and h7 and h8\nall return the same value--",
+      "start": 2406.36,
+      "duration": 11.2
+    },
+    {
+      "text": "sorry-- if h5 of A equals h5\nof B and h6 of A equals h6 of B",
+      "start": 2417.56,
+      "duration": 10.16
+    },
+    {
+      "text": "and so on, that means\nthis band is triggered,",
+      "start": 2427.72,
+      "duration": 4.0
+    },
+    {
+      "text": "and then I would say\nthey're colliding.",
+      "start": 2431.72,
+      "duration": 1.74
+    },
+    {
+      "text": "Or if this band, if\nall of these agree,",
+      "start": 2433.46,
+      "duration": 5.28
+    },
+    {
+      "text": "then I say it's\ncollision, or these two.",
+      "start": 2438.74,
+      "duration": 3.18
+    },
+    {
+      "text": "But you don't have to have\nall the hash functions return",
+      "start": 2441.92,
+      "duration": 5.04
+    },
+    {
+      "text": "the same value.",
+      "start": 2446.96,
+      "duration": 2.32
+    },
+    {
+      "text": "So there's this\nand-or structure here",
+      "start": 2449.28,
+      "duration": 3.4
+    },
+    {
+      "text": "that is doing the lifting here.",
+      "start": 2452.68,
+      "duration": 4.75
+    },
+    {
+      "text": "And we'll see why this works.",
+      "start": 2457.43,
+      "duration": 2.1
+    },
+    {
+      "text": "So now let's say you have a\nparticular Jaccard of A and B,",
+      "start": 2463.64,
+      "duration": 6.63
+    },
+    {
+      "text": "what is the probability\nthat A and B collide",
+      "start": 2470.27,
+      "duration": 2.52
+    },
+    {
+      "text": "according to this definition?",
+      "start": 2472.79,
+      "duration": 3.0
+    },
+    {
+      "text": "So we can calculate this.",
+      "start": 2475.79,
+      "duration": 3.48
+    },
+    {
+      "text": "So let's say that this\nJaccard similarity is 0.8.",
+      "start": 2479.27,
+      "duration": 8.16
+    },
+    {
+      "text": "And we have five bands, and\neach band has 10 hash functions.",
+      "start": 2487.43,
+      "duration": 7.08
+    },
+    {
+      "text": "So then we can say, what is\nthe probability of a fixed band",
+      "start": 2494.51,
+      "duration": 4.16
+    },
+    {
+      "text": "matching?",
+      "start": 2498.67,
+      "duration": 1.36
+    },
+    {
+      "text": "So that's 0.8 to the r.",
+      "start": 2500.03,
+      "duration": 4.64
+    },
+    {
+      "text": "Because each band\nhas r hash functions,",
+      "start": 2504.67,
+      "duration": 5.12
+    },
+    {
+      "text": "so the probability that they all\nhave to match is 0.8 to the r.",
+      "start": 2509.79,
+      "duration": 4.84
+    },
+    {
+      "text": "So the probability of\na fixed band matching",
+      "start": 2514.63,
+      "duration": 3.52
+    },
+    {
+      "text": "is generally quite low.",
+      "start": 2518.15,
+      "duration": 2.3
+    },
+    {
+      "text": "It's exponential in r.",
+      "start": 2520.45,
+      "duration": 3.92
+    },
+    {
+      "text": "And then now the\nprobability of collision",
+      "start": 2524.37,
+      "duration": 3.42
+    },
+    {
+      "text": "is the probability\nthat some band matches.",
+      "start": 2527.79,
+      "duration": 3.64
+    },
+    {
+      "text": "And that's going to be\nthe probability of 1",
+      "start": 2531.43,
+      "duration": 2.16
+    },
+    {
+      "text": "minus the probability of--",
+      "start": 2533.59,
+      "duration": 1.88
+    },
+    {
+      "text": "so this is the probability\nof a band not matching.",
+      "start": 2535.47,
+      "duration": 4.12
+    },
+    {
+      "text": "And if you raise it\nto the b-- there's",
+      "start": 2539.59,
+      "duration": 3.4
+    },
+    {
+      "text": "b bands-- there's a probability\nthat all of them don't match.",
+      "start": 2542.99,
+      "duration": 4.24
+    },
+    {
+      "text": "And then 1 minus, that is the\nprobability that some match.",
+      "start": 2547.23,
+      "duration": 4.88
+    },
+    {
+      "text": "So the probability\nof collision is 0.4.",
+      "start": 2552.11,
+      "duration": 2.962
+    },
+    {
+      "text": "And you're expected to\nbe higher because you're",
+      "start": 2555.072,
+      "duration": 1.958
+    },
+    {
+      "text": "given B tries to get a match.",
+      "start": 2557.03,
+      "duration": 3.34
+    },
+    {
+      "text": "So if you plot this, this\nis what it looks like.",
+      "start": 2566.43,
+      "duration": 6.85
+    },
+    {
+      "text": "So you have on the x-axis\nthe similarity here.",
+      "start": 2573.28,
+      "duration": 6.7
+    },
+    {
+      "text": "And we were looking at 0.8.",
+      "start": 2579.98,
+      "duration": 4.0
+    },
+    {
+      "text": "And you look at the probability\nof a collision here.",
+      "start": 2583.98,
+      "duration": 5.153
+    },
+    {
+      "text": "So we would expect that if\nthe similarity is 0, then",
+      "start": 2589.133,
+      "duration": 2.167
+    },
+    {
+      "text": "it should be 0.",
+      "start": 2591.3,
+      "duration": 0.66
+    },
+    {
+      "text": "If it's 1, it's 1.",
+      "start": 2591.96,
+      "duration": 1.54
+    },
+    {
+      "text": "But notice that this is an\ninteresting S-shaped, which",
+      "start": 2593.5,
+      "duration": 4.48
+    },
+    {
+      "text": "is nice because this is\nwhat we wanted to sharpen.",
+      "start": 2597.98,
+      "duration": 4.02
+    },
+    {
+      "text": "We wanted to basically\nsay, if the similarity is",
+      "start": 2602.0,
+      "duration": 2.98
+    },
+    {
+      "text": "below some threshold, then we\nwant the probability to match",
+      "start": 2604.98,
+      "duration": 3.08
+    },
+    {
+      "text": "to be as low as possible.",
+      "start": 2608.06,
+      "duration": 1.92
+    },
+    {
+      "text": "And if the similarity\nis above some threshold,",
+      "start": 2609.98,
+      "duration": 2.42
+    },
+    {
+      "text": "we want it to be as\nhigh as possible.",
+      "start": 2612.4,
+      "duration": 1.92
+    },
+    {
+      "text": "So we're trying to get this\nto be like a phase transition.",
+      "start": 2614.32,
+      "duration": 5.4
+    },
+    {
+      "text": "And if you plot this function\nas a function of similarity,",
+      "start": 2619.72,
+      "duration": 5.54
+    },
+    {
+      "text": "that's what you get.",
+      "start": 2625.26,
+      "duration": 2.18
+    },
+    {
+      "text": "OK.",
+      "start": 2637.26,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's just look\nat some examples.",
+      "start": 2640.6,
+      "duration": 2.44
+    },
+    {
+      "text": "So concretely, we have\nsimilarly 0.7 to 0.98.",
+      "start": 2643.04,
+      "duration": 9.5
+    },
+    {
+      "text": "And we're going to look at\nhow b equals 10, r equals 10.",
+      "start": 2652.54,
+      "duration": 6.2
+    },
+    {
+      "text": "So we look at the\ncollision probability,",
+      "start": 2658.74,
+      "duration": 4.08
+    },
+    {
+      "text": "according to our definition.",
+      "start": 2662.82,
+      "duration": 1.8
+    },
+    {
+      "text": "And we see that this gives\nus a range of 0.25 to 1.",
+      "start": 2664.62,
+      "duration": 10.14
+    },
+    {
+      "text": "So if you were to set a\nthreshold, this is not so bad.",
+      "start": 2674.76,
+      "duration": 5.06
+    },
+    {
+      "text": "We can set it here.",
+      "start": 2679.82,
+      "duration": 1.7
+    },
+    {
+      "text": "And these with some\nprobability will--",
+      "start": 2681.52,
+      "duration": 6.58
+    },
+    {
+      "text": "they're still false positives\nbecause, even if these",
+      "start": 2688.1,
+      "duration": 3.35
+    },
+    {
+      "text": "are below a threshold, let's say\n0.9, they might still collide.",
+      "start": 2691.45,
+      "duration": 4.5
+    },
+    {
+      "text": "But we can filter\nthem out if we want.",
+      "start": 2695.95,
+      "duration": 2.78
+    },
+    {
+      "text": "But the ones above\nare mostly kept.",
+      "start": 2698.73,
+      "duration": 5.16
+    },
+    {
+      "text": "So what happens when you move--",
+      "start": 2703.89,
+      "duration": 3.72
+    },
+    {
+      "text": "so increasing r.",
+      "start": 2707.61,
+      "duration": 2.24
+    },
+    {
+      "text": "So remember, r is the number of\nhash functions within a bucket.",
+      "start": 2709.85,
+      "duration": 3.8
+    },
+    {
+      "text": "So when you increase\nr, the threshold",
+      "start": 2713.65,
+      "duration": 5.36
+    },
+    {
+      "text": "sharpens and moves the\ncurve to the right.",
+      "start": 2719.01,
+      "duration": 3.383
+    },
+    {
+      "text": "Everything becomes\nharder to match",
+      "start": 2722.393,
+      "duration": 1.417
+    },
+    {
+      "text": "because you have more hash\nfunctions inside a bucket that",
+      "start": 2723.81,
+      "duration": 3.56
+    },
+    {
+      "text": "sharpens that exponent.",
+      "start": 2727.37,
+      "duration": 1.68
+    },
+    {
+      "text": "So the probability you\nsee are sharper here,",
+      "start": 2729.05,
+      "duration": 3.28
+    },
+    {
+      "text": "and now everything\nmoves to the right.",
+      "start": 2732.33,
+      "duration": 3.92
+    },
+    {
+      "text": "And now it's fairly\nunlikely that if something",
+      "start": 2736.25,
+      "duration": 3.04
+    },
+    {
+      "text": "has a low Jaccard,\nyou're going to match it.",
+      "start": 2739.29,
+      "duration": 4.16
+    },
+    {
+      "text": "So before it was 0.25,\nand now it's 0.008.",
+      "start": 2743.45,
+      "duration": 5.12
+    },
+    {
+      "text": "So we're sharpening\nthe probabilities.",
+      "start": 2748.57,
+      "duration": 2.96
+    },
+    {
+      "text": "And then increasing\nb has the effect",
+      "start": 2751.53,
+      "duration": 3.32
+    },
+    {
+      "text": "of moving the curve to the left.",
+      "start": 2754.85,
+      "duration": 2.66
+    },
+    {
+      "text": "It makes it easier to match.\nb is the number of bands.",
+      "start": 2757.51,
+      "duration": 2.98
+    },
+    {
+      "text": "And some band has to match.",
+      "start": 2760.49,
+      "duration": 1.34
+    },
+    {
+      "text": "If you have more\nbands, then there's",
+      "start": 2761.83,
+      "duration": 1.5
+    },
+    {
+      "text": "more chances of matching.",
+      "start": 2763.33,
+      "duration": 2.64
+    },
+    {
+      "text": "So if you look at this,\nthen before and after.",
+      "start": 2765.97,
+      "duration": 4.34
+    },
+    {
+      "text": "So now we're making-- before\nthis, 0.9 was only 0.72,",
+      "start": 2770.31,
+      "duration": 4.06
+    },
+    {
+      "text": "and now it's 0.92.",
+      "start": 2774.37,
+      "duration": 2.12
+    },
+    {
+      "text": "And of course, this also\nincreases, but not by that much.",
+      "start": 2776.49,
+      "duration": 7.02
+    },
+    {
+      "text": "And you can drive\nthese phase transitions",
+      "start": 2783.51,
+      "duration": 3.22
+    },
+    {
+      "text": "to be as sharp as you want\nby increasing b and r.",
+      "start": 2786.73,
+      "duration": 4.12
+    },
+    {
+      "text": "But of course, if you can\nincrease b and r too much,",
+      "start": 2790.85,
+      "duration": 2.6
+    },
+    {
+      "text": "then it can be more expensive.",
+      "start": 2793.45,
+      "duration": 2.5
+    },
+    {
+      "text": "So let's look at a more\nreal-world setting.",
+      "start": 2798.79,
+      "duration": 4.12
+    },
+    {
+      "text": "So in this paper\non deduplication,",
+      "start": 2802.91,
+      "duration": 3.77
+    },
+    {
+      "text": "they had b, 20\nbands, and r is 450.",
+      "start": 2806.68,
+      "duration": 6.22
+    },
+    {
+      "text": "So it give you an idea of the\nmagnitude of these numbers.",
+      "start": 2812.9,
+      "duration": 6.26
+    },
+    {
+      "text": "And in general, the\nphase transition happens",
+      "start": 2819.16,
+      "duration": 4.96
+    },
+    {
+      "text": "at a threshold, which is 1/b\nb raised to the power of 1/r.",
+      "start": 2824.12,
+      "duration": 5.88
+    },
+    {
+      "text": "So if you want to filter based\non Jaccard greater than 0.9,",
+      "start": 2830.0,
+      "duration": 8.28
+    },
+    {
+      "text": "then you basically have to set\nb and r such that this is 0.9.",
+      "start": 2838.28,
+      "duration": 4.6
+    },
+    {
+      "text": "And then by changing\nb and r, you",
+      "start": 2842.88,
+      "duration": 2.24
+    },
+    {
+      "text": "can make that phase\ntransition sharper.",
+      "start": 2845.12,
+      "duration": 4.24
+    },
+    {
+      "text": "So remember the probability of\nthe fixed band matches is 1/b.",
+      "start": 2849.36,
+      "duration": 4.28
+    },
+    {
+      "text": "If you are at this threshold,\nthen the probability",
+      "start": 2853.64,
+      "duration": 4.28
+    },
+    {
+      "text": "that A and B collide\nis approximately--",
+      "start": 2857.92,
+      "duration": 8.12
+    },
+    {
+      "text": "it's a constant.",
+      "start": 2866.04,
+      "duration": 1.18
+    },
+    {
+      "text": "So the probability\nof collision is 0.64.",
+      "start": 2867.22,
+      "duration": 3.86
+    },
+    {
+      "text": "And this makes sense.",
+      "start": 2871.08,
+      "duration": 1.52
+    },
+    {
+      "text": "So basically, if you\nhave a phase transition,",
+      "start": 2872.6,
+      "duration": 2.76
+    },
+    {
+      "text": "the center of that phase\ntransition is 0.64.",
+      "start": 2875.36,
+      "duration": 3.66
+    },
+    {
+      "text": "And everything below it should\ngo to 0, as b and r increases,",
+      "start": 2879.02,
+      "duration": 3.82
+    },
+    {
+      "text": "and everything above, it should\ngo to 1 as b and r increases.",
+      "start": 2882.84,
+      "duration": 3.82
+    },
+    {
+      "text": "Any questions about LSH?",
+      "start": 2890.04,
+      "duration": 4.92
+    },
+    {
+      "text": "So this method is called\nMinHash LSH because LSH really",
+      "start": 2894.96,
+      "duration": 5.64
+    },
+    {
+      "text": "works for any hash functions.",
+      "start": 2900.6,
+      "duration": 1.92
+    },
+    {
+      "text": "For deduplication\nlanguage model processing,",
+      "start": 2902.52,
+      "duration": 2.8
+    },
+    {
+      "text": "we're using the MinHash,\nwhich approximates Jaccard.",
+      "start": 2905.32,
+      "duration": 4.24
+    },
+    {
+      "text": "And so that basically is\nthe one you should use here.",
+      "start": 2909.56,
+      "duration": 6.62
+    },
+    {
+      "text": "Questions about dedupe?",
+      "start": 2919.52,
+      "duration": 3.69
+    },
+    {
+      "text": "So one note about dedupe is that\nthere's often, as we'll see,",
+      "start": 2935.15,
+      "duration": 6.46
+    },
+    {
+      "text": "data sets that are coming in.",
+      "start": 2941.61,
+      "duration": 2.06
+    },
+    {
+      "text": "And sometimes the deduplication\nwill happen within a data set.",
+      "start": 2943.67,
+      "duration": 4.44
+    },
+    {
+      "text": "But you actually have\nto do deduplication",
+      "start": 2948.11,
+      "duration": 1.92
+    },
+    {
+      "text": "across your entire data set\nbecause often data sets can",
+      "start": 2950.03,
+      "duration": 3.64
+    },
+    {
+      "text": "be redundant.",
+      "start": 2953.67,
+      "duration": 1.24
+    },
+    {
+      "text": "So sometimes that's not\ndone, but it should be.",
+      "start": 2954.91,
+      "duration": 6.16
+    },
+    {
+      "text": "Let's go on to the next\ntopic, which is data mixing.",
+      "start": 2961.07,
+      "duration": 5.56
+    },
+    {
+      "text": "So far, we've transformed\nour data from really raw HTML",
+      "start": 2966.63,
+      "duration": 5.8
+    },
+    {
+      "text": "or PDFs into text.",
+      "start": 2972.43,
+      "duration": 1.9
+    },
+    {
+      "text": "We filtered for high-quality.",
+      "start": 2974.33,
+      "duration": 1.74
+    },
+    {
+      "text": "We deduped, so we have a smaller\nset of high-quality documents.",
+      "start": 2976.07,
+      "duration": 6.706
+    },
+    {
+      "text": "And this generally happens\nfor a given data source.",
+      "start": 2982.776,
+      "duration": 7.154
+    },
+    {
+      "text": "But language models are trained\non multiple data sources.",
+      "start": 2989.93,
+      "duration": 3.26
+    },
+    {
+      "text": "So in Marin,\ncurrently, this website",
+      "start": 2993.19,
+      "duration": 6.6
+    },
+    {
+      "text": "tracks the different\ndata sources",
+      "start": 2999.79,
+      "duration": 3.48
+    },
+    {
+      "text": "that the next model\nwill be trained on.",
+      "start": 3003.27,
+      "duration": 2.96
+    },
+    {
+      "text": "And you can see that\nthere's a bunch of things.",
+      "start": 3006.23,
+      "duration": 4.22
+    },
+    {
+      "text": "There's Nemotron, there's\nFinePDFs, which we talked about.",
+      "start": 3010.45,
+      "duration": 4.7
+    },
+    {
+      "text": "There's some institutional\nbooks, and some code,",
+      "start": 3015.15,
+      "duration": 8.68
+    },
+    {
+      "text": "and all these things.",
+      "start": 3023.83,
+      "duration": 0.98
+    },
+    {
+      "text": "So you have all these\ndifferent sources.",
+      "start": 3024.81,
+      "duration": 4.34
+    },
+    {
+      "text": "And the question is, how\ndo you combine these?",
+      "start": 3029.15,
+      "duration": 5.84
+    },
+    {
+      "text": "So if you look at an\nolder paper, The Pile,",
+      "start": 3034.99,
+      "duration": 3.52
+    },
+    {
+      "text": "this is the set of sources\nthat they had at that time.",
+      "start": 3038.51,
+      "duration": 6.51
+    },
+    {
+      "text": "And they essentially\nassign a particular weight",
+      "start": 3045.02,
+      "duration": 5.84
+    },
+    {
+      "text": "to each component.",
+      "start": 3050.86,
+      "duration": 2.08
+    },
+    {
+      "text": "So basically, you have a\ndistribution over sources.",
+      "start": 3052.94,
+      "duration": 2.42
+    },
+    {
+      "text": "So where does that\nweight come from?",
+      "start": 3058.02,
+      "duration": 1.54
+    },
+    {
+      "text": "So just cut and dry.",
+      "start": 3062.58,
+      "duration": 3.96
+    },
+    {
+      "text": "Let's say you have\nthree sources.",
+      "start": 3066.54,
+      "duration": 1.96
+    },
+    {
+      "text": "You want to find a data\nmixture, and a data mixture",
+      "start": 3068.5,
+      "duration": 2.28
+    },
+    {
+      "text": "is just a distribution\nover your sources",
+      "start": 3070.78,
+      "duration": 5.0
+    },
+    {
+      "text": "So if you're just thinking\nabout this problem",
+      "start": 3075.78,
+      "duration": 2.72
+    },
+    {
+      "text": "from first principles--",
+      "start": 3078.5,
+      "duration": 2.76
+    },
+    {
+      "text": "well, not from first principles,\nbut just from what you might do.",
+      "start": 3081.26,
+      "duration": 4.703
+    },
+    {
+      "text": "Vibes, which is, I guess, the\nopposite of first principle,",
+      "start": 3085.963,
+      "duration": 2.417
+    },
+    {
+      "text": "is you just manually\nset it based",
+      "start": 3088.38,
+      "duration": 3.2
+    },
+    {
+      "text": "on some intuition, which is\nmore often than you might think,",
+      "start": 3091.58,
+      "duration": 5.34
+    },
+    {
+      "text": "what people do.",
+      "start": 3096.92,
+      "duration": 1.58
+    },
+    {
+      "text": "So I think this is definitely\nfairly vibes-based.",
+      "start": 3098.5,
+      "duration": 5.88
+    },
+    {
+      "text": "And even more recent\npapers, you just look at--",
+      "start": 3104.38,
+      "duration": 5.3
+    },
+    {
+      "text": "maybe you use some method and\nthen you just tweak things.",
+      "start": 3109.68,
+      "duration": 4.5
+    },
+    {
+      "text": "You can also do\nuniform sampling, which",
+      "start": 3114.18,
+      "duration": 3.16
+    },
+    {
+      "text": "is you just put a uniform\ndistribution over your sources,",
+      "start": 3117.34,
+      "duration": 4.2
+    },
+    {
+      "text": "and you sample every chunk.",
+      "start": 3121.54,
+      "duration": 4.18
+    },
+    {
+      "text": "You just sample a source.",
+      "start": 3125.72,
+      "duration": 3.26
+    },
+    {
+      "text": "You can also do\nproportional mixing,",
+      "start": 3128.98,
+      "duration": 2.96
+    },
+    {
+      "text": "which is that you\nsample proportional",
+      "start": 3131.94,
+      "duration": 1.56
+    },
+    {
+      "text": "to the number of\ntokens in a source.",
+      "start": 3133.5,
+      "duration": 2.44
+    },
+    {
+      "text": "So if you have a data\nset with more tokens,",
+      "start": 3135.94,
+      "duration": 4.16
+    },
+    {
+      "text": "then you put a higher weight.",
+      "start": 3140.1,
+      "duration": 1.68
+    },
+    {
+      "text": "So this is also generally\na rational thing to do.",
+      "start": 3141.78,
+      "duration": 3.5
+    },
+    {
+      "text": "But you might worry that if you\nhave a huge, low-quality data",
+      "start": 3145.28,
+      "duration": 3.74
+    },
+    {
+      "text": "set, that's going to eat\nup a lot of your token.",
+      "start": 3149.02,
+      "duration": 2.38
+    },
+    {
+      "text": "So it doesn't seem\nquite optimal either.",
+      "start": 3151.4,
+      "duration": 3.94
+    },
+    {
+      "text": "So intuitively, you should\nupweight your higher quality",
+      "start": 3155.34,
+      "duration": 4.39
+    },
+    {
+      "text": "sources.",
+      "start": 3159.73,
+      "duration": 2.0
+    },
+    {
+      "text": "But there's two things that\nare important to keep in mind.",
+      "start": 3161.73,
+      "duration": 5.72
+    },
+    {
+      "text": "One is that you do want\nto ensure some diversity.",
+      "start": 3167.45,
+      "duration": 3.96
+    },
+    {
+      "text": "So often, sources are\nincomparable for literature,",
+      "start": 3171.41,
+      "duration": 3.62
+    },
+    {
+      "text": "code, and papers.",
+      "start": 3175.03,
+      "duration": 2.22
+    },
+    {
+      "text": "You can't really\nsay that this paper",
+      "start": 3177.25,
+      "duration": 3.472
+    },
+    {
+      "text": "is higher quality than this\ncode because they're just",
+      "start": 3180.722,
+      "duration": 2.208
+    },
+    {
+      "text": "incomparable objects, maybe.",
+      "start": 3182.93,
+      "duration": 2.08
+    },
+    {
+      "text": "And if you want your\nlanguage model to do well,",
+      "start": 3185.01,
+      "duration": 2.7
+    },
+    {
+      "text": "you don't want to just put\nall your mass on papers.",
+      "start": 3187.71,
+      "duration": 6.46
+    },
+    {
+      "text": "The second thing, which I\nwill talk a bit more about,",
+      "start": 3194.17,
+      "duration": 3.0
+    },
+    {
+      "text": "is each source is\nactually finite.",
+      "start": 3197.17,
+      "duration": 4.4
+    },
+    {
+      "text": "So if you put too much\nweight on a small source,",
+      "start": 3201.57,
+      "duration": 2.78
+    },
+    {
+      "text": "then you essentially\nrun out of that source,",
+      "start": 3204.35,
+      "duration": 4.38
+    },
+    {
+      "text": "and you need to\njust epoch over it,",
+      "start": 3208.73,
+      "duration": 2.9
+    },
+    {
+      "text": "meaning that you keep\non training literally",
+      "start": 3211.63,
+      "duration": 2.7
+    },
+    {
+      "text": "the same tokens.",
+      "start": 3214.33,
+      "duration": 1.6
+    },
+    {
+      "text": "And this is going to be\nbad for reasons we'll see.",
+      "start": 3215.93,
+      "duration": 3.5
+    },
+    {
+      "text": "OK.",
+      "start": 3219.43,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's try to unpack this\na little bit more concretely,",
+      "start": 3219.93,
+      "duration": 4.24
+    },
+    {
+      "text": "this last point.",
+      "start": 3224.17,
+      "duration": 1.32
+    },
+    {
+      "text": "So imagine you just\nhave two sources--",
+      "start": 3225.49,
+      "duration": 2.72
+    },
+    {
+      "text": "a low-quality source, you\nhave 10 trillion tokens,",
+      "start": 3228.21,
+      "duration": 2.783
+    },
+    {
+      "text": "and you have a\nhigh-quality source",
+      "start": 3230.993,
+      "duration": 1.417
+    },
+    {
+      "text": "that has 10 billion tokens.",
+      "start": 3232.41,
+      "duration": 1.88
+    },
+    {
+      "text": "Generally, high-quality\nsources are smaller.",
+      "start": 3234.29,
+      "duration": 3.74
+    },
+    {
+      "text": "So if you just do a\nnaive data mixture.",
+      "start": 3238.03,
+      "duration": 3.98
+    },
+    {
+      "text": "Let's just do uniform.",
+      "start": 3242.01,
+      "duration": 1.36
+    },
+    {
+      "text": "So half on high, half on low.",
+      "start": 3243.37,
+      "duration": 3.04
+    },
+    {
+      "text": "And I'm going to train\nfor 1 trillion tokens.",
+      "start": 3246.41,
+      "duration": 4.44
+    },
+    {
+      "text": "So when I say train\nfor 1 trillion,",
+      "start": 3250.85,
+      "duration": 1.96
+    },
+    {
+      "text": "that doesn't mean unique tokens.",
+      "start": 3252.81,
+      "duration": 1.38
+    },
+    {
+      "text": "It just means train for\nthat many steps divided",
+      "start": 3254.19,
+      "duration": 4.54
+    },
+    {
+      "text": "by batch size, essentially,\nor times batch size.",
+      "start": 3258.73,
+      "duration": 4.32
+    },
+    {
+      "text": "So then let's look\nat this, which",
+      "start": 3263.05,
+      "duration": 3.8
+    },
+    {
+      "text": "is the number of times\na particular element",
+      "start": 3266.85,
+      "duration": 5.12
+    },
+    {
+      "text": "in the low-quality data\nset was trained on.",
+      "start": 3271.97,
+      "duration": 2.33
+    },
+    {
+      "text": "So that's the number of\nepochs a particular data",
+      "start": 3274.3,
+      "duration": 3.42
+    },
+    {
+      "text": "point was trained on.",
+      "start": 3277.72,
+      "duration": 1.6
+    },
+    {
+      "text": "So a p low times\nthe trained tokens",
+      "start": 3279.32,
+      "duration": 3.24
+    },
+    {
+      "text": "is the number of times\nI want to request tokens",
+      "start": 3282.56,
+      "duration": 6.04
+    },
+    {
+      "text": "from this low-quality source,\nand divided by the total number",
+      "start": 3288.6,
+      "duration": 5.12
+    },
+    {
+      "text": "of low-quality sources.",
+      "start": 3293.72,
+      "duration": 1.14
+    },
+    {
+      "text": "So this is less than 1.",
+      "start": 3294.86,
+      "duration": 1.88
+    },
+    {
+      "text": "So basically, that\nmeans 5% of the tokens",
+      "start": 3296.74,
+      "duration": 4.78
+    },
+    {
+      "text": "in this low-quality\ndata set, I'm",
+      "start": 3301.52,
+      "duration": 1.96
+    },
+    {
+      "text": "going to touch\nand train on once.",
+      "start": 3303.48,
+      "duration": 1.94
+    },
+    {
+      "text": "And then if you look\nat high quality,",
+      "start": 3308.12,
+      "duration": 3.6
+    },
+    {
+      "text": "you'll see that the\nnumber of epochs",
+      "start": 3311.72,
+      "duration": 2.4
+    },
+    {
+      "text": "is 50, because I only have\n10 billion tokens here.",
+      "start": 3314.12,
+      "duration": 7.8
+    },
+    {
+      "text": "And if I'm half-half, that\nmeans 500 billion tokens--",
+      "start": 3321.92,
+      "duration": 5.0
+    },
+    {
+      "text": "I need to train up 500 billion\ntokens of high-quality data.",
+      "start": 3326.92,
+      "duration": 3.82
+    },
+    {
+      "text": "But I don't have 500\nbillion tokens of data,",
+      "start": 3330.74,
+      "duration": 2.04
+    },
+    {
+      "text": "so I have to repeat each\ndata point 50 times.",
+      "start": 3332.78,
+      "duration": 4.42
+    },
+    {
+      "text": "So this is actually\nreally important.",
+      "start": 3337.2,
+      "duration": 2.02
+    },
+    {
+      "text": "And some big model runs\nhave messed this up.",
+      "start": 3339.22,
+      "duration": 6.02
+    },
+    {
+      "text": "You can't just naively\nlook at the data sets",
+      "start": 3345.24,
+      "duration": 3.6
+    },
+    {
+      "text": "and define a\ndistribution and then",
+      "start": 3348.84,
+      "duration": 1.52
+    },
+    {
+      "text": "you sample, because if you\njust look at the quality,",
+      "start": 3350.36,
+      "duration": 3.94
+    },
+    {
+      "text": "if you look at the\ndata, you're missing",
+      "start": 3354.3,
+      "duration": 3.3
+    },
+    {
+      "text": "how many data points are there.",
+      "start": 3357.6,
+      "duration": 2.48
+    },
+    {
+      "text": "Does this make sense?",
+      "start": 3360.08,
+      "duration": 1.38
+    },
+    {
+      "text": "Maybe pause for questions.",
+      "start": 3361.46,
+      "duration": 1.4
+    },
+    {
+      "text": "This is an important point.",
+      "start": 3362.86,
+      "duration": 1.4
+    },
+    {
+      "text": "Yeah.",
+      "start": 3374.8,
+      "duration": 0.52
+    },
+    {
+      "text": "Yeah.",
+      "start": 3375.32,
+      "duration": 1.12
+    },
+    {
+      "text": "I guess, for the high-quality\ndata, [INAUDIBLE]",
+      "start": 3376.44,
+      "duration": 6.44
+    },
+    {
+      "text": "as [INAUDIBLE] low quality.",
+      "start": 3382.88,
+      "duration": 2.6
+    },
+    {
+      "text": "Why do you need 50 epochs\nin the first place?",
+      "start": 3389.24,
+      "duration": 3.03
+    },
+    {
+      "text": "Doesn't it achieve\ncomparable performance",
+      "start": 3392.27,
+      "duration": 2.24
+    },
+    {
+      "text": "a level that is way fewer?",
+      "start": 3394.51,
+      "duration": 2.8
+    },
+    {
+      "text": "Yeah.",
+      "start": 3397.31,
+      "duration": 0.52
+    },
+    {
+      "text": "So the question is, why\ndo you need 50 epochs?",
+      "start": 3397.83,
+      "duration": 2.38
+    },
+    {
+      "text": "And I guess the point is that\nyou don't need 50 epochs.",
+      "start": 3400.21,
+      "duration": 3.7
+    },
+    {
+      "text": "Worst case, it's\nwasting compute.",
+      "start": 3403.91,
+      "duration": 2.16
+    },
+    {
+      "text": "Sorry, best case is wasting\ncompute, and worst case,",
+      "start": 3406.07,
+      "duration": 2.98
+    },
+    {
+      "text": "you're overfitting.",
+      "start": 3409.05,
+      "duration": 3.48
+    },
+    {
+      "text": "The reason it's 50 is\nthat if you just go in",
+      "start": 3412.53,
+      "duration": 2.02
+    },
+    {
+      "text": "and you define\nthis data mixture,",
+      "start": 3414.55,
+      "duration": 2.08
+    },
+    {
+      "text": "then you're going\nto end up doing",
+      "start": 3416.63,
+      "duration": 1.72
+    },
+    {
+      "text": "50 epochs without\nrealizing it, unless you're",
+      "start": 3418.35,
+      "duration": 2.48
+    },
+    {
+      "text": "paying close attention.",
+      "start": 3420.83,
+      "duration": 2.04
+    },
+    {
+      "text": "So this is basically--",
+      "start": 3422.87,
+      "duration": 2.032
+    },
+    {
+      "text": "the lesson is look at how\nmany epochs you're actually",
+      "start": 3424.902,
+      "duration": 2.208
+    },
+    {
+      "text": "doing on your data.",
+      "start": 3427.11,
+      "duration": 2.92
+    },
+    {
+      "text": "Yeah.",
+      "start": 3430.03,
+      "duration": 1.04
+    },
+    {
+      "text": "How do the mixtures get\nexpressed during training?",
+      "start": 3431.07,
+      "duration": 2.46
+    },
+    {
+      "text": "When you switch every step,\nyou train steps of 10, saying,",
+      "start": 3433.53,
+      "duration": 4.16
+    },
+    {
+      "text": "oh, I want to do 10,\nPython code, 10 essays,",
+      "start": 3437.69,
+      "duration": 2.66
+    },
+    {
+      "text": "because I feel like-- is there\nalso any intuition between what",
+      "start": 3440.35,
+      "duration": 4.0
+    },
+    {
+      "text": "decisions are made there?",
+      "start": 3444.35,
+      "duration": 1.18
+    },
+    {
+      "text": "Yeah.",
+      "start": 3445.53,
+      "duration": 0.5
+    },
+    {
+      "text": "Good question.",
+      "start": 3446.03,
+      "duration": 0.583
+    },
+    {
+      "text": "So the question\nis, when you train,",
+      "start": 3446.613,
+      "duration": 2.397
+    },
+    {
+      "text": "how do the mixtures\nget realized?",
+      "start": 3449.01,
+      "duration": 3.38
+    },
+    {
+      "text": "And so, in general,\nyou just sample.",
+      "start": 3452.39,
+      "duration": 7.28
+    },
+    {
+      "text": "So you want to fill a batch.",
+      "start": 3459.67,
+      "duration": 2.52
+    },
+    {
+      "text": "So you can sample essentially\nfor each element which mixture",
+      "start": 3462.19,
+      "duration": 7.92
+    },
+    {
+      "text": "component it comes from.",
+      "start": 3470.11,
+      "duration": 2.0
+    },
+    {
+      "text": "And you fill up a\nbatch with sequences",
+      "start": 3472.11,
+      "duration": 3.6
+    },
+    {
+      "text": "from that mixture component.",
+      "start": 3475.71,
+      "duration": 1.42
+    },
+    {
+      "text": "Usually, every sequence comes\nfrom one mixture component.",
+      "start": 3477.13,
+      "duration": 3.16
+    },
+    {
+      "text": "You're not sampling per token.",
+      "start": 3480.29,
+      "duration": 3.38
+    },
+    {
+      "text": "So each batch should be mixed.",
+      "start": 3483.67,
+      "duration": 1.86
+    },
+    {
+      "text": "So I guess the\nmixture assumptions",
+      "start": 3485.53,
+      "duration": 1.7
+    },
+    {
+      "text": "are at the batch level, and\nthen you train for that.",
+      "start": 3487.23,
+      "duration": 2.78
+    },
+    {
+      "text": "It's not like, oh, it's one step\nis-- the code in one step is--",
+      "start": 3490.01,
+      "duration": 3.98
+    },
+    {
+      "text": "Yeah.",
+      "start": 3493.99,
+      "duration": 0.5
+    },
+    {
+      "text": "In general, you want\nto reduce variance.",
+      "start": 3494.49,
+      "duration": 2.28
+    },
+    {
+      "text": "You want to train for multiple--",
+      "start": 3496.77,
+      "duration": 2.98
+    },
+    {
+      "text": "batch should have some mixture.",
+      "start": 3499.75,
+      "duration": 2.02
+    },
+    {
+      "text": "OK.",
+      "start": 3505.55,
+      "duration": 0.5
+    },
+    {
+      "text": "So this problem has been\nnoticed quite a long time ago.",
+      "start": 3506.05,
+      "duration": 7.49
+    },
+    {
+      "text": "And so in this paper, they\nintroduced the UniMax.",
+      "start": 3513.54,
+      "duration": 2.94
+    },
+    {
+      "text": "And in that case, they were\ntraining in multilingual models.",
+      "start": 3516.48,
+      "duration": 5.18
+    },
+    {
+      "text": "And it was very clear\nthat some languages",
+      "start": 3521.66,
+      "duration": 3.72
+    },
+    {
+      "text": "were very low-resource, so you\nhad to do something about this.",
+      "start": 3525.38,
+      "duration": 5.92
+    },
+    {
+      "text": "So, in this paper, they\nnoticed that before some works",
+      "start": 3531.3,
+      "duration": 5.04
+    },
+    {
+      "text": "would essentially take\nthe proportional mixing",
+      "start": 3536.34,
+      "duration": 5.12
+    },
+    {
+      "text": "and raise it to some power to\nflatten it out the distribution.",
+      "start": 3541.46,
+      "duration": 6.76
+    },
+    {
+      "text": "But the idea in this\npaper is that let's be",
+      "start": 3548.22,
+      "duration": 4.16
+    },
+    {
+      "text": "a bit more explicit about that.",
+      "start": 3552.38,
+      "duration": 2.3
+    },
+    {
+      "text": "Let's sample the\nsources uniformly,",
+      "start": 3554.68,
+      "duration": 2.08
+    },
+    {
+      "text": "but with a hard cap on\nthe number of epochs.",
+      "start": 3556.76,
+      "duration": 2.98
+    },
+    {
+      "text": "So this is the key idea.",
+      "start": 3559.74,
+      "duration": 1.48
+    },
+    {
+      "text": "Here, you say I'm only\ngoing to take 20 epochs",
+      "start": 3561.22,
+      "duration": 3.96
+    },
+    {
+      "text": "over a particular data source.",
+      "start": 3565.18,
+      "duration": 3.36
+    },
+    {
+      "text": "So if you've done\nthat, then too bad.",
+      "start": 3568.54,
+      "duration": 3.68
+    },
+    {
+      "text": "You don't get any more tokens.",
+      "start": 3572.22,
+      "duration": 2.1
+    },
+    {
+      "text": "You move on to the next thing.",
+      "start": 3574.32,
+      "duration": 1.62
+    },
+    {
+      "text": "So this is like a safety\nnet in some sense.",
+      "start": 3575.94,
+      "duration": 4.64
+    },
+    {
+      "text": "So in particular, if you look\nat the number, the probability",
+      "start": 3580.58,
+      "duration": 3.52
+    },
+    {
+      "text": "assigned to a source times\nthe number of training tokens,",
+      "start": 3584.1,
+      "duration": 2.96
+    },
+    {
+      "text": "that should be less than\nor equal to the cap.",
+      "start": 3587.06,
+      "duration": 4.12
+    },
+    {
+      "text": "And there's a simple procedure\nfor actually determining",
+      "start": 3591.18,
+      "duration": 3.36
+    },
+    {
+      "text": "the mixture subject\nto this constraint.",
+      "start": 3594.54,
+      "duration": 5.92
+    },
+    {
+      "text": "So let's switch gears\na little bit and talk",
+      "start": 3600.46,
+      "duration": 3.68
+    },
+    {
+      "text": "about how we define the\nmixture in the first place,",
+      "start": 3604.14,
+      "duration": 4.34
+    },
+    {
+      "text": "because if you have\n50 sources, there's",
+      "start": 3608.48,
+      "duration": 2.38
+    },
+    {
+      "text": "50 numbers you have to fill.",
+      "start": 3610.86,
+      "duration": 2.16
+    },
+    {
+      "text": "And we notice that proportional\nmixing isn't really enough.",
+      "start": 3613.02,
+      "duration": 3.92
+    },
+    {
+      "text": "Maybe you can try to\nestimate some quality metric,",
+      "start": 3616.94,
+      "duration": 3.52
+    },
+    {
+      "text": "and then you can sample\nproportional to that,",
+      "start": 3620.46,
+      "duration": 3.47
+    },
+    {
+      "text": "but that is also heuristic.",
+      "start": 3623.93,
+      "duration": 2.36
+    },
+    {
+      "text": "So the most principled\nmethods and most",
+      "start": 3626.29,
+      "duration": 4.68
+    },
+    {
+      "text": "easiest to understand\nwhat's happening",
+      "start": 3630.97,
+      "duration": 2.32
+    },
+    {
+      "text": "is these regression-based mixing\nmethods, or RegMix, Olmix,",
+      "start": 3633.29,
+      "duration": 4.12
+    },
+    {
+      "text": "and other papers like this.",
+      "start": 3637.41,
+      "duration": 2.44
+    },
+    {
+      "text": "And the idea here is\nrelatively simple.",
+      "start": 3639.85,
+      "duration": 5.96
+    },
+    {
+      "text": "So first, let's\nsay you're trying",
+      "start": 3645.81,
+      "duration": 2.68
+    },
+    {
+      "text": "to train a large-scale model.",
+      "start": 3648.49,
+      "duration": 1.62
+    },
+    {
+      "text": "So you go to a small\nscale, let's say",
+      "start": 3650.11,
+      "duration": 4.9
+    },
+    {
+      "text": "300 million parameters, and you\ntry different data mixtures.",
+      "start": 3655.01,
+      "duration": 6.52
+    },
+    {
+      "text": "So let's say you have\nthree components.",
+      "start": 3661.53,
+      "duration": 2.46
+    },
+    {
+      "text": "You try different mixtures.",
+      "start": 3663.99,
+      "duration": 2.06
+    },
+    {
+      "text": "And then you train\nthese small models.",
+      "start": 3666.05,
+      "duration": 1.94
+    },
+    {
+      "text": "You train a swarm\nof small models.",
+      "start": 3667.99,
+      "duration": 2.36
+    },
+    {
+      "text": "Each model gives you a\nloss on some target metric.",
+      "start": 3670.35,
+      "duration": 4.302
+    },
+    {
+      "text": "It could be some\ndownstream values.",
+      "start": 3674.652,
+      "duration": 1.458
+    },
+    {
+      "text": "It could be perplexity,\nwhatever you want.",
+      "start": 3676.11,
+      "duration": 2.86
+    },
+    {
+      "text": "So then you use these data\npoints to basically fit",
+      "start": 3678.97,
+      "duration": 4.76
+    },
+    {
+      "text": "a regression where the\nregression model maps",
+      "start": 3683.73,
+      "duration": 3.52
+    },
+    {
+      "text": "these inputs, which is the data\nmixture weights, to the loss.",
+      "start": 3687.25,
+      "duration": 6.72
+    },
+    {
+      "text": "So now you have basically a\nvery cheap model that tells you,",
+      "start": 3693.97,
+      "duration": 5.36
+    },
+    {
+      "text": "if I were to train on this\nmixture, what loss do I get?",
+      "start": 3699.33,
+      "duration": 5.16
+    },
+    {
+      "text": "Then you can essentially\noptimize that data mixture--",
+      "start": 3704.49,
+      "duration": 7.6
+    },
+    {
+      "text": "sorry-- optimize that function\nfor the optimal data mixture.",
+      "start": 3712.09,
+      "duration": 5.48
+    },
+    {
+      "text": "And then that is\nthe data mixture",
+      "start": 3717.57,
+      "duration": 1.52
+    },
+    {
+      "text": "you use to train the\nlarge-scale model.",
+      "start": 3719.09,
+      "duration": 4.12
+    },
+    {
+      "text": "So that's the simple procedure.",
+      "start": 3723.21,
+      "duration": 3.72
+    },
+    {
+      "text": "And you notice some\nsimilarities with scaling laws,",
+      "start": 3726.93,
+      "duration": 3.68
+    },
+    {
+      "text": "where you're trying to do some\ncheap computations to figure out",
+      "start": 3730.61,
+      "duration": 3.12
+    },
+    {
+      "text": "some answers, and then scale up.",
+      "start": 3733.73,
+      "duration": 3.18
+    },
+    {
+      "text": "OK.",
+      "start": 3736.91,
+      "duration": 0.5
+    },
+    {
+      "text": "So there's a few\ndesign decisions here.",
+      "start": 3737.41,
+      "duration": 5.11
+    },
+    {
+      "text": "One is, what are the mixtures\nthat you're trying out here?",
+      "start": 3742.52,
+      "duration": 4.48
+    },
+    {
+      "text": "You need a distribution\nover distributions here.",
+      "start": 3747.0,
+      "duration": 2.76
+    },
+    {
+      "text": "So often, people use some\nDirichlet distribution.",
+      "start": 3749.76,
+      "duration": 4.96
+    },
+    {
+      "text": "You also have to define\nthe regression method.",
+      "start": 3754.72,
+      "duration": 3.32
+    },
+    {
+      "text": "People have tried linear models\nor boosted decision trees.",
+      "start": 3758.04,
+      "duration": 4.2
+    },
+    {
+      "text": "You have to figure\nout the target here.",
+      "start": 3762.24,
+      "duration": 3.92
+    },
+    {
+      "text": "Often this is based\non downstream evals.",
+      "start": 3766.16,
+      "duration": 2.58
+    },
+    {
+      "text": "But you have to be very careful\nnot to overfit because we're",
+      "start": 3768.74,
+      "duration": 3.94
+    },
+    {
+      "text": "doing pre-training.",
+      "start": 3772.68,
+      "duration": 2.36
+    },
+    {
+      "text": "Supposedly,\npre-training is supposed",
+      "start": 3775.04,
+      "duration": 2.6
+    },
+    {
+      "text": "to be training this\ngeneral-purpose model,",
+      "start": 3777.64,
+      "duration": 1.98
+    },
+    {
+      "text": "and we're not trying to\nfit some downstream evals.",
+      "start": 3779.62,
+      "duration": 3.295
+    },
+    {
+      "text": "And if you're not\ncareful, for example,",
+      "start": 3782.915,
+      "duration": 1.625
+    },
+    {
+      "text": "if you have a bunch of code\nevals, then, well, guess what?",
+      "start": 3784.54,
+      "duration": 3.32
+    },
+    {
+      "text": "You're going to upweight\nall the code data.",
+      "start": 3787.86,
+      "duration": 1.86
+    },
+    {
+      "text": "That's not rocket science.",
+      "start": 3789.72,
+      "duration": 2.42
+    },
+    {
+      "text": "And if you then go and you say,\nI want to generate some poetry,",
+      "start": 3792.14,
+      "duration": 3.68
+    },
+    {
+      "text": "you might realize\nthat you've overfit.",
+      "start": 3795.82,
+      "duration": 2.92
+    },
+    {
+      "text": "So you have to be very\ncareful about that.",
+      "start": 3798.74,
+      "duration": 2.0
+    },
+    {
+      "text": "So proportional mixing\nand uniform mixing",
+      "start": 3800.74,
+      "duration": 1.86
+    },
+    {
+      "text": "don't have this problem\nbecause you're not looking.",
+      "start": 3802.6,
+      "duration": 2.125
+    },
+    {
+      "text": "There's no downstream evals.",
+      "start": 3804.725,
+      "duration": 2.515
+    },
+    {
+      "text": "And the final thing is,\nhow much of a difference",
+      "start": 3807.24,
+      "duration": 3.64
+    },
+    {
+      "text": "between small and\nlarge scale is there?",
+      "start": 3810.88,
+      "duration": 3.76
+    },
+    {
+      "text": "And this is a cost and\naccuracy trade-off.",
+      "start": 3814.64,
+      "duration": 2.78
+    },
+    {
+      "text": "Of course, if you train\nreally, really small models,",
+      "start": 3817.42,
+      "duration": 2.66
+    },
+    {
+      "text": "this might not be\nrepresentative.",
+      "start": 3820.08,
+      "duration": 1.96
+    },
+    {
+      "text": "But if you train large\nmodels to do this,",
+      "start": 3822.04,
+      "duration": 2.96
+    },
+    {
+      "text": "well, there's no point\nin doing any of this.",
+      "start": 3825.0,
+      "duration": 2.1
+    },
+    {
+      "text": "You just train.",
+      "start": 3827.1,
+      "duration": 1.187
+    },
+    {
+      "text": "You're basically doing\nhyperparameter tuning",
+      "start": 3828.287,
+      "duration": 1.833
+    },
+    {
+      "text": "at the largest scale,\nwhich is too expensive.",
+      "start": 3830.12,
+      "duration": 4.04
+    },
+    {
+      "text": "So this Olmix paper actually\nhas this nice table,",
+      "start": 3834.16,
+      "duration": 4.08
+    },
+    {
+      "text": "which shows you for a\nnumber of different methods",
+      "start": 3838.24,
+      "duration": 3.72
+    },
+    {
+      "text": "that all fall into\nthis framework.",
+      "start": 3841.96,
+      "duration": 4.88
+    },
+    {
+      "text": "The size of the proxy models.",
+      "start": 3846.84,
+      "duration": 1.9
+    },
+    {
+      "text": "They're generally fairly tens\nof millions of parameters.",
+      "start": 3848.74,
+      "duration": 6.78
+    },
+    {
+      "text": "How many mixtures do you sample?",
+      "start": 3855.52,
+      "duration": 5.63
+    },
+    {
+      "text": "m here being the number of\nparameters in your mixture--",
+      "start": 3861.15,
+      "duration": 3.24
+    },
+    {
+      "text": "sorry-- the number\nof domains rather.",
+      "start": 3864.39,
+      "duration": 3.4
+    },
+    {
+      "text": "And you can use Dirichlet.",
+      "start": 3867.79,
+      "duration": 1.62
+    },
+    {
+      "text": "You can use exponential.",
+      "start": 3869.41,
+      "duration": 3.26
+    },
+    {
+      "text": "And then the\nregression model, you",
+      "start": 3872.67,
+      "duration": 2.44
+    },
+    {
+      "text": "can fit a log-linear model,\nwhich tends to work pretty well.",
+      "start": 3875.11,
+      "duration": 7.4
+    },
+    {
+      "text": "And then you can\nuse different ways",
+      "start": 3882.51,
+      "duration": 2.8
+    },
+    {
+      "text": "to solve this\noptimization problem.",
+      "start": 3885.31,
+      "duration": 4.72
+    },
+    {
+      "text": "So there's two\nleaps of faith here",
+      "start": 3890.03,
+      "duration": 3.32
+    },
+    {
+      "text": "that you just have to\nbe very careful of is",
+      "start": 3893.35,
+      "duration": 2.88
+    },
+    {
+      "text": "that the regression\nmodel was trained",
+      "start": 3896.23,
+      "duration": 3.16
+    },
+    {
+      "text": "on a bunch of these\nsmall proxy runs,",
+      "start": 3899.39,
+      "duration": 3.2
+    },
+    {
+      "text": "and you're optimizing this.",
+      "start": 3902.59,
+      "duration": 2.64
+    },
+    {
+      "text": "So the hope is that the\nminimizer, your optimal data",
+      "start": 3905.23,
+      "duration": 5.12
+    },
+    {
+      "text": "mixture, that regression\nmodel is still accurate.",
+      "start": 3910.35,
+      "duration": 4.8
+    },
+    {
+      "text": "And this is a\nlittle bit of-- you",
+      "start": 3915.15,
+      "duration": 2.97
+    },
+    {
+      "text": "have to be very careful\nbecause if you, let's say,",
+      "start": 3918.12,
+      "duration": 3.19
+    },
+    {
+      "text": "sample a random mixture,\nyou'll probably be fine because",
+      "start": 3921.31,
+      "duration": 5.16
+    },
+    {
+      "text": "of classic generalization.",
+      "start": 3926.47,
+      "duration": 1.94
+    },
+    {
+      "text": "You sample a mixture,\nand you fit a function,",
+      "start": 3928.41,
+      "duration": 3.6
+    },
+    {
+      "text": "it should be able to\npredict in distribution.",
+      "start": 3932.01,
+      "duration": 2.08
+    },
+    {
+      "text": "But when you're\noptimizing, you're",
+      "start": 3934.09,
+      "duration": 1.66
+    },
+    {
+      "text": "essentially trying to go\nto potentially the extremes",
+      "start": 3935.75,
+      "duration": 3.16
+    },
+    {
+      "text": "where you might not\nhave as much coverage.",
+      "start": 3938.91,
+      "duration": 2.06
+    },
+    {
+      "text": "So that's one thing\nto be careful of.",
+      "start": 3940.97,
+      "duration": 2.18
+    },
+    {
+      "text": "And the other thing is\nthat optimal data mixtures,",
+      "start": 3943.15,
+      "duration": 6.64
+    },
+    {
+      "text": "you just hope that they transfer\nfrom small scale to large scale.",
+      "start": 3949.79,
+      "duration": 5.28
+    },
+    {
+      "text": "And this, in general, it seems\nlike at least at the scales",
+      "start": 3955.07,
+      "duration": 4.16
+    },
+    {
+      "text": "that open community\nworks with, it",
+      "start": 3959.23,
+      "duration": 2.76
+    },
+    {
+      "text": "tends to be true or\nnot plainly false.",
+      "start": 3961.99,
+      "duration": 3.56
+    },
+    {
+      "text": "But clearly, there are\nscale-dependent effects.",
+      "start": 3965.55,
+      "duration": 3.94
+    },
+    {
+      "text": "If you just think about\nthe previous slide",
+      "start": 3969.49,
+      "duration": 2.658
+    },
+    {
+      "text": "when we were talking\nabout filtering,",
+      "start": 3972.148,
+      "duration": 1.542
+    },
+    {
+      "text": "if you're training\nfor many more tokens,",
+      "start": 3973.69,
+      "duration": 2.11
+    },
+    {
+      "text": "then probably\nlow-quality data is OK.",
+      "start": 3975.8,
+      "duration": 2.36
+    },
+    {
+      "text": "So clearly, the optimum\nis not the same,",
+      "start": 3978.16,
+      "duration": 2.32
+    },
+    {
+      "text": "but you just hope\nfor the best here.",
+      "start": 3980.48,
+      "duration": 3.16
+    },
+    {
+      "text": "OK.",
+      "start": 3983.64,
+      "duration": 0.5
+    },
+    {
+      "text": "So hold on.",
+      "start": 3984.14,
+      "duration": 0.9
+    },
+    {
+      "text": "There's one\nscale-dependent effect",
+      "start": 3985.04,
+      "duration": 2.42
+    },
+    {
+      "text": "that we already\ntalked about that we",
+      "start": 3987.46,
+      "duration": 2.8
+    },
+    {
+      "text": "need to address here,\nwhich is that, imagine,",
+      "start": 3990.26,
+      "duration": 4.66
+    },
+    {
+      "text": "so we have a lot of low-quality\ndata, 10 trillion tokens,",
+      "start": 3994.92,
+      "duration": 3.74
+    },
+    {
+      "text": "10 billion tokens of\nhigh-quality data.",
+      "start": 3998.66,
+      "duration": 2.28
+    },
+    {
+      "text": "And if we train a small\nmodel on low token counts,",
+      "start": 4000.94,
+      "duration": 5.82
+    },
+    {
+      "text": "do you remember?",
+      "start": 4006.76,
+      "duration": 1.86
+    },
+    {
+      "text": "What happens is that you might--\nthis is a made-up example,",
+      "start": 4008.62,
+      "duration": 6.1
+    },
+    {
+      "text": "but you might put a lot of\nmass on your high-quality data,",
+      "start": 4014.72,
+      "duration": 6.02
+    },
+    {
+      "text": "because low token counts,\nyou're not epoching.",
+      "start": 4020.74,
+      "duration": 2.92
+    },
+    {
+      "text": "So it's like, oh, wow,\nWikipedia is so great.",
+      "start": 4023.66,
+      "duration": 2.86
+    },
+    {
+      "text": "Let's just train on Wikipedia.",
+      "start": 4026.52,
+      "duration": 2.86
+    },
+    {
+      "text": "But if you then go and\ntrain this large model",
+      "start": 4029.38,
+      "duration": 4.74
+    },
+    {
+      "text": "on this mixture,\nthen you're going",
+      "start": 4034.12,
+      "duration": 2.98
+    },
+    {
+      "text": "to end up epoching a lot\non this high-quality data,",
+      "start": 4037.1,
+      "duration": 2.24
+    },
+    {
+      "text": "and you'll overfit.",
+      "start": 4039.34,
+      "duration": 0.86
+    },
+    {
+      "text": "And that's definitely bad.",
+      "start": 4040.2,
+      "duration": 4.38
+    },
+    {
+      "text": "So one way to fix this, which\nis done in this Olmix paper",
+      "start": 4044.58,
+      "duration": 7.2
+    },
+    {
+      "text": "is you can just cap\nthe number of epochs.",
+      "start": 4051.78,
+      "duration": 5.12
+    },
+    {
+      "text": "So that is one solution.",
+      "start": 4056.9,
+      "duration": 2.48
+    },
+    {
+      "text": "There's another solution\nhere, which goes",
+      "start": 4059.38,
+      "duration": 3.24
+    },
+    {
+      "text": "by probably multiple names.",
+      "start": 4062.62,
+      "duration": 1.86
+    },
+    {
+      "text": "But one name for it\nis simulated epoching.",
+      "start": 4064.48,
+      "duration": 2.66
+    },
+    {
+      "text": "And the principle here is\nthat make your small scale",
+      "start": 4067.14,
+      "duration": 3.68
+    },
+    {
+      "text": "look like your large scale.",
+      "start": 4070.82,
+      "duration": 2.0
+    },
+    {
+      "text": "This is a general\ntheme for the course.",
+      "start": 4072.82,
+      "duration": 1.9
+    },
+    {
+      "text": "We saw it when we\ntalked about muP.",
+      "start": 4074.72,
+      "duration": 3.08
+    },
+    {
+      "text": "You parameterize your model\nso that your hyperparameters",
+      "start": 4077.8,
+      "duration": 3.86
+    },
+    {
+      "text": "transfer.",
+      "start": 4081.66,
+      "duration": 0.92
+    },
+    {
+      "text": "And so the same\nprinciple applies here.",
+      "start": 4082.58,
+      "duration": 3.48
+    },
+    {
+      "text": "And the problem with\ndoing this naive scaling",
+      "start": 4086.06,
+      "duration": 4.44
+    },
+    {
+      "text": "is that you can't be not\nepoching out small scale then",
+      "start": 4090.5,
+      "duration": 6.109
+    },
+    {
+      "text": "epoching at large scales,\nbecause then those",
+      "start": 4096.609,
+      "duration": 2.321
+    },
+    {
+      "text": "are qualitatively different\noperations on your data set.",
+      "start": 4098.93,
+      "duration": 6.08
+    },
+    {
+      "text": "So the way you would handle this\nis you downstream your sources",
+      "start": 4105.01,
+      "duration": 5.679
+    },
+    {
+      "text": "proportionally.",
+      "start": 4110.689,
+      "duration": 2.121
+    },
+    {
+      "text": "So if you have your small\nruns, over 10 billion tokens,",
+      "start": 4112.81,
+      "duration": 6.6
+    },
+    {
+      "text": "and your big run with\none trillion tokens,",
+      "start": 4119.41,
+      "duration": 3.119
+    },
+    {
+      "text": "then you have a 1\nin 100 downsampling.",
+      "start": 4122.529,
+      "duration": 5.561
+    },
+    {
+      "text": "And then you basically use\nthe downsample mixture.",
+      "start": 4128.09,
+      "duration": 7.32
+    },
+    {
+      "text": "And so the idea is that if you\nhave the downsampled data, then",
+      "start": 4135.41,
+      "duration": 7.08
+    },
+    {
+      "text": "this solution is not going to\nlook good because you're not",
+      "start": 4142.49,
+      "duration": 3.92
+    },
+    {
+      "text": "training on all--",
+      "start": 4146.41,
+      "duration": 1.42
+    },
+    {
+      "text": "you don't get to just\ntrain on Wikipedia.",
+      "start": 4147.83,
+      "duration": 2.397
+    },
+    {
+      "text": "You're going to train on some\nminuscule fraction of Wikipedia,",
+      "start": 4150.227,
+      "duration": 2.583
+    },
+    {
+      "text": "and you'll realize,\noh, actually,",
+      "start": 4152.81,
+      "duration": 1.98
+    },
+    {
+      "text": "I'm going to be epoching a lot.",
+      "start": 4154.79,
+      "duration": 1.779
+    },
+    {
+      "text": "And that's going to have\na really bad loss, which",
+      "start": 4156.569,
+      "duration": 3.481
+    },
+    {
+      "text": "means that in the\noptimization, you're",
+      "start": 4160.05,
+      "duration": 1.599
+    },
+    {
+      "text": "going to look for more\nbalanced approaches.",
+      "start": 4161.649,
+      "duration": 3.761
+    },
+    {
+      "text": "So you're simulating\nthe data scarcity",
+      "start": 4165.41,
+      "duration": 2.279
+    },
+    {
+      "text": "that you would get in your\nhigh regime at low scale.",
+      "start": 4167.689,
+      "duration": 3.861
+    },
+    {
+      "text": "So to summarize this\nsection, the problem",
+      "start": 4176.75,
+      "duration": 3.62
+    },
+    {
+      "text": "is how do you weight\ndifferent sources?",
+      "start": 4180.37,
+      "duration": 2.199
+    },
+    {
+      "text": "Wikipedia, you have\nyour Common Crawl.",
+      "start": 4182.569,
+      "duration": 2.801
+    },
+    {
+      "text": "You have your code.",
+      "start": 4185.37,
+      "duration": 1.98
+    },
+    {
+      "text": "You have some math data that\nyou scraped from somewhere.",
+      "start": 4187.35,
+      "duration": 3.86
+    },
+    {
+      "text": "How do you balance them?",
+      "start": 4191.21,
+      "duration": 2.24
+    },
+    {
+      "text": "Regression-based mixing\nis a nice framework,",
+      "start": 4193.45,
+      "duration": 2.78
+    },
+    {
+      "text": "I think, to think about things.",
+      "start": 4196.23,
+      "duration": 1.4
+    },
+    {
+      "text": "You estimate your function form\nthat maps your mixture weights",
+      "start": 4197.63,
+      "duration": 5.78
+    },
+    {
+      "text": "to a loss at small\nscale, optimize,",
+      "start": 4203.41,
+      "duration": 3.08
+    },
+    {
+      "text": "and then you generalize\nto large scale.",
+      "start": 4206.49,
+      "duration": 3.51
+    },
+    {
+      "text": "And you just have to be\nvery careful with this",
+      "start": 4210.0,
+      "duration": 4.48
+    },
+    {
+      "text": "because of epoching\nand overfitting issues.",
+      "start": 4214.48,
+      "duration": 3.42
+    },
+    {
+      "text": "And you have to either use cap\nepoching or simulate epoching.",
+      "start": 4217.9,
+      "duration": 4.7
+    },
+    {
+      "text": "So one lesson here\nis that if you're",
+      "start": 4222.6,
+      "duration": 3.12
+    },
+    {
+      "text": "trying to optimize\nanything, you have",
+      "start": 4225.72,
+      "duration": 2.44
+    },
+    {
+      "text": "to be very careful\nbecause you are in danger",
+      "start": 4228.16,
+      "duration": 2.92
+    },
+    {
+      "text": "of optimizing the wrong thing.",
+      "start": 4231.08,
+      "duration": 5.04
+    },
+    {
+      "text": "Any questions about data\nmixing before we move on?",
+      "start": 4236.12,
+      "duration": 3.06
+    },
+    {
+      "text": "When you're done\nsampling, is there",
+      "start": 4243.64,
+      "duration": 1.84
+    },
+    {
+      "text": "something too small that you\ncan't really generalize as well?",
+      "start": 4245.48,
+      "duration": 7.24
+    },
+    {
+      "text": "So the question is, if you're\ndownsampling, is there a risk?",
+      "start": 4252.72,
+      "duration": 4.28
+    },
+    {
+      "text": "Maybe you get too\nsmall of a data set.",
+      "start": 4257.0,
+      "duration": 3.48
+    },
+    {
+      "text": "Yeah, absolutely.",
+      "start": 4260.48,
+      "duration": 2.0
+    },
+    {
+      "text": "So I think you might\nget into a case",
+      "start": 4262.48,
+      "duration": 5.56
+    },
+    {
+      "text": "where you just\nhave so few tokens.",
+      "start": 4268.04,
+      "duration": 3.36
+    },
+    {
+      "text": "I think then what will happen\nis that your optimum will just",
+      "start": 4271.4,
+      "duration": 3.44
+    },
+    {
+      "text": "put a very small mass on that.",
+      "start": 4274.84,
+      "duration": 2.8
+    },
+    {
+      "text": "And when you scale up, maybe\nyou get the right set of tokens.",
+      "start": 4277.64,
+      "duration": 2.86
+    },
+    {
+      "text": "So in principle,\nit should work out.",
+      "start": 4280.5,
+      "duration": 2.72
+    },
+    {
+      "text": "But there might be rounding\nerrors where you end up,",
+      "start": 4283.22,
+      "duration": 3.18
+    },
+    {
+      "text": "instead of training\nonce on this data set,",
+      "start": 4286.4,
+      "duration": 2.86
+    },
+    {
+      "text": "you train like zero\ntimes by accident.",
+      "start": 4289.26,
+      "duration": 2.72
+    },
+    {
+      "text": "But you can work\naround these by just--",
+      "start": 4291.98,
+      "duration": 3.73
+    },
+    {
+      "text": "then you always train\nonce on this data.",
+      "start": 4295.71,
+      "duration": 2.83
+    },
+    {
+      "text": "OK.",
+      "start": 4303.88,
+      "duration": 1.28
+    },
+    {
+      "text": "Yeah.",
+      "start": 4305.16,
+      "duration": 0.66
+    },
+    {
+      "text": "In data mixing, I guess\nthese sources just happen",
+      "start": 4305.82,
+      "duration": 4.22
+    },
+    {
+      "text": "to align with different topics.",
+      "start": 4310.04,
+      "duration": 2.44
+    },
+    {
+      "text": "But do you ever take\na diverse data set",
+      "start": 4312.48,
+      "duration": 3.12
+    },
+    {
+      "text": "and try to do data\nmixing within that?",
+      "start": 4315.6,
+      "duration": 3.1
+    },
+    {
+      "text": "Yeah.",
+      "start": 4318.7,
+      "duration": 0.66
+    },
+    {
+      "text": "So the question is, what do\nyou apply data mixing to?",
+      "start": 4319.36,
+      "duration": 4.24
+    },
+    {
+      "text": "Different domains or\neven within a data set?",
+      "start": 4323.6,
+      "duration": 3.892
+    },
+    {
+      "text": "Actually, I forgot\nto mention that,",
+      "start": 4327.492,
+      "duration": 1.458
+    },
+    {
+      "text": "so I'm glad you brought it up.",
+      "start": 4328.95,
+      "duration": 1.6
+    },
+    {
+      "text": "So in Nemotron\npaper, they actually",
+      "start": 4330.55,
+      "duration": 4.6
+    },
+    {
+      "text": "install the [INAUDIBLE]\nstuff as well.",
+      "start": 4335.15,
+      "duration": 2.28
+    },
+    {
+      "text": "You basically think\nabout-- let's say",
+      "start": 4337.43,
+      "duration": 1.76
+    },
+    {
+      "text": "I give you just Common Crawl.",
+      "start": 4339.19,
+      "duration": 3.08
+    },
+    {
+      "text": "You can actually break this\nup, so you can group by domain.",
+      "start": 4342.27,
+      "duration": 3.22
+    },
+    {
+      "text": "So the IT folks have\nthis web organizer,",
+      "start": 4345.49,
+      "duration": 3.48
+    },
+    {
+      "text": "so you can group into topics.",
+      "start": 4348.97,
+      "duration": 1.74
+    },
+    {
+      "text": "But you can also quality filter.",
+      "start": 4350.71,
+      "duration": 3.48
+    },
+    {
+      "text": "So then you have this\ntwo-dimensional grid",
+      "start": 4354.19,
+      "duration": 2.48
+    },
+    {
+      "text": "where you have domains,\nand you have quality.",
+      "start": 4356.67,
+      "duration": 2.52
+    },
+    {
+      "text": "And each of these\ncells is something",
+      "start": 4359.19,
+      "duration": 3.36
+    },
+    {
+      "text": "that you would data mix.",
+      "start": 4362.55,
+      "duration": 2.92
+    },
+    {
+      "text": "So that's one automatic way\nto determine the domains.",
+      "start": 4365.47,
+      "duration": 4.6
+    },
+    {
+      "text": "And then on top of that,\nyou add extra sources",
+      "start": 4370.07,
+      "duration": 3.12
+    },
+    {
+      "text": "that people hand you.",
+      "start": 4373.19,
+      "duration": 3.68
+    },
+    {
+      "text": "So I'm going to quickly go\nthrough post-training data here.",
+      "start": 4376.87,
+      "duration": 7.04
+    },
+    {
+      "text": "So up until now, this is\nbasically pre-training or maybe",
+      "start": 4383.91,
+      "duration": 5.0
+    },
+    {
+      "text": "mid-training data.",
+      "start": 4388.91,
+      "duration": 1.36
+    },
+    {
+      "text": "It's generally\nfairly task agnostic,",
+      "start": 4390.27,
+      "duration": 3.06
+    },
+    {
+      "text": "except for the RegMix\nstuff where you're",
+      "start": 4393.33,
+      "duration": 2.06
+    },
+    {
+      "text": "trying to minimize the loss.",
+      "start": 4395.39,
+      "duration": 1.3
+    },
+    {
+      "text": "But the data itself is still\nrelatively task agnostic,",
+      "start": 4396.69,
+      "duration": 5.16
+    },
+    {
+      "text": "and you're trying to\ndevelop basic skills.",
+      "start": 4401.85,
+      "duration": 2.86
+    },
+    {
+      "text": "So when you look at\npost-training, a lot of the data",
+      "start": 4404.71,
+      "duration": 3.04
+    },
+    {
+      "text": "becomes very task-dependent.",
+      "start": 4407.75,
+      "duration": 5.24
+    },
+    {
+      "text": "And I'm not going to do\na comprehensive review.",
+      "start": 4412.99,
+      "duration": 3.18
+    },
+    {
+      "text": "I just want to point out some\ninteresting post-training data",
+      "start": 4416.17,
+      "duration": 4.7
+    },
+    {
+      "text": "sets that have been\nrecently released,",
+      "start": 4420.87,
+      "duration": 1.78
+    },
+    {
+      "text": "in particular, for coding,\nsince that's of great interest",
+      "start": 4422.65,
+      "duration": 3.82
+    },
+    {
+      "text": "these days.",
+      "start": 4426.47,
+      "duration": 1.96
+    },
+    {
+      "text": "So the general recipe is you\ndefine a set of environments.",
+      "start": 4428.43,
+      "duration": 7.32
+    },
+    {
+      "text": "In this case, think about code,\nwhich might be GitHub repos.",
+      "start": 4435.75,
+      "duration": 4.8
+    },
+    {
+      "text": "You define a set of\ntasks or prompts,",
+      "start": 4440.55,
+      "duration": 4.11
+    },
+    {
+      "text": "and then you collect responses\nfrom a strong model or teacher.",
+      "start": 4444.66,
+      "duration": 5.28
+    },
+    {
+      "text": "So implicitly, at least\nin the open community,",
+      "start": 4449.94,
+      "duration": 4.12
+    },
+    {
+      "text": "almost all the post-training\ndata, most of it,",
+      "start": 4454.06,
+      "duration": 3.04
+    },
+    {
+      "text": "is synthetically generated.",
+      "start": 4457.1,
+      "duration": 4.84
+    },
+    {
+      "text": "You can also replace a\nstrong model with a human,",
+      "start": 4461.94,
+      "duration": 4.12
+    },
+    {
+      "text": "but that is slow and\ncosts a lot of money.",
+      "start": 4466.06,
+      "duration": 3.34
+    },
+    {
+      "text": "But, if you're at the frontier--",
+      "start": 4469.4,
+      "duration": 1.9
+    },
+    {
+      "text": "a few years ago, you had to go\nand pay a lot of people a lot",
+      "start": 4474.06,
+      "duration": 4.52
+    },
+    {
+      "text": "of money to give you responses.",
+      "start": 4478.58,
+      "duration": 2.96
+    },
+    {
+      "text": "And nowadays, even\nat the frontier,",
+      "start": 4481.54,
+      "duration": 2.34
+    },
+    {
+      "text": "you can do hybrid\nhuman-AI things.",
+      "start": 4483.88,
+      "duration": 3.44
+    },
+    {
+      "text": "But anyway, the point is that\nthere's some teacher out there",
+      "start": 4487.32,
+      "duration": 2.5
+    },
+    {
+      "text": "that's giving you responses.",
+      "start": 4489.82,
+      "duration": 2.12
+    },
+    {
+      "text": "OK.",
+      "start": 4491.94,
+      "duration": 0.72
+    },
+    {
+      "text": "So I'm just going to\ntalk to a few works here.",
+      "start": 4492.66,
+      "duration": 5.94
+    },
+    {
+      "text": "So one is this works\ncalled OpenThoughts.",
+      "start": 4498.6,
+      "duration": 4.3
+    },
+    {
+      "text": "And this idea here is--",
+      "start": 4502.9,
+      "duration": 4.2
+    },
+    {
+      "text": "this came around.",
+      "start": 4507.1,
+      "duration": 1.02
+    },
+    {
+      "text": "It was motivated by\nwhen o1 came out,",
+      "start": 4508.12,
+      "duration": 3.0
+    },
+    {
+      "text": "and there was a lot of\nintention on reasoning, mostly",
+      "start": 4511.12,
+      "duration": 2.38
+    },
+    {
+      "text": "for math and science.",
+      "start": 4513.5,
+      "duration": 2.92
+    },
+    {
+      "text": "How do we get really\ngood post-training data",
+      "start": 4516.42,
+      "duration": 2.24
+    },
+    {
+      "text": "sets for this?",
+      "start": 4518.66,
+      "duration": 1.4
+    },
+    {
+      "text": "And they eventually came out\nwith 1.2 million examples",
+      "start": 4520.06,
+      "duration": 5.32
+    },
+    {
+      "text": "using this teacher model.",
+      "start": 4525.38,
+      "duration": 3.28
+    },
+    {
+      "text": "So the steps are, first of\nall, there are a bunch of--",
+      "start": 4528.66,
+      "duration": 5.6
+    },
+    {
+      "text": "so what are the environments\nand the tasks and questions?",
+      "start": 4534.26,
+      "duration": 4.36
+    },
+    {
+      "text": "There are a lot of different\nsources that they drew from.",
+      "start": 4538.62,
+      "duration": 5.16
+    },
+    {
+      "text": "There are human sources like\nStack Exchange, or NuminaMath,",
+      "start": 4543.78,
+      "duration": 5.42
+    },
+    {
+      "text": "and then there's some\nsynthetic sources as well.",
+      "start": 4549.2,
+      "duration": 2.64
+    },
+    {
+      "text": "These are just a subset\nof the coding ones,",
+      "start": 4551.84,
+      "duration": 2.845
+    },
+    {
+      "text": "but there's also more\nfor math and chemistry.",
+      "start": 4554.685,
+      "duration": 1.875
+    },
+    {
+      "text": "This is a big\nproject that involved",
+      "start": 4556.56,
+      "duration": 1.9
+    },
+    {
+      "text": "a lot of different\ncontributions from many people.",
+      "start": 4558.46,
+      "duration": 5.95
+    },
+    {
+      "text": "So you can see that some of\nthese are coding exercises.",
+      "start": 4564.41,
+      "duration": 4.9
+    },
+    {
+      "text": "Some of these are more realistic\nthings that show up on--",
+      "start": 4569.31,
+      "duration": 6.18
+    },
+    {
+      "text": "I guess, CodeGolf\nis not realistic,",
+      "start": 4575.49,
+      "duration": 1.86
+    },
+    {
+      "text": "but there are some more\nrealistic examples here.",
+      "start": 4577.35,
+      "duration": 4.98
+    },
+    {
+      "text": "So code review, this is\nprobably more realistic.",
+      "start": 4582.33,
+      "duration": 3.68
+    },
+    {
+      "text": "And they did a fairly\ncomprehensive analysis of,",
+      "start": 4586.01,
+      "duration": 4.36
+    },
+    {
+      "text": "given this data set, how\ndo you generate responses?",
+      "start": 4590.37,
+      "duration": 4.04
+    },
+    {
+      "text": "They show that\nhaving a few sources",
+      "start": 4594.41,
+      "duration": 3.8
+    },
+    {
+      "text": "was actually good than\ntrying to do all sources.",
+      "start": 4598.21,
+      "duration": 3.8
+    },
+    {
+      "text": "Sampling multiple generations\nis helpful, like 16.",
+      "start": 4602.01,
+      "duration": 4.28
+    },
+    {
+      "text": "One thing that was interesting\nis that having better models",
+      "start": 4606.29,
+      "duration": 5.0
+    },
+    {
+      "text": "aren't necessarily\nbetter teachers.",
+      "start": 4611.29,
+      "duration": 3.7
+    },
+    {
+      "text": "So for example, QwQ-32B, which\nis now a very old and small",
+      "start": 4614.99,
+      "duration": 5.86
+    },
+    {
+      "text": "model, was a better\nteacher than DeepSeek-R1,",
+      "start": 4620.85,
+      "duration": 3.44
+    },
+    {
+      "text": "which was at the\ntime probably one",
+      "start": 4624.29,
+      "duration": 1.48
+    },
+    {
+      "text": "of the strongest open models.",
+      "start": 4625.77,
+      "duration": 2.36
+    },
+    {
+      "text": "They also found that basic\nanswer filtering wasn't helpful.",
+      "start": 4628.13,
+      "duration": 4.96
+    },
+    {
+      "text": "And so the entire\npipeline looks something",
+      "start": 4633.09,
+      "duration": 4.48
+    },
+    {
+      "text": "like this, where you have a\nbunch of these sources going in,",
+      "start": 4637.57,
+      "duration": 5.48
+    },
+    {
+      "text": "and then you duplicate.",
+      "start": 4643.05,
+      "duration": 2.36
+    },
+    {
+      "text": "You randomly sample.",
+      "start": 4645.41,
+      "duration": 2.54
+    },
+    {
+      "text": "I guess this downsample\nthe questions,",
+      "start": 4647.95,
+      "duration": 2.26
+    },
+    {
+      "text": "and you generate\nmultiple answers,",
+      "start": 4650.21,
+      "duration": 1.62
+    },
+    {
+      "text": "and that gets into\nthe final data set.",
+      "start": 4651.83,
+      "duration": 2.44
+    },
+    {
+      "text": "So the 1.2 million is\nexamples, but divided by 16",
+      "start": 4654.27,
+      "duration": 5.9
+    },
+    {
+      "text": "gives you the number\nof actual questions.",
+      "start": 4660.17,
+      "duration": 1.94
+    },
+    {
+      "text": "So that was for math and\nscience and some code.",
+      "start": 4666.77,
+      "duration": 6.64
+    },
+    {
+      "text": "I think more\nrecently there's been",
+      "start": 4673.41,
+      "duration": 1.84
+    },
+    {
+      "text": "a lot of interest in developing,\nin particular, agentic coding",
+      "start": 4675.25,
+      "duration": 4.11
+    },
+    {
+      "text": "model-- so not just\na model that can just",
+      "start": 4679.36,
+      "duration": 2.52
+    },
+    {
+      "text": "generate some code, but\nactually a model that",
+      "start": 4681.88,
+      "duration": 2.0
+    },
+    {
+      "text": "can do software development.",
+      "start": 4683.88,
+      "duration": 3.08
+    },
+    {
+      "text": "So this SWE-smith paper\nhad the idea of-- you're",
+      "start": 4686.96,
+      "duration": 7.08
+    },
+    {
+      "text": "given a repository, you're\nusing a language model",
+      "start": 4694.04,
+      "duration": 4.24
+    },
+    {
+      "text": "to automatically generate tasks.",
+      "start": 4698.28,
+      "duration": 2.68
+    },
+    {
+      "text": "So they have an agent\nthat takes a repository",
+      "start": 4700.96,
+      "duration": 3.4
+    },
+    {
+      "text": "and actually makes it usable\nfor installing dependencies",
+      "start": 4704.36,
+      "duration": 6.08
+    },
+    {
+      "text": "and so on.",
+      "start": 4710.44,
+      "duration": 1.2
+    },
+    {
+      "text": "And then you generate\ntasks which are generally--",
+      "start": 4711.64,
+      "duration": 4.78
+    },
+    {
+      "text": "you modify the code in some way\nand maybe introduce some bugs.",
+      "start": 4716.42,
+      "duration": 3.1
+    },
+    {
+      "text": "And those get verified,\nand you get task instances.",
+      "start": 4719.52,
+      "duration": 4.08
+    },
+    {
+      "text": "So these are synthetic tasks,\nbut you get 50k of them,",
+      "start": 4723.6,
+      "duration": 4.3
+    },
+    {
+      "text": "which is actually at the\ntime, which was last year,",
+      "start": 4727.9,
+      "duration": 3.9
+    },
+    {
+      "text": "quite large.",
+      "start": 4731.8,
+      "duration": 2.36
+    },
+    {
+      "text": "So since then, there's been\na bunch of other work, which",
+      "start": 4734.16,
+      "duration": 5.16
+    },
+    {
+      "text": "I'll mention.",
+      "start": 4739.32,
+      "duration": 3.84
+    },
+    {
+      "text": "So there's this SWE-Zero paper\nfrom NVIDIA, which had this--",
+      "start": 4743.16,
+      "duration": 8.64
+    },
+    {
+      "text": "actually, OK, I'll\nalso talk about that.",
+      "start": 4751.8,
+      "duration": 2.82
+    },
+    {
+      "text": "So this is an interesting\nidea where the observation",
+      "start": 4754.62,
+      "duration": 4.5
+    },
+    {
+      "text": "was that, unlike\nmath, SWE tasks have",
+      "start": 4759.12,
+      "duration": 4.0
+    },
+    {
+      "text": "a lot of heavy dependencies.",
+      "start": 4763.12,
+      "duration": 1.92
+    },
+    {
+      "text": "Most GitHub repos\nlike don't even run.",
+      "start": 4765.04,
+      "duration": 3.36
+    },
+    {
+      "text": "And you have to install\nall these dependencies.",
+      "start": 4768.4,
+      "duration": 2.22
+    },
+    {
+      "text": "They're out of date,\nespecially if you roll back",
+      "start": 4770.62,
+      "duration": 2.42
+    },
+    {
+      "text": "to when a PR was just a mess.",
+      "start": 4773.04,
+      "duration": 3.72
+    },
+    {
+      "text": "And this is just a nightmare.",
+      "start": 4776.76,
+      "duration": 2.56
+    },
+    {
+      "text": "And so they were\nthinking about, how can",
+      "start": 4779.32,
+      "duration": 2.32
+    },
+    {
+      "text": "we actually get a data\nset on all the repos?",
+      "start": 4781.64,
+      "duration": 7.12
+    },
+    {
+      "text": "And rather than having a\nrepo-specific Docker image,",
+      "start": 4788.76,
+      "duration": 5.142
+    },
+    {
+      "text": "they noticed that the models\nare actually good enough",
+      "start": 4793.902,
+      "duration": 2.208
+    },
+    {
+      "text": "that they can solve\na lot of these tasks",
+      "start": 4796.11,
+      "duration": 2.16
+    },
+    {
+      "text": "without execution feedback.",
+      "start": 4798.27,
+      "duration": 2.8
+    },
+    {
+      "text": "So if you look at\nsome of these models,",
+      "start": 4801.07,
+      "duration": 3.86
+    },
+    {
+      "text": "if you were allowing\nexecution, you get 80.",
+      "start": 4804.93,
+      "duration": 3.62
+    },
+    {
+      "text": "If you don't allow\nexecution, you get almost 70,",
+      "start": 4808.55,
+      "duration": 5.88
+    },
+    {
+      "text": "which is not bad for not\nbeing able to execute code.",
+      "start": 4814.43,
+      "duration": 4.64
+    },
+    {
+      "text": "So somehow these models have\nsome internal semantics of code.",
+      "start": 4819.07,
+      "duration": 6.16
+    },
+    {
+      "text": "So they were able to generate\n300,000 agent trajectories.",
+      "start": 4825.23,
+      "duration": 4.44
+    },
+    {
+      "text": "All of these are\nreal GitHub PRs,",
+      "start": 4829.67,
+      "duration": 3.14
+    },
+    {
+      "text": "so they're realistic on\nthe SWE-smith examples.",
+      "start": 4832.81,
+      "duration": 5.46
+    },
+    {
+      "text": "They use the OpenHands scaffold.",
+      "start": 4838.27,
+      "duration": 2.86
+    },
+    {
+      "text": "There's a lot of details how\nto prevent agent hacking.",
+      "start": 4841.13,
+      "duration": 4.06
+    },
+    {
+      "text": "So normally, you hand an\nagent this instruction.",
+      "start": 4845.19,
+      "duration": 5.08
+    },
+    {
+      "text": "You explore, you\ntest, you implement.",
+      "start": 4850.27,
+      "duration": 2.54
+    },
+    {
+      "text": "And SWE-Zero version was\nbasically saying you cannot run",
+      "start": 4852.81,
+      "duration": 4.86
+    },
+    {
+      "text": "Python code.",
+      "start": 4857.67,
+      "duration": 0.7
+    },
+    {
+      "text": "You can only do set, grep, and\nall these basic operations.",
+      "start": 4858.37,
+      "duration": 6.92
+    },
+    {
+      "text": "OK.",
+      "start": 4865.29,
+      "duration": 0.5
+    },
+    {
+      "text": "So then they distilled\nfrom big Qwen model",
+      "start": 4865.79,
+      "duration": 4.56
+    },
+    {
+      "text": "and filtered because\nsometimes the Qwen model",
+      "start": 4870.35,
+      "duration": 3.04
+    },
+    {
+      "text": "will ignore these instructions\nand still try to execute anyway.",
+      "start": 4873.39,
+      "duration": 3.8
+    },
+    {
+      "text": "And then they show\nthat with this--",
+      "start": 4877.19,
+      "duration": 3.92
+    },
+    {
+      "text": "oh, they also had a 13k agent\ntrajectories that do require",
+      "start": 4881.11,
+      "duration": 4.28
+    },
+    {
+      "text": "execution feedback.",
+      "start": 4885.39,
+      "duration": 1.58
+    },
+    {
+      "text": "So they train models\nwhere they first",
+      "start": 4886.97,
+      "duration": 2.9
+    },
+    {
+      "text": "fine-tune on these\nSWE-Zero examples,",
+      "start": 4889.87,
+      "duration": 3.8
+    },
+    {
+      "text": "and then fine-tune again\non these SWE-Zero examples.",
+      "start": 4893.67,
+      "duration": 3.58
+    },
+    {
+      "text": "And they were able to--",
+      "start": 4897.25,
+      "duration": 1.54
+    },
+    {
+      "text": "I guess the frontier is\nstill pretty high up,",
+      "start": 4898.79,
+      "duration": 3.06
+    },
+    {
+      "text": "but they were able to\nmake some progress here.",
+      "start": 4901.85,
+      "duration": 3.5
+    },
+    {
+      "text": "I'll quickly go\nthrough SWE-rebench,",
+      "start": 4905.35,
+      "duration": 2.42
+    },
+    {
+      "text": "which is essentially\nanother attempt",
+      "start": 4907.77,
+      "duration": 2.57
+    },
+    {
+      "text": "to grab tons and tons of PRs.",
+      "start": 4910.34,
+      "duration": 3.78
+    },
+    {
+      "text": "And all of these look, get\na bunch of GitHub repos,",
+      "start": 4916.86,
+      "duration": 3.96
+    },
+    {
+      "text": "try to install the repo.",
+      "start": 4920.82,
+      "duration": 2.32
+    },
+    {
+      "text": "Most of them probably\nfailed and try harder.",
+      "start": 4923.14,
+      "duration": 3.46
+    },
+    {
+      "text": "And then you use a language\nmodel to give you the responses.",
+      "start": 4926.6,
+      "duration": 6.58
+    },
+    {
+      "text": "And these actually\njust came out today.",
+      "start": 4933.18,
+      "duration": 4.96
+    },
+    {
+      "text": "So you can take\nthis SWE-Zero idea,",
+      "start": 4938.14,
+      "duration": 3.2
+    },
+    {
+      "text": "and you can now scale up to\n12 million agent trajectories.",
+      "start": 4941.34,
+      "duration": 4.68
+    },
+    {
+      "text": "The nice benefit of SWE-Zero\nis that it's very lightweight.",
+      "start": 4946.02,
+      "duration": 6.2
+    },
+    {
+      "text": "Here, they use the\nSWE-rebench tasks.",
+      "start": 4952.22,
+      "duration": 4.24
+    },
+    {
+      "text": "So in this one, remember,\nthey were trying",
+      "start": 4956.46,
+      "duration": 2.08
+    },
+    {
+      "text": "to get things to execute.",
+      "start": 4958.54,
+      "duration": 1.22
+    },
+    {
+      "text": "They only got 32,000\nof them to execute,",
+      "start": 4959.76,
+      "duration": 3.08
+    },
+    {
+      "text": "and 120 of them didn't execute.",
+      "start": 4962.84,
+      "duration": 2.82
+    },
+    {
+      "text": "But SWE-Zero doesn't care.",
+      "start": 4965.66,
+      "duration": 1.18
+    },
+    {
+      "text": "You can use all of them.",
+      "start": 4966.84,
+      "duration": 2.66
+    },
+    {
+      "text": "This is a very small model\nbecause-- now this data set",
+      "start": 4969.5,
+      "duration": 3.44
+    },
+    {
+      "text": "is quite large.",
+      "start": 4972.94,
+      "duration": 2.84
+    },
+    {
+      "text": "And so I think, as you\ncan see, the data sets",
+      "start": 4975.78,
+      "duration": 6.04
+    },
+    {
+      "text": "are getting more and\nmore sophisticated.",
+      "start": 4981.82,
+      "duration": 3.06
+    },
+    {
+      "text": "You go from environment-free\nthings like math to now coding.",
+      "start": 4984.88,
+      "duration": 4.12
+    },
+    {
+      "text": "And now the coding data sets\nare growing quite a bit.",
+      "start": 4989.0,
+      "duration": 4.14
+    },
+    {
+      "text": "But the general idea is that\nyou have these prompts, which",
+      "start": 4993.14,
+      "duration": 6.16
+    },
+    {
+      "text": "there's trade-offs.",
+      "start": 4999.3,
+      "duration": 2.5
+    },
+    {
+      "text": "You can have fully synthetic.",
+      "start": 5001.8,
+      "duration": 2.203
+    },
+    {
+      "text": "You can have\nsemi-synthetic, where",
+      "start": 5004.003,
+      "duration": 1.417
+    },
+    {
+      "text": "you have real environment\nand synthetic tasks,",
+      "start": 5005.42,
+      "duration": 2.46
+    },
+    {
+      "text": "or you can have real.",
+      "start": 5007.88,
+      "duration": 2.3
+    },
+    {
+      "text": "And the responses generally are\ncoming from just capable models,",
+      "start": 5010.18,
+      "duration": 5.38
+    },
+    {
+      "text": "but they also need\nto be good teachers.",
+      "start": 5015.56,
+      "duration": 2.5
+    },
+    {
+      "text": "Code environments are a pain.",
+      "start": 5018.06,
+      "duration": 1.74
+    },
+    {
+      "text": "And there's a lot of filtering\nand other details which",
+      "start": 5019.8,
+      "duration": 2.5
+    },
+    {
+      "text": "we don't have time for.",
+      "start": 5022.3,
+      "duration": 1.9
+    },
+    {
+      "text": "OK.",
+      "start": 5024.2,
+      "duration": 0.5
+    },
+    {
+      "text": "To summarize this lecture,\nwe talked about filtering.",
+      "start": 5024.7,
+      "duration": 3.71
+    },
+    {
+      "text": "So define what good looks\nlike, and then train",
+      "start": 5028.41,
+      "duration": 2.4
+    },
+    {
+      "text": "a lightweight classifier.",
+      "start": 5030.81,
+      "duration": 1.06
+    },
+    {
+      "text": "Go over your web\ncrawl, and you can",
+      "start": 5031.87,
+      "duration": 2.22
+    },
+    {
+      "text": "get a small subset that matches\nwhat you're looking for.",
+      "start": 5034.09,
+      "duration": 4.0
+    },
+    {
+      "text": "Deduplication is important to\navoid overfitting and saving",
+      "start": 5038.09,
+      "duration": 4.64
+    },
+    {
+      "text": "flops.",
+      "start": 5042.73,
+      "duration": 1.32
+    },
+    {
+      "text": "Mixing.",
+      "start": 5044.05,
+      "duration": 1.22
+    },
+    {
+      "text": "Try a mixture at small scales,\nextrapolate to large scale.",
+      "start": 5045.27,
+      "duration": 4.66
+    },
+    {
+      "text": "And then we looked at\nsome post-training data.",
+      "start": 5049.93,
+      "duration": 3.64
+    },
+    {
+      "text": "I will say, though, that\na lot of the data work",
+      "start": 5053.57,
+      "duration": 3.0
+    },
+    {
+      "text": "can be very grungy.",
+      "start": 5056.57,
+      "duration": 2.06
+    },
+    {
+      "text": "It's very domain-specific\nand requires",
+      "start": 5058.63,
+      "duration": 3.18
+    },
+    {
+      "text": "looking at concrete examples\nto make these high-quality data",
+      "start": 5061.81,
+      "duration": 3.0
+    },
+    {
+      "text": "sets.",
+      "start": 5064.81,
+      "duration": 0.5
+    },
+    {
+      "text": "So this lecture is not\nreally representative of what",
+      "start": 5065.31,
+      "duration": 3.02
+    },
+    {
+      "text": "data work is like, but\nhopefully giving you",
+      "start": 5068.33,
+      "duration": 2.2
+    },
+    {
+      "text": "an idea of the data\nlandscape out there.",
+      "start": 5070.53,
+      "duration": 3.38
+    },
+    {
+      "text": "OK.",
+      "start": 5073.91,
+      "duration": 0.5
+    },
+    {
+      "text": "So that will be it for today.",
+      "start": 5074.41,
+      "duration": 2.42
+    },
+    {
+      "text": "[APPLAUSE]",
+      "start": 5076.83,
+      "duration": 3.35
+    }
+  ]
+}
