@@ -13,7 +13,7 @@ access.
 import logging
 import tempfile
 from pathlib import Path
-from typing import Protocol
+from typing import Literal, Protocol
 
 from openai import OpenAI
 from youtube_transcript_api import (
@@ -144,11 +144,13 @@ def fetch_all_transcripts(settings: Settings, force: bool = False) -> list[Video
         path = directory / f"{position:03d}-{video_id}.json"
         if path.exists() and not force:
             logger.info("[%02d/%02d] %s already fetched, skipping", position, len(videos), title)
-            transcripts.append(VideoTranscript.model_validate_json(path.read_text()))
+            transcripts.append(
+                VideoTranscript.model_validate_json(path.read_text(encoding="utf-8"))
+            )
             continue
 
         segments = fetch_youtube_transcript(video_id)
-        source = "youtube"
+        source: Literal["youtube", "whisper"] = "youtube"
         if segments is None:
             logger.warning("No captions for %s, falling back to Whisper", video_id)
             segments = transcribe_with_whisper(video_id, settings)
@@ -158,7 +160,7 @@ def fetch_all_transcripts(settings: Settings, force: bool = False) -> list[Video
             video_id=video_id,
             title=title,
             position=position,
-            source=source,  # type: ignore[arg-type]
+            source=source,
             segments=segments,
         )
         save_transcript(transcript, directory)
