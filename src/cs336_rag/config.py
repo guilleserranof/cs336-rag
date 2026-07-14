@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # OpenAI-compatible API (NaN)
-    openai_key: str
+    openai_key: str | None = None
     llm_base_url: str = "https://api.nan.builders/v1"
     chat_model: str = "qwen3.6"
     judge_model: str = "deepseek-v4-flash"
@@ -46,4 +46,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()  # type: ignore[call-arg]
+    return Settings()

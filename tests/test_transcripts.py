@@ -7,10 +7,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from cs336_rag.config import Settings
 from cs336_rag.ingest.transcripts import (
+    fetch_all_transcripts,
     fetch_youtube_transcript,
     load_transcripts,
     save_transcript,
+    transcribe_with_whisper,
 )
 from cs336_rag.models import TranscriptSegment, VideoTranscript
 
@@ -118,3 +121,30 @@ class TestPersistence:
     def test_load_empty_dir_raises(self, tmp_path: Path) -> None:
         with pytest.raises(FileNotFoundError):
             load_transcripts(tmp_path / "nope")
+
+
+class TestFetchAllTranscripts:
+    def test_existing_transcripts_do_not_need_openai_key(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        settings = Settings(_env_file=None, data_dir=tmp_path)  # type: ignore[call-arg]
+        transcript = make_transcript()
+        save_transcript(transcript, settings.raw_transcripts_dir)
+        monkeypatch.setattr(
+            "cs336_rag.ingest.transcripts.list_playlist_videos",
+            lambda playlist_id: [(transcript.video_id, transcript.title)],
+        )
+        monkeypatch.setattr(
+            "cs336_rag.ingest.transcripts.fetch_youtube_transcript",
+            MagicMock(side_effect=AssertionError("should not re-fetch existing transcript")),
+        )
+
+        assert fetch_all_transcripts(settings) == [transcript]
+
+
+class TestWhisperFallback:
+    def test_requires_openai_key(self) -> None:
+        settings = Settings(_env_file=None)  # type: ignore[call-arg]
+
+        with pytest.raises(ValueError, match="OPENAI_KEY"):
+            transcribe_with_whisper("abc123", settings)

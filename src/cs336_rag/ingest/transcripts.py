@@ -82,6 +82,9 @@ def transcribe_with_whisper(video_id: str, settings: Settings) -> list[Transcrip
     """Fallback: download the audio track and transcribe it with Whisper."""
     import yt_dlp
 
+    if settings.openai_key is None:
+        raise ValueError("OPENAI_KEY is required to transcribe videos with Whisper")
+
     client = OpenAI(api_key=settings.openai_key, base_url=settings.llm_base_url)
     with tempfile.TemporaryDirectory() as tmp_dir:
         options = {

@@ -14,12 +14,18 @@ def make_settings(**overrides: object) -> Settings:
 
 def test_defaults() -> None:
     settings = make_settings()
+    assert settings.openai_key == "test-key"
     assert settings.llm_base_url == "https://api.nan.builders/v1"
     assert settings.chat_model == "qwen3.6"
     assert settings.embedding_model == "qwen3-embedding"
     assert settings.embedding_dim == 1024
     assert settings.rerank_model == "rerank"
     assert settings.data_dir == Path("data")
+
+
+def test_openai_key_is_optional() -> None:
+    settings = Settings(_env_file=None)  # type: ignore[call-arg]
+    assert settings.openai_key is None
 
 
 def test_env_overrides(monkeypatch: object) -> None:
