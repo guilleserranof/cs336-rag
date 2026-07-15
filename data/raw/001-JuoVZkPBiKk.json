@@ -1,0 +1,7553 @@
+{
+  "video_id": "JuoVZkPBiKk",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 1: Overview, Tokenization",
+  "position": 1,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "Welcome, everyone to CS 336,\nLanguage Models from Scratch.",
+      "start": 4.88,
+      "duration": 6.32
+    },
+    {
+      "text": "This is the teaching staff.",
+      "start": 11.2,
+      "duration": 1.14
+    },
+    {
+      "text": "I'm Percy.",
+      "start": 12.34,
+      "duration": 0.68
+    },
+    {
+      "text": "This is Tatsu, Marcel,\nHerman and Steven,",
+      "start": 13.02,
+      "duration": 2.96
+    },
+    {
+      "text": "and we're bringing you\nthe third edition of 336.",
+      "start": 15.98,
+      "duration": 3.2
+    },
+    {
+      "text": "So we'll just do a quick\nround of introductions.",
+      "start": 19.18,
+      "duration": 2.46
+    },
+    {
+      "text": "So I'd like to say that\nI've been doing language",
+      "start": 21.64,
+      "duration": 2.08
+    },
+    {
+      "text": "models for 20 years,\nbut most of that time",
+      "start": 23.72,
+      "duration": 2.72
+    },
+    {
+      "text": "was small language models.",
+      "start": 26.44,
+      "duration": 2.76
+    },
+    {
+      "text": "Actually, this is still small\nin the grand scheme of things.",
+      "start": 29.2,
+      "duration": 3.4
+    },
+    {
+      "text": "I think when Tatsu and I\nstarted teaching this class two",
+      "start": 32.6,
+      "duration": 4.04
+    },
+    {
+      "text": "years ago, we\nweren't really sure",
+      "start": 36.64,
+      "duration": 1.68
+    },
+    {
+      "text": "what we were going to expect,\nbut we were very pleasantly",
+      "start": 38.32,
+      "duration": 2.94
+    },
+    {
+      "text": "surprised that so\nmany people wanted",
+      "start": 41.26,
+      "duration": 1.5
+    },
+    {
+      "text": "to learn how to build language\nmodels from scratch, especially",
+      "start": 42.76,
+      "duration": 2.583
+    },
+    {
+      "text": "in these days when a\ncoding agent could probably",
+      "start": 45.343,
+      "duration": 2.497
+    },
+    {
+      "text": "zero shot a language model.",
+      "start": 47.84,
+      "duration": 1.92
+    },
+    {
+      "text": "I'm really glad\nto see all of you",
+      "start": 49.76,
+      "duration": 1.52
+    },
+    {
+      "text": "here to actually want\nto learn how they work.",
+      "start": 51.28,
+      "duration": 4.4
+    },
+    {
+      "text": "Yeah, thanks.",
+      "start": 55.68,
+      "duration": 0.74
+    },
+    {
+      "text": "I'm Tatsu, I'm one of\nthe co-instructors.",
+      "start": 56.42,
+      "duration": 1.708
+    },
+    {
+      "text": "I'll be talking\nto you once we get",
+      "start": 58.128,
+      "duration": 2.352
+    },
+    {
+      "text": "to architectures and scaling and\nall these other very fun things.",
+      "start": 60.48,
+      "duration": 3.52
+    },
+    {
+      "text": "I'm really excited.",
+      "start": 64.0,
+      "duration": 0.98
+    },
+    {
+      "text": "This is the most fun class\nI've taught in my time here.",
+      "start": 64.98,
+      "duration": 2.7
+    },
+    {
+      "text": "I think every year,\nPercy makes fun of me",
+      "start": 67.68,
+      "duration": 1.777
+    },
+    {
+      "text": "because he says you have to redo\nall your lectures because you",
+      "start": 69.457,
+      "duration": 2.583
+    },
+    {
+      "text": "took on architectures, and\neverything changes every time.",
+      "start": 72.04,
+      "duration": 2.64
+    },
+    {
+      "text": "But it's actually pretty\nfun for me to do it.",
+      "start": 74.68,
+      "duration": 1.54
+    },
+    {
+      "text": "And it's the first time that\nI've had that experience.",
+      "start": 76.22,
+      "duration": 1.84
+    },
+    {
+      "text": "So I'm looking forward to going\nthrough this experience again",
+      "start": 78.06,
+      "duration": 2.542
+    },
+    {
+      "text": "with you all.",
+      "start": 80.602,
+      "duration": 2.798
+    },
+    {
+      "text": "Hello, I'm Marcel.",
+      "start": 83.4,
+      "duration": 1.56
+    },
+    {
+      "text": "I've seen this\nclass once before,",
+      "start": 84.96,
+      "duration": 1.8
+    },
+    {
+      "text": "and I'm returning because it\nwas so much fun last time.",
+      "start": 86.76,
+      "duration": 2.58
+    },
+    {
+      "text": "[LAUGHTER]",
+      "start": 89.34,
+      "duration": 1.26
+    },
+    {
+      "text": "It's a lot of work though.",
+      "start": 90.6,
+      "duration": 2.52
+    },
+    {
+      "text": "In my research, I do\narchitecture stuff,",
+      "start": 93.12,
+      "duration": 2.5
+    },
+    {
+      "text": "I do higher order gradients,\nand I do training.",
+      "start": 95.62,
+      "duration": 2.46
+    },
+    {
+      "text": "Yeah, looking forward to\nworking with you guys.",
+      "start": 98.08,
+      "duration": 2.52
+    },
+    {
+      "text": "Hello, everyone, I'm Herman.",
+      "start": 100.6,
+      "duration": 2.0
+    },
+    {
+      "text": "A year ago, I didn't really how\nLLMs worked, so I think for me,",
+      "start": 102.6,
+      "duration": 4.637
+    },
+    {
+      "text": "tokens were the things you\ncollect in video games,",
+      "start": 107.237,
+      "duration": 2.083
+    },
+    {
+      "text": "and attention was the thing you\nhad, like the attention economy.",
+      "start": 109.32,
+      "duration": 5.0
+    },
+    {
+      "text": "Then after spending a lot of\ntime on this course last year,",
+      "start": 114.32,
+      "duration": 2.98
+    },
+    {
+      "text": "I'm now doing LLM research,\nand I'm really excited to TA",
+      "start": 117.3,
+      "duration": 3.42
+    },
+    {
+      "text": "this year.",
+      "start": 120.72,
+      "duration": 2.64
+    },
+    {
+      "text": "Hi, everyone.",
+      "start": 123.36,
+      "duration": 0.7
+    },
+    {
+      "text": "I'm Stephen.",
+      "start": 124.06,
+      "duration": 1.06
+    },
+    {
+      "text": "I am a first time\nCA for this course",
+      "start": 125.12,
+      "duration": 1.8
+    },
+    {
+      "text": "and I'm very excited about it.",
+      "start": 126.92,
+      "duration": 1.92
+    },
+    {
+      "text": "I think it will be a lot of fun.",
+      "start": 128.84,
+      "duration": 1.68
+    },
+    {
+      "text": "Broadly, in my research, I\nwork on language models, theory",
+      "start": 130.52,
+      "duration": 3.24
+    },
+    {
+      "text": "and some data efficiency stuff,\nand I'm excited to meet you all.",
+      "start": 133.76,
+      "duration": 4.6
+    },
+    {
+      "text": "All right, so let's\ngo into things.",
+      "start": 138.36,
+      "duration": 5.08
+    },
+    {
+      "text": "So this is the third\ntime we're offering it.",
+      "start": 143.44,
+      "duration": 3.52
+    },
+    {
+      "text": "Last year, we decided to put\nall our lectures on YouTube.",
+      "start": 146.96,
+      "duration": 2.62
+    },
+    {
+      "text": "So some of you have seen it.",
+      "start": 149.58,
+      "duration": 1.94
+    },
+    {
+      "text": "So what's new?",
+      "start": 151.52,
+      "duration": 1.88
+    },
+    {
+      "text": "Well, what hasn't changed is\n'from scratch' philosophy.",
+      "start": 153.4,
+      "duration": 2.94
+    },
+    {
+      "text": "We still believe strongly\nthat by building everything",
+      "start": 156.34,
+      "duration": 2.78
+    },
+    {
+      "text": "from the ground up, you really\nlearn how everything works.",
+      "start": 159.12,
+      "duration": 5.32
+    },
+    {
+      "text": "Of course, we don't actually\nbuild everything up from scratch",
+      "start": 164.44,
+      "duration": 4.44
+    },
+    {
+      "text": "because that wouldn't\nfit in the quarter.",
+      "start": 168.88,
+      "duration": 3.96
+    },
+    {
+      "text": "So over the last two years,\nwe've been refining our recipe",
+      "start": 172.84,
+      "duration": 3.84
+    },
+    {
+      "text": "and figuring out what are\nthe things that you build up",
+      "start": 176.68,
+      "duration": 2.25
+    },
+    {
+      "text": "from scratch that are\nthe most high value?",
+      "start": 178.93,
+      "duration": 2.0
+    },
+    {
+      "text": "And then finally, as Tatsu\nalluded to, even in a year,",
+      "start": 180.93,
+      "duration": 4.32
+    },
+    {
+      "text": "a lot has changed.",
+      "start": 185.25,
+      "duration": 1.8
+    },
+    {
+      "text": "I think this year we're going\nto spend maybe a bit more time",
+      "start": 187.05,
+      "duration": 4.12
+    },
+    {
+      "text": "on mixture of experts.",
+      "start": 191.17,
+      "duration": 1.4
+    },
+    {
+      "text": "And of course, agents are\nvery popular these days.",
+      "start": 192.57,
+      "duration": 4.38
+    },
+    {
+      "text": "So getting a handle\non long-context",
+      "start": 196.95,
+      "duration": 2.46
+    },
+    {
+      "text": "and what is needed for that\nare going to be important.",
+      "start": 199.41,
+      "duration": 4.52
+    },
+    {
+      "text": "So why did we make this course?",
+      "start": 203.93,
+      "duration": 2.94
+    },
+    {
+      "text": "And I think the\nproblem two years ago",
+      "start": 206.87,
+      "duration": 4.3
+    },
+    {
+      "text": "was that researchers were\nbecoming disconnected",
+      "start": 211.17,
+      "duration": 3.04
+    },
+    {
+      "text": "from the underlying technology.",
+      "start": 214.21,
+      "duration": 1.94
+    },
+    {
+      "text": "It used to be the\ncase may 10 years ago,",
+      "start": 216.15,
+      "duration": 3.74
+    },
+    {
+      "text": "all AI researchers would\njust implement and train",
+      "start": 219.89,
+      "duration": 2.08
+    },
+    {
+      "text": "their own models.",
+      "start": 221.97,
+      "duration": 1.44
+    },
+    {
+      "text": "And then even eight\nyears ago, people",
+      "start": 223.41,
+      "duration": 3.36
+    },
+    {
+      "text": "would download pre-trained\nmodels such as Bert",
+      "start": 226.77,
+      "duration": 3.56
+    },
+    {
+      "text": "and fine tune them.",
+      "start": 230.33,
+      "duration": 1.56
+    },
+    {
+      "text": "And I think a lot of\ntoday, you can get by",
+      "start": 231.89,
+      "duration": 3.72
+    },
+    {
+      "text": "by simply prompting a model.",
+      "start": 235.61,
+      "duration": 2.623
+    },
+    {
+      "text": "And of course, there's nothing\nwrong with prompting model.",
+      "start": 238.233,
+      "duration": 2.417
+    },
+    {
+      "text": "I think you can do\namazing things with it.",
+      "start": 240.65,
+      "duration": 2.64
+    },
+    {
+      "text": "I think moving up the\nabstraction in general",
+      "start": 243.29,
+      "duration": 2.68
+    },
+    {
+      "text": "is a great thing, but\nabstractions are leaky,",
+      "start": 245.97,
+      "duration": 3.68
+    },
+    {
+      "text": "and sometimes, I'm sure all\nof you have prompted models,",
+      "start": 249.65,
+      "duration": 3.1
+    },
+    {
+      "text": "you run into situations\nwhere something is--",
+      "start": 252.75,
+      "duration": 2.62
+    },
+    {
+      "text": "you wanted to do something,\nbut it just can't do it",
+      "start": 255.37,
+      "duration": 3.12
+    },
+    {
+      "text": "and there's no recourse.",
+      "start": 258.49,
+      "duration": 3.0
+    },
+    {
+      "text": "And I would argue that if\nyou're really interested",
+      "start": 261.49,
+      "duration": 2.32
+    },
+    {
+      "text": "in fundamental research, by\nsimply prompting a model,",
+      "start": 263.81,
+      "duration": 4.18
+    },
+    {
+      "text": "you're vastly constraining\nthe set of options, the design",
+      "start": 267.99,
+      "duration": 3.42
+    },
+    {
+      "text": "space you're looking at.",
+      "start": 271.41,
+      "duration": 1.52
+    },
+    {
+      "text": "And by looking at\nfundamental research,",
+      "start": 272.93,
+      "duration": 2.66
+    },
+    {
+      "text": "you really need to tear\nup the whole stack.",
+      "start": 275.59,
+      "duration": 3.06
+    },
+    {
+      "text": "So I would argue that\nfull understanding of how",
+      "start": 278.65,
+      "duration": 2.32
+    },
+    {
+      "text": "language models work\nis really necessary",
+      "start": 280.97,
+      "duration": 2.76
+    },
+    {
+      "text": "for fundamental research.",
+      "start": 283.73,
+      "duration": 1.84
+    },
+    {
+      "text": "And the way that we're going\nto get an understanding",
+      "start": 285.57,
+      "duration": 2.36
+    },
+    {
+      "text": "is by building.",
+      "start": 287.93,
+      "duration": 1.42
+    },
+    {
+      "text": "That's the philosophy\nof the class.",
+      "start": 289.35,
+      "duration": 2.34
+    },
+    {
+      "text": "But there's one\nsmall problem, which",
+      "start": 291.69,
+      "duration": 2.52
+    },
+    {
+      "text": "is that industrialization of\nlanguage models has happened.",
+      "start": 294.21,
+      "duration": 3.72
+    },
+    {
+      "text": "Frontier models are\nreally, really expensive.",
+      "start": 297.93,
+      "duration": 2.58
+    },
+    {
+      "text": "Even, this is three years ago.",
+      "start": 300.51,
+      "duration": 2.14
+    },
+    {
+      "text": "GPT-4 was supposedly costing\n$100 million to train,",
+      "start": 302.65,
+      "duration": 4.58
+    },
+    {
+      "text": "and now costs probably are\non the order of $1 billion,",
+      "start": 307.23,
+      "duration": 3.36
+    },
+    {
+      "text": "although that's speculative.",
+      "start": 310.59,
+      "duration": 2.34
+    },
+    {
+      "text": "And the number of GPUs that\nall the big labs are building",
+      "start": 312.93,
+      "duration": 3.56
+    },
+    {
+      "text": "is just immense.",
+      "start": 316.49,
+      "duration": 2.24
+    },
+    {
+      "text": "Furthermore, there's no details\non how any of these models",
+      "start": 318.73,
+      "duration": 2.84
+    },
+    {
+      "text": "are built. So even back in\n2023, the GPT-4 paper explicitly",
+      "start": 321.57,
+      "duration": 4.76
+    },
+    {
+      "text": "says that due to a competitive\nlandscape and safety",
+      "start": 326.33,
+      "duration": 2.56
+    },
+    {
+      "text": "implications, we're not going\nto share anything about how",
+      "start": 328.89,
+      "duration": 2.56
+    },
+    {
+      "text": "the models are being built.",
+      "start": 331.45,
+      "duration": 2.2
+    },
+    {
+      "text": "So these frontier\nmodels are in some sense",
+      "start": 333.65,
+      "duration": 2.28
+    },
+    {
+      "text": "out of the reach for us.",
+      "start": 335.93,
+      "duration": 2.16
+    },
+    {
+      "text": "Now, we could build\nsmall language models,",
+      "start": 338.09,
+      "duration": 2.68
+    },
+    {
+      "text": "and we will build\nlanguage models.",
+      "start": 340.77,
+      "duration": 2.28
+    },
+    {
+      "text": "But I think it's important to\nremember that these might not",
+      "start": 343.05,
+      "duration": 3.36
+    },
+    {
+      "text": "be representative of the\nactual frontier models.",
+      "start": 346.41,
+      "duration": 3.58
+    },
+    {
+      "text": "And I'll give you two examples\nwhy this might be the case.",
+      "start": 349.99,
+      "duration": 4.58
+    },
+    {
+      "text": "So here's one.",
+      "start": 354.57,
+      "duration": 1.88
+    },
+    {
+      "text": "This is from actually\nquite a long time ago.",
+      "start": 356.45,
+      "duration": 2.76
+    },
+    {
+      "text": "I think back in 2021.",
+      "start": 359.21,
+      "duration": 2.28
+    },
+    {
+      "text": "If we're going to\nspend more time on flop",
+      "start": 361.49,
+      "duration": 2.36
+    },
+    {
+      "text": "counting and looking at where\nthe compute is being spent.",
+      "start": 363.85,
+      "duration": 2.62
+    },
+    {
+      "text": "But if you look at small\nscales, the fraction",
+      "start": 366.47,
+      "duration": 2.78
+    },
+    {
+      "text": "of flops spent in the\nMLP layers is around 44%.",
+      "start": 369.25,
+      "duration": 5.4
+    },
+    {
+      "text": "And if you scale up to\n175B, then it goes to 80%.",
+      "start": 374.65,
+      "duration": 5.36
+    },
+    {
+      "text": "So what you optimize and\nwhat matters at large scale",
+      "start": 380.01,
+      "duration": 3.52
+    },
+    {
+      "text": "is going to be different\nfrom small scale.",
+      "start": 383.53,
+      "duration": 1.94
+    },
+    {
+      "text": "So if you did a bunch\nof small scale stuff",
+      "start": 385.47,
+      "duration": 1.75
+    },
+    {
+      "text": "here on the attention, you might\nnot experience the same benefits",
+      "start": 387.22,
+      "duration": 4.43
+    },
+    {
+      "text": "at large scale.",
+      "start": 391.65,
+      "duration": 2.0
+    },
+    {
+      "text": "The second example is that we\nknow of emergence of behavior",
+      "start": 393.65,
+      "duration": 6.48
+    },
+    {
+      "text": "with scale.",
+      "start": 400.13,
+      "duration": 0.92
+    },
+    {
+      "text": "So small models, this is, again,\nfor a while ago, but even back",
+      "start": 401.05,
+      "duration": 4.0
+    },
+    {
+      "text": "then, if you have a\n0 shot or a few shot",
+      "start": 405.05,
+      "duration": 5.29
+    },
+    {
+      "text": "learning of various\ntasks, it basically,",
+      "start": 410.34,
+      "duration": 2.16
+    },
+    {
+      "text": "seemed like nothing\nwas working, and only",
+      "start": 412.5,
+      "duration": 2.48
+    },
+    {
+      "text": "when you reach a critical\nscale do you suddenly",
+      "start": 414.98,
+      "duration": 3.0
+    },
+    {
+      "text": "see a lot of improvement.",
+      "start": 417.98,
+      "duration": 2.68
+    },
+    {
+      "text": "So again, if you're\nworking on small scale,",
+      "start": 420.66,
+      "duration": 2.1
+    },
+    {
+      "text": "you might not see certain\ntypes of phenomenon",
+      "start": 422.76,
+      "duration": 2.58
+    },
+    {
+      "text": "compared to if you were\nworking at full scale.",
+      "start": 425.34,
+      "duration": 3.84
+    },
+    {
+      "text": "OK, so that might be a little\nbit disheartening, but fear not,",
+      "start": 429.18,
+      "duration": 5.06
+    },
+    {
+      "text": "we're going to learn\nsomething in this class.",
+      "start": 434.24,
+      "duration": 1.92
+    },
+    {
+      "text": "And the question is, what can we\nlearn that actually transfers?",
+      "start": 436.16,
+      "duration": 4.14
+    },
+    {
+      "text": "And I think it's important\nto break this down",
+      "start": 440.3,
+      "duration": 2.04
+    },
+    {
+      "text": "into three types of knowledge.",
+      "start": 442.34,
+      "duration": 2.04
+    },
+    {
+      "text": "First, there's the\nmechanics of how",
+      "start": 444.38,
+      "duration": 3.36
+    },
+    {
+      "text": "things work, what a transformer\nis, how model parallelism works.",
+      "start": 447.74,
+      "duration": 3.76
+    },
+    {
+      "text": "There's mindset,\nwhich is, how do you",
+      "start": 451.5,
+      "duration": 3.4
+    },
+    {
+      "text": "go about approaching\nbuilding a language model?",
+      "start": 454.9,
+      "duration": 2.737
+    },
+    {
+      "text": "We're going to talk about how\nyou want to squeeze the most out",
+      "start": 457.637,
+      "duration": 2.583
+    },
+    {
+      "text": "of your hardware, taking\nscaling seriously.",
+      "start": 460.22,
+      "duration": 2.72
+    },
+    {
+      "text": "And then finally, intuitions.",
+      "start": 462.94,
+      "duration": 1.6
+    },
+    {
+      "text": "Which data modeling\ndecisions are going",
+      "start": 464.54,
+      "duration": 2.32
+    },
+    {
+      "text": "to yield good performance?",
+      "start": 466.86,
+      "duration": 2.52
+    },
+    {
+      "text": "So now, in this\nclass, I think we",
+      "start": 469.38,
+      "duration": 2.42
+    },
+    {
+      "text": "can do a pretty\ngood job of teaching",
+      "start": 471.8,
+      "duration": 1.5
+    },
+    {
+      "text": "the mechanics, which is how\nthings work and the mindset.",
+      "start": 473.3,
+      "duration": 3.873
+    },
+    {
+      "text": "And we're going to really\nemphasize that you profile",
+      "start": 477.173,
+      "duration": 2.167
+    },
+    {
+      "text": "and benchmark everything and\ntry to optimize for efficiency.",
+      "start": 479.34,
+      "duration": 4.24
+    },
+    {
+      "text": "These things do transfer\nto a larger scale.",
+      "start": 483.58,
+      "duration": 2.88
+    },
+    {
+      "text": "Now, the intuitions about\nwhat modeling decisions",
+      "start": 486.46,
+      "duration": 3.08
+    },
+    {
+      "text": "and what data decisions do\nwork might not necessarily",
+      "start": 489.54,
+      "duration": 4.92
+    },
+    {
+      "text": "transfer across scales.",
+      "start": 494.46,
+      "duration": 2.158
+    },
+    {
+      "text": "For that, you actually\nhave to go somewhere where",
+      "start": 496.618,
+      "duration": 2.042
+    },
+    {
+      "text": "you can do things at scale.",
+      "start": 498.66,
+      "duration": 2.68
+    },
+    {
+      "text": "So on the note of\nintuitions, it is",
+      "start": 501.34,
+      "duration": 3.72
+    },
+    {
+      "text": "worth remarking that some\ndesign decisions are just",
+      "start": 505.06,
+      "duration": 5.12
+    },
+    {
+      "text": "not justifiable, and just purely\ncome from experimentation.",
+      "start": 510.18,
+      "duration": 4.859
+    },
+    {
+      "text": "Whereas mechanics, you\ncan, by construction,",
+      "start": 515.039,
+      "duration": 3.201
+    },
+    {
+      "text": "see how the parallelism\nand how kernels are going",
+      "start": 518.24,
+      "duration": 3.38
+    },
+    {
+      "text": "to speed things up and so on.",
+      "start": 521.62,
+      "duration": 2.52
+    },
+    {
+      "text": "But for intuitions about\nwhat modeling changes work,",
+      "start": 524.14,
+      "duration": 3.312
+    },
+    {
+      "text": "I think you just have\nto run experiments.",
+      "start": 527.452,
+      "duration": 1.708
+    },
+    {
+      "text": "There's this famous\nNoam Shazeer paper",
+      "start": 529.16,
+      "duration": 2.3
+    },
+    {
+      "text": "that introduces the\nSwiGLU activation, which",
+      "start": 531.46,
+      "duration": 2.48
+    },
+    {
+      "text": "we're going to look about.",
+      "start": 533.94,
+      "duration": 1.62
+    },
+    {
+      "text": "And in the conclusion\nsection, he very honestly",
+      "start": 535.56,
+      "duration": 3.22
+    },
+    {
+      "text": "has this final sentence which\nsays, we offer no explanation.",
+      "start": 538.78,
+      "duration": 4.6
+    },
+    {
+      "text": "We attribute their success, of\nthese architectures, all else,",
+      "start": 543.38,
+      "duration": 2.62
+    },
+    {
+      "text": "to divine benevolence.",
+      "start": 546.0,
+      "duration": 1.54
+    },
+    {
+      "text": "So that, in some sense,\nis something that you just",
+      "start": 547.54,
+      "duration": 4.12
+    },
+    {
+      "text": "have to gain from experience.",
+      "start": 551.66,
+      "duration": 3.52
+    },
+    {
+      "text": "Final note about the bitter\nlesson, which I think",
+      "start": 555.18,
+      "duration": 2.8
+    },
+    {
+      "text": "has been circulating and\npeople talk about it.",
+      "start": 557.98,
+      "duration": 4.0
+    },
+    {
+      "text": "I think there's a common\nmisconception here,",
+      "start": 561.98,
+      "duration": 3.78
+    },
+    {
+      "text": "what it means.",
+      "start": 565.76,
+      "duration": 1.242
+    },
+    {
+      "text": "I think the wrong\ninterpretation is",
+      "start": 567.002,
+      "duration": 1.458
+    },
+    {
+      "text": "that scale is all that matters.",
+      "start": 568.46,
+      "duration": 1.9
+    },
+    {
+      "text": "Algorithms don't matter.",
+      "start": 570.36,
+      "duration": 1.78
+    },
+    {
+      "text": "But that's not correct.",
+      "start": 572.14,
+      "duration": 1.78
+    },
+    {
+      "text": "The right interpretation is\nthat algorithms that scale are",
+      "start": 573.92,
+      "duration": 2.66
+    },
+    {
+      "text": "what that-- or what matters.",
+      "start": 576.58,
+      "duration": 3.0
+    },
+    {
+      "text": "And you can think\nabout very simply",
+      "start": 579.58,
+      "duration": 2.72
+    },
+    {
+      "text": "that the accuracy of your model\nis basically your efficiency",
+      "start": 582.3,
+      "duration": 4.24
+    },
+    {
+      "text": "times the resources.",
+      "start": 586.54,
+      "duration": 2.3
+    },
+    {
+      "text": "So efficiency is\noutput over input,",
+      "start": 588.84,
+      "duration": 1.46
+    },
+    {
+      "text": "and resources is the input.",
+      "start": 590.3,
+      "duration": 2.72
+    },
+    {
+      "text": "And efficiency is\nactually, in some sense,",
+      "start": 593.02,
+      "duration": 3.92
+    },
+    {
+      "text": "way more important at\nlarger scale, right?",
+      "start": 596.94,
+      "duration": 2.38
+    },
+    {
+      "text": "If you're doing a\nsmall scale experiment,",
+      "start": 599.32,
+      "duration": 2.0
+    },
+    {
+      "text": "if your run takes twice\nas long, maybe you just",
+      "start": 601.32,
+      "duration": 3.98
+    },
+    {
+      "text": "wait twice as long and\nthen you come back later.",
+      "start": 605.3,
+      "duration": 3.62
+    },
+    {
+      "text": "But if you're doing\nthings at scale,",
+      "start": 608.92,
+      "duration": 2.1
+    },
+    {
+      "text": "that could be hundreds\nof millions of dollars.",
+      "start": 611.02,
+      "duration": 2.86
+    },
+    {
+      "text": "And you definitely\ndon't want to do that.",
+      "start": 613.88,
+      "duration": 1.76
+    },
+    {
+      "text": "Even like a 5% improvement\nmight be a big deal.",
+      "start": 615.64,
+      "duration": 3.58
+    },
+    {
+      "text": "So in fact, efficiency\nis actually really,",
+      "start": 619.22,
+      "duration": 2.06
+    },
+    {
+      "text": "really critical.",
+      "start": 621.28,
+      "duration": 0.76
+    },
+    {
+      "text": "And I hope to bake\nthat into your mindset",
+      "start": 622.04,
+      "duration": 2.9
+    },
+    {
+      "text": "as one of the consequences\nof this class.",
+      "start": 624.94,
+      "duration": 3.68
+    },
+    {
+      "text": "And empirically, if you look\nat-- there's this paper from",
+      "start": 628.62,
+      "duration": 3.92
+    },
+    {
+      "text": "OpenAI in 2020 that showed\nthere's a 44x algorithmic",
+      "start": 632.54,
+      "duration": 3.92
+    },
+    {
+      "text": "efficiency on ImageNet\nbetween 2012 and 2019.",
+      "start": 636.46,
+      "duration": 4.49
+    },
+    {
+      "text": "And it's surely the case that\nhardware did get a lot better,",
+      "start": 640.95,
+      "duration": 4.72
+    },
+    {
+      "text": "but that also comes with\nalgorithmic improvements.",
+      "start": 645.67,
+      "duration": 3.78
+    },
+    {
+      "text": "And of course, when you\nmultiply them together,",
+      "start": 649.45,
+      "duration": 2.4
+    },
+    {
+      "text": "that's when you see a huge bump\nin efficiency and accuracy.",
+      "start": 651.85,
+      "duration": 7.54
+    },
+    {
+      "text": "So the framing\nwith all that said",
+      "start": 659.39,
+      "duration": 3.22
+    },
+    {
+      "text": "is, what is the best model one\ncan build with a certain data",
+      "start": 662.61,
+      "duration": 4.98
+    },
+    {
+      "text": "and compute budget?",
+      "start": 667.59,
+      "duration": 2.06
+    },
+    {
+      "text": "For pre-training,\nit's mostly, we're",
+      "start": 669.65,
+      "duration": 1.5
+    },
+    {
+      "text": "going to talk about\ncompute budget,",
+      "start": 671.15,
+      "duration": 1.458
+    },
+    {
+      "text": "because we're going to assume\nthat we have a lot more data",
+      "start": 672.608,
+      "duration": 2.782
+    },
+    {
+      "text": "than we have compute.",
+      "start": 675.39,
+      "duration": 1.96
+    },
+    {
+      "text": "But if you're in a setting\nwhere you're data limited",
+      "start": 677.35,
+      "duration": 3.28
+    },
+    {
+      "text": "or you have stashed away,\nactually, tons of B200s,",
+      "start": 680.63,
+      "duration": 4.7
+    },
+    {
+      "text": "then you might be data bound.",
+      "start": 685.33,
+      "duration": 3.86
+    },
+    {
+      "text": "So in other words,\nmaximize efficiency.",
+      "start": 689.19,
+      "duration": 2.38
+    },
+    {
+      "text": "And we're going to\nsee this theme come up",
+      "start": 691.57,
+      "duration": 2.02
+    },
+    {
+      "text": "throughout the class.",
+      "start": 693.59,
+      "duration": 3.08
+    },
+    {
+      "text": "OK.",
+      "start": 696.67,
+      "duration": 1.38
+    },
+    {
+      "text": "So next, I want to spend a bit\nof time talking about language",
+      "start": 698.05,
+      "duration": 4.06
+    },
+    {
+      "text": "models and a bit of a history\nand just contextualization",
+      "start": 702.11,
+      "duration": 3.2
+    },
+    {
+      "text": "before we jump into the\nmore technical details.",
+      "start": 705.31,
+      "duration": 4.36
+    },
+    {
+      "text": "So language models have\nbeen around for a while.",
+      "start": 709.67,
+      "duration": 3.2
+    },
+    {
+      "text": "Shannon, back in the '50s was\nusing language models to measure",
+      "start": 712.87,
+      "duration": 3.04
+    },
+    {
+      "text": "the entropy of English.",
+      "start": 715.91,
+      "duration": 2.28
+    },
+    {
+      "text": "And for a long\ntime, N-gram models",
+      "start": 718.19,
+      "duration": 4.11
+    },
+    {
+      "text": "were used, actually, in\nmachine translation and speech",
+      "start": 722.3,
+      "duration": 2.25
+    },
+    {
+      "text": "recognition systems.",
+      "start": 724.55,
+      "duration": 3.04
+    },
+    {
+      "text": "And they weren't\nthe whole system,",
+      "start": 727.59,
+      "duration": 1.86
+    },
+    {
+      "text": "but they were an important\npart of making sure",
+      "start": 729.45,
+      "duration": 1.917
+    },
+    {
+      "text": "that you generated fluent text.",
+      "start": 731.367,
+      "duration": 2.103
+    },
+    {
+      "text": "I would say that the lineage\nof the Modern Language models",
+      "start": 733.47,
+      "duration": 4.44
+    },
+    {
+      "text": "comes from neural architectures.",
+      "start": 737.91,
+      "duration": 2.72
+    },
+    {
+      "text": "And so there is a bunch\nof ideas, I think,",
+      "start": 740.63,
+      "duration": 5.02
+    },
+    {
+      "text": "which are important\nto this development.",
+      "start": 745.65,
+      "duration": 2.46
+    },
+    {
+      "text": "So in the '90s, there was LSTMs.",
+      "start": 748.11,
+      "duration": 4.28
+    },
+    {
+      "text": "Yoshua Bengio, actually, wrote\nthe first neural language model",
+      "start": 752.39,
+      "duration": 4.04
+    },
+    {
+      "text": "in paperback in 2003.",
+      "start": 756.43,
+      "duration": 2.26
+    },
+    {
+      "text": "This is actually not an LSTM.",
+      "start": 758.69,
+      "duration": 1.4
+    },
+    {
+      "text": "This was just a\nfeedforward network that",
+      "start": 760.09,
+      "duration": 2.42
+    },
+    {
+      "text": "looked at the small context.",
+      "start": 762.51,
+      "duration": 2.8
+    },
+    {
+      "text": "And then there was a Seq2Seq\nmodeling, which boldly said,",
+      "start": 765.31,
+      "duration": 3.98
+    },
+    {
+      "text": "we can actually compress a\nwhole sentence into a vector.",
+      "start": 769.29,
+      "duration": 4.62
+    },
+    {
+      "text": "The atom optimizer\nattention mechanism,",
+      "start": 773.91,
+      "duration": 2.42
+    },
+    {
+      "text": "which was developed for\nmachine translation.",
+      "start": 776.33,
+      "duration": 2.22
+    },
+    {
+      "text": "The transformer architecture,\nwhich built on top",
+      "start": 778.55,
+      "duration": 2.0
+    },
+    {
+      "text": "of that, which\nwas also developed",
+      "start": 780.55,
+      "duration": 1.375
+    },
+    {
+      "text": "for machine translation.",
+      "start": 781.925,
+      "duration": 1.545
+    },
+    {
+      "text": "And then scaling up to a mixture\nof experts model parallelism.",
+      "start": 783.47,
+      "duration": 4.6
+    },
+    {
+      "text": "You see a lot of different\narchitecture and also systems",
+      "start": 788.07,
+      "duration": 4.56
+    },
+    {
+      "text": "and optimizer ideas\ndeveloped in the 2010s.",
+      "start": 792.63,
+      "duration": 5.92
+    },
+    {
+      "text": "And then by the\nlate 2010s, I think,",
+      "start": 798.55,
+      "duration": 2.16
+    },
+    {
+      "text": "things were starting to\nget really interesting.",
+      "start": 800.71,
+      "duration": 2.36
+    },
+    {
+      "text": "So there was the ELMo and BERT.",
+      "start": 803.07,
+      "duration": 4.18
+    },
+    {
+      "text": "These are language models that\nwere trained on lots of text,",
+      "start": 807.25,
+      "duration": 4.12
+    },
+    {
+      "text": "and then you could\nfine tune them",
+      "start": 811.37,
+      "duration": 1.42
+    },
+    {
+      "text": "on some downstream tasks\nlike question answering,",
+      "start": 812.79,
+      "duration": 2.22
+    },
+    {
+      "text": "and it would show a huge\nimprovement on that.",
+      "start": 815.01,
+      "duration": 2.9
+    },
+    {
+      "text": "So the model there was, take\none of these models and then",
+      "start": 817.91,
+      "duration": 3.4
+    },
+    {
+      "text": "fine tune.",
+      "start": 821.31,
+      "duration": 1.44
+    },
+    {
+      "text": "And then Google had a\npaper that was really,",
+      "start": 822.75,
+      "duration": 3.78
+    },
+    {
+      "text": "I think, foreshadowing this\nview of prompt in, response out.",
+      "start": 826.53,
+      "duration": 5.22
+    },
+    {
+      "text": "So it was really,\nI think, OpenAI",
+      "start": 831.75,
+      "duration": 2.48
+    },
+    {
+      "text": "that really opened\nup the floodgates",
+      "start": 834.23,
+      "duration": 3.12
+    },
+    {
+      "text": "here by embracing scaling.",
+      "start": 837.35,
+      "duration": 2.02
+    },
+    {
+      "text": "So they had GPT paper back\nin, I think, 2018 or so.",
+      "start": 839.37,
+      "duration": 4.42
+    },
+    {
+      "text": "They scaled it up to GPT-2, and\nthen they really figured out",
+      "start": 843.79,
+      "duration": 7.52
+    },
+    {
+      "text": "or embrace the idea\nof scaling laws,",
+      "start": 851.31,
+      "duration": 2.36
+    },
+    {
+      "text": "which we're going to\ntalk about in a second,",
+      "start": 853.67,
+      "duration": 2.72
+    },
+    {
+      "text": "which enable them\nto train GPT-3,",
+      "start": 856.39,
+      "duration": 4.12
+    },
+    {
+      "text": "which was a much more\nmassive, almost more than 10x,",
+      "start": 860.51,
+      "duration": 4.32
+    },
+    {
+      "text": "the largest model at the time.",
+      "start": 864.83,
+      "duration": 2.142
+    },
+    {
+      "text": "And it could show\nemergent behavior",
+      "start": 866.972,
+      "duration": 1.458
+    },
+    {
+      "text": "like in-context learning.",
+      "start": 868.43,
+      "duration": 2.04
+    },
+    {
+      "text": "At that point, Google\nwas saying, OK,",
+      "start": 870.47,
+      "duration": 4.1
+    },
+    {
+      "text": "we need to do something too.",
+      "start": 874.57,
+      "duration": 2.187
+    },
+    {
+      "text": "So they trained a massive model.",
+      "start": 876.757,
+      "duration": 1.333
+    },
+    {
+      "text": "It turned out to\nbe undertrained.",
+      "start": 878.09,
+      "duration": 2.34
+    },
+    {
+      "text": "And it turned out that their\nDeepMind, which was not",
+      "start": 880.43,
+      "duration": 2.28
+    },
+    {
+      "text": "integrated with\nGoogle at the time,",
+      "start": 882.71,
+      "duration": 1.54
+    },
+    {
+      "text": "had figured out optimal-compute,\noptimal scaling laws.",
+      "start": 884.25,
+      "duration": 5.18
+    },
+    {
+      "text": "So all of this was happening.",
+      "start": 889.43,
+      "duration": 2.58
+    },
+    {
+      "text": "And after GPT-3 came out,\nI think for many folks,",
+      "start": 892.01,
+      "duration": 4.36
+    },
+    {
+      "text": "this was kind of a wake up call.",
+      "start": 896.37,
+      "duration": 2.42
+    },
+    {
+      "text": "And at that time, there were\na lot of early attempts to,",
+      "start": 898.79,
+      "duration": 2.72
+    },
+    {
+      "text": "let's try to replicate this.",
+      "start": 901.51,
+      "duration": 2.36
+    },
+    {
+      "text": "So there was a\ngrassroots organization",
+      "start": 903.87,
+      "duration": 1.6
+    },
+    {
+      "text": "called Eleuther that created\nsome open data sets and models.",
+      "start": 905.47,
+      "duration": 3.22
+    },
+    {
+      "text": "They weren't very large because\nthey didn't have much compute.",
+      "start": 908.69,
+      "duration": 2.98
+    },
+    {
+      "text": "Meta first LLM, you could\ntell that it's a replication",
+      "start": 911.67,
+      "duration": 5.76
+    },
+    {
+      "text": "because it was like\n175 billion parameters,",
+      "start": 917.43,
+      "duration": 3.76
+    },
+    {
+      "text": "but it was not a\nvery good model.",
+      "start": 921.19,
+      "duration": 2.76
+    },
+    {
+      "text": "They ran into a lot\nof hardware issues.",
+      "start": 923.95,
+      "duration": 3.44
+    },
+    {
+      "text": "And then there was another,\nHugging Face BigScience project.",
+      "start": 927.39,
+      "duration": 3.59
+    },
+    {
+      "text": "So these models were, I\nwould say, not very strong.",
+      "start": 930.98,
+      "duration": 4.22
+    },
+    {
+      "text": "Then in the last three years, I\nthink, the open model ecosystem",
+      "start": 935.2,
+      "duration": 3.32
+    },
+    {
+      "text": "has changed quite\na bit, with Meta",
+      "start": 938.52,
+      "duration": 2.44
+    },
+    {
+      "text": "kind of leading the way with\nthe Llama series of models.",
+      "start": 940.96,
+      "duration": 3.0
+    },
+    {
+      "text": "Llama, Llama 2, Llama 3.",
+      "start": 943.96,
+      "duration": 2.24
+    },
+    {
+      "text": "Mistral got in the game.",
+      "start": 946.2,
+      "duration": 1.68
+    },
+    {
+      "text": "And then a whole set\nof Chinese models.",
+      "start": 947.88,
+      "duration": 5.76
+    },
+    {
+      "text": "I think I'm missing some.",
+      "start": 953.64,
+      "duration": 1.42
+    },
+    {
+      "text": "Like, ByteDance has something,\nand I think Tencent probably",
+      "start": 955.06,
+      "duration": 4.125
+    },
+    {
+      "text": "has some other stuff.",
+      "start": 959.185,
+      "duration": 0.875
+    },
+    {
+      "text": "So it's hard to keep\ntrack of everything,",
+      "start": 960.06,
+      "duration": 1.92
+    },
+    {
+      "text": "but everyone's heard\nof DeepSeek and Qwen.",
+      "start": 961.98,
+      "duration": 2.58
+    },
+    {
+      "text": "So I think I got the main ones.",
+      "start": 964.56,
+      "duration": 3.26
+    },
+    {
+      "text": "But I think what's interesting\nand exciting about these is now",
+      "start": 967.82,
+      "duration": 2.98
+    },
+    {
+      "text": "we have open weight models that\nare approaching closed models.",
+      "start": 970.8,
+      "duration": 3.74
+    },
+    {
+      "text": "So depending on who you\nask and how you benchmark,",
+      "start": 974.54,
+      "duration": 2.32
+    },
+    {
+      "text": "they might be a little\nbit behind or comparable.",
+      "start": 976.86,
+      "duration": 2.22
+    },
+    {
+      "text": "But they are definitely\nvery, very credible models",
+      "start": 979.08,
+      "duration": 3.0
+    },
+    {
+      "text": "that are being widely\nused in industry.",
+      "start": 982.08,
+      "duration": 3.44
+    },
+    {
+      "text": "Now there's another\nline of work,",
+      "start": 985.52,
+      "duration": 3.34
+    },
+    {
+      "text": "which is going beyond just\nreleasing open weight models.",
+      "start": 988.86,
+      "duration": 4.18
+    },
+    {
+      "text": "AI2, NVIDIA and the Marin\nproject, which I work on,",
+      "start": 993.04,
+      "duration": 5.28
+    },
+    {
+      "text": "we try to provide not just\nthe weights, but the paper",
+      "start": 998.32,
+      "duration": 4.36
+    },
+    {
+      "text": "and the code and\nthe data so that we",
+      "start": 1002.68,
+      "duration": 1.72
+    },
+    {
+      "text": "can understand how\nthese models are",
+      "start": 1004.4,
+      "duration": 2.44
+    },
+    {
+      "text": "built in a more thorough way.",
+      "start": 1006.84,
+      "duration": 4.52
+    },
+    {
+      "text": "Why do I emphasize this\nopen ecosystem so much?",
+      "start": 1011.36,
+      "duration": 4.0
+    },
+    {
+      "text": "Mostly because this course\nwould not be possible,",
+      "start": 1015.36,
+      "duration": 2.34
+    },
+    {
+      "text": "I think, without these\nmodels by the fact",
+      "start": 1017.7,
+      "duration": 3.9
+    },
+    {
+      "text": "that there are still\nmany papers that",
+      "start": 1021.6,
+      "duration": 3.2
+    },
+    {
+      "text": "are being published about\nhow these big MOEs and RL",
+      "start": 1024.8,
+      "duration": 3.96
+    },
+    {
+      "text": "systems are working enables\nus to at least glimpse",
+      "start": 1028.76,
+      "duration": 4.12
+    },
+    {
+      "text": "into how these frontier\nmodels are being built,",
+      "start": 1032.88,
+      "duration": 2.52
+    },
+    {
+      "text": "and trying to\ntriangulate the pieces.",
+      "start": 1035.4,
+      "duration": 2.04
+    },
+    {
+      "text": "Now, I think, of course,\na lot of the details,",
+      "start": 1037.44,
+      "duration": 2.34
+    },
+    {
+      "text": "even with these Qwen\npapers, I think they're",
+      "start": 1039.78,
+      "duration": 3.118
+    },
+    {
+      "text": "missing a lot of details.",
+      "start": 1042.898,
+      "duration": 1.042
+    },
+    {
+      "text": "So can't reproduce them.",
+      "start": 1043.94,
+      "duration": 1.08
+    },
+    {
+      "text": "Notably, the data mixture is\nsomething that we don't, but I",
+      "start": 1045.02,
+      "duration": 3.74
+    },
+    {
+      "text": "think it's much\nbetter than nothing.",
+      "start": 1048.76,
+      "duration": 3.68
+    },
+    {
+      "text": "OK.",
+      "start": 1052.44,
+      "duration": 0.5
+    },
+    {
+      "text": "So in the last decade,\nI think, the idea",
+      "start": 1052.94,
+      "duration": 4.46
+    },
+    {
+      "text": "of what a language model\nhas changed, right?",
+      "start": 1057.4,
+      "duration": 2.92
+    },
+    {
+      "text": "It used to be something\nthat you fine-tuned,",
+      "start": 1060.32,
+      "duration": 3.64
+    },
+    {
+      "text": "and then it was\nsomething you prompt.",
+      "start": 1063.96,
+      "duration": 1.8
+    },
+    {
+      "text": "And now in the ChatGPT era,\nit was something you talked to",
+      "start": 1065.76,
+      "duration": 3.2
+    },
+    {
+      "text": "and that you can have\na conversation with.",
+      "start": 1068.96,
+      "duration": 3.64
+    },
+    {
+      "text": "And now-- OK, I guess\nI don't have internet.",
+      "start": 1072.6,
+      "duration": 2.7
+    },
+    {
+      "text": "[CHUCKLING]",
+      "start": 1075.3,
+      "duration": 0.7
+    },
+    {
+      "text": "That's fine.",
+      "start": 1076.0,
+      "duration": 2.28
+    },
+    {
+      "text": "And now, we're in\nthe era of agents.",
+      "start": 1078.28,
+      "duration": 2.615
+    },
+    {
+      "text": "If you click on this\nlink, it basically",
+      "start": 1080.895,
+      "duration": 1.625
+    },
+    {
+      "text": "shows you a giant agent trace.",
+      "start": 1082.52,
+      "duration": 2.32
+    },
+    {
+      "text": "And I'm still-- it's\nmind boggling how strong",
+      "start": 1084.84,
+      "duration": 5.0
+    },
+    {
+      "text": "some of these models are.",
+      "start": 1089.84,
+      "duration": 1.1
+    },
+    {
+      "text": "You give it like a\npage of text and it",
+      "start": 1090.94,
+      "duration": 1.86
+    },
+    {
+      "text": "does some really complicated\nagentic coding task.",
+      "start": 1092.8,
+      "duration": 3.88
+    },
+    {
+      "text": "So what we demand of our\nlanguage models today",
+      "start": 1096.68,
+      "duration": 3.64
+    },
+    {
+      "text": "is probably beyond the\nimagination of any one back",
+      "start": 1100.32,
+      "duration": 3.48
+    },
+    {
+      "text": "10 years ago.",
+      "start": 1103.8,
+      "duration": 1.84
+    },
+    {
+      "text": "That said, I think the\nfundamentals, I think,",
+      "start": 1105.64,
+      "duration": 3.26
+    },
+    {
+      "text": "haven't changed that much.",
+      "start": 1108.9,
+      "duration": 1.7
+    },
+    {
+      "text": "Largely, we still built\non GPUs and kernels.",
+      "start": 1110.6,
+      "duration": 3.24
+    },
+    {
+      "text": "We still optimize using\ngradient or stochastic",
+      "start": 1113.84,
+      "duration": 3.16
+    },
+    {
+      "text": "gradient-like approaches.",
+      "start": 1117.0,
+      "duration": 1.5
+    },
+    {
+      "text": "We still have the\ntransformer in attention,",
+      "start": 1118.5,
+      "duration": 2.68
+    },
+    {
+      "text": "And we'll talk a little bit\nmore about architectures,",
+      "start": 1121.18,
+      "duration": 2.72
+    },
+    {
+      "text": "but it hasn't changed that much.",
+      "start": 1123.9,
+      "duration": 2.98
+    },
+    {
+      "text": "I think the specs are different.",
+      "start": 1126.88,
+      "duration": 1.96
+    },
+    {
+      "text": "Now we demand greater\ncontext lengths,",
+      "start": 1128.84,
+      "duration": 2.86
+    },
+    {
+      "text": "which means that inference\nefficiency matters even more.",
+      "start": 1131.7,
+      "duration": 3.643
+    },
+    {
+      "text": "So the good news\nfor us is that we",
+      "start": 1135.343,
+      "duration": 1.417
+    },
+    {
+      "text": "didn't have to completely\nchange this class.",
+      "start": 1136.76,
+      "duration": 2.68
+    },
+    {
+      "text": "Only Tatsu's section on the\nlatest Chinese architectures.",
+      "start": 1139.44,
+      "duration": 3.38
+    },
+    {
+      "text": "[LAUGHTER]",
+      "start": 1142.82,
+      "duration": 0.5
+    },
+    {
+      "text": "But the fundamentals,\nI think, are here",
+      "start": 1143.32,
+      "duration": 4.24
+    },
+    {
+      "text": "to stay, at least for now.",
+      "start": 1147.56,
+      "duration": 3.4
+    },
+    {
+      "text": "OK, maybe I'll pause\nthere in case there's",
+      "start": 1150.96,
+      "duration": 2.2
+    },
+    {
+      "text": "any questions or thoughts.",
+      "start": 1153.16,
+      "duration": 2.5
+    },
+    {
+      "text": "OK.",
+      "start": 1165.87,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's go on.",
+      "start": 1166.37,
+      "duration": 2.48
+    },
+    {
+      "text": "So a brief interlude.",
+      "start": 1168.85,
+      "duration": 1.6
+    },
+    {
+      "text": "So what is this program?",
+      "start": 1170.45,
+      "duration": 2.12
+    },
+    {
+      "text": "So this is what I call\na executable lecture.",
+      "start": 1172.57,
+      "duration": 2.22
+    },
+    {
+      "text": "If you think it looks\nlike a Python program,",
+      "start": 1174.79,
+      "duration": 3.44
+    },
+    {
+      "text": "it is because it is\nactually a Python program,",
+      "start": 1178.23,
+      "duration": 3.3
+    },
+    {
+      "text": "but it has been rendered\nfor your viewing pleasure.",
+      "start": 1181.53,
+      "duration": 4.12
+    },
+    {
+      "text": "So when I step through it as\nactually executing the lecture.",
+      "start": 1185.65,
+      "duration": 4.48
+    },
+    {
+      "text": "And it makes us possible\nto basically step",
+      "start": 1190.13,
+      "duration": 4.04
+    },
+    {
+      "text": "through code, which\nwill be, hopefully,",
+      "start": 1194.17,
+      "duration": 2.08
+    },
+    {
+      "text": "interesting and important later.",
+      "start": 1196.25,
+      "duration": 1.333
+    },
+    {
+      "text": "And you can also see the\nhierarchical structure",
+      "start": 1197.583,
+      "duration": 1.959
+    },
+    {
+      "text": "of this lecture.",
+      "start": 1199.542,
+      "duration": 0.688
+    },
+    {
+      "text": "For example, we're done\nwith this function.",
+      "start": 1200.23,
+      "duration": 1.792
+    },
+    {
+      "text": "Now, we go back to main.",
+      "start": 1202.022,
+      "duration": 1.748
+    },
+    {
+      "text": "OK, so let's talk about\nthe course logistics,",
+      "start": 1203.77,
+      "duration": 3.92
+    },
+    {
+      "text": "and the syllabus,\nwhich I think is going",
+      "start": 1207.69,
+      "duration": 2.6
+    },
+    {
+      "text": "to take a good chunk of time.",
+      "start": 1210.29,
+      "duration": 4.0
+    },
+    {
+      "text": "So all the information\nis online at this website",
+      "start": 1214.29,
+      "duration": 3.8
+    },
+    {
+      "text": "or cs336.stanford.edu.",
+      "start": 1218.09,
+      "duration": 3.32
+    },
+    {
+      "text": "This is a 5-unit class.",
+      "start": 1221.41,
+      "duration": 2.12
+    },
+    {
+      "text": "I think this, probably, class\nhas a certain reputation,",
+      "start": 1223.53,
+      "duration": 3.3
+    },
+    {
+      "text": "so I don't need to belabor the\npoint too much, but this is--",
+      "start": 1226.83,
+      "duration": 4.14
+    },
+    {
+      "text": "we have five assignments.",
+      "start": 1230.97,
+      "duration": 1.46
+    },
+    {
+      "text": "They are pretty intense.",
+      "start": 1232.43,
+      "duration": 1.66
+    },
+    {
+      "text": "Even the first assignment\naccording to this one.",
+      "start": 1234.09,
+      "duration": 4.56
+    },
+    {
+      "text": "Review was actually equivalent\nto the 5 assignments.",
+      "start": 1238.65,
+      "duration": 3.66
+    },
+    {
+      "text": "First, CS 224n.",
+      "start": 1242.31,
+      "duration": 1.86
+    },
+    {
+      "text": "I've been told, also, this\nis exaggerated, but better",
+      "start": 1244.17,
+      "duration": 5.88
+    },
+    {
+      "text": "to, I guess, be conservative\nin your estimates.",
+      "start": 1250.05,
+      "duration": 4.88
+    },
+    {
+      "text": "So why should you-- so why\nshould you take this course OK,",
+      "start": 1254.93,
+      "duration": 3.42
+    },
+    {
+      "text": "so first you have\nan obsessive need me",
+      "start": 1258.35,
+      "duration": 2.38
+    },
+    {
+      "text": "to understand how things work.",
+      "start": 1260.73,
+      "duration": 1.86
+    },
+    {
+      "text": "That should be your\nprimary objective.",
+      "start": 1262.59,
+      "duration": 2.0
+    },
+    {
+      "text": "I think just pure curiosity\non how language models work.",
+      "start": 1264.59,
+      "duration": 3.82
+    },
+    {
+      "text": "And then in doing\nthe class, you'll",
+      "start": 1268.41,
+      "duration": 2.32
+    },
+    {
+      "text": "develop a much stronger\nresearch, engineering muscles",
+      "start": 1270.73,
+      "duration": 3.64
+    },
+    {
+      "text": "and have the confidence\nto go into a new setting",
+      "start": 1274.37,
+      "duration": 2.52
+    },
+    {
+      "text": "and be equipped to deal with\nwhatever situation comes up.",
+      "start": 1276.89,
+      "duration": 5.52
+    },
+    {
+      "text": "So I think when I\nstarted at Stanford,",
+      "start": 1282.41,
+      "duration": 2.7
+    },
+    {
+      "text": "I created this class\ncalled Statistical Learning",
+      "start": 1285.11,
+      "duration": 2.42
+    },
+    {
+      "text": "Theory, which was, basically,\nteaching the theoretical side",
+      "start": 1287.53,
+      "duration": 3.4
+    },
+    {
+      "text": "of machine learning.",
+      "start": 1290.93,
+      "duration": 1.2
+    },
+    {
+      "text": "And that was nice because\nit equipped people.",
+      "start": 1292.13,
+      "duration": 2.66
+    },
+    {
+      "text": "So when you read a paper, you\ncan understand all the math.",
+      "start": 1294.79,
+      "duration": 2.42
+    },
+    {
+      "text": "And now, since the\nfield has shifted",
+      "start": 1297.21,
+      "duration": 1.96
+    },
+    {
+      "text": "a lot more towards this more\nsystems and empirical side",
+      "start": 1299.17,
+      "duration": 2.44
+    },
+    {
+      "text": "of things, this is the kind\nof analogous class, which",
+      "start": 1301.61,
+      "duration": 4.88
+    },
+    {
+      "text": "gives people enough depth\nthat they feel that everything",
+      "start": 1306.49,
+      "duration": 3.24
+    },
+    {
+      "text": "else seems kind of easy.",
+      "start": 1309.73,
+      "duration": 3.12
+    },
+    {
+      "text": "So why should you\nnot take this course?",
+      "start": 1312.85,
+      "duration": 2.252
+    },
+    {
+      "text": "This is important\nbecause there's reasons",
+      "start": 1315.102,
+      "duration": 1.708
+    },
+    {
+      "text": "you shouldn't take this course.",
+      "start": 1316.81,
+      "duration": 2.12
+    },
+    {
+      "text": "First, you actually want to get\nsome research done this quarter.",
+      "start": 1318.93,
+      "duration": 3.672
+    },
+    {
+      "text": "You should probably\ntalk to your advisor.",
+      "start": 1322.602,
+      "duration": 1.708
+    },
+    {
+      "text": "They should know you're\ntaking this course.",
+      "start": 1324.31,
+      "duration": 1.32
+    },
+    {
+      "text": "Otherwise, there'll\nbe-- probably,",
+      "start": 1325.63,
+      "duration": 1.7
+    },
+    {
+      "text": "there might be some surprises.",
+      "start": 1327.33,
+      "duration": 3.12
+    },
+    {
+      "text": "You're interested in\nlearning the hottest",
+      "start": 1330.45,
+      "duration": 1.96
+    },
+    {
+      "text": "new techniques in AI.",
+      "start": 1332.41,
+      "duration": 2.28
+    },
+    {
+      "text": "I think there are many other\ngreat courses, seminar courses,",
+      "start": 1334.69,
+      "duration": 4.02
+    },
+    {
+      "text": "topics courses that\nare good for that.",
+      "start": 1338.71,
+      "duration": 1.84
+    },
+    {
+      "text": "We don't do many of the things.",
+      "start": 1340.55,
+      "duration": 1.7
+    },
+    {
+      "text": "We don't do multimodality.",
+      "start": 1342.25,
+      "duration": 1.34
+    },
+    {
+      "text": "We don't talk about\nagents in any depth.",
+      "start": 1343.59,
+      "duration": 3.96
+    },
+    {
+      "text": "So if you want to\nlearn about that stuff,",
+      "start": 1347.55,
+      "duration": 2.36
+    },
+    {
+      "text": "this is not the right\ncourse for that.",
+      "start": 1349.91,
+      "duration": 2.1
+    },
+    {
+      "text": "If you come in and say, I\nhave an application domain,",
+      "start": 1352.01,
+      "duration": 2.5
+    },
+    {
+      "text": "I want to get good\nresults on it,",
+      "start": 1354.51,
+      "duration": 3.94
+    },
+    {
+      "text": "probably this is not the right\ncourse, at least to start.",
+      "start": 1358.45,
+      "duration": 3.48
+    },
+    {
+      "text": "I always recommend just prompt\na model, fine tune a model.",
+      "start": 1361.93,
+      "duration": 4.14
+    },
+    {
+      "text": "And then as a last resort,\nyou pre-train your own model.",
+      "start": 1366.07,
+      "duration": 4.14
+    },
+    {
+      "text": "Because it is a pain\nand it's also expensive,",
+      "start": 1370.21,
+      "duration": 3.72
+    },
+    {
+      "text": "but it's a lot of fun.",
+      "start": 1373.93,
+      "duration": 2.44
+    },
+    {
+      "text": "OK.",
+      "start": 1376.37,
+      "duration": 0.5
+    },
+    {
+      "text": "So if you are not\ntaking the class,",
+      "start": 1376.87,
+      "duration": 3.98
+    },
+    {
+      "text": "you can self-follow\nalong at home.",
+      "start": 1380.85,
+      "duration": 2.42
+    },
+    {
+      "text": "So all the lecture materials\nwill be posted on the website.",
+      "start": 1383.27,
+      "duration": 3.2
+    },
+    {
+      "text": "Oops!",
+      "start": 1386.47,
+      "duration": 0.5
+    },
+    {
+      "text": "And they are also\nrecorded through CGOE.",
+      "start": 1386.97,
+      "duration": 3.78
+    },
+    {
+      "text": "So thank you, CGOE,\nfor doing that.",
+      "start": 1390.75,
+      "duration": 2.2
+    },
+    {
+      "text": "And later, they will be\npublished to YouTube.",
+      "start": 1392.95,
+      "duration": 5.43
+    },
+    {
+      "text": "Now, of course, following at\nhome and watching the lectures",
+      "start": 1398.38,
+      "duration": 3.48
+    },
+    {
+      "text": "is great, but you learn, really,\nby doing the assignments.",
+      "start": 1401.86,
+      "duration": 2.46
+    },
+    {
+      "text": "So you'll have to figure out how\nto motivate yourself to do that.",
+      "start": 1404.32,
+      "duration": 5.3
+    },
+    {
+      "text": "OK, so speaking of assignments,\nwe have five assignments.",
+      "start": 1409.62,
+      "duration": 3.6
+    },
+    {
+      "text": "The philosophy assignment is,\nhow do we do from scratch,",
+      "start": 1413.22,
+      "duration": 5.44
+    },
+    {
+      "text": "but not just, say,\nbuild a language model,",
+      "start": 1418.66,
+      "duration": 2.94
+    },
+    {
+      "text": "and that's the assignment?",
+      "start": 1421.6,
+      "duration": 1.34
+    },
+    {
+      "text": "So we don't provide\nscaffolding code,",
+      "start": 1422.94,
+      "duration": 2.82
+    },
+    {
+      "text": "but we do provide a\nbunch of unit tests",
+      "start": 1425.76,
+      "duration": 1.94
+    },
+    {
+      "text": "to make sure that\nwhatever you're building",
+      "start": 1427.7,
+      "duration": 2.6
+    },
+    {
+      "text": "is actually correct,\nso that you don't",
+      "start": 1430.3,
+      "duration": 2.36
+    },
+    {
+      "text": "get this sparse reward setting\nwhere you submit a homework",
+      "start": 1432.66,
+      "duration": 3.4
+    },
+    {
+      "text": "and it's either correct or not.",
+      "start": 1436.06,
+      "duration": 3.96
+    },
+    {
+      "text": "What I recommend\nis that you can--",
+      "start": 1440.02,
+      "duration": 4.0
+    },
+    {
+      "text": "the assignments are structured\nso that much of the assignment",
+      "start": 1444.02,
+      "duration": 3.16
+    },
+    {
+      "text": "can actually be done\nlocally on your laptop.",
+      "start": 1447.18,
+      "duration": 2.1
+    },
+    {
+      "text": "You can implement it and\ncheck for correctness.",
+      "start": 1449.28,
+      "duration": 2.58
+    },
+    {
+      "text": "And then we are\nproviding a cluster",
+      "start": 1451.86,
+      "duration": 2.44
+    },
+    {
+      "text": "so that you can do an\nactual training run",
+      "start": 1454.3,
+      "duration": 2.84
+    },
+    {
+      "text": "to see what the accuracy\nis, or get a bunch of GPUs",
+      "start": 1457.14,
+      "duration": 2.8
+    },
+    {
+      "text": "to actually benchmark the\nperformance of some kernel.",
+      "start": 1459.94,
+      "duration": 5.6
+    },
+    {
+      "text": "And then for fun,\nwe will have, some",
+      "start": 1465.54,
+      "duration": 4.28
+    },
+    {
+      "text": "leaderboards for most of\nthe assignments, at least.",
+      "start": 1469.82,
+      "duration": 4.8
+    },
+    {
+      "text": "And they will look\nsomething like, well, now",
+      "start": 1474.62,
+      "duration": 2.6
+    },
+    {
+      "text": "that you've learned\nabout this topic,",
+      "start": 1477.22,
+      "duration": 1.76
+    },
+    {
+      "text": "I'll try to minimize\nthe perplexities given",
+      "start": 1478.98,
+      "duration": 2.0
+    },
+    {
+      "text": "some of budget.",
+      "start": 1480.98,
+      "duration": 1.4
+    },
+    {
+      "text": "And both Marcel and Herman\nwere masters of leaderboards",
+      "start": 1482.38,
+      "duration": 5.32
+    },
+    {
+      "text": "back in the day, which was\nlast year, or the year before.",
+      "start": 1487.7,
+      "duration": 3.96
+    },
+    {
+      "text": "So if you want tips on that,\nI'm sure they would be happy--",
+      "start": 1491.66,
+      "duration": 3.278
+    },
+    {
+      "text": "actually, I don't know, if they\nwould tell you their secrets,",
+      "start": 1494.938,
+      "duration": 2.542
+    },
+    {
+      "text": "but you can try.",
+      "start": 1497.48,
+      "duration": 3.38
+    },
+    {
+      "text": "OK, so last year, we were\nthinking about, well,",
+      "start": 1500.86,
+      "duration": 5.04
+    },
+    {
+      "text": "what can AI do?",
+      "start": 1505.9,
+      "duration": 1.86
+    },
+    {
+      "text": "It was like, OK, well,\nI mean, yes, everyone",
+      "start": 1507.76,
+      "duration": 2.02
+    },
+    {
+      "text": "can use AI, but just\ntry to do your best.",
+      "start": 1509.78,
+      "duration": 6.22
+    },
+    {
+      "text": "I think now, I\nthink, coding agents",
+      "start": 1516.0,
+      "duration": 2.02
+    },
+    {
+      "text": "have gotten so good that\nthey can just all solve",
+      "start": 1518.02,
+      "duration": 2.255
+    },
+    {
+      "text": "all the assignments, right?",
+      "start": 1520.275,
+      "duration": 1.125
+    },
+    {
+      "text": "But to state the obvious,\nobviously, you're",
+      "start": 1521.4,
+      "duration": 2.58
+    },
+    {
+      "text": "not going to learn anything\nif you just feed in the PDF",
+      "start": 1523.98,
+      "duration": 2.96
+    },
+    {
+      "text": "Assignment 1 into a Cloud Code.",
+      "start": 1526.94,
+      "duration": 4.6
+    },
+    {
+      "text": "At the same time, AI can be very\nuseful for answering questions",
+      "start": 1531.54,
+      "duration": 2.96
+    },
+    {
+      "text": "and tutoring.",
+      "start": 1534.5,
+      "duration": 0.66
+    },
+    {
+      "text": "So we have to find a\nway to leverage AI.",
+      "start": 1535.16,
+      "duration": 6.26
+    },
+    {
+      "text": "So what we've decided to do is,\nwe provide you a AGENTS.md file,",
+      "start": 1541.42,
+      "duration": 5.54
+    },
+    {
+      "text": "or equivalently, a prompt which\nasks the AI to be pedagogically",
+      "start": 1546.96,
+      "duration": 5.18
+    },
+    {
+      "text": "minded.",
+      "start": 1552.14,
+      "duration": 1.12
+    },
+    {
+      "text": "You can read more about\nit in our AI policy guide.",
+      "start": 1553.26,
+      "duration": 3.52
+    },
+    {
+      "text": "And the requirement is that\nif you're going to use AI,",
+      "start": 1556.78,
+      "duration": 3.56
+    },
+    {
+      "text": "use it with this prompt.",
+      "start": 1560.34,
+      "duration": 2.32
+    },
+    {
+      "text": "And so it will answer\nquestions about code,",
+      "start": 1562.66,
+      "duration": 2.78
+    },
+    {
+      "text": "it will clarify\nany understanding,",
+      "start": 1565.44,
+      "duration": 1.72
+    },
+    {
+      "text": "but it won't accidentally\ngenerate the transformer for you",
+      "start": 1567.16,
+      "duration": 3.24
+    },
+    {
+      "text": "when the homework is to\nimplement the transformer.",
+      "start": 1570.4,
+      "duration": 3.62
+    },
+    {
+      "text": "And this is the first year\nwe're trying to do this,",
+      "start": 1574.02,
+      "duration": 2.98
+    },
+    {
+      "text": "so please try it out\nand give us feedback",
+      "start": 1577.0,
+      "duration": 2.34
+    },
+    {
+      "text": "if it's working or not working.",
+      "start": 1579.34,
+      "duration": 3.8
+    },
+    {
+      "text": "So compute.",
+      "start": 1583.14,
+      "duration": 2.24
+    },
+    {
+      "text": "So this year we have--\nthanks to Modal,",
+      "start": 1585.38,
+      "duration": 3.76
+    },
+    {
+      "text": "they have provided us\nwith compute credits",
+      "start": 1589.14,
+      "duration": 2.52
+    },
+    {
+      "text": "on their platform.",
+      "start": 1591.66,
+      "duration": 2.2
+    },
+    {
+      "text": "It's actually quite nice.",
+      "start": 1593.86,
+      "duration": 1.5
+    },
+    {
+      "text": "You can get a number of--",
+      "start": 1595.36,
+      "duration": 2.58
+    },
+    {
+      "text": "unlike last year--\nwell, I guess, you guys",
+      "start": 1597.94,
+      "duration": 2.207
+    },
+    {
+      "text": "didn't take the class last year.",
+      "start": 1600.147,
+      "duration": 1.333
+    },
+    {
+      "text": "Last year, we had a\ncluster you SSH into.",
+      "start": 1601.48,
+      "duration": 2.46
+    },
+    {
+      "text": "This is using more\nof an API to--",
+      "start": 1603.94,
+      "duration": 3.24
+    },
+    {
+      "text": "which I was initially skeptical\nof, but looking at it,",
+      "start": 1607.18,
+      "duration": 2.68
+    },
+    {
+      "text": "actually, is pretty\npleasant to use.",
+      "start": 1609.86,
+      "duration": 2.58
+    },
+    {
+      "text": "So again, try it out and give\nus feedback on how it is.",
+      "start": 1612.44,
+      "duration": 5.78
+    },
+    {
+      "text": "We've written a guide on how\nto access and use the compute.",
+      "start": 1618.22,
+      "duration": 5.98
+    },
+    {
+      "text": "OK, any questions\nabout course logistics?",
+      "start": 1624.2,
+      "duration": 3.76
+    },
+    {
+      "text": "OK.",
+      "start": 1636.14,
+      "duration": 1.5
+    },
+    {
+      "text": "All right, let's\ntalk about what we're",
+      "start": 1637.64,
+      "duration": 1.78
+    },
+    {
+      "text": "going to cover in this class.",
+      "start": 1639.42,
+      "duration": 3.04
+    },
+    {
+      "text": "So there's, basically,\nfive parts mirroring",
+      "start": 1642.46,
+      "duration": 5.92
+    },
+    {
+      "text": "the five assignments\nthat you'll have.",
+      "start": 1648.38,
+      "duration": 2.16
+    },
+    {
+      "text": "Basic system, scaling,\nlaws, data, and alignment.",
+      "start": 1650.54,
+      "duration": 2.68
+    },
+    {
+      "text": "So I'm going to now\ngo through each part",
+      "start": 1653.22,
+      "duration": 4.8
+    },
+    {
+      "text": "and just give you a taste\nof what you will learn.",
+      "start": 1658.02,
+      "duration": 4.08
+    },
+    {
+      "text": "So in the basics, this is\nbasically the first two weeks.",
+      "start": 1662.1,
+      "duration": 6.56
+    },
+    {
+      "text": "The goal is to just be able\nto train a language model",
+      "start": 1668.66,
+      "duration": 2.28
+    },
+    {
+      "text": "and build it from scratch.",
+      "start": 1670.94,
+      "duration": 2.16
+    },
+    {
+      "text": "So the components\nhere are, we're",
+      "start": 1673.1,
+      "duration": 1.76
+    },
+    {
+      "text": "going to tokenize\nthe data, we're",
+      "start": 1674.86,
+      "duration": 1.72
+    },
+    {
+      "text": "going to define\narchitecture, and then",
+      "start": 1676.58,
+      "duration": 1.68
+    },
+    {
+      "text": "we're going to implement\noptimizer and train it.",
+      "start": 1678.26,
+      "duration": 2.24
+    },
+    {
+      "text": "So then you wonder, what are\nthe rest of the classes for?",
+      "start": 1680.5,
+      "duration": 3.95
+    },
+    {
+      "text": "Well, we'll get to there.",
+      "start": 1684.45,
+      "duration": 1.94
+    },
+    {
+      "text": "So let's start\nwith tokenization.",
+      "start": 1686.39,
+      "duration": 2.38
+    },
+    {
+      "text": "The tokenization\nis really about,",
+      "start": 1688.77,
+      "duration": 1.94
+    },
+    {
+      "text": "what are the atoms that\nthe model operates on?",
+      "start": 1690.71,
+      "duration": 4.12
+    },
+    {
+      "text": "And formally, a\ntokenizer converts",
+      "start": 1694.83,
+      "duration": 2.92
+    },
+    {
+      "text": "between raw inputs,\nwhich are just bytes,",
+      "start": 1697.75,
+      "duration": 3.44
+    },
+    {
+      "text": "and a sequence of integers,\nwhich represent the tokens.",
+      "start": 1701.19,
+      "duration": 5.52
+    },
+    {
+      "text": "Conceptually, it's a\nsegmentation of the text.",
+      "start": 1706.71,
+      "duration": 4.16
+    },
+    {
+      "text": "We're going to talk about\nthe Byte-Pair Encoding,",
+      "start": 1710.87,
+      "duration": 2.4
+    },
+    {
+      "text": "BPE tokenizer,\nwhich intuitively,",
+      "start": 1713.27,
+      "duration": 3.32
+    },
+    {
+      "text": "breaks the input into\nfrequently occurring chunks.",
+      "start": 1716.59,
+      "duration": 5.08
+    },
+    {
+      "text": "And then remember, this class\nis about maximizing efficiency,",
+      "start": 1721.67,
+      "duration": 3.64
+    },
+    {
+      "text": "so through an efficiency\nlens, tokenization is good",
+      "start": 1725.31,
+      "duration": 3.04
+    },
+    {
+      "text": "because it takes\na long sequence,",
+      "start": 1728.35,
+      "duration": 1.38
+    },
+    {
+      "text": "if you just think about\nthe raw byte stream,",
+      "start": 1729.73,
+      "duration": 1.833
+    },
+    {
+      "text": "and reduces it into a\nsmaller number of tokens.",
+      "start": 1731.563,
+      "duration": 3.747
+    },
+    {
+      "text": "But more subtly, but\nmaybe more importantly,",
+      "start": 1735.31,
+      "duration": 3.6
+    },
+    {
+      "text": "it allows you to do\nadaptive computation.",
+      "start": 1738.91,
+      "duration": 2.82
+    },
+    {
+      "text": "So maybe some places are\nactually a lot of bites,",
+      "start": 1741.73,
+      "duration": 4.68
+    },
+    {
+      "text": "but actually, it should be\ncompressed into a one token,",
+      "start": 1746.41,
+      "duration": 2.64
+    },
+    {
+      "text": "whereas some of the more rare\nor interesting parts of input",
+      "start": 1749.05,
+      "duration": 3.9
+    },
+    {
+      "text": "should be left as\nmultiple tokens.",
+      "start": 1752.95,
+      "duration": 2.56
+    },
+    {
+      "text": "OK, we'll talk more about this.",
+      "start": 1755.51,
+      "duration": 2.2
+    },
+    {
+      "text": "I just want to mention\nthat every year,",
+      "start": 1757.71,
+      "duration": 2.92
+    },
+    {
+      "text": "I'm hoping that I don't\nhave to teach tokenization,",
+      "start": 1760.63,
+      "duration": 3.52
+    },
+    {
+      "text": "because the dream is to really\nhave an end-to-end way that",
+      "start": 1764.15,
+      "duration": 4.24
+    },
+    {
+      "text": "directly operates on bytes.",
+      "start": 1768.39,
+      "duration": 2.32
+    },
+    {
+      "text": "And there's been a number\nof work, including recently,",
+      "start": 1770.71,
+      "duration": 3.88
+    },
+    {
+      "text": "there's been these networks\nthat seems promising,",
+      "start": 1774.59,
+      "duration": 5.22
+    },
+    {
+      "text": "but so far, these have not\nbeen scaled to the frontier.",
+      "start": 1779.81,
+      "duration": 2.6
+    },
+    {
+      "text": "And since the frontier models\nare still using tokenizers,",
+      "start": 1782.41,
+      "duration": 2.98
+    },
+    {
+      "text": "we felt like it would be still\nwise to teach tokenizers.",
+      "start": 1785.39,
+      "duration": 4.8
+    },
+    {
+      "text": "OK, so now after you\ntokenize your input,",
+      "start": 1790.19,
+      "duration": 4.54
+    },
+    {
+      "text": "you have a bunch of tokens.",
+      "start": 1794.73,
+      "duration": 1.6
+    },
+    {
+      "text": "Now you define a model on top.",
+      "start": 1796.33,
+      "duration": 1.94
+    },
+    {
+      "text": "And everyone, I think,\nhas a familiarity",
+      "start": 1798.27,
+      "duration": 2.08
+    },
+    {
+      "text": "with the transformer.",
+      "start": 1800.35,
+      "duration": 3.4
+    },
+    {
+      "text": "And if you've taken\n224n, the MLP class,",
+      "start": 1803.75,
+      "duration": 3.82
+    },
+    {
+      "text": "then you've seen transformers.",
+      "start": 1807.57,
+      "duration": 3.06
+    },
+    {
+      "text": "Since then, I think, there\nhave been a lot of improvements",
+      "start": 1810.63,
+      "duration": 3.68
+    },
+    {
+      "text": "or refinements to transformers,\nwhich I think are important.",
+      "start": 1814.31,
+      "duration": 4.013
+    },
+    {
+      "text": "And Tatsu is going to talk\nmore about this in a bit.",
+      "start": 1818.323,
+      "duration": 2.167
+    },
+    {
+      "text": "But just to run through\na set of types of things",
+      "start": 1820.49,
+      "duration": 3.78
+    },
+    {
+      "text": "that one might have\nto think about,",
+      "start": 1824.27,
+      "duration": 2.56
+    },
+    {
+      "text": "so the activation\nfunctions have evolved.",
+      "start": 1826.83,
+      "duration": 4.92
+    },
+    {
+      "text": "How do you do positional\nencodings has evolved.",
+      "start": 1831.75,
+      "duration": 3.32
+    },
+    {
+      "text": "How you normalize has\nthe different layers.",
+      "start": 1835.07,
+      "duration": 5.92
+    },
+    {
+      "text": "Blow up has evolved.",
+      "start": 1840.99,
+      "duration": 2.92
+    },
+    {
+      "text": "Instead of doing full\nattention, there's",
+      "start": 1843.91,
+      "duration": 2.0
+    },
+    {
+      "text": "many ways to basically reduce\nthe attention computation,",
+      "start": 1845.91,
+      "duration": 3.56
+    },
+    {
+      "text": "because attention is\nn squared and where",
+      "start": 1849.47,
+      "duration": 2.92
+    },
+    {
+      "text": "n is a sequence length, and\nthat gets really expensive.",
+      "start": 1852.39,
+      "duration": 3.84
+    },
+    {
+      "text": "So there's a bunch\nof ideas around that.",
+      "start": 1856.23,
+      "duration": 2.72
+    },
+    {
+      "text": "If you're more\nambitious, you can",
+      "start": 1858.95,
+      "duration": 2.08
+    },
+    {
+      "text": "look at these state-space models\nor equivalently linear attention",
+      "start": 1861.03,
+      "duration": 5.96
+    },
+    {
+      "text": "like Mamba and Gated DeltaNet.",
+      "start": 1866.99,
+      "duration": 1.58
+    },
+    {
+      "text": "These have become more\npopular in the last few years.",
+      "start": 1868.57,
+      "duration": 3.84
+    },
+    {
+      "text": "And usually, some hybrid between\nthese models and attention",
+      "start": 1872.41,
+      "duration": 2.78
+    },
+    {
+      "text": "seems to work quite well.",
+      "start": 1875.19,
+      "duration": 2.18
+    },
+    {
+      "text": "So, we'll be exploring\nsome of that.",
+      "start": 1877.37,
+      "duration": 3.06
+    },
+    {
+      "text": "And then within the MLP\nlayers of the transformer,",
+      "start": 1880.43,
+      "duration": 3.88
+    },
+    {
+      "text": "the original transformer\nwas just a dense MLP,",
+      "start": 1884.31,
+      "duration": 2.8
+    },
+    {
+      "text": "and now a mixture of experts\nhas become the dominant paradigm",
+      "start": 1887.11,
+      "duration": 4.52
+    },
+    {
+      "text": "for building compute\nefficient transformers.",
+      "start": 1891.63,
+      "duration": 3.34
+    },
+    {
+      "text": "So we're going to\ntalk about that.",
+      "start": 1894.97,
+      "duration": 2.16
+    },
+    {
+      "text": "And of course with a\nmixture of experts,",
+      "start": 1897.13,
+      "duration": 4.02
+    },
+    {
+      "text": "it's not just\ndefining architecture,",
+      "start": 1901.15,
+      "duration": 1.5
+    },
+    {
+      "text": "but we'll see that we'll also\nneed different techniques",
+      "start": 1902.65,
+      "duration": 2.98
+    },
+    {
+      "text": "for training the model.",
+      "start": 1905.63,
+      "duration": 2.68
+    },
+    {
+      "text": "And then finally, perhaps\nsomewhat boringly,",
+      "start": 1908.31,
+      "duration": 2.98
+    },
+    {
+      "text": "but an important\nquestion is, what is",
+      "start": 1911.29,
+      "duration": 2.62
+    },
+    {
+      "text": "the shape of your transformer?",
+      "start": 1913.91,
+      "duration": 1.42
+    },
+    {
+      "text": "How many layers?",
+      "start": 1915.33,
+      "duration": 1.15
+    },
+    {
+      "text": "How many heads?",
+      "start": 1916.48,
+      "duration": 1.72
+    },
+    {
+      "text": "What is hidden dimension?",
+      "start": 1918.2,
+      "duration": 1.06
+    },
+    {
+      "text": "Number of experts?",
+      "start": 1919.26,
+      "duration": 1.5
+    },
+    {
+      "text": "This might come in more as\nwe talk about scaling laws,",
+      "start": 1920.76,
+      "duration": 2.54
+    },
+    {
+      "text": "but setting these is actually--\nseems kind of almost trivial.",
+      "start": 1923.3,
+      "duration": 5.737
+    },
+    {
+      "text": "It's a hyperparameter, but\nactually in the context",
+      "start": 1929.037,
+      "duration": 2.083
+    },
+    {
+      "text": "of scaling and language models,\nit has a huge, huge implication.",
+      "start": 1931.12,
+      "duration": 5.96
+    },
+    {
+      "text": "So once you define your\nmodel architecture,",
+      "start": 1937.08,
+      "duration": 3.36
+    },
+    {
+      "text": "how do you train the model?",
+      "start": 1940.44,
+      "duration": 2.8
+    },
+    {
+      "text": "And here there's a bunch of\ndesign decisions around the loss",
+      "start": 1943.24,
+      "duration": 3.56
+    },
+    {
+      "text": "function.",
+      "start": 1946.8,
+      "duration": 1.12
+    },
+    {
+      "text": "There's next token prediction,\nwhich is the default.",
+      "start": 1947.92,
+      "duration": 4.36
+    },
+    {
+      "text": "But people have found that\npredicting more than one token",
+      "start": 1952.28,
+      "duration": 5.04
+    },
+    {
+      "text": "seems to be helpful for\nimproving the model.",
+      "start": 1957.32,
+      "duration": 4.4
+    },
+    {
+      "text": "And there's optimizers.",
+      "start": 1961.72,
+      "duration": 2.64
+    },
+    {
+      "text": "People used to use AdamW,\nbut increasingly, Muon",
+      "start": 1964.36,
+      "duration": 3.6
+    },
+    {
+      "text": "has been used, especially with\nsome of the latest open models,",
+      "start": 1967.96,
+      "duration": 4.58
+    },
+    {
+      "text": "such as the Kimi K2 models.",
+      "start": 1972.54,
+      "duration": 5.38
+    },
+    {
+      "text": "Initialization, which,\nagain, sounds kind of boring,",
+      "start": 1977.92,
+      "duration": 4.78
+    },
+    {
+      "text": "but turns out to\nhave a huge impact",
+      "start": 1982.7,
+      "duration": 1.74
+    },
+    {
+      "text": "on how your ability\nin the training",
+      "start": 1984.44,
+      "duration": 2.68
+    },
+    {
+      "text": "stability of larger models.",
+      "start": 1987.12,
+      "duration": 1.62
+    },
+    {
+      "text": "Learning rate schedule.",
+      "start": 1988.74,
+      "duration": 1.9
+    },
+    {
+      "text": "Regularization.",
+      "start": 1990.64,
+      "duration": 1.24
+    },
+    {
+      "text": "Batch size.",
+      "start": 1991.88,
+      "duration": 3.6
+    },
+    {
+      "text": "And then MoE specific things.",
+      "start": 1995.48,
+      "duration": 2.32
+    },
+    {
+      "text": "So you look at this list\nand you might think, well,",
+      "start": 1997.8,
+      "duration": 2.848
+    },
+    {
+      "text": "these are just hyperparameters.",
+      "start": 2000.648,
+      "duration": 1.292
+    },
+    {
+      "text": "I'm going to try a bunch\nof different options out.",
+      "start": 2001.94,
+      "duration": 3.0
+    },
+    {
+      "text": "But it turns out that really\nbeing very careful about setting",
+      "start": 2004.94,
+      "duration": 5.38
+    },
+    {
+      "text": "these hyperparameters\nin a principled way",
+      "start": 2010.32,
+      "duration": 2.64
+    },
+    {
+      "text": "will make the difference between\na run that just blows up and is",
+      "start": 2012.96,
+      "duration": 3.68
+    },
+    {
+      "text": "useless between a run that is\nachieving state of the art.",
+      "start": 2016.64,
+      "duration": 5.4
+    },
+    {
+      "text": "OK, I'll come back to that point\nwhen we talk about scaling loss.",
+      "start": 2022.04,
+      "duration": 3.72
+    },
+    {
+      "text": "So then in Assignment 1,\nwhat you're going to do",
+      "start": 2025.76,
+      "duration": 3.0
+    },
+    {
+      "text": "is you're going to\nimplement the BPE tokenizer,",
+      "start": 2028.76,
+      "duration": 2.76
+    },
+    {
+      "text": "implement the transformer, the\nloss function, the optimizer,",
+      "start": 2031.52,
+      "duration": 2.82
+    },
+    {
+      "text": "the whole training step.",
+      "start": 2034.34,
+      "duration": 1.445
+    },
+    {
+      "text": "We're going to make you do a\nbunch of resource accounting",
+      "start": 2035.785,
+      "duration": 2.375
+    },
+    {
+      "text": "so you understand where\nyour flops are going.",
+      "start": 2038.16,
+      "duration": 3.145
+    },
+    {
+      "text": "You're going to\ntrain some models",
+      "start": 2041.305,
+      "duration": 1.375
+    },
+    {
+      "text": "on these data sets like\nTinyStories and OpenWebText.",
+      "start": 2042.68,
+      "duration": 3.6
+    },
+    {
+      "text": "And then there's going\nto be a leaderboard where",
+      "start": 2046.28,
+      "duration": 4.32
+    },
+    {
+      "text": "you're going to try to\ndrive down perplexity",
+      "start": 2050.6,
+      "duration": 2.68
+    },
+    {
+      "text": "as fast as you can.",
+      "start": 2053.28,
+      "duration": 2.66
+    },
+    {
+      "text": "So for those of you familiar\nwith NanoGPT, speedruns,",
+      "start": 2055.94,
+      "duration": 3.759
+    },
+    {
+      "text": "it's kind of similar to that.",
+      "start": 2059.699,
+      "duration": 2.601
+    },
+    {
+      "text": "OK, so by the end\nof Assignment 1,",
+      "start": 2064.84,
+      "duration": 2.393
+    },
+    {
+      "text": "you should be able to walk\naway and build a language",
+      "start": 2067.233,
+      "duration": 2.167
+    },
+    {
+      "text": "model from scratch.",
+      "start": 2069.4,
+      "duration": 2.96
+    },
+    {
+      "text": "So that's very exciting.",
+      "start": 2072.36,
+      "duration": 3.829
+    },
+    {
+      "text": "If I have a high\nlevel takeaway here,",
+      "start": 2076.189,
+      "duration": 3.331
+    },
+    {
+      "text": "it's that while the tokenizer\nand modeling and training",
+      "start": 2079.52,
+      "duration": 5.84
+    },
+    {
+      "text": "are presented as distinct\npieces, it is actually,",
+      "start": 2085.36,
+      "duration": 5.08
+    },
+    {
+      "text": "everything is about\nbalancing the following.",
+      "start": 2090.44,
+      "duration": 3.04
+    },
+    {
+      "text": "So you want expressive\nmodels because you",
+      "start": 2093.48,
+      "duration": 2.719
+    },
+    {
+      "text": "want to represent the\ncomplexities of the data,",
+      "start": 2096.199,
+      "duration": 2.681
+    },
+    {
+      "text": "but at the same time, you want\nyour training to be stable.",
+      "start": 2098.88,
+      "duration": 5.68
+    },
+    {
+      "text": "And we're going to talk\na lot about how do you",
+      "start": 2104.56,
+      "duration": 3.64
+    },
+    {
+      "text": "keep the parameter and gradient\nnorms in this goldilocks zone",
+      "start": 2108.2,
+      "duration": 3.8
+    },
+    {
+      "text": "so they don't blow\nup and don't vanish.",
+      "start": 2112.0,
+      "duration": 1.82
+    },
+    {
+      "text": "Turns out, a lot of\ntraining language models",
+      "start": 2113.82,
+      "duration": 2.22
+    },
+    {
+      "text": "is about just stability.",
+      "start": 2116.04,
+      "duration": 4.08
+    },
+    {
+      "text": "And then finally, efficiency,\nwhich is somewhat more",
+      "start": 2120.12,
+      "duration": 4.2
+    },
+    {
+      "text": "straightforward.",
+      "start": 2124.32,
+      "duration": 1.08
+    },
+    {
+      "text": "You just make it run\nfast on hardware.",
+      "start": 2125.4,
+      "duration": 2.4
+    },
+    {
+      "text": "But you're going to see\ninteresting things like,",
+      "start": 2127.8,
+      "duration": 2.52
+    },
+    {
+      "text": "if we change the architecture,\na lot of the architecture",
+      "start": 2130.32,
+      "duration": 3.28
+    },
+    {
+      "text": "decisions are, well, we can\nmake it faster by, let's say,",
+      "start": 2133.6,
+      "duration": 3.7
+    },
+    {
+      "text": "reducing the projecting of\na low dimensional space.",
+      "start": 2137.3,
+      "duration": 4.56
+    },
+    {
+      "text": "But then the question\nis, does it work as well?",
+      "start": 2141.86,
+      "duration": 2.26
+    },
+    {
+      "text": "And so making those trade\noffs is something that--",
+      "start": 2144.12,
+      "duration": 4.37
+    },
+    {
+      "text": "is the name of the game here.",
+      "start": 2148.49,
+      "duration": 4.68
+    },
+    {
+      "text": "So in Assignment 2, we're\ngoing to dive more deeply",
+      "start": 2153.17,
+      "duration": 5.76
+    },
+    {
+      "text": "into systems.",
+      "start": 2158.93,
+      "duration": 4.16
+    },
+    {
+      "text": "And the goal here is just to\nget most out of your hardware.",
+      "start": 2163.09,
+      "duration": 2.738
+    },
+    {
+      "text": "So we're going to\ntalk about kernels,",
+      "start": 2165.828,
+      "duration": 1.542
+    },
+    {
+      "text": "how you parallelize\nacross multiple GPUs,",
+      "start": 2167.37,
+      "duration": 3.0
+    },
+    {
+      "text": "and how you do inference.",
+      "start": 2170.37,
+      "duration": 2.04
+    },
+    {
+      "text": "So the basics,\nwhich we're actually",
+      "start": 2172.41,
+      "duration": 3.12
+    },
+    {
+      "text": "going to start on next lecture,\nI mentioned resource accounting,",
+      "start": 2175.53,
+      "duration": 5.04
+    },
+    {
+      "text": "and I think you've all\nprobably built models before.",
+      "start": 2180.57,
+      "duration": 6.24
+    },
+    {
+      "text": "But this is really about keeping\ntrack of where all the flops go",
+      "start": 2186.81,
+      "duration": 6.92
+    },
+    {
+      "text": "and where all the\nmemory is being spent.",
+      "start": 2193.73,
+      "duration": 1.685
+    },
+    {
+      "text": "So we're going to spend\nsome time, basically,",
+      "start": 2195.415,
+      "duration": 1.875
+    },
+    {
+      "text": "doing the resource accounting.",
+      "start": 2197.29,
+      "duration": 2.12
+    },
+    {
+      "text": "We're going to see this\nformula that comes up,",
+      "start": 2199.41,
+      "duration": 4.42
+    },
+    {
+      "text": "how many flops does\ntraining SMDB on model",
+      "start": 2203.83,
+      "duration": 3.14
+    },
+    {
+      "text": "on 1 trillion tokens?",
+      "start": 2206.97,
+      "duration": 1.26
+    },
+    {
+      "text": "Well, it's six times\nn times D roughly.",
+      "start": 2208.23,
+      "duration": 3.18
+    },
+    {
+      "text": "And where does that come from?",
+      "start": 2211.41,
+      "duration": 2.44
+    },
+    {
+      "text": "And then we're going to\nlook at the hardware.",
+      "start": 2213.85,
+      "duration": 4.28
+    },
+    {
+      "text": "And here's a cartoon\nI picture of what",
+      "start": 2218.13,
+      "duration": 4.12
+    },
+    {
+      "text": "to remark about hardware,\nis that, your memory is not",
+      "start": 2222.25,
+      "duration": 3.28
+    },
+    {
+      "text": "where your compute\nis, and you have",
+      "start": 2225.53,
+      "duration": 1.96
+    },
+    {
+      "text": "to move either your parameters\nor activations from the memory",
+      "start": 2227.49,
+      "duration": 5.2
+    },
+    {
+      "text": "to compute, do the\ncompute, and move it back.",
+      "start": 2232.69,
+      "duration": 2.8
+    },
+    {
+      "text": "And that often is\nthe bottleneck.",
+      "start": 2235.49,
+      "duration": 4.76
+    },
+    {
+      "text": "So for example, B200, which\nwe'll have the opportunity",
+      "start": 2240.25,
+      "duration": 3.56
+    },
+    {
+      "text": "to play with, it has 2.25\npetaFLOPS per second if bf16.",
+      "start": 2243.81,
+      "duration": 6.56
+    },
+    {
+      "text": "And has 8 terabytes\nsecond of memory.",
+      "start": 2250.37,
+      "duration": 3.62
+    },
+    {
+      "text": "So what does that mean?",
+      "start": 2253.99,
+      "duration": 1.42
+    },
+    {
+      "text": "I think when we--",
+      "start": 2255.41,
+      "duration": 1.12
+    },
+    {
+      "text": "I think I'll do\nthis next lecture.",
+      "start": 2256.53,
+      "duration": 2.66
+    },
+    {
+      "text": "We're going to break this\ndown and use this information",
+      "start": 2259.19,
+      "duration": 3.46
+    },
+    {
+      "text": "to do some calculations\nand see how",
+      "start": 2262.65,
+      "duration": 3.4
+    },
+    {
+      "text": "long different types of\nalgorithms will need to take.",
+      "start": 2266.05,
+      "duration": 3.157
+    },
+    {
+      "text": "We're going to talk about\nroofline analysis, which",
+      "start": 2269.207,
+      "duration": 2.083
+    },
+    {
+      "text": "allows us to understand whether\na computation is bottlenecked",
+      "start": 2271.29,
+      "duration": 3.88
+    },
+    {
+      "text": "by either a compute or memory.",
+      "start": 2275.17,
+      "duration": 2.12
+    },
+    {
+      "text": "In general, it is memory.",
+      "start": 2277.29,
+      "duration": 5.12
+    },
+    {
+      "text": "And then talk a little bit about\nbenchmarking and profiling.",
+      "start": 2282.41,
+      "duration": 3.02
+    },
+    {
+      "text": "So here's what a\nDGX B200 looks like.",
+      "start": 2288.896,
+      "duration": 4.494
+    },
+    {
+      "text": "You have 8 GPUs.",
+      "start": 2293.39,
+      "duration": 1.94
+    },
+    {
+      "text": "They're connected via MV link.",
+      "start": 2295.33,
+      "duration": 4.24
+    },
+    {
+      "text": "And then if you have many--\nif you have a thousand GPUs,",
+      "start": 2299.57,
+      "duration": 3.678
+    },
+    {
+      "text": "then you would have\nmultiple of these",
+      "start": 2303.248,
+      "duration": 1.542
+    },
+    {
+      "text": "and they're connected either\nInfiniBand or ethernet.",
+      "start": 2304.79,
+      "duration": 3.54
+    },
+    {
+      "text": "So the next two parts when we\ntalk about system is kernel.",
+      "start": 2308.33,
+      "duration": 4.42
+    },
+    {
+      "text": "So a kernel is basically a\nfunction that runs on the GPU.",
+      "start": 2312.75,
+      "duration": 3.26
+    },
+    {
+      "text": "And when you're just\nusing plain PyTorch,",
+      "start": 2316.01,
+      "duration": 2.2
+    },
+    {
+      "text": "all the PyTorch\nprimitives actually",
+      "start": 2318.21,
+      "duration": 4.32
+    },
+    {
+      "text": "correspond to launching\nparticular kernels, which",
+      "start": 2322.53,
+      "duration": 2.96
+    },
+    {
+      "text": "are built in.",
+      "start": 2325.49,
+      "duration": 2.16
+    },
+    {
+      "text": "So you're already using\nkernels, whether you it or not.",
+      "start": 2327.65,
+      "duration": 6.52
+    },
+    {
+      "text": "But the point is that, for\ncertain types of computation,",
+      "start": 2334.17,
+      "duration": 5.5
+    },
+    {
+      "text": "if you look at it, you can\nactually write custom kernels",
+      "start": 2339.67,
+      "duration": 2.9
+    },
+    {
+      "text": "to make the GPUs go faster.",
+      "start": 2342.57,
+      "duration": 3.24
+    },
+    {
+      "text": "And the main principle here\nis organizing the compute",
+      "start": 2345.81,
+      "duration": 4.36
+    },
+    {
+      "text": "to minimize data movement.",
+      "start": 2350.17,
+      "duration": 1.5
+    },
+    {
+      "text": "So remember, this picture moving\ndata from memory is expensive.",
+      "start": 2351.67,
+      "duration": 7.88
+    },
+    {
+      "text": "So you want to try\nto minimize that.",
+      "start": 2359.55,
+      "duration": 2.42
+    },
+    {
+      "text": "So just as a simple\nexample, suppose",
+      "start": 2361.97,
+      "duration": 2.84
+    },
+    {
+      "text": "you wanted to compute\nA and B. So often,",
+      "start": 2364.81,
+      "duration": 2.4
+    },
+    {
+      "text": "you would have to read from\nyour high bandwidth memory, HBM,",
+      "start": 2367.21,
+      "duration": 4.6
+    },
+    {
+      "text": "compute it, write it\nback, and then read again,",
+      "start": 2371.81,
+      "duration": 2.54
+    },
+    {
+      "text": "compute it, write it back.",
+      "start": 2374.35,
+      "duration": 2.06
+    },
+    {
+      "text": "So then, you're basically\nsending the data back and forth",
+      "start": 2376.41,
+      "duration": 3.44
+    },
+    {
+      "text": "twice.",
+      "start": 2379.85,
+      "duration": 0.89
+    },
+    {
+      "text": "And there's this idea called\nfusion, where you read it once,",
+      "start": 2380.74,
+      "duration": 4.1
+    },
+    {
+      "text": "do both of the computations,\nand you write it back.",
+      "start": 2384.84,
+      "duration": 2.5
+    },
+    {
+      "text": "And that will save\nyou a lot of time.",
+      "start": 2387.34,
+      "duration": 4.72
+    },
+    {
+      "text": "So that's operator fusion.",
+      "start": 2392.06,
+      "duration": 1.68
+    },
+    {
+      "text": "Tiling is a more sophisticated\nvariant around the same idea.",
+      "start": 2393.74,
+      "duration": 5.44
+    },
+    {
+      "text": "There's also-- GPUs have also\ngotten a lot more complicated.",
+      "start": 2399.18,
+      "duration": 4.76
+    },
+    {
+      "text": "And I'm not sure how\nmany of these details",
+      "start": 2403.94,
+      "duration": 1.8
+    },
+    {
+      "text": "we'll have time to get\ninto, but at least we",
+      "start": 2405.74,
+      "duration": 1.833
+    },
+    {
+      "text": "want to expose you to some of\nthe peculiarities, I would say,",
+      "start": 2407.573,
+      "duration": 4.467
+    },
+    {
+      "text": "of GPUs and give you an\nappreciation for the types",
+      "start": 2412.04,
+      "duration": 3.54
+    },
+    {
+      "text": "of things that one has\nto consider in order",
+      "start": 2415.58,
+      "duration": 2.28
+    },
+    {
+      "text": "to squeeze as much juice\nout of them as possible.",
+      "start": 2417.86,
+      "duration": 2.88
+    },
+    {
+      "text": "And we'll write some\nkernels in and Triton.",
+      "start": 2420.74,
+      "duration": 4.32
+    },
+    {
+      "text": "So what happens if you\nhave thousands of GPUs?",
+      "start": 2425.06,
+      "duration": 3.7
+    },
+    {
+      "text": "So the principle of minimized\ndata movement is still the same.",
+      "start": 2431.82,
+      "duration": 4.68
+    },
+    {
+      "text": "The only thing is that moving\ndata between different GPUs",
+      "start": 2436.5,
+      "duration": 5.12
+    },
+    {
+      "text": "is even more expensive.",
+      "start": 2441.62,
+      "duration": 2.8
+    },
+    {
+      "text": "We're going to talk about how\nthese very classic collective",
+      "start": 2444.42,
+      "duration": 3.4
+    },
+    {
+      "text": "operations, gather and\nreduce and all-reduce",
+      "start": 2447.82,
+      "duration": 3.2
+    },
+    {
+      "text": "are the way to think about,\nbasically, distributed training.",
+      "start": 2451.02,
+      "duration": 6.76
+    },
+    {
+      "text": "The general game is that we\nhave these model parameters,",
+      "start": 2457.78,
+      "duration": 3.66
+    },
+    {
+      "text": "We have activations, gradients\nand optimizer states,",
+      "start": 2461.44,
+      "duration": 3.28
+    },
+    {
+      "text": "and they need to be sharded\nor split across multiple GPUs.",
+      "start": 2464.72,
+      "duration": 3.86
+    },
+    {
+      "text": "And of course, you need\nto bring the right data",
+      "start": 2468.58,
+      "duration": 2.0
+    },
+    {
+      "text": "to the right nodes to make\nthe compute and write it back.",
+      "start": 2470.58,
+      "duration": 2.892
+    },
+    {
+      "text": "So there's a whole\nkind of orchestration,",
+      "start": 2473.472,
+      "duration": 1.708
+    },
+    {
+      "text": "and how to do that\nefficiently is going",
+      "start": 2475.18,
+      "duration": 2.84
+    },
+    {
+      "text": "to be the topic of this unit.",
+      "start": 2478.02,
+      "duration": 5.52
+    },
+    {
+      "text": "And there's multiple\nways to shard.",
+      "start": 2483.54,
+      "duration": 2.58
+    },
+    {
+      "text": "You can shard by\nsplitting up your data,",
+      "start": 2486.12,
+      "duration": 2.52
+    },
+    {
+      "text": "splitting up your model,\nsplitting up different layers",
+      "start": 2488.64,
+      "duration": 2.34
+    },
+    {
+      "text": "in the model, splitting\nup the sequences,",
+      "start": 2490.98,
+      "duration": 2.22
+    },
+    {
+      "text": "splitting up between experts.",
+      "start": 2493.2,
+      "duration": 1.562
+    },
+    {
+      "text": "And we'll talk\nabout the trade offs",
+      "start": 2494.762,
+      "duration": 1.458
+    },
+    {
+      "text": "that come with each of these.",
+      "start": 2496.22,
+      "duration": 2.34
+    },
+    {
+      "text": "OK.",
+      "start": 2498.56,
+      "duration": 0.5
+    },
+    {
+      "text": "And then finally, we're going\nto talk about inference.",
+      "start": 2499.06,
+      "duration": 4.4
+    },
+    {
+      "text": "Which, as I mentioned,\nis growing in importance.",
+      "start": 2503.46,
+      "duration": 3.32
+    },
+    {
+      "text": "So the goal of inference is\nto actually use the model.",
+      "start": 2506.78,
+      "duration": 2.86
+    },
+    {
+      "text": "So minor detail here.",
+      "start": 2509.64,
+      "duration": 3.06
+    },
+    {
+      "text": "So inference is, of course,\nyou need to use inference",
+      "start": 2512.7,
+      "duration": 3.043
+    },
+    {
+      "text": "when you're chatting\nwith a model,",
+      "start": 2515.743,
+      "duration": 1.417
+    },
+    {
+      "text": "but it also is useful for\nreinforcement learning.",
+      "start": 2517.16,
+      "duration": 4.54
+    },
+    {
+      "text": "It's useful for\ndoing the rollouts.",
+      "start": 2521.7,
+      "duration": 3.42
+    },
+    {
+      "text": "Test-time compute, generating\nsynthetic data, evaluation.",
+      "start": 2525.12,
+      "duration": 2.76
+    },
+    {
+      "text": "So inference is a\nvery critical part",
+      "start": 2527.88,
+      "duration": 3.42
+    },
+    {
+      "text": "of what it means to do\nlanguage modeling work.",
+      "start": 2531.3,
+      "duration": 4.82
+    },
+    {
+      "text": "So we're probably not\ngoing to spend as much time",
+      "start": 2536.12,
+      "duration": 3.54
+    },
+    {
+      "text": "as I like on this because the\ncourse is already kind of filled",
+      "start": 2539.66,
+      "duration": 3.4
+    },
+    {
+      "text": "up, but we'll see\nwhat we can do.",
+      "start": 2543.06,
+      "duration": 3.12
+    },
+    {
+      "text": "There was some discussion\naround whether we",
+      "start": 2546.18,
+      "duration": 2.68
+    },
+    {
+      "text": "should make you write inference\nfrom scratch, but we'll see.",
+      "start": 2548.86,
+      "duration": 3.42
+    },
+    {
+      "text": "So the way to think\nabout inference",
+      "start": 2555.62,
+      "duration": 1.96
+    },
+    {
+      "text": "is that there's two phases,\na prefill and a decode.",
+      "start": 2557.58,
+      "duration": 2.56
+    },
+    {
+      "text": "In the prefill,\nYou take the prompt",
+      "start": 2560.14,
+      "duration": 1.52
+    },
+    {
+      "text": "and then you feed all\nthe tokens forward",
+      "start": 2561.66,
+      "duration": 2.36
+    },
+    {
+      "text": "and build key value pairs.",
+      "start": 2564.02,
+      "duration": 2.26
+    },
+    {
+      "text": "This is very much like\nwhat happens in training.",
+      "start": 2566.28,
+      "duration": 3.62
+    },
+    {
+      "text": "And then in the\ndecoding part, tokens",
+      "start": 2569.9,
+      "duration": 3.6
+    },
+    {
+      "text": "are generated one at a time.",
+      "start": 2573.5,
+      "duration": 1.88
+    },
+    {
+      "text": "And this is the part that\nbecomes quickly memory bound,",
+      "start": 2575.38,
+      "duration": 5.42
+    },
+    {
+      "text": "and this is why\ninference is hard.",
+      "start": 2580.8,
+      "duration": 3.16
+    },
+    {
+      "text": "And so there's many things you\ncan do to speed up inference.",
+      "start": 2583.96,
+      "duration": 4.74
+    },
+    {
+      "text": "You can try to use a cheaper\nmodel by pruning a larger model",
+      "start": 2588.7,
+      "duration": 3.82
+    },
+    {
+      "text": "or you can quantize,\nyou can distill.",
+      "start": 2592.52,
+      "duration": 2.028
+    },
+    {
+      "text": "You can use this technique\ncalled speculative decoding,",
+      "start": 2594.548,
+      "duration": 2.292
+    },
+    {
+      "text": "where you use a cheaper\nmodel to run ahead and guess",
+      "start": 2596.84,
+      "duration": 3.5
+    },
+    {
+      "text": "a bunch of tokens.",
+      "start": 2600.34,
+      "duration": 1.34
+    },
+    {
+      "text": "And now, you use the\nfull model, which",
+      "start": 2601.68,
+      "duration": 1.78
+    },
+    {
+      "text": "can operate on those tokens in\nparallel to see if it's good.",
+      "start": 2603.46,
+      "duration": 4.92
+    },
+    {
+      "text": "And if you got lucky, then you\ncan accept all those tokens",
+      "start": 2608.38,
+      "duration": 2.76
+    },
+    {
+      "text": "and you're much\nfaster than if you're",
+      "start": 2611.14,
+      "duration": 2.04
+    },
+    {
+      "text": "doing one token at a time.",
+      "start": 2613.18,
+      "duration": 2.04
+    },
+    {
+      "text": "And of course, you can\ndo systems optimizations.",
+      "start": 2615.22,
+      "duration": 2.8
+    },
+    {
+      "text": "There's a bunch of kernels\nthat are designed specifically",
+      "start": 2618.02,
+      "duration": 2.68
+    },
+    {
+      "text": "for inference.",
+      "start": 2620.7,
+      "duration": 1.24
+    },
+    {
+      "text": "And then one of the interesting\nthings about inference",
+      "start": 2621.94,
+      "duration": 2.76
+    },
+    {
+      "text": "is that, if you're\nrunning a service,",
+      "start": 2624.7,
+      "duration": 2.4
+    },
+    {
+      "text": "queries are coming at you at\npotentially different times,",
+      "start": 2627.1,
+      "duration": 4.84
+    },
+    {
+      "text": "and then you have to figure\nout how to batch them up.",
+      "start": 2631.94,
+      "duration": 2.84
+    },
+    {
+      "text": "Whereas in training,\nyou basically",
+      "start": 2634.78,
+      "duration": 2.76
+    },
+    {
+      "text": "already define your\nbatches and everything",
+      "start": 2637.54,
+      "duration": 2.16
+    },
+    {
+      "text": "is much more predictable.",
+      "start": 2639.7,
+      "duration": 2.48
+    },
+    {
+      "text": "So in Assignment\n2, there's going",
+      "start": 2642.18,
+      "duration": 3.64
+    },
+    {
+      "text": "to be implementing\nkernels in Triton",
+      "start": 2645.82,
+      "duration": 4.6
+    },
+    {
+      "text": "and doing some of\nparallel training.",
+      "start": 2650.42,
+      "duration": 4.04
+    },
+    {
+      "text": "The details here\nmight actually change.",
+      "start": 2654.46,
+      "duration": 2.14
+    },
+    {
+      "text": "As the CAAs have grand plans\nfor revamping the systems.",
+      "start": 2656.6,
+      "duration": 7.42
+    },
+    {
+      "text": "So the assignment\nmight look a bit",
+      "start": 2664.02,
+      "duration": 3.0
+    },
+    {
+      "text": "different from last\nyear's, but it will cover",
+      "start": 2667.02,
+      "duration": 3.48
+    },
+    {
+      "text": "roughly the same material.",
+      "start": 2670.5,
+      "duration": 2.69
+    },
+    {
+      "text": "One thing I will mention is that\nthere's this wonderful book out",
+      "start": 2673.19,
+      "duration": 3.8
+    },
+    {
+      "text": "of some Google people called\nHow to Scale Your Model,",
+      "start": 2676.99,
+      "duration": 3.0
+    },
+    {
+      "text": "and I think it's really\nnice for providing",
+      "start": 2679.99,
+      "duration": 3.08
+    },
+    {
+      "text": "a conceptual understanding\nof roofline analysis,",
+      "start": 2683.07,
+      "duration": 2.8
+    },
+    {
+      "text": "and transformer math, and\ndoing LLMs conceptually.",
+      "start": 2685.87,
+      "duration": 5.16
+    },
+    {
+      "text": "So I highly recommend\nyou take a look at that.",
+      "start": 2691.03,
+      "duration": 2.96
+    },
+    {
+      "text": "Now, the only thing is that it's\nfrom Google, so it's about TPUs.",
+      "start": 2693.99,
+      "duration": 4.9
+    },
+    {
+      "text": "But a lot of the high\nlevel concepts are similar.",
+      "start": 2698.89,
+      "duration": 4.16
+    },
+    {
+      "text": "And now, they have a new chapter\non how to think about GPUs.",
+      "start": 2703.05,
+      "duration": 3.28
+    },
+    {
+      "text": "OK.",
+      "start": 2709.51,
+      "duration": 2.715
+    },
+    {
+      "text": "So the third assignment\nis about scaling laws.",
+      "start": 2712.225,
+      "duration": 3.625
+    },
+    {
+      "text": "So by now, you've\ntrained a language model.",
+      "start": 2715.85,
+      "duration": 4.14
+    },
+    {
+      "text": "You can make it go really\nfast by optimizing kernels",
+      "start": 2719.99,
+      "duration": 4.8
+    },
+    {
+      "text": "in parallel.",
+      "start": 2724.79,
+      "duration": 0.88
+    },
+    {
+      "text": "Now, you want to scale up.",
+      "start": 2725.67,
+      "duration": 2.88
+    },
+    {
+      "text": "So how do you scale up?",
+      "start": 2728.55,
+      "duration": 2.16
+    },
+    {
+      "text": "So imagine the\nfollowing setting.",
+      "start": 2730.71,
+      "duration": 1.92
+    },
+    {
+      "text": "If you had 1e25 FLOPs, so this\nis tens of millions of dollars",
+      "start": 2732.63,
+      "duration": 4.24
+    },
+    {
+      "text": "of compute, what\nmodel would you train?",
+      "start": 2736.87,
+      "duration": 5.16
+    },
+    {
+      "text": "So this is, I think,\na daunting task",
+      "start": 2742.03,
+      "duration": 3.64
+    },
+    {
+      "text": "because if you mess up,\nwell, that's a lot of money",
+      "start": 2745.67,
+      "duration": 2.84
+    },
+    {
+      "text": "down the drain.",
+      "start": 2748.51,
+      "duration": 1.48
+    },
+    {
+      "text": "And you can't do your,\nprobably, typical hyperparameter",
+      "start": 2749.99,
+      "duration": 4.84
+    },
+    {
+      "text": "tuning at that scale because\nyou only get to train one model.",
+      "start": 2754.83,
+      "duration": 4.12
+    },
+    {
+      "text": "And so this is the\nkey problem that you",
+      "start": 2758.95,
+      "duration": 2.92
+    },
+    {
+      "text": "have to deal with in large\nlanguage model training",
+      "start": 2761.87,
+      "duration": 4.08
+    },
+    {
+      "text": "that you don't have to really\ndeal with if you're just fine",
+      "start": 2765.95,
+      "duration": 2.8
+    },
+    {
+      "text": "tuning a model or doing\nsmall scale stuff.",
+      "start": 2768.75,
+      "duration": 3.12
+    },
+    {
+      "text": "And so the key\nconceptual shift here",
+      "start": 2771.87,
+      "duration": 2.44
+    },
+    {
+      "text": "is that we shouldn't\nthink about a single model",
+      "start": 2774.31,
+      "duration": 2.52
+    },
+    {
+      "text": "that we're training, but really\nthink about a scaling recipe.",
+      "start": 2776.83,
+      "duration": 3.26
+    },
+    {
+      "text": "And a scaling recipe is a\nmapping from a FLOP budget,",
+      "start": 2780.09,
+      "duration": 4.18
+    },
+    {
+      "text": "let's say 1e25 or 1e24, to\na set of hyperparameters.",
+      "start": 2784.27,
+      "duration": 3.86
+    },
+    {
+      "text": "Basically a config file.",
+      "start": 2788.13,
+      "duration": 1.94
+    },
+    {
+      "text": "And for a given scaling\nrecipe, what we will do",
+      "start": 2790.07,
+      "duration": 5.16
+    },
+    {
+      "text": "is run a bunch of experiments\nto compute the loss that you",
+      "start": 2795.23,
+      "duration": 5.16
+    },
+    {
+      "text": "get at smaller scales, and\nthen you fit a scaling law,",
+      "start": 2800.39,
+      "duration": 3.7
+    },
+    {
+      "text": "and that enables you to predict\nthe loss at a target scale.",
+      "start": 2804.09,
+      "duration": 3.733
+    },
+    {
+      "text": "So maybe you run some\nsmall experiments,",
+      "start": 2807.823,
+      "duration": 1.667
+    },
+    {
+      "text": "you fit a scaling law,\nand then you predict out",
+      "start": 2809.49,
+      "duration": 4.66
+    },
+    {
+      "text": "what you're going to\nget at a larger scale.",
+      "start": 2814.15,
+      "duration": 2.64
+    },
+    {
+      "text": "So that's the primitive.",
+      "start": 2816.79,
+      "duration": 1.94
+    },
+    {
+      "text": "Now using this, what\nyou can do is now",
+      "start": 2818.73,
+      "duration": 3.1
+    },
+    {
+      "text": "you can optimize\nthe scaling recipe,",
+      "start": 2821.83,
+      "duration": 3.34
+    },
+    {
+      "text": "targeting a larger scale using\nsmaller scale experiments, which",
+      "start": 2825.17,
+      "duration": 3.66
+    },
+    {
+      "text": "is wonderful.",
+      "start": 2828.83,
+      "duration": 1.08
+    },
+    {
+      "text": "And second of all, you\ncan predict the loss",
+      "start": 2829.91,
+      "duration": 2.32
+    },
+    {
+      "text": "that you're going to, in\ntheory, achieve before actually",
+      "start": 2832.23,
+      "duration": 4.8
+    },
+    {
+      "text": "running the experiment.",
+      "start": 2837.03,
+      "duration": 2.12
+    },
+    {
+      "text": "Which allows you\nto go raise money.",
+      "start": 2839.15,
+      "duration": 4.06
+    },
+    {
+      "text": "And you say, well, look, I ran\nthe small scale experiments,",
+      "start": 2843.21,
+      "duration": 3.32
+    },
+    {
+      "text": "and I think I can get really--\nlike, a GPD-5 level model.",
+      "start": 2846.53,
+      "duration": 3.4
+    },
+    {
+      "text": "Please give me a lot of money\nso I can train that model.",
+      "start": 2849.93,
+      "duration": 2.92
+    },
+    {
+      "text": "But one thing I think is\nmaybe another misconception",
+      "start": 2855.39,
+      "duration": 5.04
+    },
+    {
+      "text": "is that scaling laws\nare not laws of nature.",
+      "start": 2860.43,
+      "duration": 3.46
+    },
+    {
+      "text": "They don't just\nhappen automatically.",
+      "start": 2863.89,
+      "duration": 2.9
+    },
+    {
+      "text": "You have to will\nthem into existence.",
+      "start": 2866.79,
+      "duration": 2.68
+    },
+    {
+      "text": "And this happens by\ncareful construction",
+      "start": 2869.47,
+      "duration": 2.96
+    },
+    {
+      "text": "of a scaling recipe.",
+      "start": 2872.43,
+      "duration": 2.08
+    },
+    {
+      "text": "And the scaling recipe,\nremember, it has to extrapolate.",
+      "start": 2874.51,
+      "duration": 3.44
+    },
+    {
+      "text": "So what this typically\nmeans is that you",
+      "start": 2877.95,
+      "duration": 2.6
+    },
+    {
+      "text": "have a sequence of\nhyperparameters which,",
+      "start": 2880.55,
+      "duration": 2.04
+    },
+    {
+      "text": "say, as the scale increases,\nmaybe the learning rate",
+      "start": 2882.59,
+      "duration": 2.68
+    },
+    {
+      "text": "is a constant, maybe it\ndrops, maybe the batch size",
+      "start": 2885.27,
+      "duration": 3.08
+    },
+    {
+      "text": "increases by how much.",
+      "start": 2888.35,
+      "duration": 1.44
+    },
+    {
+      "text": "And these are things\nthat a scaling",
+      "start": 2889.79,
+      "duration": 2.12
+    },
+    {
+      "text": "recipe has to figure out.",
+      "start": 2891.91,
+      "duration": 3.12
+    },
+    {
+      "text": "And so you parameterize.",
+      "start": 2895.03,
+      "duration": 3.12
+    },
+    {
+      "text": "So then in order to get these\npredictable scaling laws,",
+      "start": 2898.15,
+      "duration": 5.29
+    },
+    {
+      "text": "one thing that you actually\nhave to think about",
+      "start": 2903.44,
+      "duration": 2.04
+    },
+    {
+      "text": "is how do you\nparameterize the model",
+      "start": 2905.48,
+      "duration": 2.4
+    },
+    {
+      "text": "in a way to get what's called\nhyperparameter transfer?",
+      "start": 2907.88,
+      "duration": 3.2
+    },
+    {
+      "text": "Meaning that the hyperparameters\nyou use at small scale",
+      "start": 2911.08,
+      "duration": 3.08
+    },
+    {
+      "text": "are either the ones that\nyou use at larger scale",
+      "start": 2914.16,
+      "duration": 2.0
+    },
+    {
+      "text": "or are predictable\nfunctions of it.",
+      "start": 2916.16,
+      "duration": 2.04
+    },
+    {
+      "text": "Because if every scale, your\nlearning rate is sometimes 1e-5,",
+      "start": 2918.2,
+      "duration": 4.28
+    },
+    {
+      "text": "and sometimes 1e-4, then\nyou're not going to be able",
+      "start": 2922.48,
+      "duration": 3.44
+    },
+    {
+      "text": "to magically guess the right\nlearning rate when you are",
+      "start": 2925.92,
+      "duration": 3.04
+    },
+    {
+      "text": "at larger scale.",
+      "start": 2928.96,
+      "duration": 1.76
+    },
+    {
+      "text": "So one shift in thinking is\nthat predictability is actually",
+      "start": 2930.72,
+      "duration": 4.28
+    },
+    {
+      "text": "at least as important\nas optimality.",
+      "start": 2935.0,
+      "duration": 1.935
+    },
+    {
+      "text": "So you normally think,\noh, we're trying",
+      "start": 2936.935,
+      "duration": 1.625
+    },
+    {
+      "text": "to optimize for\nefficiency here, and we",
+      "start": 2938.56,
+      "duration": 3.56
+    },
+    {
+      "text": "want to hyperparameter tune\nand make things optimal.",
+      "start": 2942.12,
+      "duration": 3.54
+    },
+    {
+      "text": "And yes, you do want to\ndo that, but you also",
+      "start": 2945.66,
+      "duration": 2.78
+    },
+    {
+      "text": "want this predictability so\nthat you don't get surprised",
+      "start": 2948.44,
+      "duration": 3.16
+    },
+    {
+      "text": "at larger scale.",
+      "start": 2951.6,
+      "duration": 1.52
+    },
+    {
+      "text": "So this is state setting.",
+      "start": 2953.12,
+      "duration": 4.2
+    },
+    {
+      "text": "The actual scaling laws\nwe're going to look at",
+      "start": 2957.32,
+      "duration": 2.08
+    },
+    {
+      "text": "are fairly classic.",
+      "start": 2959.4,
+      "duration": 3.32
+    },
+    {
+      "text": "So these are-- some of you might\nhave seen this idea of, well,",
+      "start": 2962.72,
+      "duration": 5.34
+    },
+    {
+      "text": "if I give you a FLOPs\nbudget, should you train--",
+      "start": 2968.06,
+      "duration": 3.9
+    },
+    {
+      "text": "how should you balance training\na larger model versus training",
+      "start": 2971.96,
+      "duration": 2.92
+    },
+    {
+      "text": "on more tokens?",
+      "start": 2974.88,
+      "duration": 1.12
+    },
+    {
+      "text": "And this is where the classic\ncompute optimal scaling laws",
+      "start": 2976.0,
+      "duration": 2.44
+    },
+    {
+      "text": "from Kaplan et Al and the\nso-called Chinchilla scaling",
+      "start": 2978.44,
+      "duration": 3.76
+    },
+    {
+      "text": "laws comes in.",
+      "start": 2982.2,
+      "duration": 1.32
+    },
+    {
+      "text": "The basic idea is that\nyou for each FLOPs budget,",
+      "start": 2983.52,
+      "duration": 7.4
+    },
+    {
+      "text": "so let's say 6e18\nall the way to 3e21,",
+      "start": 2990.92,
+      "duration": 5.6
+    },
+    {
+      "text": "you sweep across different model\nsizes and you choose the best",
+      "start": 2996.52,
+      "duration": 8.76
+    },
+    {
+      "text": "one.",
+      "start": 3005.28,
+      "duration": 0.58
+    },
+    {
+      "text": "So think about\nminimizing each of these.",
+      "start": 3005.86,
+      "duration": 2.34
+    },
+    {
+      "text": "And then you fit a curve that\nallows you to, basically,",
+      "start": 3008.2,
+      "duration": 4.48
+    },
+    {
+      "text": "predict the number of\nparameters given a FLOPs budget.",
+      "start": 3012.68,
+      "duration": 3.56
+    },
+    {
+      "text": "And if you're lucky, it will\nrely roughly on the line.",
+      "start": 3016.24,
+      "duration": 3.745
+    },
+    {
+      "text": "And if you're\nunlucky, it's going",
+      "start": 3019.985,
+      "duration": 1.375
+    },
+    {
+      "text": "to be all over the place, which\nmeans that you should have",
+      "start": 3021.36,
+      "duration": 2.417
+    },
+    {
+      "text": "no confidence that you're going\nto be able to predict reliably.",
+      "start": 3023.777,
+      "duration": 3.823
+    },
+    {
+      "text": "And so the upshot of\nthis, this is quite crude,",
+      "start": 3027.6,
+      "duration": 7.42
+    },
+    {
+      "text": "but a rule of thumb is, the 20\ntimes the number of parameters",
+      "start": 3035.02,
+      "duration": 7.1
+    },
+    {
+      "text": "is the number of data\npoints you should train on.",
+      "start": 3042.12,
+      "duration": 3.58
+    },
+    {
+      "text": "So a 70B parameter model should\nbe trained on roughly 1.4",
+      "start": 3045.7,
+      "duration": 3.14
+    },
+    {
+      "text": "trillion tokens.",
+      "start": 3048.84,
+      "duration": 1.98
+    },
+    {
+      "text": "Of course, depending on the\ndata set and architecture,",
+      "start": 3050.82,
+      "duration": 2.48
+    },
+    {
+      "text": "this number will actually vary.",
+      "start": 3053.3,
+      "duration": 3.34
+    },
+    {
+      "text": "Also, this doesn't take you\ninto account the inference cost.",
+      "start": 3056.64,
+      "duration": 4.4
+    },
+    {
+      "text": "A lot of models\nthese days are small,",
+      "start": 3061.04,
+      "duration": 2.18
+    },
+    {
+      "text": "but they're trained\non way more tokens",
+      "start": 3063.22,
+      "duration": 1.66
+    },
+    {
+      "text": "than is compute optimal\nbecause you want a smaller",
+      "start": 3064.88,
+      "duration": 2.16
+    },
+    {
+      "text": "model for inference reasons.",
+      "start": 3067.04,
+      "duration": 2.92
+    },
+    {
+      "text": "So one fun thing that we've\nbeen doing in the Marin project",
+      "start": 3069.96,
+      "duration": 4.44
+    },
+    {
+      "text": "is pre-registering our results.",
+      "start": 3074.4,
+      "duration": 1.98
+    },
+    {
+      "text": "So we fit a bunch\nof scaling plots",
+      "start": 3076.38,
+      "duration": 4.46
+    },
+    {
+      "text": "at different compute budgets.",
+      "start": 3080.84,
+      "duration": 1.82
+    },
+    {
+      "text": "We fit a scaling law, and we\nbasically made these predictions",
+      "start": 3082.66,
+      "duration": 5.06
+    },
+    {
+      "text": "out to 1E22 FLOPs.",
+      "start": 3087.72,
+      "duration": 2.8
+    },
+    {
+      "text": "This one is actually training.",
+      "start": 3090.52,
+      "duration": 1.34
+    },
+    {
+      "text": "If you go to the Marin\nwebsite, you can follow along.",
+      "start": 3091.86,
+      "duration": 2.66
+    },
+    {
+      "text": "It should actually be done\nmaybe as early as tonight.",
+      "start": 3094.52,
+      "duration": 3.18
+    },
+    {
+      "text": "So maybe on Wednesday I'll\nreport back on how we did",
+      "start": 3097.7,
+      "duration": 3.54
+    },
+    {
+      "text": "and see how we measure--",
+      "start": 3101.24,
+      "duration": 2.48
+    },
+    {
+      "text": "how we match the\npre-registered loss.",
+      "start": 3103.72,
+      "duration": 3.92
+    },
+    {
+      "text": "So the idea here is that\nwe made a prediction",
+      "start": 3107.64,
+      "duration": 2.48
+    },
+    {
+      "text": "on if we were to train this\nlarge model, which we've never",
+      "start": 3110.12,
+      "duration": 2.48
+    },
+    {
+      "text": "trained before.",
+      "start": 3112.6,
+      "duration": 1.04
+    },
+    {
+      "text": "If we can predict how\nwell it's going to do,",
+      "start": 3113.64,
+      "duration": 2.4
+    },
+    {
+      "text": "then that's really nice.",
+      "start": 3116.04,
+      "duration": 4.0
+    },
+    {
+      "text": "So in Assignment 3, I\nthink this is either fun",
+      "start": 3120.04,
+      "duration": 5.08
+    },
+    {
+      "text": "or actually, it's a fun--",
+      "start": 3125.12,
+      "duration": 3.158
+    },
+    {
+      "text": "let's just say it's\na fun assignment.",
+      "start": 3128.278,
+      "duration": 1.542
+    },
+    {
+      "text": "[LAUGHTER]",
+      "start": 3129.82,
+      "duration": 1.78
+    },
+    {
+      "text": "So we're going to define this\ntraining API, which basically,",
+      "start": 3131.6,
+      "duration": 5.01
+    },
+    {
+      "text": "you give us hyperparameters, and\nwe're going to give you a loss",
+      "start": 3136.61,
+      "duration": 3.08
+    },
+    {
+      "text": "back.",
+      "start": 3139.69,
+      "duration": 0.84
+    },
+    {
+      "text": "So what we're going\nto try to do is",
+      "start": 3140.53,
+      "duration": 1.56
+    },
+    {
+      "text": "simulate what happens if you\ncould do a lot of training runs.",
+      "start": 3142.09,
+      "duration": 3.778
+    },
+    {
+      "text": "And of course, we don't have\nenough compute to actually allow",
+      "start": 3145.868,
+      "duration": 2.542
+    },
+    {
+      "text": "everyone to train their\nown API model or anything.",
+      "start": 3148.41,
+      "duration": 5.0
+    },
+    {
+      "text": "So basically, we trained\na bunch of models offline,",
+      "start": 3153.41,
+      "duration": 3.28
+    },
+    {
+      "text": "and we, basically,\nprovide this cache.",
+      "start": 3156.69,
+      "duration": 2.6
+    },
+    {
+      "text": "So it looks like\nyou're training.",
+      "start": 3159.29,
+      "duration": 2.52
+    },
+    {
+      "text": "And what you're going to\ndo is submit training jobs.",
+      "start": 3161.81,
+      "duration": 3.32
+    },
+    {
+      "text": "You give us a config, basically,\nwe give you a loss back",
+      "start": 3165.13,
+      "duration": 3.833
+    },
+    {
+      "text": "and then you could\ndo whatever you want.",
+      "start": 3168.963,
+      "duration": 1.667
+    },
+    {
+      "text": "We would recommend you fit\nscaling laws to these points.",
+      "start": 3170.63,
+      "duration": 5.48
+    },
+    {
+      "text": "And then you extrapolate.",
+      "start": 3176.11,
+      "duration": 1.52
+    },
+    {
+      "text": "And then we give you a\nbudget, and we basically",
+      "start": 3177.63,
+      "duration": 3.9
+    },
+    {
+      "text": "evaluate how well\nyour model landed.",
+      "start": 3181.53,
+      "duration": 3.08
+    },
+    {
+      "text": "So it is meant to--",
+      "start": 3184.61,
+      "duration": 1.56
+    },
+    {
+      "text": "I was going to say, it's meant\nto replicate the high stress",
+      "start": 3186.17,
+      "duration": 3.28
+    },
+    {
+      "text": "scenarios if you actually had\na budget like $100 million",
+      "start": 3189.45,
+      "duration": 5.38
+    },
+    {
+      "text": "that you need to spend.",
+      "start": 3194.83,
+      "duration": 1.9
+    },
+    {
+      "text": "You have to be very careful\nabout how you spend this.",
+      "start": 3196.73,
+      "duration": 4.28
+    },
+    {
+      "text": "Of course, this is low stakes.",
+      "start": 3201.01,
+      "duration": 2.3
+    },
+    {
+      "text": "So at this point, you will\nhave, you train a model,",
+      "start": 3208.825,
+      "duration": 4.685
+    },
+    {
+      "text": "how to make it fast,\nyou know to scale up.",
+      "start": 3213.51,
+      "duration": 4.54
+    },
+    {
+      "text": "Now, what's missing?",
+      "start": 3218.05,
+      "duration": 1.36
+    },
+    {
+      "text": "What do you train the model on?",
+      "start": 3219.41,
+      "duration": 3.0
+    },
+    {
+      "text": "And that's going to be\nthe subject of the data",
+      "start": 3222.41,
+      "duration": 2.44
+    },
+    {
+      "text": "section, which is arguably one\nof the most important things",
+      "start": 3224.85,
+      "duration": 6.08
+    },
+    {
+      "text": "because data quality basically\nspecifies how good your model is",
+      "start": 3230.93,
+      "duration": 4.92
+    },
+    {
+      "text": "going to be.",
+      "start": 3235.85,
+      "duration": 0.72
+    },
+    {
+      "text": "One way to also frame\nit is, what do you",
+      "start": 3236.57,
+      "duration": 4.56
+    },
+    {
+      "text": "want your model to do?",
+      "start": 3241.13,
+      "duration": 1.64
+    },
+    {
+      "text": "Data, basically, reflects\nwhat your model wants.",
+      "start": 3242.77,
+      "duration": 5.22
+    },
+    {
+      "text": "So do you want to speak\nmultiple languages?",
+      "start": 3247.99,
+      "duration": 2.86
+    },
+    {
+      "text": "Be good at having\na conversation?",
+      "start": 3250.85,
+      "duration": 2.74
+    },
+    {
+      "text": "Do you want to run long\nagentic coding tasks?",
+      "start": 3253.59,
+      "duration": 4.3
+    },
+    {
+      "text": "And so part of\nthat is also going",
+      "start": 3257.89,
+      "duration": 3.52
+    },
+    {
+      "text": "to-- so we're going to start by\ntalking about evaluation, which,",
+      "start": 3261.41,
+      "duration": 4.08
+    },
+    {
+      "text": "basically, defines the\ncapabilities that you'd",
+      "start": 3265.49,
+      "duration": 2.64
+    },
+    {
+      "text": "like your model to have.",
+      "start": 3268.13,
+      "duration": 2.84
+    },
+    {
+      "text": "One thing we'll talk\nabout is, evaluation",
+      "start": 3270.97,
+      "duration": 3.88
+    },
+    {
+      "text": "is a fairly deep topic.",
+      "start": 3274.85,
+      "duration": 3.16
+    },
+    {
+      "text": "It's not just about\nrunning on some benchmarks.",
+      "start": 3278.01,
+      "duration": 4.36
+    },
+    {
+      "text": "There are internal evaluation\nmetrics for model development.",
+      "start": 3282.37,
+      "duration": 4.18
+    },
+    {
+      "text": "And what matters here is that\nsmoothness across scales so",
+      "start": 3286.55,
+      "duration": 5.58
+    },
+    {
+      "text": "that there-- remember, we\nwant things to be predictable.",
+      "start": 3292.13,
+      "duration": 3.4
+    },
+    {
+      "text": "Relative performance matters.",
+      "start": 3295.53,
+      "duration": 1.5
+    },
+    {
+      "text": "You don't care,\nnecessarily, how well",
+      "start": 3297.03,
+      "duration": 1.98
+    },
+    {
+      "text": "this does in absolute\nterms, because, let's say,",
+      "start": 3299.01,
+      "duration": 5.097
+    },
+    {
+      "text": "a perplexity number\nis just like, what",
+      "start": 3304.107,
+      "duration": 1.583
+    },
+    {
+      "text": "is a perplexity of 1.2 on some\nheld out data really mean?",
+      "start": 3305.69,
+      "duration": 6.6
+    },
+    {
+      "text": "And then there's\nexternal metrics.",
+      "start": 3312.29,
+      "duration": 2.18
+    },
+    {
+      "text": "These are things that you\nreport to your customers",
+      "start": 3314.47,
+      "duration": 5.02
+    },
+    {
+      "text": "or your reviewers or whoever\nyou're presenting your thing to.",
+      "start": 3319.49,
+      "duration": 3.8
+    },
+    {
+      "text": "And here, ecological\nvalidity really matters.",
+      "start": 3323.29,
+      "duration": 2.88
+    },
+    {
+      "text": "And I think sometimes these\ntwo things get conflated,",
+      "start": 3326.17,
+      "duration": 2.66
+    },
+    {
+      "text": "but I think they really\nserve two distinct purposes.",
+      "start": 3328.83,
+      "duration": 3.14
+    },
+    {
+      "text": "And so you can think\nabout perplexity",
+      "start": 3331.97,
+      "duration": 1.92
+    },
+    {
+      "text": "as something that\nis really helpful",
+      "start": 3333.89,
+      "duration": 3.2
+    },
+    {
+      "text": "for internal development.",
+      "start": 3337.09,
+      "duration": 1.72
+    },
+    {
+      "text": "And still to this\nday, perplexity",
+      "start": 3338.81,
+      "duration": 3.48
+    },
+    {
+      "text": "is a very good way of capturing\nthe intrinsic quality of a model",
+      "start": 3342.29,
+      "duration": 5.6
+    },
+    {
+      "text": "without getting--",
+      "start": 3347.89,
+      "duration": 1.52
+    },
+    {
+      "text": "worrying about benchmarking.",
+      "start": 3349.41,
+      "duration": 1.92
+    },
+    {
+      "text": "Now, there's a separate question\nof what you run your evals on.",
+      "start": 3351.33,
+      "duration": 6.0
+    },
+    {
+      "text": "And the recommended\nthing is, well,",
+      "start": 3357.33,
+      "duration": 2.54
+    },
+    {
+      "text": "if you have some data that's\nnot in the internet, that",
+      "start": 3359.87,
+      "duration": 2.3
+    },
+    {
+      "text": "would be good because you\ncan avoid contamination.",
+      "start": 3362.17,
+      "duration": 3.5
+    },
+    {
+      "text": "OK.",
+      "start": 3365.67,
+      "duration": 0.5
+    },
+    {
+      "text": "So and then there's\nadvanced use cases",
+      "start": 3366.17,
+      "duration": 4.52
+    },
+    {
+      "text": "which are more representative\nof external facing use cases.",
+      "start": 3370.69,
+      "duration": 6.84
+    },
+    {
+      "text": "So one thing to also note\nis that language models",
+      "start": 3377.53,
+      "duration": 3.76
+    },
+    {
+      "text": "are purportedly very\ngeneral purpose.",
+      "start": 3381.29,
+      "duration": 2.6
+    },
+    {
+      "text": "So it's only fitting\nthat we actually",
+      "start": 3383.89,
+      "duration": 3.2
+    },
+    {
+      "text": "need a very diverse\nset of evaluations.",
+      "start": 3387.09,
+      "duration": 3.2
+    },
+    {
+      "text": "And I would always recommend\nhaving many evaluations",
+      "start": 3390.29,
+      "duration": 3.48
+    },
+    {
+      "text": "that look at-- you can average\nthem into a single number,",
+      "start": 3393.77,
+      "duration": 2.46
+    },
+    {
+      "text": "but often that average conflates\na lot of different things.",
+      "start": 3396.23,
+      "duration": 4.3
+    },
+    {
+      "text": "So now after we\nset up the evals,",
+      "start": 3400.53,
+      "duration": 2.18
+    },
+    {
+      "text": "we know what we're building.",
+      "start": 3402.71,
+      "duration": 3.1
+    },
+    {
+      "text": "How do you get the data?",
+      "start": 3405.81,
+      "duration": 2.56
+    },
+    {
+      "text": "Well, first thing is that data\ndoes not just fall from the sky.",
+      "start": 3408.37,
+      "duration": 5.32
+    },
+    {
+      "text": "It has to be actively curated.",
+      "start": 3413.69,
+      "duration": 3.36
+    },
+    {
+      "text": "Often, I think,\nespecially in classes",
+      "start": 3417.05,
+      "duration": 3.897
+    },
+    {
+      "text": "and also in research,\nsometimes you're",
+      "start": 3420.947,
+      "duration": 1.583
+    },
+    {
+      "text": "just given a data set,\nand then it's like,",
+      "start": 3422.53,
+      "duration": 2.06
+    },
+    {
+      "text": "OK, well, now, I do\nstuff on the data set.",
+      "start": 3424.59,
+      "duration": 2.57
+    },
+    {
+      "text": "But a lot of language\nmodels, especially",
+      "start": 3427.16,
+      "duration": 2.3
+    },
+    {
+      "text": "if you want to collect\nthese large data sets,",
+      "start": 3429.46,
+      "duration": 1.94
+    },
+    {
+      "text": "you have to go and\nactively look at it.",
+      "start": 3431.4,
+      "duration": 2.9
+    },
+    {
+      "text": "So web pages are crawled\nfrom the internet.",
+      "start": 3434.3,
+      "duration": 2.72
+    },
+    {
+      "text": "There's books, I guess, which\nis controversial at this point,",
+      "start": 3437.02,
+      "duration": 3.34
+    },
+    {
+      "text": "but arXiv papers,\nGitHub code, and so on.",
+      "start": 3440.36,
+      "duration": 3.44
+    },
+    {
+      "text": "This is an old figure\nfrom the pile from 2021.",
+      "start": 3443.8,
+      "duration": 3.48
+    },
+    {
+      "text": "And you can see, language\nmodeling data sets",
+      "start": 3447.28,
+      "duration": 2.82
+    },
+    {
+      "text": "are fairly diverse.",
+      "start": 3450.1,
+      "duration": 2.96
+    },
+    {
+      "text": "There's, especially\nthese days, I",
+      "start": 3453.06,
+      "duration": 1.56
+    },
+    {
+      "text": "think, a lot of contention\naround, is it fair use",
+      "start": 3454.62,
+      "duration": 4.28
+    },
+    {
+      "text": "to train on copyrighted data?",
+      "start": 3458.9,
+      "duration": 2.6
+    },
+    {
+      "text": "Maybe sometimes you have\nto license data and so on.",
+      "start": 3461.5,
+      "duration": 3.42
+    },
+    {
+      "text": "So there's legal issues\naround data which, I think,",
+      "start": 3464.92,
+      "duration": 2.9
+    },
+    {
+      "text": "are quite important.",
+      "start": 3467.82,
+      "duration": 2.36
+    },
+    {
+      "text": "For example, a lot of GitHub\ncode doesn't have a license.",
+      "start": 3470.18,
+      "duration": 3.72
+    },
+    {
+      "text": "So how do you interpret that?",
+      "start": 3473.9,
+      "duration": 1.7
+    },
+    {
+      "text": "Do you assume it's permissive,\nor do you be conservative",
+      "start": 3475.6,
+      "duration": 2.86
+    },
+    {
+      "text": "and assume it's not permissive?",
+      "start": 3478.46,
+      "duration": 3.32
+    },
+    {
+      "text": "So there's also-- the fact is\nthat data is not even text.",
+      "start": 3481.78,
+      "duration": 7.32
+    },
+    {
+      "text": "It's either HTML or PDFs,\nor a code is directories.",
+      "start": 3489.1,
+      "duration": 3.56
+    },
+    {
+      "text": "And this requires processing\nto turn it into actual text",
+      "start": 3492.66,
+      "duration": 3.76
+    },
+    {
+      "text": "to be usable for training.",
+      "start": 3496.42,
+      "duration": 1.84
+    },
+    {
+      "text": "So that's the topic\nof data processing.",
+      "start": 3498.26,
+      "duration": 3.32
+    },
+    {
+      "text": "There's a few steps\nthat has to happen here.",
+      "start": 3501.58,
+      "duration": 2.88
+    },
+    {
+      "text": "Transformation, converting\nsome nontexting in a text.",
+      "start": 3504.46,
+      "duration": 6.08
+    },
+    {
+      "text": "Filtering, keeping\nonly the good stuff.",
+      "start": 3510.54,
+      "duration": 4.16
+    },
+    {
+      "text": "If the random internet document\nin Common Crawl is extremely bad",
+      "start": 3514.7,
+      "duration": 4.36
+    },
+    {
+      "text": "and you don't want to\ntrain on it, most likely.",
+      "start": 3519.06,
+      "duration": 5.12
+    },
+    {
+      "text": "You want to deduplicate.",
+      "start": 3524.18,
+      "duration": 2.8
+    },
+    {
+      "text": "There's multiple\nsources, or how do you",
+      "start": 3526.98,
+      "duration": 2.4
+    },
+    {
+      "text": "combine the different sources?",
+      "start": 3529.38,
+      "duration": 2.52
+    },
+    {
+      "text": "And then finally, more recently,\nthere's been a lot of work",
+      "start": 3531.9,
+      "duration": 4.24
+    },
+    {
+      "text": "on generating\nsynthetic data, which",
+      "start": 3536.14,
+      "duration": 2.44
+    },
+    {
+      "text": "could mean taking the real\ndata and just rewriting it",
+      "start": 3538.58,
+      "duration": 3.68
+    },
+    {
+      "text": "into things that are more the\ndownstream task or just more",
+      "start": 3542.26,
+      "duration": 3.72
+    },
+    {
+      "text": "Wikipedia like, or\nwhatever you want.",
+      "start": 3545.98,
+      "duration": 3.6
+    },
+    {
+      "text": "So this is an active\narea of research.",
+      "start": 3549.58,
+      "duration": 3.36
+    },
+    {
+      "text": "Also, data can be used\nboth for pretraining.",
+      "start": 3552.94,
+      "duration": 4.02
+    },
+    {
+      "text": "Something called\nmid training, which",
+      "start": 3556.96,
+      "duration": 1.5
+    },
+    {
+      "text": "is usually the high\nquality data that you",
+      "start": 3558.46,
+      "duration": 2.32
+    },
+    {
+      "text": "put at the end of\nthe pretraining step.",
+      "start": 3560.78,
+      "duration": 4.44
+    },
+    {
+      "text": "And this includes\nlong context data",
+      "start": 3565.22,
+      "duration": 2.48
+    },
+    {
+      "text": "such as maybe BigCode\nrepositories or books.",
+      "start": 3567.7,
+      "duration": 3.8
+    },
+    {
+      "text": "And then finally, there's\npost-training data,",
+      "start": 3571.5,
+      "duration": 2.68
+    },
+    {
+      "text": "which are maybe conversations\nor agentic traces with tool",
+      "start": 3574.18,
+      "duration": 5.36
+    },
+    {
+      "text": "calling.",
+      "start": 3579.54,
+      "duration": 1.28
+    },
+    {
+      "text": "So in Assignment 4,\nwe're going to make",
+      "start": 3580.82,
+      "duration": 4.32
+    },
+    {
+      "text": "you start with a very raw\ncorpus, like a rock web crawl,",
+      "start": 3585.14,
+      "duration": 6.64
+    },
+    {
+      "text": "and do all the work to\nfilter and to dedupe,",
+      "start": 3591.78,
+      "duration": 6.12
+    },
+    {
+      "text": "and make the data clean.",
+      "start": 3597.9,
+      "duration": 2.96
+    },
+    {
+      "text": "So this is, I would say--",
+      "start": 3600.86,
+      "duration": 3.61
+    },
+    {
+      "text": "I don't know if I would call it\nnot fun, but it is certainly,",
+      "start": 3604.47,
+      "duration": 4.15
+    },
+    {
+      "text": "I think, a lot of what\npeople would call dirty work.",
+      "start": 3608.62,
+      "duration": 4.42
+    },
+    {
+      "text": "But that is, I think,\nan important part",
+      "start": 3613.04,
+      "duration": 2.86
+    },
+    {
+      "text": "of building a language model\nfrom scratch so you have",
+      "start": 3615.9,
+      "duration": 2.48
+    },
+    {
+      "text": "to get the full experience.",
+      "start": 3618.38,
+      "duration": 2.48
+    },
+    {
+      "text": "So finally, alignment.",
+      "start": 3620.86,
+      "duration": 5.08
+    },
+    {
+      "text": "So far we've, basically, trained\na model using full supervision.",
+      "start": 3625.94,
+      "duration": 4.06
+    },
+    {
+      "text": "Predict the next token\nor the next few tokens.",
+      "start": 3630.0,
+      "duration": 3.26
+    },
+    {
+      "text": "Now at this point, the model\nshould already be reasonable,",
+      "start": 3633.26,
+      "duration": 4.8
+    },
+    {
+      "text": "but we can improve it further\nby using weak supervision.",
+      "start": 3638.06,
+      "duration": 5.2
+    },
+    {
+      "text": "And why weak supervision?",
+      "start": 3643.26,
+      "duration": 1.26
+    },
+    {
+      "text": "It's because sometimes\nit's easier to critique",
+      "start": 3644.52,
+      "duration": 3.98
+    },
+    {
+      "text": "than it is to generate.",
+      "start": 3648.5,
+      "duration": 1.42
+    },
+    {
+      "text": "So you can't always\nhave data that says,",
+      "start": 3649.92,
+      "duration": 2.82
+    },
+    {
+      "text": "this is the right\nresponse to this prompt,",
+      "start": 3652.74,
+      "duration": 1.86
+    },
+    {
+      "text": "but maybe you can have a way of\nspecifying what good looks like.",
+      "start": 3654.6,
+      "duration": 3.59
+    },
+    {
+      "text": "So then, the basic template\nis that you generate responses",
+      "start": 3658.19,
+      "duration": 3.48
+    },
+    {
+      "text": "from the model.",
+      "start": 3661.67,
+      "duration": 0.74
+    },
+    {
+      "text": "You score them either with a\nhuman or verify or a LM judge,",
+      "start": 3662.41,
+      "duration": 4.24
+    },
+    {
+      "text": "and then you update the model\nto prefer better responses.",
+      "start": 3666.65,
+      "duration": 3.3
+    },
+    {
+      "text": "This can be instantiated either\nthrough various RL algorithms",
+      "start": 3669.95,
+      "duration": 3.84
+    },
+    {
+      "text": "such as PPO or GRPO, or in a\nsimpler, for preference data,",
+      "start": 3673.79,
+      "duration": 5.48
+    },
+    {
+      "text": "DPO.",
+      "start": 3679.27,
+      "duration": 2.88
+    },
+    {
+      "text": "So the challenges around\nRL are that RL algorithms",
+      "start": 3682.15,
+      "duration": 6.88
+    },
+    {
+      "text": "are unstable and hard to tune.",
+      "start": 3689.03,
+      "duration": 3.48
+    },
+    {
+      "text": "Some of you probably know this\nfrom firsthand experience.",
+      "start": 3692.51,
+      "duration": 3.68
+    },
+    {
+      "text": "Personally, I prefer to keep\nthings as much in the fold",
+      "start": 3696.19,
+      "duration": 3.74
+    },
+    {
+      "text": "so we supervise the case\nas long as possible.",
+      "start": 3699.93,
+      "duration": 1.96
+    },
+    {
+      "text": "And then finally, OK,\nfine, I have to do RL.",
+      "start": 3701.89,
+      "duration": 3.1
+    },
+    {
+      "text": "But some people, for whatever\nreason, like doing RL.",
+      "start": 3704.99,
+      "duration": 5.0
+    },
+    {
+      "text": "Also, what we'll,\nhopefully, talk",
+      "start": 3709.99,
+      "duration": 2.08
+    },
+    {
+      "text": "about this year is that\nif you do RL at scale",
+      "start": 3712.07,
+      "duration": 4.72
+    },
+    {
+      "text": "and try to maximize\nyour throughput,",
+      "start": 3716.79,
+      "duration": 1.9
+    },
+    {
+      "text": "there's actually a lot\nof systems challenges.",
+      "start": 3718.69,
+      "duration": 2.982
+    },
+    {
+      "text": "You have to have an inference\nserver and a training server.",
+      "start": 3721.672,
+      "duration": 2.458
+    },
+    {
+      "text": "And then the inference server\nhas to generate these rollouts.",
+      "start": 3724.13,
+      "duration": 3.36
+    },
+    {
+      "text": "Especially if you do\nRL against environments",
+      "start": 3727.49,
+      "duration": 2.34
+    },
+    {
+      "text": "that involve code execution.",
+      "start": 3729.83,
+      "duration": 1.74
+    },
+    {
+      "text": "It's a whole kind of\norchestration game.",
+      "start": 3731.57,
+      "duration": 2.08
+    },
+    {
+      "text": "And then if your workers\nlag behind or then",
+      "start": 3733.65,
+      "duration": 4.86
+    },
+    {
+      "text": "you get into off policy\nissues, and then you're",
+      "start": 3738.51,
+      "duration": 3.52
+    },
+    {
+      "text": "constantly kind of juggling\nthis on-policyness with a desire",
+      "start": 3742.03,
+      "duration": 4.64
+    },
+    {
+      "text": "to maximize throughput.",
+      "start": 3746.67,
+      "duration": 2.04
+    },
+    {
+      "text": "It's a big, wonderful\nmess, which, hopefully,",
+      "start": 3748.71,
+      "duration": 2.16
+    },
+    {
+      "text": "we'll talk more about\nwhen we come to that.",
+      "start": 3750.87,
+      "duration": 2.92
+    },
+    {
+      "text": "So Assignment 5,\nwe're still deciding",
+      "start": 3753.79,
+      "duration": 5.52
+    },
+    {
+      "text": "what exactly we want to do.",
+      "start": 3759.31,
+      "duration": 1.3
+    },
+    {
+      "text": "Last year, it was\nimplemented DPO and GRPO,",
+      "start": 3760.61,
+      "duration": 2.22
+    },
+    {
+      "text": "and get it working for\nsome math benchmark,",
+      "start": 3762.83,
+      "duration": 3.46
+    },
+    {
+      "text": "but we'll see how\nmuch farther we",
+      "start": 3766.29,
+      "duration": 3.82
+    },
+    {
+      "text": "can push it on the realistic\ndimension this year.",
+      "start": 3770.11,
+      "duration": 4.36
+    },
+    {
+      "text": "So again, remember\nit's about efficiency.",
+      "start": 3774.47,
+      "duration": 4.44
+    },
+    {
+      "text": "And efficiency can be\neither data efficiency",
+      "start": 3778.91,
+      "duration": 3.68
+    },
+    {
+      "text": "or compute efficiency.",
+      "start": 3782.59,
+      "duration": 1.162
+    },
+    {
+      "text": "So the way to think about it,\nyou have all these resources.",
+      "start": 3783.752,
+      "duration": 2.458
+    },
+    {
+      "text": "you have data, you\nhave the hardware,",
+      "start": 3786.21,
+      "duration": 1.7
+    },
+    {
+      "text": "which has compute cores, you\nhave memory, communication",
+      "start": 3787.91,
+      "duration": 3.6
+    },
+    {
+      "text": "bandwidth.",
+      "start": 3791.51,
+      "duration": 0.88
+    },
+    {
+      "text": "And you're just\ntrying to figure out",
+      "start": 3792.39,
+      "duration": 1.56
+    },
+    {
+      "text": "how do you build the best model\naccording to some evaluation",
+      "start": 3793.95,
+      "duration": 3.6
+    },
+    {
+      "text": "given a fixed set of resources.",
+      "start": 3797.55,
+      "duration": 2.96
+    },
+    {
+      "text": "So through this\nlens, I think, you",
+      "start": 3800.51,
+      "duration": 2.76
+    },
+    {
+      "text": "can actually think about a\nlot of these design decisions",
+      "start": 3803.27,
+      "duration": 3.84
+    },
+    {
+      "text": "as optimizing for this.",
+      "start": 3807.11,
+      "duration": 2.38
+    },
+    {
+      "text": "So systems, clearly, that's\nabout compute efficiency.",
+      "start": 3809.49,
+      "duration": 4.34
+    },
+    {
+      "text": "Tokenization, as I mentioned\nbefore, you can't just",
+      "start": 3813.83,
+      "duration": 4.4
+    },
+    {
+      "text": "work with raw bytes,\nbut that's going",
+      "start": 3818.23,
+      "duration": 2.0
+    },
+    {
+      "text": "to be very compute inefficient,\nat least with today's model",
+      "start": 3820.23,
+      "duration": 4.68
+    },
+    {
+      "text": "architectures.",
+      "start": 3824.91,
+      "duration": 1.2
+    },
+    {
+      "text": "And so a lot of tokenization\nis about improving",
+      "start": 3826.11,
+      "duration": 3.08
+    },
+    {
+      "text": "compute efficiency.",
+      "start": 3829.19,
+      "duration": 1.36
+    },
+    {
+      "text": "Model architecture, many of\nthe changes that we'll see",
+      "start": 3830.55,
+      "duration": 4.08
+    },
+    {
+      "text": "are motivated by reducing\nthe memory or flops.",
+      "start": 3834.63,
+      "duration": 4.28
+    },
+    {
+      "text": "In fact, a lot of them\nare influenced by the need",
+      "start": 3838.91,
+      "duration": 2.68
+    },
+    {
+      "text": "to have faster inference.",
+      "start": 3841.59,
+      "duration": 2.72
+    },
+    {
+      "text": "Data filtering, you\ncan also view as--",
+      "start": 3844.31,
+      "duration": 2.24
+    },
+    {
+      "text": "through efficiency lens.",
+      "start": 3846.55,
+      "duration": 1.34
+    },
+    {
+      "text": "We don't want to waste\ntime updating gradients",
+      "start": 3847.89,
+      "duration": 2.9
+    },
+    {
+      "text": "on a bunch of\nredundant bad data,",
+      "start": 3850.79,
+      "duration": 3.08
+    },
+    {
+      "text": "even if it might not hurt you,\nbut it hurts you in the sense",
+      "start": 3853.87,
+      "duration": 2.76
+    },
+    {
+      "text": "that if you have a fixed compute\nbudget, more time on bad data",
+      "start": 3856.63,
+      "duration": 2.88
+    },
+    {
+      "text": "means less time on good data.",
+      "start": 3859.51,
+      "duration": 1.76
+    },
+    {
+      "text": "And then finally, scaling\nlaws is explicitly",
+      "start": 3861.27,
+      "duration": 2.32
+    },
+    {
+      "text": "about how you can, essentially,\ndo effective hyperparameter",
+      "start": 3863.59,
+      "duration": 3.92
+    },
+    {
+      "text": "tuning on much smaller models.",
+      "start": 3867.51,
+      "duration": 2.56
+    },
+    {
+      "text": "And now tomorrow, we might\nbecome data-constrained,",
+      "start": 3870.07,
+      "duration": 2.62
+    },
+    {
+      "text": "and the calculus of what design\ndecisions you should take",
+      "start": 3872.69,
+      "duration": 4.46
+    },
+    {
+      "text": "might change.",
+      "start": 3877.15,
+      "duration": 0.82
+    },
+    {
+      "text": "But I think the\noverall mindset which",
+      "start": 3877.97,
+      "duration": 2.26
+    },
+    {
+      "text": "we're trying to\nteach you is think",
+      "start": 3880.23,
+      "duration": 1.84
+    },
+    {
+      "text": "about the efficiency\nof your approach.",
+      "start": 3882.07,
+      "duration": 4.72
+    },
+    {
+      "text": "OK, let me stop there.",
+      "start": 3886.79,
+      "duration": 2.78
+    },
+    {
+      "text": "Are there any\nquestions about any",
+      "start": 3889.57,
+      "duration": 2.75
+    },
+    {
+      "text": "of these assignments or topics?",
+      "start": 3892.32,
+      "duration": 3.98
+    },
+    {
+      "text": "OK.",
+      "start": 3905.656,
+      "duration": 0.504
+    },
+    {
+      "text": "So now let's do tokenization.",
+      "start": 3906.16,
+      "duration": 4.22
+    },
+    {
+      "text": "So this is-- we're jumping\ninto our first unit here.",
+      "start": 3910.38,
+      "duration": 4.94
+    },
+    {
+      "text": "So Andrej Karpathy has\nthis really good video",
+      "start": 3915.32,
+      "duration": 2.08
+    },
+    {
+      "text": "on tokenization.",
+      "start": 3917.4,
+      "duration": 0.94
+    },
+    {
+      "text": "You should check it out.",
+      "start": 3918.34,
+      "duration": 2.9
+    },
+    {
+      "text": "So starting point is raw\ntext is what is text?",
+      "start": 3921.24,
+      "duration": 4.74
+    },
+    {
+      "text": "It's Unicode strings.",
+      "start": 3925.98,
+      "duration": 2.66
+    },
+    {
+      "text": "And on the other hand,\nthe language model",
+      "start": 3928.64,
+      "duration": 2.64
+    },
+    {
+      "text": "places a distribution\nover sequences of tokens",
+      "start": 3931.28,
+      "duration": 2.6
+    },
+    {
+      "text": "usually represented as indices.",
+      "start": 3933.88,
+      "duration": 2.0
+    },
+    {
+      "text": "So we need a procedure\nthat encodes these strings",
+      "start": 3935.88,
+      "duration": 3.16
+    },
+    {
+      "text": "into tokens, and also a\nprocedure that decodes",
+      "start": 3939.04,
+      "duration": 3.44
+    },
+    {
+      "text": "tokens back into strings.",
+      "start": 3942.48,
+      "duration": 2.32
+    },
+    {
+      "text": "So a tokenizer is\nbasically something",
+      "start": 3944.8,
+      "duration": 1.88
+    },
+    {
+      "text": "that can do this round trip.",
+      "start": 3946.68,
+      "duration": 3.52
+    },
+    {
+      "text": "So here are some\nexamples to give you",
+      "start": 3950.2,
+      "duration": 1.96
+    },
+    {
+      "text": "a flavor for how\ntokenizers work.",
+      "start": 3952.16,
+      "duration": 2.42
+    },
+    {
+      "text": "Actually, I should have tried\nto get in there earlier.",
+      "start": 3954.58,
+      "duration": 2.312
+    },
+    {
+      "text": "So this is not going to work.",
+      "start": 3956.892,
+      "duration": 1.208
+    },
+    {
+      "text": "If you go to the site\nyou can play around",
+      "start": 3958.1,
+      "duration": 1.708
+    },
+    {
+      "text": "with different tokenizers.",
+      "start": 3959.808,
+      "duration": 3.472
+    },
+    {
+      "text": "So some observations here.",
+      "start": 3963.28,
+      "duration": 4.04
+    },
+    {
+      "text": "And you'll appreciate why\ntokenizers are kind of annoying",
+      "start": 3967.32,
+      "duration": 4.84
+    },
+    {
+      "text": "and why people want\nto get rid of them.",
+      "start": 3972.16,
+      "duration": 1.92
+    },
+    {
+      "text": "So a word and its--",
+      "start": 3974.08,
+      "duration": 3.12
+    },
+    {
+      "text": "a word conglomerate\nwith its preceding space",
+      "start": 3977.2,
+      "duration": 4.16
+    },
+    {
+      "text": "are different tokens.",
+      "start": 3981.36,
+      "duration": 2.96
+    },
+    {
+      "text": "So many tokens you'll\nactually see are space a word,",
+      "start": 3984.32,
+      "duration": 3.4
+    },
+    {
+      "text": "which is fine, but\nkind of strange.",
+      "start": 3987.72,
+      "duration": 4.72
+    },
+    {
+      "text": "So this hello and\nthis hello is actually",
+      "start": 3992.44,
+      "duration": 3.68
+    },
+    {
+      "text": "two completely different\nindices that have nothing",
+      "start": 3996.12,
+      "duration": 2.72
+    },
+    {
+      "text": "to do with each other.",
+      "start": 3998.84,
+      "duration": 1.72
+    },
+    {
+      "text": "And sometimes, depending\non the tokenizer you use,",
+      "start": 4000.56,
+      "duration": 4.66
+    },
+    {
+      "text": "numbers are represented with--",
+      "start": 4005.22,
+      "duration": 3.7
+    },
+    {
+      "text": "every few digits is a token.",
+      "start": 4008.92,
+      "duration": 1.62
+    },
+    {
+      "text": "Sometimes, it's predictable,\nand sometimes, it's not.",
+      "start": 4010.54,
+      "duration": 2.4
+    },
+    {
+      "text": "Some tokenizers try to\nmake every digit a token,",
+      "start": 4012.94,
+      "duration": 2.105
+    },
+    {
+      "text": "but then you're blowing up\nthe number of tokens you have.",
+      "start": 4015.045,
+      "duration": 2.375
+    },
+    {
+      "text": "So there's some trade off there.",
+      "start": 4017.42,
+      "duration": 2.82
+    },
+    {
+      "text": "So here's the GPT-5 tokenizer.",
+      "start": 4020.24,
+      "duration": 4.72
+    },
+    {
+      "text": "So you can take this string and\nconvert it into these indices.",
+      "start": 4024.96,
+      "duration": 9.76
+    },
+    {
+      "text": "And then you can decode\nit back into the string.",
+      "start": 4034.72,
+      "duration": 3.4
+    },
+    {
+      "text": "And so tokenizers\nshould round trip.",
+      "start": 4038.12,
+      "duration": 2.237
+    },
+    {
+      "text": "If you implement tokenizer,\nit doesn't round trip,",
+      "start": 4040.357,
+      "duration": 2.083
+    },
+    {
+      "text": "you have a problem.",
+      "start": 4042.44,
+      "duration": 2.6
+    },
+    {
+      "text": "So the compression ratio here is\nthe number of bytes per token.",
+      "start": 4045.04,
+      "duration": 7.32
+    },
+    {
+      "text": "So in this case, we have, the\nnumber of bytes of this string",
+      "start": 4052.36,
+      "duration": 5.4
+    },
+    {
+      "text": "is 20.",
+      "start": 4057.76,
+      "duration": 0.88
+    },
+    {
+      "text": "The number of tokens is 8.",
+      "start": 4058.64,
+      "duration": 1.84
+    },
+    {
+      "text": "And you do 20 divided by 8.",
+      "start": 4060.48,
+      "duration": 1.5
+    },
+    {
+      "text": "So the compression ratio is 2.5.",
+      "start": 4061.98,
+      "duration": 2.26
+    },
+    {
+      "text": "OK, so 2.5 bytes per token.",
+      "start": 4064.24,
+      "duration": 2.4
+    },
+    {
+      "text": "The larger the\ncompression ratio,",
+      "start": 4066.64,
+      "duration": 1.49
+    },
+    {
+      "text": "that means the shorter\nthe sentence, which",
+      "start": 4068.13,
+      "duration": 1.75
+    },
+    {
+      "text": "is good because\nattention is quadratic,",
+      "start": 4069.88,
+      "duration": 1.94
+    },
+    {
+      "text": "and you want to make sure\nthe sent sequence is shorter.",
+      "start": 4071.82,
+      "duration": 4.38
+    },
+    {
+      "text": "Now, you could obviously\nincrease the compression ratio",
+      "start": 4076.2,
+      "duration": 2.36
+    },
+    {
+      "text": "by increasing the vocab\nsize, but then, you",
+      "start": 4078.56,
+      "duration": 3.2
+    },
+    {
+      "text": "get into sparsity\nwhere more and more--",
+      "start": 4081.76,
+      "duration": 3.28
+    },
+    {
+      "text": "because every element\nof vocab is treated",
+      "start": 4085.04,
+      "duration": 2.08
+    },
+    {
+      "text": "like a distinct element.",
+      "start": 4087.12,
+      "duration": 3.0
+    },
+    {
+      "text": "So these days, tokenizers,\nespecially multilingual",
+      "start": 4090.12,
+      "duration": 3.64
+    },
+    {
+      "text": "tokenizers, have 100k or\n200k tokens, distinct tokens.",
+      "start": 4093.76,
+      "duration": 8.599
+    },
+    {
+      "text": "So you can look at the\nGPD token vocabulary.",
+      "start": 4102.359,
+      "duration": 2.901
+    },
+    {
+      "text": "I think we'll skip it\nin the interest of time.",
+      "start": 4105.26,
+      "duration": 3.5
+    },
+    {
+      "text": "So how do you build a tokenizer?",
+      "start": 4108.76,
+      "duration": 1.94
+    },
+    {
+      "text": "So I'm going to go\nthrough this fast.",
+      "start": 4110.7,
+      "duration": 3.443
+    },
+    {
+      "text": "So the first thing\nyou might do is",
+      "start": 4114.143,
+      "duration": 1.417
+    },
+    {
+      "text": "like, well, Unicode\nstring, that's",
+      "start": 4115.56,
+      "duration": 2.4
+    },
+    {
+      "text": "a sequence of\nUnicode characters.",
+      "start": 4117.96,
+      "duration": 2.42
+    },
+    {
+      "text": "And each character\nis an integer,",
+      "start": 4120.38,
+      "duration": 2.96
+    },
+    {
+      "text": "which you can call\nord in Python,",
+      "start": 4123.34,
+      "duration": 2.2
+    },
+    {
+      "text": "and you get some number out.",
+      "start": 4125.54,
+      "duration": 1.899
+    },
+    {
+      "text": "And this can be converted\ninto characters.",
+      "start": 4127.439,
+      "duration": 2.061
+    },
+    {
+      "text": "So let's just build a\ncharacter level tokenizer which",
+      "start": 4129.5,
+      "duration": 3.34
+    },
+    {
+      "text": "basically breaks\nup each character",
+      "start": 4132.84,
+      "duration": 2.28
+    },
+    {
+      "text": "and encodes it in a token.",
+      "start": 4135.12,
+      "duration": 2.199
+    },
+    {
+      "text": "And then this can decode back.",
+      "start": 4137.319,
+      "duration": 2.401
+    },
+    {
+      "text": "Life is good.",
+      "start": 4139.72,
+      "duration": 1.36
+    },
+    {
+      "text": "So now, there are 150k\nUnicode characters.",
+      "start": 4141.08,
+      "duration": 3.98
+    },
+    {
+      "text": "So your vocab size could\nbe 150k, which is a lot.",
+      "start": 4145.06,
+      "duration": 7.08
+    },
+    {
+      "text": "I mean, it's not\ncrazy, but I think",
+      "start": 4152.14,
+      "duration": 3.259
+    },
+    {
+      "text": "the bigger problem is that many\ncharacters are actually rare,",
+      "start": 4155.399,
+      "duration": 3.92
+    },
+    {
+      "text": "which means that it's really an\ninefficient use of a vocabulary.",
+      "start": 4159.319,
+      "duration": 4.441
+    },
+    {
+      "text": "And also, the compression\nratio, which reflects this",
+      "start": 4163.76,
+      "duration": 4.2
+    },
+    {
+      "text": "is not that great.",
+      "start": 4167.96,
+      "duration": 1.54
+    },
+    {
+      "text": "So most of the time, you're\nactually using a lot of tokens",
+      "start": 4169.5,
+      "duration": 4.34
+    },
+    {
+      "text": "to represent your sequence.",
+      "start": 4173.84,
+      "duration": 1.78
+    },
+    {
+      "text": "And many of the indices are\nactually not being very used.",
+      "start": 4175.62,
+      "duration": 6.17
+    },
+    {
+      "text": "So this is not a\nvery good tokenizer.",
+      "start": 4181.79,
+      "duration": 3.38
+    },
+    {
+      "text": "So here's another attempt.",
+      "start": 4185.17,
+      "duration": 2.6
+    },
+    {
+      "text": "So you can turn\nstrings into bytes.",
+      "start": 4187.77,
+      "duration": 2.6
+    },
+    {
+      "text": "So Unicode has a UTF-8 encoding,\nwhich means that you can--",
+      "start": 4190.37,
+      "duration": 7.4
+    },
+    {
+      "text": "sometimes a string like \"a\"\nis just 1 byte, and sometimes,",
+      "start": 4197.77,
+      "duration": 5.2
+    },
+    {
+      "text": "a string is multiple bytes.",
+      "start": 4202.97,
+      "duration": 2.96
+    },
+    {
+      "text": "So let's build a\ntokenizer around that.",
+      "start": 4205.93,
+      "duration": 2.64
+    },
+    {
+      "text": "So we can take this\nstring and convert it",
+      "start": 4208.57,
+      "duration": 3.72
+    },
+    {
+      "text": "into a sequence of bytes.",
+      "start": 4212.29,
+      "duration": 2.6
+    },
+    {
+      "text": "And notice that this is\na longer sequence now,",
+      "start": 4214.89,
+      "duration": 2.84
+    },
+    {
+      "text": "but all the numbers\nare between 0 and 255,",
+      "start": 4217.73,
+      "duration": 6.26
+    },
+    {
+      "text": "because that's\nwhat a byte means.",
+      "start": 4223.99,
+      "duration": 2.38
+    },
+    {
+      "text": "And the compression ratio\nis 1, which is not great.",
+      "start": 4226.37,
+      "duration": 7.88
+    },
+    {
+      "text": "So byte sequences\ncan be very long,",
+      "start": 4234.25,
+      "duration": 4.24
+    },
+    {
+      "text": "but the vocab size is small.",
+      "start": 4238.49,
+      "duration": 2.34
+    },
+    {
+      "text": "OK.",
+      "start": 4244.63,
+      "duration": 0.5
+    },
+    {
+      "text": "So both of these are really bad.",
+      "start": 4245.13,
+      "duration": 3.12
+    },
+    {
+      "text": "So let's try to\nmake some progress.",
+      "start": 4248.25,
+      "duration": 2.26
+    },
+    {
+      "text": "So this is what actually\npeople used to do in NLP,",
+      "start": 4250.51,
+      "duration": 3.14
+    },
+    {
+      "text": "if people remember.",
+      "start": 4253.65,
+      "duration": 1.86
+    },
+    {
+      "text": "So if you take a string, I\ncan just chunk it up into--",
+      "start": 4255.51,
+      "duration": 3.62
+    },
+    {
+      "text": "break it up by spaces or\nsome regular expression.",
+      "start": 4259.13,
+      "duration": 4.92
+    },
+    {
+      "text": "And let's just call each\nof these chunks a token.",
+      "start": 4264.05,
+      "duration": 5.56
+    },
+    {
+      "text": "So what is good about this one\nis that each token is meaningful",
+      "start": 4269.61,
+      "duration": 4.96
+    },
+    {
+      "text": "because humans invented\nwords, and words",
+      "start": 4274.57,
+      "duration": 1.8
+    },
+    {
+      "text": "tend to have a stable\nsemantic meaning.",
+      "start": 4276.37,
+      "duration": 3.52
+    },
+    {
+      "text": "But your vocab\nsize is the number",
+      "start": 4279.89,
+      "duration": 1.623
+    },
+    {
+      "text": "of distinct chunks\nin the training",
+      "start": 4281.513,
+      "duration": 1.417
+    },
+    {
+      "text": "data, which could be a lot.",
+      "start": 4282.93,
+      "duration": 2.08
+    },
+    {
+      "text": "And also, your compression\nratio, I mean, it's quite good,",
+      "start": 4285.01,
+      "duration": 5.62
+    },
+    {
+      "text": "but the vocabulary can be huge.",
+      "start": 4290.63,
+      "duration": 2.16
+    },
+    {
+      "text": "Actually, it's worse than that\nbecause though the vocabulary",
+      "start": 4292.79,
+      "duration": 5.62
+    },
+    {
+      "text": "could be actually\nunbounded, right?",
+      "start": 4298.41,
+      "duration": 2.56
+    },
+    {
+      "text": "Because at test time, you\nmight get some sequence",
+      "start": 4300.97,
+      "duration": 2.32
+    },
+    {
+      "text": "and you tokenize, and\nthen you have a token",
+      "start": 4303.29,
+      "duration": 2.56
+    },
+    {
+      "text": "you've never seen before.",
+      "start": 4305.85,
+      "duration": 1.32
+    },
+    {
+      "text": "And people used to\nassign these UNK token,",
+      "start": 4307.17,
+      "duration": 3.26
+    },
+    {
+      "text": "but that's really\nugly and can mess up",
+      "start": 4310.43,
+      "duration": 1.82
+    },
+    {
+      "text": "your perplexity calculations.",
+      "start": 4312.25,
+      "duration": 2.88
+    },
+    {
+      "text": "So this is also not great.",
+      "start": 4315.13,
+      "duration": 3.32
+    },
+    {
+      "text": "OK, so what we're\nactually going to do",
+      "start": 4318.45,
+      "duration": 2.28
+    },
+    {
+      "text": "is called byte pair encoding.",
+      "start": 4320.73,
+      "duration": 2.8
+    },
+    {
+      "text": "And this was introduced a long\ntime ago for data compression.",
+      "start": 4323.53,
+      "duration": 2.6
+    },
+    {
+      "text": "Way before language models were\nreally on the scene, really.",
+      "start": 4326.13,
+      "duration": 6.76
+    },
+    {
+      "text": "It was first introduced to\nNLP for doing neural machine",
+      "start": 4332.89,
+      "duration": 3.48
+    },
+    {
+      "text": "translation.",
+      "start": 4336.37,
+      "duration": 1.76
+    },
+    {
+      "text": "And the first paper that\nused BPE for LLMs was GPT-2.",
+      "start": 4338.13,
+      "duration": 9.68
+    },
+    {
+      "text": "So the basic idea\nis that you're going",
+      "start": 4347.81,
+      "duration": 1.76
+    },
+    {
+      "text": "to train the\ntokenizer on raw text",
+      "start": 4349.57,
+      "duration": 3.0
+    },
+    {
+      "text": "to construct a vocabulary\nthat's tailored to the data.",
+      "start": 4352.57,
+      "duration": 3.502
+    },
+    {
+      "text": "And you're also going to have\nthis property that everything",
+      "start": 4356.072,
+      "duration": 2.458
+    },
+    {
+      "text": "becomes-- can be tokenized.",
+      "start": 4358.53,
+      "duration": 1.38
+    },
+    {
+      "text": "If it's rare, then it just\nbreaks up into smaller units",
+      "start": 4359.91,
+      "duration": 2.66
+    },
+    {
+      "text": "rather than having\nthis UNK token.",
+      "start": 4362.57,
+      "duration": 3.72
+    },
+    {
+      "text": "So common sequences are going\nto be represented as one token.",
+      "start": 4366.29,
+      "duration": 5.443
+    },
+    {
+      "text": "Rare sequences are going to\nbe split into multiple tokens.",
+      "start": 4371.733,
+      "duration": 2.417
+    },
+    {
+      "text": "That's the idea.",
+      "start": 4374.15,
+      "duration": 1.34
+    },
+    {
+      "text": "So the algorithm is fairly\nsimple, conceptually.",
+      "start": 4375.49,
+      "duration": 4.08
+    },
+    {
+      "text": "So you start, basically,\nwith your corpus.",
+      "start": 4379.57,
+      "duration": 3.26
+    },
+    {
+      "text": "Let's assume it's\none long sequence.",
+      "start": 4382.83,
+      "duration": 2.34
+    },
+    {
+      "text": "You get a byte sequence.",
+      "start": 4385.17,
+      "duration": 1.64
+    },
+    {
+      "text": "Each byte starts as a token.",
+      "start": 4386.81,
+      "duration": 1.7
+    },
+    {
+      "text": "And then we're going to\nmerge successive pairs",
+      "start": 4388.51,
+      "duration": 4.18
+    },
+    {
+      "text": "of adjacent tokens that\noccur the most frequently.",
+      "start": 4392.69,
+      "duration": 3.88
+    },
+    {
+      "text": "So let's step through how\nthis is going to work in code.",
+      "start": 4396.57,
+      "duration": 3.52
+    },
+    {
+      "text": "So here's a simple string,\n\"the cat in the hat,\"",
+      "start": 4400.09,
+      "duration": 2.88
+    },
+    {
+      "text": "and here's the implementation\nof the BPE algorithm.",
+      "start": 4402.97,
+      "duration": 5.04
+    },
+    {
+      "text": "So we're going to turn that\ninto a sequence of bytes.",
+      "start": 4408.01,
+      "duration": 5.13
+    },
+    {
+      "text": "And then we're going to--",
+      "start": 4413.14,
+      "duration": 4.2
+    },
+    {
+      "text": "first, we're going\nto, basically, count",
+      "start": 4417.34,
+      "duration": 2.36
+    },
+    {
+      "text": "the number of times\nsuccessive tokens appear.",
+      "start": 4419.7,
+      "duration": 2.62
+    },
+    {
+      "text": "So 116, 104 shows up\ntwice, so we get this.",
+      "start": 4422.32,
+      "duration": 6.06
+    },
+    {
+      "text": "And then we're going to\nfind the pair that happens",
+      "start": 4428.38,
+      "duration": 6.48
+    },
+    {
+      "text": "the most number of times.",
+      "start": 4434.86,
+      "duration": 1.74
+    },
+    {
+      "text": "So that's 116, 104.",
+      "start": 4436.6,
+      "duration": 1.152
+    },
+    {
+      "text": "I guess there's a few ties, but\nwe'll just take the first one.",
+      "start": 4437.752,
+      "duration": 3.708
+    },
+    {
+      "text": "And then we're going\nto merge that pair.",
+      "start": 4441.46,
+      "duration": 2.08
+    },
+    {
+      "text": "And by merging that pair what\nwe do is we create a new token.",
+      "start": 4443.54,
+      "duration": 5.04
+    },
+    {
+      "text": "In this case, this is going\nto be called token 256.",
+      "start": 4448.58,
+      "duration": 5.06
+    },
+    {
+      "text": "It's going to\nrepresent this pair,",
+      "start": 4453.64,
+      "duration": 2.98
+    },
+    {
+      "text": "and we're going to add\nit to our vocabulary.",
+      "start": 4456.62,
+      "duration": 2.8
+    },
+    {
+      "text": "So 256 is going to represent\nthe sequence of th.",
+      "start": 4459.42,
+      "duration": 4.28
+    },
+    {
+      "text": "So t and h have been merged.",
+      "start": 4463.7,
+      "duration": 1.66
+    },
+    {
+      "text": "And we're going to call--\nevery time we see th,",
+      "start": 4465.36,
+      "duration": 2.46
+    },
+    {
+      "text": "we're going to use\n256 to represent that.",
+      "start": 4467.82,
+      "duration": 3.72
+    },
+    {
+      "text": "And then we go through\nindices, and then we",
+      "start": 4471.54,
+      "duration": 2.2
+    },
+    {
+      "text": "replace every occurrence\nof 116, 104 with 256.",
+      "start": 4473.74,
+      "duration": 4.12
+    },
+    {
+      "text": "So those two places\nhave been replaced.",
+      "start": 4477.86,
+      "duration": 2.48
+    },
+    {
+      "text": "And then we iterate.",
+      "start": 4480.34,
+      "duration": 2.2
+    },
+    {
+      "text": "So the next time we do this,\nwe're going to find 256 and 101.",
+      "start": 4482.54,
+      "duration": 6.08
+    },
+    {
+      "text": "We're going to merge that.",
+      "start": 4488.62,
+      "duration": 1.72
+    },
+    {
+      "text": "And now we have 257.",
+      "start": 4490.34,
+      "duration": 2.24
+    },
+    {
+      "text": "And then we're going to\nmerge that one more time,",
+      "start": 4492.58,
+      "duration": 3.88
+    },
+    {
+      "text": "and we're going to get 258.",
+      "start": 4496.46,
+      "duration": 1.9
+    },
+    {
+      "text": "So over time, the\nsequence is shrinking",
+      "start": 4498.36,
+      "duration": 4.42
+    },
+    {
+      "text": "and the vocabulary\nsize is growing.",
+      "start": 4502.78,
+      "duration": 4.0
+    },
+    {
+      "text": "OK.",
+      "start": 4506.78,
+      "duration": 0.94
+    },
+    {
+      "text": "So let me-- and the\ncompression ratio here is--",
+      "start": 4507.72,
+      "duration": 9.26
+    },
+    {
+      "text": "that we get for this, I\nmean, this toy example is 1.5",
+      "start": 4516.98,
+      "duration": 4.48
+    },
+    {
+      "text": "OK.",
+      "start": 4521.46,
+      "duration": 0.5
+    },
+    {
+      "text": "So now that you\nhave a tokenizer,",
+      "start": 4521.96,
+      "duration": 3.38
+    },
+    {
+      "text": "how do you tokenize new text?",
+      "start": 4525.34,
+      "duration": 2.12
+    },
+    {
+      "text": "Well, you take a new\nstring and you encode it.",
+      "start": 4527.46,
+      "duration": 4.32
+    },
+    {
+      "text": "And conceptually, what\nhappens is that you basically",
+      "start": 4531.78,
+      "duration": 3.76
+    },
+    {
+      "text": "go through the set of\nmerges that you've made,",
+      "start": 4535.54,
+      "duration": 4.24
+    },
+    {
+      "text": "and then you just apply\nthe merges to your string.",
+      "start": 4539.78,
+      "duration": 4.66
+    },
+    {
+      "text": "OK, let me actually not\nstep through that code.",
+      "start": 4544.44,
+      "duration": 3.9
+    },
+    {
+      "text": "So that will give\nyou a sequence.",
+      "start": 4548.34,
+      "duration": 3.76
+    },
+    {
+      "text": "So this is a sequence encoding\nof \"the quick brown fox.\"",
+      "start": 4552.1,
+      "duration": 4.0
+    },
+    {
+      "text": "And then when you decode it,\nyou get the same thing back.",
+      "start": 4556.1,
+      "duration": 4.76
+    },
+    {
+      "text": "So I went through\nthis a bit fast,",
+      "start": 4560.86,
+      "duration": 3.14
+    },
+    {
+      "text": "just in the interest of time.",
+      "start": 4564.0,
+      "duration": 2.8
+    },
+    {
+      "text": "I will say that this\nimplementation works.",
+      "start": 4566.8,
+      "duration": 4.24
+    },
+    {
+      "text": "This is a full-blown\nBPE implementation.",
+      "start": 4571.04,
+      "duration": 2.34
+    },
+    {
+      "text": "It's extremely slow.",
+      "start": 4573.38,
+      "duration": 2.52
+    },
+    {
+      "text": "So in Assignment 1, we're\ngoing to ask you to,",
+      "start": 4575.9,
+      "duration": 4.24
+    },
+    {
+      "text": "basically, make it faster.",
+      "start": 4580.14,
+      "duration": 2.84
+    },
+    {
+      "text": "So currently, encode\nloops over all the merges,",
+      "start": 4582.98,
+      "duration": 5.4
+    },
+    {
+      "text": "which is very slow\nbecause you might have--",
+      "start": 4588.38,
+      "duration": 2.12
+    },
+    {
+      "text": "the number of merges\nyou have is essentially",
+      "start": 4590.5,
+      "duration": 3.28
+    },
+    {
+      "text": "the vocab size minus 256.",
+      "start": 4593.78,
+      "duration": 3.48
+    },
+    {
+      "text": "So you only want to loop\nover the merges that matter.",
+      "start": 4597.26,
+      "duration": 4.28
+    },
+    {
+      "text": "And you have to build some\nindices to make that happen.",
+      "start": 4601.54,
+      "duration": 3.32
+    },
+    {
+      "text": "There's some details\naround special tokens.",
+      "start": 4604.86,
+      "duration": 3.48
+    },
+    {
+      "text": "Conceptually not deep,\nbut important to building",
+      "start": 4608.34,
+      "duration": 2.04
+    },
+    {
+      "text": "a modern tokenizer.",
+      "start": 4610.38,
+      "duration": 2.08
+    },
+    {
+      "text": "Another thing is that I've\npresented the tokenizer just",
+      "start": 4612.46,
+      "duration": 2.96
+    },
+    {
+      "text": "for simplicity.",
+      "start": 4615.42,
+      "duration": 0.86
+    },
+    {
+      "text": "As you take an entire string\nand then you try to tokenize it,",
+      "start": 4616.28,
+      "duration": 3.98
+    },
+    {
+      "text": "really, what happens is\nthat you break it up into--",
+      "start": 4620.26,
+      "duration": 4.04
+    },
+    {
+      "text": "your text into\nchunks, and then you",
+      "start": 4624.3,
+      "duration": 1.88
+    },
+    {
+      "text": "apply tokenizer on each chunk.",
+      "start": 4626.18,
+      "duration": 2.48
+    },
+    {
+      "text": "So that's going\nto be much faster.",
+      "start": 4628.66,
+      "duration": 2.1
+    },
+    {
+      "text": "And then try to make\nit as fast as possible.",
+      "start": 4633.74,
+      "duration": 2.88
+    },
+    {
+      "text": "At some point you might\nrealize that Python is just not",
+      "start": 4636.62,
+      "duration": 2.92
+    },
+    {
+      "text": "very fast.",
+      "start": 4639.54,
+      "duration": 1.06
+    },
+    {
+      "text": "And if you want to implement it\nin your favorite language, Rust",
+      "start": 4640.6,
+      "duration": 4.95
+    },
+    {
+      "text": "or C or something,\nthen go for it.",
+      "start": 4645.55,
+      "duration": 3.64
+    },
+    {
+      "text": "OK, so quick summary.",
+      "start": 4649.19,
+      "duration": 2.18
+    },
+    {
+      "text": "Tokenizers convert between\nstrings and tokens or indices.",
+      "start": 4651.37,
+      "duration": 6.06
+    },
+    {
+      "text": "The previous\ncharacter-base, byte-base,",
+      "start": 4657.43,
+      "duration": 1.88
+    },
+    {
+      "text": "word-base are highly\nsuboptimal in their own way.",
+      "start": 4659.31,
+      "duration": 4.88
+    },
+    {
+      "text": "BPE is effective heuristic\nthat is data driven.",
+      "start": 4664.19,
+      "duration": 4.66
+    },
+    {
+      "text": "So it seems to be\npretty effective.",
+      "start": 4668.85,
+      "duration": 4.58
+    },
+    {
+      "text": "Now, like I said before,\nmaybe next year, I",
+      "start": 4673.43,
+      "duration": 3.0
+    },
+    {
+      "text": "don't have to teach\nthis, but for this year,",
+      "start": 4676.43,
+      "duration": 2.16
+    },
+    {
+      "text": "we're stuck with tokenization.",
+      "start": 4678.59,
+      "duration": 3.36
+    },
+    {
+      "text": "Even if we get rid of\ntokenization though,",
+      "start": 4681.95,
+      "duration": 3.32
+    },
+    {
+      "text": "I think whatever solution\nreplaces it, I think,",
+      "start": 4685.27,
+      "duration": 3.08
+    },
+    {
+      "text": "has to satisfy the\nfollowing properties.",
+      "start": 4688.35,
+      "duration": 3.0
+    },
+    {
+      "text": "If you have the\nmodel, the transformer",
+      "start": 4691.35,
+      "duration": 3.44
+    },
+    {
+      "text": "needs to operate on some sort\nof abstractions of the sequence.",
+      "start": 4694.79,
+      "duration": 4.18
+    },
+    {
+      "text": "And this is most evident if\nyou think about not just text,",
+      "start": 4698.97,
+      "duration": 3.5
+    },
+    {
+      "text": "but video or DNA sequences where\nthe individual bytes or units",
+      "start": 4702.47,
+      "duration": 7.92
+    },
+    {
+      "text": "are actually quite\nlow signal to noise,",
+      "start": 4710.39,
+      "duration": 5.16
+    },
+    {
+      "text": "and you have to do some\nsort of abstraction",
+      "start": 4715.55,
+      "duration": 2.56
+    },
+    {
+      "text": "to lift it into a place where\nyou can do modeling on that.",
+      "start": 4718.11,
+      "duration": 3.64
+    },
+    {
+      "text": "And then finally,\nas I mentioned,",
+      "start": 4721.75,
+      "duration": 2.6
+    },
+    {
+      "text": "chunks should be variable.",
+      "start": 4724.35,
+      "duration": 1.58
+    },
+    {
+      "text": "You want adaptive computation.",
+      "start": 4725.93,
+      "duration": 2.14
+    },
+    {
+      "text": "Not all bytes are\ntreated the same.",
+      "start": 4728.07,
+      "duration": 2.543
+    },
+    {
+      "text": "And if you don't\ndo that, I think,",
+      "start": 4730.613,
+      "duration": 1.417
+    },
+    {
+      "text": "you're going to be suboptimal.",
+      "start": 4732.03,
+      "duration": 1.68
+    },
+    {
+      "text": "So any end-to-end\nsolution also, I think,",
+      "start": 4733.71,
+      "duration": 2.4
+    },
+    {
+      "text": "has to have these properties.",
+      "start": 4736.11,
+      "duration": 2.68
+    },
+    {
+      "text": "OK.",
+      "start": 4738.79,
+      "duration": 0.54
+    },
+    {
+      "text": "So with that, I will end.",
+      "start": 4739.33,
+      "duration": 2.1
+    },
+    {
+      "text": "Next time, on\nWednesday, we're going",
+      "start": 4741.43,
+      "duration": 2.12
+    },
+    {
+      "text": "to start the unit on\nresource accounting.",
+      "start": 4743.55,
+      "duration": 2.94
+    },
+    {
+      "text": "Which is sort of a baby\nsystem, I would say.",
+      "start": 4746.49,
+      "duration": 4.58
+    },
+    {
+      "text": "And then after that, we're going\nto go back into architectures",
+      "start": 4751.07,
+      "duration": 2.84
+    },
+    {
+      "text": "and go from there.",
+      "start": 4753.91,
+      "duration": 1.56
+    },
+    {
+      "text": "All right.",
+      "start": 4755.47,
+      "duration": 1.75
+    }
+  ]
+}

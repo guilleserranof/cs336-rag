@@ -1,0 +1,7768 @@
+{
+  "video_id": "xnDHaNUvHBg",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 6: Kernels, Triton, XLA",
+  "position": 6,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "So welcome back, everyone.",
+      "start": 5.24,
+      "duration": 2.32
+    },
+    {
+      "text": "So on Monday, Tatsu\ndid an excellent job",
+      "start": 7.56,
+      "duration": 3.64
+    },
+    {
+      "text": "of describing a high\nlevel overview of GPUs",
+      "start": 11.2,
+      "duration": 3.24
+    },
+    {
+      "text": "and how to think about\nperformance and all the quirks",
+      "start": 14.44,
+      "duration": 3.2
+    },
+    {
+      "text": "that come with GPUs.",
+      "start": 17.64,
+      "duration": 1.785
+    },
+    {
+      "text": "This lecture is going to be\na continuation of that, where",
+      "start": 19.425,
+      "duration": 2.375
+    },
+    {
+      "text": "we're going to dive more\ndeeply into the code,",
+      "start": 21.8,
+      "duration": 3.24
+    },
+    {
+      "text": "write some Triton kernels, and\nas well as do some benchmarking",
+      "start": 25.04,
+      "duration": 3.44
+    },
+    {
+      "text": "and profiling.",
+      "start": 28.48,
+      "duration": 2.04
+    },
+    {
+      "text": "So just to start,\njust to refresh",
+      "start": 30.52,
+      "duration": 3.36
+    },
+    {
+      "text": "what's going on\nwith GPUs, here is",
+      "start": 33.88,
+      "duration": 3.08
+    },
+    {
+      "text": "a simplified diagram of what\na typical GPU looks like.",
+      "start": 36.96,
+      "duration": 7.56
+    },
+    {
+      "text": "There's memory, and then\nthe actual GPU chip.",
+      "start": 44.52,
+      "duration": 5.44
+    },
+    {
+      "text": "And just to keep in\nyour head what are",
+      "start": 49.96,
+      "duration": 3.44
+    },
+    {
+      "text": "the characteristics of a GPU.",
+      "start": 53.4,
+      "duration": 2.8
+    },
+    {
+      "text": "So of course, we're\ntalking about NVIDIA GPUs,",
+      "start": 56.2,
+      "duration": 2.62
+    },
+    {
+      "text": "but Tatsu also talked about\nCPUs, and there's AMD and so on.",
+      "start": 58.82,
+      "duration": 4.27
+    },
+    {
+      "text": "But focusing on NVIDIA GPUs.",
+      "start": 63.09,
+      "duration": 2.42
+    },
+    {
+      "text": "We've had multiple generations,\nfrom A100s, to H100s, to B200s.",
+      "start": 65.51,
+      "duration": 6.06
+    },
+    {
+      "text": "And in each generation,\nyou have a GPU.",
+      "start": 71.57,
+      "duration": 4.82
+    },
+    {
+      "text": "It has a number of Streaming\nMultiprocessors, or SMs.",
+      "start": 76.39,
+      "duration": 4.78
+    },
+    {
+      "text": "And the number of SMs is about\n100, between 100 and 200.",
+      "start": 81.17,
+      "duration": 5.9
+    },
+    {
+      "text": "So that hasn't really\nchanged that much.",
+      "start": 87.07,
+      "duration": 3.18
+    },
+    {
+      "text": "And then within the individual\nSM, there's a set of registers.",
+      "start": 90.25,
+      "duration": 7.92
+    },
+    {
+      "text": "So B200s have 65,000 registers\nfor a total of 256K per SM.",
+      "start": 98.17,
+      "duration": 11.0
+    },
+    {
+      "text": "And this also hasn't\nchanged that much.",
+      "start": 109.17,
+      "duration": 3.16
+    },
+    {
+      "text": "In addition, there's a L1\ncache as well as shared memory.",
+      "start": 112.33,
+      "duration": 4.82
+    },
+    {
+      "text": "So remember, these\nare the same memory,",
+      "start": 117.15,
+      "duration": 1.66
+    },
+    {
+      "text": "shared memory you can control.",
+      "start": 118.81,
+      "duration": 1.25
+    },
+    {
+      "text": "L1, you can't.",
+      "start": 120.06,
+      "duration": 1.85
+    },
+    {
+      "text": "This is per SM.",
+      "start": 121.91,
+      "duration": 2.2
+    },
+    {
+      "text": "And this is in the same\norder ballpark of size.",
+      "start": 124.11,
+      "duration": 4.6
+    },
+    {
+      "text": "And then there's L2 cache.",
+      "start": 128.71,
+      "duration": 3.4
+    },
+    {
+      "text": "And this is not per SM,\nthis is for the whole chip.",
+      "start": 132.11,
+      "duration": 3.92
+    },
+    {
+      "text": "And this is a bit larger.",
+      "start": 136.03,
+      "duration": 1.84
+    },
+    {
+      "text": "And then finally, you have a\nHigh Bandwidth Memory, or HBM,",
+      "start": 137.87,
+      "duration": 4.0
+    },
+    {
+      "text": "which is large.",
+      "start": 141.87,
+      "duration": 0.93
+    },
+    {
+      "text": "And you see that this\nis the number that's",
+      "start": 142.8,
+      "duration": 1.75
+    },
+    {
+      "text": "actually going up quite a bit.",
+      "start": 144.55,
+      "duration": 3.12
+    },
+    {
+      "text": "OK.",
+      "start": 147.67,
+      "duration": 1.32
+    },
+    {
+      "text": "And then in addition\nto size, you",
+      "start": 148.99,
+      "duration": 3.28
+    },
+    {
+      "text": "can think about what's\nhappening with the bandwidth.",
+      "start": 152.27,
+      "duration": 3.56
+    },
+    {
+      "text": "And essentially, it's\ninversely correlated.",
+      "start": 155.83,
+      "duration": 4.62
+    },
+    {
+      "text": "So registers are very fast,\nL1 is slightly less fast,",
+      "start": 160.45,
+      "duration": 5.42
+    },
+    {
+      "text": "L2 is less fast, and high\nbandwidth memory is the slowest.",
+      "start": 165.87,
+      "duration": 4.98
+    },
+    {
+      "text": "Although eight\nterabytes a second",
+      "start": 170.85,
+      "duration": 2.22
+    },
+    {
+      "text": "is still not that slow in\nthe grand scheme of things.",
+      "start": 173.07,
+      "duration": 6.89
+    },
+    {
+      "text": "So this is the main hierarchy\nyou should have in your head.",
+      "start": 179.96,
+      "duration": 3.92
+    },
+    {
+      "text": "Large memory is slow\nand far but big.",
+      "start": 183.88,
+      "duration": 2.68
+    },
+    {
+      "text": "And fast memory like registers\nand L1 resides on the SM.",
+      "start": 186.56,
+      "duration": 5.26
+    },
+    {
+      "text": "It's local and it's\nfast, but small.",
+      "start": 191.82,
+      "duration": 2.7
+    },
+    {
+      "text": "OK, that's the environment\nwe're dealing with.",
+      "start": 194.52,
+      "duration": 4.08
+    },
+    {
+      "text": "OK, so then, how do\nyou program a GPU?",
+      "start": 198.6,
+      "duration": 2.34
+    },
+    {
+      "text": "So the program\nmodel is as follows.",
+      "start": 200.94,
+      "duration": 3.1
+    },
+    {
+      "text": "So there's notions\nof threads, which",
+      "start": 204.04,
+      "duration": 2.64
+    },
+    {
+      "text": "each thread executes\na piece of code",
+      "start": 206.68,
+      "duration": 2.08
+    },
+    {
+      "text": "on a small part of the data.",
+      "start": 208.76,
+      "duration": 2.02
+    },
+    {
+      "text": "So each one of these arrows, you\ncan think about it as a thread.",
+      "start": 210.78,
+      "duration": 3.98
+    },
+    {
+      "text": "These threads are organized\ninto thread blocks,",
+      "start": 214.76,
+      "duration": 2.96
+    },
+    {
+      "text": "also known as Concurrent\nThread Arrays, or CTAs.",
+      "start": 217.72,
+      "duration": 2.96
+    },
+    {
+      "text": "And this is a group of threads.",
+      "start": 220.68,
+      "duration": 1.62
+    },
+    {
+      "text": "And then finally, you have a\ncollection of thread blocks",
+      "start": 222.3,
+      "duration": 2.86
+    },
+    {
+      "text": "which forms the grid.",
+      "start": 225.16,
+      "duration": 1.6
+    },
+    {
+      "text": "So when you launch a\nkernel, you're basically",
+      "start": 226.76,
+      "duration": 2.92
+    },
+    {
+      "text": "launching a grid of threads and\nthread blocks to all parallel",
+      "start": 229.68,
+      "duration": 5.41
+    },
+    {
+      "text": "simultaneously do\nsome computation.",
+      "start": 235.09,
+      "duration": 4.6
+    },
+    {
+      "text": "OK, so this is simplified.",
+      "start": 239.69,
+      "duration": 2.66
+    },
+    {
+      "text": "There's some other things\nthat are happening.",
+      "start": 242.35,
+      "duration": 2.24
+    },
+    {
+      "text": "For example, there's\nH100s and B200s also",
+      "start": 244.59,
+      "duration": 2.94
+    },
+    {
+      "text": "have thread block\nclusters, which",
+      "start": 247.53,
+      "duration": 2.56
+    },
+    {
+      "text": "are clusters of\nthread blocks that",
+      "start": 250.09,
+      "duration": 2.56
+    },
+    {
+      "text": "enable some amount of\ndistribution memory.",
+      "start": 252.65,
+      "duration": 3.72
+    },
+    {
+      "text": "Also, B200s have tensor memory.",
+      "start": 256.37,
+      "duration": 2.18
+    },
+    {
+      "text": "Now for tensor cores, which\nis somewhere between registers",
+      "start": 258.55,
+      "duration": 2.779
+    },
+    {
+      "text": "and shared memory.",
+      "start": 261.329,
+      "duration": 1.321
+    },
+    {
+      "text": "Some of these things are\ninvisible to the programmer,",
+      "start": 262.65,
+      "duration": 2.38
+    },
+    {
+      "text": "but they are in the hardware.",
+      "start": 265.03,
+      "duration": 4.34
+    },
+    {
+      "text": "But we won't worry about\nthem for this intro lecture.",
+      "start": 269.37,
+      "duration": 5.12
+    },
+    {
+      "text": "OK, so one thing\nyou might ask about",
+      "start": 274.49,
+      "duration": 2.0
+    },
+    {
+      "text": "is, why do we have\nthread blocks?",
+      "start": 276.49,
+      "duration": 1.96
+    },
+    {
+      "text": "Why can't we just have\na grid of threads,",
+      "start": 278.45,
+      "duration": 2.36
+    },
+    {
+      "text": "and each thread just\ntakes a piece of data",
+      "start": 280.81,
+      "duration": 2.64
+    },
+    {
+      "text": "and does something?",
+      "start": 283.45,
+      "duration": 1.88
+    },
+    {
+      "text": "And this would be normally\nfine if all you want to do",
+      "start": 285.33,
+      "duration": 2.68
+    },
+    {
+      "text": "is element-wise operations,\nwhich we'll see.",
+      "start": 288.01,
+      "duration": 2.1
+    },
+    {
+      "text": "For example, GeLU is\nan activation function",
+      "start": 290.11,
+      "duration": 2.66
+    },
+    {
+      "text": "that applies element-wise.",
+      "start": 292.77,
+      "duration": 1.69
+    },
+    {
+      "text": "And threads are pretty natural.",
+      "start": 294.46,
+      "duration": 1.3
+    },
+    {
+      "text": "Each thread processes\none element.",
+      "start": 295.76,
+      "duration": 2.46
+    },
+    {
+      "text": "So it's like Fi for i equals\nranging over your data set.",
+      "start": 298.22,
+      "duration": 7.04
+    },
+    {
+      "text": "But for operations that involve\ncommunicating with threads,",
+      "start": 305.26,
+      "duration": 8.32
+    },
+    {
+      "text": "such as softmax or\nmatrix multiplication,",
+      "start": 313.58,
+      "duration": 3.16
+    },
+    {
+      "text": "this view isn't really enough.",
+      "start": 316.74,
+      "duration": 2.96
+    },
+    {
+      "text": "And the reason is that,\nwell, it could be enough",
+      "start": 319.7,
+      "duration": 3.56
+    },
+    {
+      "text": "if you were willing to pay the\ncost of writing and reading HBM.",
+      "start": 323.26,
+      "duration": 6.04
+    },
+    {
+      "text": "Because then you can still\nhave-- for example, in a matrix",
+      "start": 329.3,
+      "duration": 3.1
+    },
+    {
+      "text": "we'll see later, you can just\nhave every element in a cell.",
+      "start": 332.4,
+      "duration": 3.04
+    },
+    {
+      "text": "It goes and computes that\nelement of the matrix.",
+      "start": 335.44,
+      "duration": 2.82
+    },
+    {
+      "text": "And it can just\nread and write HBM.",
+      "start": 338.26,
+      "duration": 2.68
+    },
+    {
+      "text": "But as we've noticed,\nHBM is very slow,",
+      "start": 340.94,
+      "duration": 4.1
+    },
+    {
+      "text": "so this would not\nbe a good strategy.",
+      "start": 345.04,
+      "duration": 3.58
+    },
+    {
+      "text": "So instead, what we should\ndo is use shared memory,",
+      "start": 348.62,
+      "duration": 4.58
+    },
+    {
+      "text": "which is local to SM.",
+      "start": 353.2,
+      "duration": 3.36
+    },
+    {
+      "text": "And what the thread block\nallows you to think about",
+      "start": 356.56,
+      "duration": 3.06
+    },
+    {
+      "text": "is a collection of\nthreads that are all going",
+      "start": 359.62,
+      "duration": 2.5
+    },
+    {
+      "text": "to access this shared memory.",
+      "start": 362.12,
+      "duration": 2.96
+    },
+    {
+      "text": "So consequently, you can\nthink about a thread block,",
+      "start": 365.08,
+      "duration": 5.48
+    },
+    {
+      "text": "one of these thread\nblocks is being scheduled",
+      "start": 370.56,
+      "duration": 4.32
+    },
+    {
+      "text": "on one of these semantic--",
+      "start": 374.88,
+      "duration": 3.04
+    },
+    {
+      "text": "not semantic, streaming\nmultiprocessors.",
+      "start": 377.92,
+      "duration": 2.48
+    },
+    {
+      "text": "And it does its thing.",
+      "start": 380.4,
+      "duration": 1.72
+    },
+    {
+      "text": "And what it's\ngoing to do is it's",
+      "start": 382.12,
+      "duration": 1.44
+    },
+    {
+      "text": "going to read a bunch\nof data from HBM",
+      "start": 383.56,
+      "duration": 2.36
+    },
+    {
+      "text": "and then process it where\nthe processing might involve",
+      "start": 385.92,
+      "duration": 4.2
+    },
+    {
+      "text": "communication between the\nthreads via the shared memory,",
+      "start": 390.12,
+      "duration": 4.74
+    },
+    {
+      "text": "and then writes it back out.",
+      "start": 394.86,
+      "duration": 2.34
+    },
+    {
+      "text": "OK.",
+      "start": 397.2,
+      "duration": 1.2
+    },
+    {
+      "text": "So this is a critical\npiece that comes up.",
+      "start": 398.4,
+      "duration": 2.52
+    },
+    {
+      "text": "Later, we'll talk about tiling,\nand that's the whole game here.",
+      "start": 400.92,
+      "duration": 4.26
+    },
+    {
+      "text": "OK, in Triton, in fact, which\nwe'll see as a primary way",
+      "start": 405.18,
+      "duration": 4.71
+    },
+    {
+      "text": "that we're going to\nwrite kernels these days,",
+      "start": 409.89,
+      "duration": 2.22
+    },
+    {
+      "text": "we're going to think\nnatively in thread blocks.",
+      "start": 412.11,
+      "duration": 2.94
+    },
+    {
+      "text": "And I think once you\nget the hang of thinking",
+      "start": 415.05,
+      "duration": 3.76
+    },
+    {
+      "text": "of thread blocks, this\nmakes a lot of sense",
+      "start": 418.81,
+      "duration": 2.28
+    },
+    {
+      "text": "and makes your life a\nlot easier, as we'll see.",
+      "start": 421.09,
+      "duration": 3.572
+    },
+    {
+      "text": "OK, so the programming model\nis fairly simple, I think.",
+      "start": 424.662,
+      "duration": 5.868
+    },
+    {
+      "text": "There's threads, thread\nblocks, and grids.",
+      "start": 430.53,
+      "duration": 2.06
+    },
+    {
+      "text": "I think things get a\nbit more complicated,",
+      "start": 436.01,
+      "duration": 2.96
+    },
+    {
+      "text": "is the interaction\nbetween the programming",
+      "start": 438.97,
+      "duration": 1.84
+    },
+    {
+      "text": "model and the hardware.",
+      "start": 440.81,
+      "duration": 2.4
+    },
+    {
+      "text": "So the programming model\nis actually very nice.",
+      "start": 443.21,
+      "duration": 2.46
+    },
+    {
+      "text": "It provides abstraction\nof the hardware.",
+      "start": 445.67,
+      "duration": 2.52
+    },
+    {
+      "text": "When you can write a\nkernel, all you have to know",
+      "start": 448.19,
+      "duration": 4.34
+    },
+    {
+      "text": "is that there's a\nbunch of thread blocks.",
+      "start": 452.53,
+      "duration": 1.98
+    },
+    {
+      "text": "You define them and\nthen define what",
+      "start": 454.51,
+      "duration": 1.98
+    },
+    {
+      "text": "computations each thread within\nthe block or the thread block",
+      "start": 456.49,
+      "duration": 6.24
+    },
+    {
+      "text": "has to do.",
+      "start": 462.73,
+      "duration": 0.96
+    },
+    {
+      "text": "And those are just writing--\nit's like writing Python.",
+      "start": 463.69,
+      "duration": 4.0
+    },
+    {
+      "text": "So that part isn't hard.",
+      "start": 467.69,
+      "duration": 1.97
+    },
+    {
+      "text": "And in fact, if you\ndon't care about--",
+      "start": 469.66,
+      "duration": 2.162
+    },
+    {
+      "text": "if you just care\nabout correctness,",
+      "start": 471.822,
+      "duration": 1.458
+    },
+    {
+      "text": "that's all you need to know.",
+      "start": 473.28,
+      "duration": 2.38
+    },
+    {
+      "text": "But in practice,\nthe performance is",
+      "start": 475.66,
+      "duration": 2.24
+    },
+    {
+      "text": "very sensitive to the hardware.",
+      "start": 477.9,
+      "duration": 2.28
+    },
+    {
+      "text": "And so you need to really\ndeeply understand the hardware",
+      "start": 480.18,
+      "duration": 3.16
+    },
+    {
+      "text": "to obtain high performance.",
+      "start": 483.34,
+      "duration": 1.382
+    },
+    {
+      "text": "And in fact, the\nwhole reason we're",
+      "start": 484.722,
+      "duration": 1.458
+    },
+    {
+      "text": "talking about GPUs\nand kernels is",
+      "start": 486.18,
+      "duration": 2.68
+    },
+    {
+      "text": "that you're trying to\nsqueeze out performance.",
+      "start": 488.86,
+      "duration": 2.64
+    },
+    {
+      "text": "So there's these two\nlevels here where",
+      "start": 491.5,
+      "duration": 2.24
+    },
+    {
+      "text": "you're trying to\nunderstand the computation,",
+      "start": 493.74,
+      "duration": 2.78
+    },
+    {
+      "text": "and that is only a part\nof the programming model.",
+      "start": 496.52,
+      "duration": 4.0
+    },
+    {
+      "text": "But how fast it runs\nis going to be strongly",
+      "start": 500.52,
+      "duration": 3.02
+    },
+    {
+      "text": "dependent on the hardware.",
+      "start": 503.54,
+      "duration": 2.6
+    },
+    {
+      "text": "OK, so I'm going to give you\nsome examples of why this",
+      "start": 506.14,
+      "duration": 3.84
+    },
+    {
+      "text": "matters, and some of\nthis will be review",
+      "start": 509.98,
+      "duration": 1.92
+    },
+    {
+      "text": "from what Tatsu talked about.",
+      "start": 511.9,
+      "duration": 2.54
+    },
+    {
+      "text": "But hopefully it will reinforce\nsome of these concepts.",
+      "start": 514.44,
+      "duration": 3.02
+    },
+    {
+      "text": "So I think there will be\naround five different examples.",
+      "start": 517.46,
+      "duration": 3.199
+    },
+    {
+      "text": "And this is just to give you a\nflavor of the considerations.",
+      "start": 520.659,
+      "duration": 6.621
+    },
+    {
+      "text": "So there's something\ncalled warps,",
+      "start": 527.28,
+      "duration": 1.98
+    },
+    {
+      "text": "which I didn't talk about.",
+      "start": 529.26,
+      "duration": 2.3
+    },
+    {
+      "text": "So in the very\nsimplified view, warps",
+      "start": 531.56,
+      "duration": 2.8
+    },
+    {
+      "text": "are not really part of this\nclean picture of the programming",
+      "start": 534.36,
+      "duration": 2.6
+    },
+    {
+      "text": "model.",
+      "start": 536.96,
+      "duration": 0.5
+    },
+    {
+      "text": "You have threads and\nthread blocks or grids.",
+      "start": 537.46,
+      "duration": 4.22
+    },
+    {
+      "text": "Technically, you can\nalso exceed the warps,",
+      "start": 541.68,
+      "duration": 3.08
+    },
+    {
+      "text": "but you don't have to when\nyou're just programming.",
+      "start": 544.76,
+      "duration": 3.68
+    },
+    {
+      "text": "So what is a warp?",
+      "start": 548.44,
+      "duration": 1.4
+    },
+    {
+      "text": "So each thread blocks, remember,\nis a collection of threads.",
+      "start": 549.84,
+      "duration": 4.26
+    },
+    {
+      "text": "But these threads are\nactually grouped into warps.",
+      "start": 554.1,
+      "duration": 2.9
+    },
+    {
+      "text": "And there's basically\n32 threads per warp.",
+      "start": 557.0,
+      "duration": 5.16
+    },
+    {
+      "text": "So for example, if you have\n64 threads in a thread block,",
+      "start": 562.16,
+      "duration": 3.02
+    },
+    {
+      "text": "there's two warps, the\nfirst 32 and the second 32.",
+      "start": 565.18,
+      "duration": 4.66
+    },
+    {
+      "text": "And as Tatsu\nmentioned last time,",
+      "start": 569.84,
+      "duration": 2.14
+    },
+    {
+      "text": "all threads within a warp,\nall of these T's, must",
+      "start": 571.98,
+      "duration": 3.38
+    },
+    {
+      "text": "execute the same instruction\nin lockstep on SM.",
+      "start": 575.36,
+      "duration": 4.42
+    },
+    {
+      "text": "So every cycle,\nthey have to execute",
+      "start": 579.78,
+      "duration": 2.98
+    },
+    {
+      "text": "exactly the same instruction.",
+      "start": 582.76,
+      "duration": 1.8
+    },
+    {
+      "text": "And control divergence is when\ndifferent threads within a warp",
+      "start": 584.56,
+      "duration": 5.19
+    },
+    {
+      "text": "need to actually execute\ndifferent instructions.",
+      "start": 589.75,
+      "duration": 2.0
+    },
+    {
+      "text": "For example, if you have\nbranching, if something,",
+      "start": 591.75,
+      "duration": 4.0
+    },
+    {
+      "text": "then A else B.",
+      "start": 595.75,
+      "duration": 1.98
+    },
+    {
+      "text": "And then what happens\nis that you can only",
+      "start": 597.73,
+      "duration": 2.64
+    },
+    {
+      "text": "do the A's in your\nthreads in your warp,",
+      "start": 600.37,
+      "duration": 3.78
+    },
+    {
+      "text": "and then you do the B.\nSo this gets sequential.",
+      "start": 604.15,
+      "duration": 3.3
+    },
+    {
+      "text": "So this is bad and\ninefficient, and that's",
+      "start": 607.45,
+      "duration": 2.36
+    },
+    {
+      "text": "why branching is something\nyou want to generally avoid.",
+      "start": 609.81,
+      "duration": 5.16
+    },
+    {
+      "text": "One thing that's, I think,\nreally cool about warps",
+      "start": 614.97,
+      "duration": 3.32
+    },
+    {
+      "text": "is that a SM actually is\nrunning multiple warps.",
+      "start": 618.29,
+      "duration": 4.738
+    },
+    {
+      "text": "There's a warp\nscheduler, and there's",
+      "start": 623.028,
+      "duration": 1.542
+    },
+    {
+      "text": "a bunch of resident warps\nthat are about to run.",
+      "start": 624.57,
+      "duration": 4.7
+    },
+    {
+      "text": "Each warp has some--",
+      "start": 629.27,
+      "duration": 2.02
+    },
+    {
+      "text": "threads have registers.",
+      "start": 631.29,
+      "duration": 2.36
+    },
+    {
+      "text": "And the SM can switch\nbetween them with zero cost.",
+      "start": 633.65,
+      "duration": 6.96
+    },
+    {
+      "text": "Right, this is not true\nin general, like on a CPU.",
+      "start": 640.61,
+      "duration": 3.27
+    },
+    {
+      "text": "But this way that it's\ndesigned is to hide latency.",
+      "start": 643.88,
+      "duration": 4.78
+    },
+    {
+      "text": "So this is important,\nbecause one",
+      "start": 648.66,
+      "duration": 2.76
+    },
+    {
+      "text": "of the warps is, for\nexample, reading from HBM,",
+      "start": 651.42,
+      "duration": 3.02
+    },
+    {
+      "text": "which remember is\nvery expensive,",
+      "start": 654.44,
+      "duration": 2.64
+    },
+    {
+      "text": "can take 100 cycles\nor something.",
+      "start": 657.08,
+      "duration": 2.8
+    },
+    {
+      "text": "You don't want to just sit\naround waiting for that warp",
+      "start": 659.88,
+      "duration": 2.5
+    },
+    {
+      "text": "to do nothing.",
+      "start": 662.38,
+      "duration": 1.06
+    },
+    {
+      "text": "You switch immediately\nto another warp",
+      "start": 663.44,
+      "duration": 1.66
+    },
+    {
+      "text": "where it can actually do\nsome tensor core operations.",
+      "start": 665.1,
+      "duration": 4.64
+    },
+    {
+      "text": "OK, so that's one thing\nto note about the warp.",
+      "start": 669.74,
+      "duration": 3.96
+    },
+    {
+      "text": "And another reason\nwhy warp comes up",
+      "start": 673.7,
+      "duration": 3.4
+    },
+    {
+      "text": "is this idea of occupancy.",
+      "start": 677.1,
+      "duration": 2.92
+    },
+    {
+      "text": "More specifically,\nwarp occupancy.",
+      "start": 680.02,
+      "duration": 2.6
+    },
+    {
+      "text": "So each thread, just\nthe hardware constraint",
+      "start": 682.62,
+      "duration": 3.96
+    },
+    {
+      "text": "says that each thread can\nuse at most 255 registers.",
+      "start": 686.58,
+      "duration": 4.58
+    },
+    {
+      "text": "OK, and so what happens\nis that the SM has",
+      "start": 691.16,
+      "duration": 4.06
+    },
+    {
+      "text": "a fixed number of registers.",
+      "start": 695.22,
+      "duration": 1.3
+    },
+    {
+      "text": "So the more registers\neach thread is using,",
+      "start": 696.52,
+      "duration": 2.68
+    },
+    {
+      "text": "the fewer threads you can have.",
+      "start": 699.2,
+      "duration": 1.32
+    },
+    {
+      "text": "That's just math.",
+      "start": 700.52,
+      "duration": 3.55
+    },
+    {
+      "text": "And that can reduce\nyour occupancy.",
+      "start": 704.07,
+      "duration": 6.64
+    },
+    {
+      "text": "But that's not necessarily\nbad, because if you",
+      "start": 710.71,
+      "duration": 2.08
+    },
+    {
+      "text": "have fewer threads.",
+      "start": 712.79,
+      "duration": 2.0
+    },
+    {
+      "text": "But each thread is doing more\nwork, that can actually be good.",
+      "start": 714.79,
+      "duration": 3.14
+    },
+    {
+      "text": "So occupancy is something\nthat you can measure,",
+      "start": 717.93,
+      "duration": 3.32
+    },
+    {
+      "text": "but it's not necessarily\nthe larger, the better.",
+      "start": 721.25,
+      "duration": 3.5
+    },
+    {
+      "text": "Because there are some\nother tradeoffs here.",
+      "start": 724.75,
+      "duration": 2.56
+    },
+    {
+      "text": "And in fact, an\nexample where you",
+      "start": 727.31,
+      "duration": 3.04
+    },
+    {
+      "text": "might want to have fewer\nthreads is this idea",
+      "start": 730.35,
+      "duration": 4.92
+    },
+    {
+      "text": "of thread coarsening,\nwhere let's say",
+      "start": 735.27,
+      "duration": 2.04
+    },
+    {
+      "text": "you have an\nelement-wise operation",
+      "start": 737.31,
+      "duration": 3.32
+    },
+    {
+      "text": "and you can have one thread just\nperform work on one element.",
+      "start": 740.63,
+      "duration": 7.0
+    },
+    {
+      "text": "OK, so then you have\na lot of threads.",
+      "start": 747.63,
+      "duration": 1.86
+    },
+    {
+      "text": "But you can also say each thread\nprocesses multiple elements.",
+      "start": 749.49,
+      "duration": 3.7
+    },
+    {
+      "text": "Like a constant, maybe eight.",
+      "start": 753.19,
+      "duration": 2.36
+    },
+    {
+      "text": "So that gives you\nfewer threads, which",
+      "start": 755.55,
+      "duration": 2.28
+    },
+    {
+      "text": "makes scheduling and\nthese things easier,",
+      "start": 757.83,
+      "duration": 2.22
+    },
+    {
+      "text": "but each thread is\ndoing more work.",
+      "start": 760.05,
+      "duration": 2.443
+    },
+    {
+      "text": "So if your threads\nare very light,",
+      "start": 762.493,
+      "duration": 1.417
+    },
+    {
+      "text": "maybe you want to fatten\nthem up a little bit.",
+      "start": 763.91,
+      "duration": 3.42
+    },
+    {
+      "text": "OK.",
+      "start": 767.33,
+      "duration": 1.96
+    },
+    {
+      "text": "So just as an example of\nwhat might happen here.",
+      "start": 769.29,
+      "duration": 4.3
+    },
+    {
+      "text": "So suppose you have a\nblock, a thread block",
+      "start": 773.59,
+      "duration": 3.3
+    },
+    {
+      "text": "with 128 threads in it.",
+      "start": 776.89,
+      "duration": 2.56
+    },
+    {
+      "text": "And each thread is\nusing 160 registers.",
+      "start": 779.45,
+      "duration": 4.0
+    },
+    {
+      "text": "OK.",
+      "start": 783.45,
+      "duration": 0.8
+    },
+    {
+      "text": "So there's a\nhardware constraint.",
+      "start": 784.25,
+      "duration": 2.02
+    },
+    {
+      "text": "So the B200s have maximum of\nregisters of 65,000 per SM.",
+      "start": 786.27,
+      "duration": 7.18
+    },
+    {
+      "text": "And it also has\na constraint that",
+      "start": 793.45,
+      "duration": 1.52
+    },
+    {
+      "text": "says you can't run more\nthan 64 warps at a time.",
+      "start": 794.97,
+      "duration": 5.28
+    },
+    {
+      "text": "So then you can go and\ndo some simple math",
+      "start": 800.25,
+      "duration": 2.24
+    },
+    {
+      "text": "to compute what is\nthe occupancy here.",
+      "start": 802.49,
+      "duration": 4.96
+    },
+    {
+      "text": "So number of\nregisters per thread.",
+      "start": 807.45,
+      "duration": 2.38
+    },
+    {
+      "text": "This has to be less than 255.",
+      "start": 809.83,
+      "duration": 1.68
+    },
+    {
+      "text": "That's fine.",
+      "start": 811.51,
+      "duration": 2.02
+    },
+    {
+      "text": "The number of registers\nthat you're using per block",
+      "start": 813.53,
+      "duration": 2.423
+    },
+    {
+      "text": "is the number of\nthreads per block",
+      "start": 815.953,
+      "duration": 1.417
+    },
+    {
+      "text": "times the number of\nregisters per thread.",
+      "start": 817.37,
+      "duration": 1.83
+    },
+    {
+      "text": "That's about 20,000.",
+      "start": 819.2,
+      "duration": 1.78
+    },
+    {
+      "text": "That means you can run at\nmost three blocks on your SM",
+      "start": 820.98,
+      "duration": 3.84
+    },
+    {
+      "text": "concurrently.",
+      "start": 824.82,
+      "duration": 1.56
+    },
+    {
+      "text": "And then that\ncorresponds to 12 warps.",
+      "start": 826.38,
+      "duration": 4.84
+    },
+    {
+      "text": "And because the number\nof maximum warps is 64,",
+      "start": 831.22,
+      "duration": 3.92
+    },
+    {
+      "text": "that means you have\nan occupancy of 18%.",
+      "start": 835.14,
+      "duration": 3.64
+    },
+    {
+      "text": "So we're only running 18% the\ntotal number of warps you have.",
+      "start": 838.78,
+      "duration": 5.9
+    },
+    {
+      "text": "And this is because you have a\nlot of registers use per thread.",
+      "start": 844.68,
+      "duration": 3.6
+    },
+    {
+      "text": "OK, so this is an example of\nwhere I guess this is memory,",
+      "start": 848.28,
+      "duration": 6.3
+    },
+    {
+      "text": "is constraining you in terms\nof how much compute you can do.",
+      "start": 854.58,
+      "duration": 6.84
+    },
+    {
+      "text": "OK, here's another example.",
+      "start": 861.42,
+      "duration": 3.04
+    },
+    {
+      "text": "Something called bank conflicts.",
+      "start": 864.46,
+      "duration": 1.74
+    },
+    {
+      "text": "This applies to shared memory.",
+      "start": 866.2,
+      "duration": 2.3
+    },
+    {
+      "text": "So remember, shared\nmemory is like L1.",
+      "start": 868.5,
+      "duration": 3.46
+    },
+    {
+      "text": "It's on an SM.",
+      "start": 871.96,
+      "duration": 1.86
+    },
+    {
+      "text": "And just the way\nthe hardware works",
+      "start": 873.82,
+      "duration": 2.12
+    },
+    {
+      "text": "is that shared memory is divided\ninto 32 banks, each one four",
+      "start": 875.94,
+      "duration": 4.61
+    },
+    {
+      "text": "bytes wide.",
+      "start": 880.55,
+      "duration": 1.04
+    },
+    {
+      "text": "OK, so these are my 32 banks,\nand this is my memory here.",
+      "start": 881.59,
+      "duration": 6.44
+    },
+    {
+      "text": "Each bank has many\nelements here.",
+      "start": 888.03,
+      "duration": 5.64
+    },
+    {
+      "text": "So there's a constraint\nthat says every clock cycle,",
+      "start": 893.67,
+      "duration": 5.04
+    },
+    {
+      "text": "each bank can only be accessed\nby one thread, at most",
+      "start": 898.71,
+      "duration": 4.28
+    },
+    {
+      "text": "one thread.",
+      "start": 902.99,
+      "duration": 1.8
+    },
+    {
+      "text": "Assuming that's not a location.",
+      "start": 904.79,
+      "duration": 1.66
+    },
+    {
+      "text": "So for example, if\nyou can't access",
+      "start": 906.45,
+      "duration": 2.54
+    },
+    {
+      "text": "this location and this\nlocation at the same time.",
+      "start": 908.99,
+      "duration": 5.4
+    },
+    {
+      "text": "Which means that if you\nhave multiple threads that",
+      "start": 914.39,
+      "duration": 3.08
+    },
+    {
+      "text": "are trying to access\nthe same bank,",
+      "start": 917.47,
+      "duration": 2.56
+    },
+    {
+      "text": "the accesses have\nto be serialized.",
+      "start": 920.03,
+      "duration": 3.4
+    },
+    {
+      "text": "And this is called\na bank conflict.",
+      "start": 923.43,
+      "duration": 2.34
+    },
+    {
+      "text": "In the worst case\nexample, imagine",
+      "start": 925.77,
+      "duration": 1.5
+    },
+    {
+      "text": "this were a matrix that\nwas laid out like this.",
+      "start": 927.27,
+      "duration": 3.64
+    },
+    {
+      "text": "And you had some operation where\n32 threads, you think, wow,",
+      "start": 930.91,
+      "duration": 3.9
+    },
+    {
+      "text": "this 32 is so great.",
+      "start": 934.81,
+      "duration": 1.53
+    },
+    {
+      "text": "I can massively\nparallelize this,",
+      "start": 936.34,
+      "duration": 1.7
+    },
+    {
+      "text": "and you try to all\naccess this first column.",
+      "start": 938.04,
+      "duration": 2.5
+    },
+    {
+      "text": "They're just going\nto just wait in line.",
+      "start": 940.54,
+      "duration": 2.34
+    },
+    {
+      "text": "And this is a 32-way\nbank conflict,",
+      "start": 942.88,
+      "duration": 2.72
+    },
+    {
+      "text": "which is the worst possible\nsetting you can be in.",
+      "start": 945.6,
+      "duration": 4.6
+    },
+    {
+      "text": "Now you could say, well,\nOK, why did you do that?",
+      "start": 950.2,
+      "duration": 2.26
+    },
+    {
+      "text": "Just like access\nrows, of course.",
+      "start": 952.46,
+      "duration": 1.88
+    },
+    {
+      "text": "But this is unavoidable,\nbecause, for example,",
+      "start": 954.34,
+      "duration": 2.4
+    },
+    {
+      "text": "if you're doing a\nmatmul, you have",
+      "start": 956.74,
+      "duration": 2.14
+    },
+    {
+      "text": "to access rows of one matrix\nand columns of another matrix.",
+      "start": 958.88,
+      "duration": 3.62
+    },
+    {
+      "text": "And sometimes you do\ntransposes, so you can't always",
+      "start": 962.5,
+      "duration": 2.7
+    },
+    {
+      "text": "just get away with choosing\nthe order in which you go down.",
+      "start": 965.2,
+      "duration": 7.28
+    },
+    {
+      "text": "For element-wise\noperations, it's fine.",
+      "start": 972.48,
+      "duration": 1.78
+    },
+    {
+      "text": "You can go in any order.",
+      "start": 974.26,
+      "duration": 1.64
+    },
+    {
+      "text": "But if you're doing\nmatmuls, you can't",
+      "start": 975.9,
+      "duration": 2.02
+    },
+    {
+      "text": "control for every matrix\nwhich row major or column",
+      "start": 977.92,
+      "duration": 4.84
+    },
+    {
+      "text": "major you're doing.",
+      "start": 982.76,
+      "duration": 1.59
+    },
+    {
+      "text": "There are some solutions\nhere, which I won't get into.",
+      "start": 984.35,
+      "duration": 2.25
+    },
+    {
+      "text": "Something called swizzling,\nwhich arranges your shared",
+      "start": 986.6,
+      "duration": 3.2
+    },
+    {
+      "text": "memory so that when\nyou're going through,",
+      "start": 989.8,
+      "duration": 3.64
+    },
+    {
+      "text": "you can avoid bank conflicts.",
+      "start": 993.44,
+      "duration": 3.68
+    },
+    {
+      "text": "OK, so that's another\nconsideration.",
+      "start": 997.12,
+      "duration": 3.14
+    },
+    {
+      "text": "And when you're profiling, you\ncan look at the bank conflicts,",
+      "start": 1000.26,
+      "duration": 3.5
+    },
+    {
+      "text": "you can look at occupancy.",
+      "start": 1003.76,
+      "duration": 1.48
+    },
+    {
+      "text": "And you can see\nwhat's happening.",
+      "start": 1005.24,
+      "duration": 4.74
+    },
+    {
+      "text": "A final note which--",
+      "start": 1009.98,
+      "duration": 2.0
+    },
+    {
+      "text": "actually, two more things.",
+      "start": 1011.98,
+      "duration": 1.36
+    },
+    {
+      "text": "So memory coalescing,\nwhich you talked about.",
+      "start": 1013.34,
+      "duration": 2.1
+    },
+    {
+      "text": "So I'll just really\nquickly remind",
+      "start": 1015.44,
+      "duration": 1.9
+    },
+    {
+      "text": "people what this is about.",
+      "start": 1017.34,
+      "duration": 2.2
+    },
+    {
+      "text": "So when you have 32 threads in a\nwarp and they try to access HBM,",
+      "start": 1019.54,
+      "duration": 6.079
+    },
+    {
+      "text": "the memory accesses\nactually get combined",
+      "start": 1025.619,
+      "duration": 2.2
+    },
+    {
+      "text": "into a transaction of 128 bytes,\nwhich are called cache lines.",
+      "start": 1027.819,
+      "duration": 6.381
+    },
+    {
+      "text": "And it goes and\nfetches it all at once.",
+      "start": 1034.2,
+      "duration": 3.419
+    },
+    {
+      "text": "So imagine you have\nmemory laid out like this.",
+      "start": 1037.619,
+      "duration": 3.801
+    },
+    {
+      "text": "This is 32.",
+      "start": 1041.42,
+      "duration": 2.5
+    },
+    {
+      "text": "And in the best case, which\nis called full coalescing,",
+      "start": 1047.819,
+      "duration": 6.971
+    },
+    {
+      "text": "all the threads are accessing\nthe same cache line.",
+      "start": 1054.79,
+      "duration": 3.02
+    },
+    {
+      "text": "So you have thread 1 accessing\nM00, thread 2 accessing M01,",
+      "start": 1057.81,
+      "duration": 4.96
+    },
+    {
+      "text": "and so on.",
+      "start": 1062.77,
+      "duration": 0.94
+    },
+    {
+      "text": "Which means that\nall at once, you're",
+      "start": 1063.71,
+      "duration": 2.68
+    },
+    {
+      "text": "going to grab this\nentire cache line.",
+      "start": 1066.39,
+      "duration": 2.84
+    },
+    {
+      "text": "Right, and whereas if\nyou go down the columns,",
+      "start": 1069.23,
+      "duration": 4.16
+    },
+    {
+      "text": "then you're going to\nfetch a lot of memory",
+      "start": 1073.39,
+      "duration": 5.68
+    },
+    {
+      "text": "here, which you're\nnot going to use.",
+      "start": 1079.07,
+      "duration": 2.24
+    },
+    {
+      "text": "Same for the second\nrow and so on.",
+      "start": 1081.31,
+      "duration": 3.36
+    },
+    {
+      "text": "And so this feels similar\nto bank conflicts,",
+      "start": 1084.67,
+      "duration": 3.798
+    },
+    {
+      "text": "but it's a very\ndifferent constraint.",
+      "start": 1088.468,
+      "duration": 1.542
+    },
+    {
+      "text": "And this is about shared\nmemory, and this is about HBM.",
+      "start": 1090.01,
+      "duration": 3.66
+    },
+    {
+      "text": "OK.",
+      "start": 1093.67,
+      "duration": 1.8
+    },
+    {
+      "text": "OK, so final thing,\nblock occupancy.",
+      "start": 1095.47,
+      "duration": 3.8
+    },
+    {
+      "text": "So thread blocks are,\nremember, scheduled onto SMS.",
+      "start": 1099.27,
+      "duration": 4.28
+    },
+    {
+      "text": "But we live in a finite--",
+      "start": 1103.55,
+      "duration": 3.12
+    },
+    {
+      "text": "logically, you can define as\nmany thread blocks as you want.",
+      "start": 1106.67,
+      "duration": 2.9
+    },
+    {
+      "text": "But physically on chip, you only\nhave a certain number of SMs.",
+      "start": 1109.57,
+      "duration": 3.53
+    },
+    {
+      "text": "For example, 148.",
+      "start": 1113.1,
+      "duration": 2.66
+    },
+    {
+      "text": "So if you launch\n160 thread blocks,",
+      "start": 1115.76,
+      "duration": 3.24
+    },
+    {
+      "text": "then you can only\nschedule 148 of them.",
+      "start": 1119.0,
+      "duration": 2.8
+    },
+    {
+      "text": "And then you have to\nwait until they're done,",
+      "start": 1121.8,
+      "duration": 1.96
+    },
+    {
+      "text": "and then you schedule the 12.",
+      "start": 1123.76,
+      "duration": 1.76
+    },
+    {
+      "text": "But what happens\nif you schedule 12",
+      "start": 1125.52,
+      "duration": 2.28
+    },
+    {
+      "text": "is that there's a bunch of SMs\nare just not doing anything.",
+      "start": 1127.8,
+      "duration": 5.0
+    },
+    {
+      "text": "So that's called low occupancy.",
+      "start": 1132.8,
+      "duration": 2.84
+    },
+    {
+      "text": "When the last wave\nof thread blocks",
+      "start": 1135.64,
+      "duration": 2.92
+    },
+    {
+      "text": "gets fewer than the total\nmaximum number of thread blocks.",
+      "start": 1138.56,
+      "duration": 6.94
+    },
+    {
+      "text": "OK, so in general,\nmaybe it's a good idea",
+      "start": 1145.5,
+      "duration": 3.14
+    },
+    {
+      "text": "to make the number of thread\nblocks divide the SMs.",
+      "start": 1148.64,
+      "duration": 5.16
+    },
+    {
+      "text": "So maybe just to\nsummarize here, there",
+      "start": 1153.8,
+      "duration": 4.64
+    },
+    {
+      "text": "is a very elegant\nprogramming model",
+      "start": 1158.44,
+      "duration": 2.16
+    },
+    {
+      "text": "where you have a\ngrid of thread blocks",
+      "start": 1160.6,
+      "duration": 2.52
+    },
+    {
+      "text": "and the thread blocks have\nindividual threads in them.",
+      "start": 1163.12,
+      "duration": 5.08
+    },
+    {
+      "text": "And in terms of the memory,\nHBM is global to everyone.",
+      "start": 1168.2,
+      "duration": 3.76
+    },
+    {
+      "text": "Shared memory is local\nto a thread block.",
+      "start": 1171.96,
+      "duration": 3.5
+    },
+    {
+      "text": "And registers are\nlocal to a thread.",
+      "start": 1175.46,
+      "duration": 3.0
+    },
+    {
+      "text": "But again, all the details\nof the hardware-- warps,",
+      "start": 1178.46,
+      "duration": 3.58
+    },
+    {
+      "text": "bank conflicts, memory\ncoalescing, occupancy--",
+      "start": 1182.04,
+      "duration": 2.5
+    },
+    {
+      "text": "really determine performance.",
+      "start": 1184.54,
+      "duration": 5.0
+    },
+    {
+      "text": "And many of these details are\nhard to know, because, I mean,",
+      "start": 1189.54,
+      "duration": 7.06
+    },
+    {
+      "text": "the profiling tells you\na bunch of information.",
+      "start": 1196.6,
+      "duration": 3.72
+    },
+    {
+      "text": "But you have to know\nexactly how many SMs there",
+      "start": 1200.32,
+      "duration": 3.7
+    },
+    {
+      "text": "are and exactly the\nsizing of everything.",
+      "start": 1204.02,
+      "duration": 4.5
+    },
+    {
+      "text": "Sometimes the scheduler\ndoes something",
+      "start": 1208.52,
+      "duration": 2.02
+    },
+    {
+      "text": "you don't really have\ncontrol over what it's doing.",
+      "start": 1210.54,
+      "duration": 3.52
+    },
+    {
+      "text": "So it's a little messier\nthan the programming model.",
+      "start": 1214.06,
+      "duration": 5.92
+    },
+    {
+      "text": "OK, I will stop\nthere for questions.",
+      "start": 1219.98,
+      "duration": 2.94
+    },
+    {
+      "text": "Yeah?",
+      "start": 1222.92,
+      "duration": 0.563
+    },
+    {
+      "text": "Yes, a quick question.",
+      "start": 1223.483,
+      "duration": 0.917
+    },
+    {
+      "text": "So Cam, is there a\nscenario in which you",
+      "start": 1224.4,
+      "duration": 3.02
+    },
+    {
+      "text": "one can share with them\nor-- like, for example,",
+      "start": 1227.42,
+      "duration": 4.17
+    },
+    {
+      "text": "in the problem that we see 140\nSM [INAUDIBLE] blocks, right.",
+      "start": 1231.59,
+      "duration": 3.86
+    },
+    {
+      "text": "And we have to launch\ninto two different ways.",
+      "start": 1235.45,
+      "duration": 4.02
+    },
+    {
+      "text": "Is there no way in which\na block can share an SM?",
+      "start": 1239.47,
+      "duration": 4.68
+    },
+    {
+      "text": "Yeah, so the question is,\ncan a block share an SM?",
+      "start": 1244.15,
+      "duration": 4.68
+    },
+    {
+      "text": "I think the issue is if you're\ndoing things right, then the--",
+      "start": 1248.83,
+      "duration": 6.68
+    },
+    {
+      "text": "I guess it depends on the block.",
+      "start": 1255.51,
+      "duration": 2.12
+    },
+    {
+      "text": "If you have a block\nthat's for example,",
+      "start": 1257.63,
+      "duration": 2.7
+    },
+    {
+      "text": "using most of the\ntensor cores on the SM,",
+      "start": 1260.33,
+      "duration": 2.98
+    },
+    {
+      "text": "then putting another\nblock there isn't really",
+      "start": 1263.31,
+      "duration": 3.24
+    },
+    {
+      "text": "going to speed things up.",
+      "start": 1266.55,
+      "duration": 3.4
+    },
+    {
+      "text": "I think fundamentally,\nthere is this jagged problem",
+      "start": 1269.95,
+      "duration": 3.6
+    },
+    {
+      "text": "here of unevenness.",
+      "start": 1273.55,
+      "duration": 2.92
+    },
+    {
+      "text": "Because the blocks\nhave to stay together.",
+      "start": 1276.47,
+      "duration": 2.36
+    },
+    {
+      "text": "So you can't take this and\nspread it out over here.",
+      "start": 1278.83,
+      "duration": 2.86
+    },
+    {
+      "text": "The thing you would do is\nto change your blocksize.",
+      "start": 1285.15,
+      "duration": 3.55
+    },
+    {
+      "text": "So you change the\nnumber of blocks",
+      "start": 1288.7,
+      "duration": 1.74
+    },
+    {
+      "text": "so you don't get this tail here.",
+      "start": 1290.44,
+      "duration": 2.74
+    },
+    {
+      "text": "Any other questions?",
+      "start": 1296.04,
+      "duration": 1.1
+    },
+    {
+      "text": "OK, so let's move on.",
+      "start": 1304.584,
+      "duration": 4.896
+    },
+    {
+      "text": "Hopefully you guys are getting\nmore comfortable with GPUs now.",
+      "start": 1309.48,
+      "duration": 6.2
+    },
+    {
+      "text": "So now I'm going to talk about\nbenchmarking and profiling.",
+      "start": 1315.68,
+      "duration": 4.2
+    },
+    {
+      "text": "I'm not going to\nactually maybe say",
+      "start": 1319.88,
+      "duration": 2.52
+    },
+    {
+      "text": "that much in terms of content.",
+      "start": 1322.4,
+      "duration": 2.52
+    },
+    {
+      "text": "But I do want to emphasize\nthe philosophy here, which is,",
+      "start": 1324.92,
+      "duration": 4.28
+    },
+    {
+      "text": "here's a recipe for success.",
+      "start": 1329.2,
+      "duration": 3.2
+    },
+    {
+      "text": "You benchmark and\nprofile your code.",
+      "start": 1332.4,
+      "duration": 2.06
+    },
+    {
+      "text": "You make changes, and you\nbenchmark your profile,",
+      "start": 1334.46,
+      "duration": 2.52
+    },
+    {
+      "text": "your code again.",
+      "start": 1336.98,
+      "duration": 2.22
+    },
+    {
+      "text": "And the reason I'm doing\nbenchmarking and profiling",
+      "start": 1339.2,
+      "duration": 2.82
+    },
+    {
+      "text": "as opposed to teaching\nyou try and earlier",
+      "start": 1342.02,
+      "duration": 2.47
+    },
+    {
+      "text": "is because you should\nalways just measure",
+      "start": 1344.49,
+      "duration": 2.88
+    },
+    {
+      "text": "what's going on in your\ncode and figure out",
+      "start": 1347.37,
+      "duration": 3.8
+    },
+    {
+      "text": "what the bottlenecks are before\nyou start writing kernels.",
+      "start": 1351.17,
+      "duration": 5.2
+    },
+    {
+      "text": "OK, so benchmarking is\nbasically how long things take.",
+      "start": 1356.37,
+      "duration": 6.88
+    },
+    {
+      "text": "And it gives you just\nthis end to end time.",
+      "start": 1363.25,
+      "duration": 3.12
+    },
+    {
+      "text": "It doesn't tell you\nwhere things are spent.",
+      "start": 1366.37,
+      "duration": 3.12
+    },
+    {
+      "text": "But nonetheless, it's pretty\nuseful, because ultimately,",
+      "start": 1369.49,
+      "duration": 3.28
+    },
+    {
+      "text": "that's the thing that you\ncare about, how long things",
+      "start": 1372.77,
+      "duration": 4.08
+    },
+    {
+      "text": "are running for.",
+      "start": 1376.85,
+      "duration": 1.8
+    },
+    {
+      "text": "And it also gives you,\nbecause it distills things",
+      "start": 1378.65,
+      "duration": 2.355
+    },
+    {
+      "text": "into one number, you can see how\nthings are scaling, let's say,",
+      "start": 1381.005,
+      "duration": 2.625
+    },
+    {
+      "text": "with dimension.",
+      "start": 1383.63,
+      "duration": 1.98
+    },
+    {
+      "text": "So there's a nice\ntool for benchmarking.",
+      "start": 1385.61,
+      "duration": 3.76
+    },
+    {
+      "text": "But because this class is\nlanguage models from scratch,",
+      "start": 1389.37,
+      "duration": 3.02
+    },
+    {
+      "text": "I'm going to do it from scratch.",
+      "start": 1392.39,
+      "duration": 2.5
+    },
+    {
+      "text": "But I think I'm doing it just\nto highlight a few gotchas",
+      "start": 1394.89,
+      "duration": 4.96
+    },
+    {
+      "text": "with benchmarking.",
+      "start": 1399.85,
+      "duration": 1.62
+    },
+    {
+      "text": "So let's say we have\nthis operation, matrix",
+      "start": 1401.47,
+      "duration": 5.0
+    },
+    {
+      "text": "multiplication.",
+      "start": 1406.47,
+      "duration": 2.16
+    },
+    {
+      "text": "So run operation 2 is this\nwrapper that basically",
+      "start": 1408.63,
+      "duration": 4.0
+    },
+    {
+      "text": "instantiates two random square\nmatrices of size dimension",
+      "start": 1412.63,
+      "duration": 3.44
+    },
+    {
+      "text": "by dimension.",
+      "start": 1416.07,
+      "duration": 1.2
+    },
+    {
+      "text": "And then it returns a function\nto perform the operation.",
+      "start": 1417.27,
+      "duration": 2.72
+    },
+    {
+      "text": "OK, so matmul, if you\ncall this, basically",
+      "start": 1419.99,
+      "duration": 3.56
+    },
+    {
+      "text": "does the matmul of those\ntwo random matrices.",
+      "start": 1423.55,
+      "duration": 3.8
+    },
+    {
+      "text": "OK, the random\nmatrices are generated,",
+      "start": 1427.35,
+      "duration": 2.62
+    },
+    {
+      "text": "it's just like\nmultiplying the two.",
+      "start": 1429.97,
+      "duration": 3.18
+    },
+    {
+      "text": "OK, so how do you benchmark?",
+      "start": 1433.15,
+      "duration": 2.84
+    },
+    {
+      "text": "So the naive thing to do\nis just start time, run it,",
+      "start": 1435.99,
+      "duration": 4.16
+    },
+    {
+      "text": "and then stop time.",
+      "start": 1440.15,
+      "duration": 1.76
+    },
+    {
+      "text": "But there's a few things.",
+      "start": 1441.91,
+      "duration": 2.14
+    },
+    {
+      "text": "One is that always remember\nto do your warm-up.",
+      "start": 1444.05,
+      "duration": 3.04
+    },
+    {
+      "text": "I think I mentioned this\non the second lecture,",
+      "start": 1447.09,
+      "duration": 4.36
+    },
+    {
+      "text": "but I think it's\nworth emphasizing.",
+      "start": 1451.45,
+      "duration": 3.9
+    },
+    {
+      "text": "And this is because if you have\nsome things are lazily compiled",
+      "start": 1455.35,
+      "duration": 4.0
+    },
+    {
+      "text": "and you want to just make\nsure that that thing is--",
+      "start": 1459.35,
+      "duration": 5.53
+    },
+    {
+      "text": "that time doesn't factor into.",
+      "start": 1464.88,
+      "duration": 2.143
+    },
+    {
+      "text": "Because most of\nthe time, you care",
+      "start": 1467.023,
+      "duration": 1.417
+    },
+    {
+      "text": "about how fast something\nis, because you're",
+      "start": 1468.44,
+      "duration": 2.08
+    },
+    {
+      "text": "going to run it\nover and over again,",
+      "start": 1470.52,
+      "duration": 1.5
+    },
+    {
+      "text": "so the initial conditions\ndon't really matter.",
+      "start": 1472.02,
+      "duration": 3.34
+    },
+    {
+      "text": "And then you often want\nto time it multiple times",
+      "start": 1475.36,
+      "duration": 3.04
+    },
+    {
+      "text": "because there is some variance.",
+      "start": 1478.4,
+      "duration": 3.04
+    },
+    {
+      "text": "The proper way to time things is\nto use these CUDA events that--",
+      "start": 1481.44,
+      "duration": 6.2
+    },
+    {
+      "text": "a start event and an end event,\nwhich you can call record on.",
+      "start": 1487.64,
+      "duration": 4.88
+    },
+    {
+      "text": "Actually do the computation and\nthen hit the end event record.",
+      "start": 1492.52,
+      "duration": 5.24
+    },
+    {
+      "text": "And then remember to synchronize\nto wait for the CUDA threads",
+      "start": 1497.76,
+      "duration": 3.44
+    },
+    {
+      "text": "to finish, because\neverything on the GPU",
+      "start": 1501.2,
+      "duration": 2.88
+    },
+    {
+      "text": "is happening if\nyou have an async.",
+      "start": 1504.08,
+      "duration": 1.7
+    },
+    {
+      "text": "And this is a\nsynchronization barrier.",
+      "start": 1505.78,
+      "duration": 3.26
+    },
+    {
+      "text": "And then you record the time.",
+      "start": 1509.04,
+      "duration": 3.32
+    },
+    {
+      "text": "OK, and then you can do\nthis again, and then again.",
+      "start": 1512.36,
+      "duration": 5.44
+    },
+    {
+      "text": "And then here, we're\njust taking the average.",
+      "start": 1517.8,
+      "duration": 3.79
+    },
+    {
+      "text": "If you are being\nvery particular,",
+      "start": 1524.25,
+      "duration": 2.04
+    },
+    {
+      "text": "you probably want to maybe\nlook at the whole distribution,",
+      "start": 1526.29,
+      "duration": 4.16
+    },
+    {
+      "text": "the P95 or whatever.",
+      "start": 1530.45,
+      "duration": 1.98
+    },
+    {
+      "text": "But we'll just do\nthe average here.",
+      "start": 1532.43,
+      "duration": 3.26
+    },
+    {
+      "text": "And then one thing that you can\ndo with benchmarking is you can,",
+      "start": 1535.69,
+      "duration": 2.76
+    },
+    {
+      "text": "let's say, scale\nup your matrices",
+      "start": 1538.45,
+      "duration": 3.72
+    },
+    {
+      "text": "and see how the time changes.",
+      "start": 1542.17,
+      "duration": 3.24
+    },
+    {
+      "text": "And you can see that in this\ncase, matrix multiplication, as",
+      "start": 1545.41,
+      "duration": 6.32
+    },
+    {
+      "text": "expected, it should\ngrow cubically.",
+      "start": 1551.73,
+      "duration": 3.36
+    },
+    {
+      "text": "But notice that there is this\nflaw where up until you get up",
+      "start": 1555.09,
+      "duration": 3.68
+    },
+    {
+      "text": "to almost 2,000\ndimensional matrices,",
+      "start": 1558.77,
+      "duration": 4.58
+    },
+    {
+      "text": "things are basically a constant.",
+      "start": 1563.35,
+      "duration": 2.86
+    },
+    {
+      "text": "Right, and this is because,\nas we've discussed,",
+      "start": 1566.21,
+      "duration": 3.8
+    },
+    {
+      "text": "the shapes of these GPUs are\nbuilt for fairly large matrix",
+      "start": 1570.01,
+      "duration": 5.44
+    },
+    {
+      "text": "multiplications.",
+      "start": 1575.45,
+      "duration": 0.98
+    },
+    {
+      "text": "And if you have a\n2 by 2 matrix, it's",
+      "start": 1576.43,
+      "duration": 3.48
+    },
+    {
+      "text": "going to be very inefficient.",
+      "start": 1579.91,
+      "duration": 3.28
+    },
+    {
+      "text": "OK.",
+      "start": 1583.19,
+      "duration": 1.99
+    },
+    {
+      "text": "So really quickly on profiling.",
+      "start": 1585.18,
+      "duration": 3.93
+    },
+    {
+      "text": "Profiling tells you where\ntime is actually spent.",
+      "start": 1589.11,
+      "duration": 2.7
+    },
+    {
+      "text": "Hopefully all of you are\nfamiliar with profiling",
+      "start": 1591.81,
+      "duration": 2.3
+    },
+    {
+      "text": "and are doing it.",
+      "start": 1594.11,
+      "duration": 3.08
+    },
+    {
+      "text": "Maybe less obviously,\nprofiling, even",
+      "start": 1597.19,
+      "duration": 1.68
+    },
+    {
+      "text": "if you don't care\nabout the time,",
+      "start": 1598.87,
+      "duration": 1.68
+    },
+    {
+      "text": "helps you figure\nout what's actually",
+      "start": 1600.55,
+      "duration": 2.92
+    },
+    {
+      "text": "happening under the hood.",
+      "start": 1603.47,
+      "duration": 1.22
+    },
+    {
+      "text": "Because especially with\nthese high level languages,",
+      "start": 1604.69,
+      "duration": 1.66
+    },
+    {
+      "text": "you write some code, and then\nit runs and you get some result.",
+      "start": 1606.35,
+      "duration": 2.86
+    },
+    {
+      "text": "And sometimes it can be\njust good to understand",
+      "start": 1609.21,
+      "duration": 2.66
+    },
+    {
+      "text": "what's actually going on.",
+      "start": 1611.87,
+      "duration": 1.8
+    },
+    {
+      "text": "So PyTorch has a\nbuilt-in profiler.",
+      "start": 1613.67,
+      "duration": 1.9
+    },
+    {
+      "text": "In your assignment,\nyou'll use Nsight,",
+      "start": 1615.57,
+      "duration": 1.82
+    },
+    {
+      "text": "which gives you more details.",
+      "start": 1617.39,
+      "duration": 3.84
+    },
+    {
+      "text": "But we're going to skip that\nin the interest of time.",
+      "start": 1621.23,
+      "duration": 4.72
+    },
+    {
+      "text": "So let's start with just if you\nadd two numbers and-- or sorry,",
+      "start": 1625.95,
+      "duration": 7.56
+    },
+    {
+      "text": "two tensors in\nPyTorch, again, a run",
+      "start": 1633.51,
+      "duration": 4.29
+    },
+    {
+      "text": "operation creates\ntwo random matrices",
+      "start": 1637.8,
+      "duration": 3.64
+    },
+    {
+      "text": "and applies the operation.",
+      "start": 1641.44,
+      "duration": 3.28
+    },
+    {
+      "text": "So in profiling, I'm warming up.",
+      "start": 1644.72,
+      "duration": 2.4
+    },
+    {
+      "text": "And then I'm just putting this\ncontext of-- the profiling",
+      "start": 1647.12,
+      "duration": 5.72
+    },
+    {
+      "text": "context and doing the run.",
+      "start": 1652.84,
+      "duration": 3.48
+    },
+    {
+      "text": "And then let's look at what the\nprofile looks like for just a",
+      "start": 1656.32,
+      "duration": 5.56
+    },
+    {
+      "text": "plus b in PyTorch.",
+      "start": 1661.88,
+      "duration": 3.72
+    },
+    {
+      "text": "Normally doing PyTorch, you\nprobably don't think about it.",
+      "start": 1665.6,
+      "duration": 3.14
+    },
+    {
+      "text": "It's like, OK, well, these\ntwo tensors just get added.",
+      "start": 1668.74,
+      "duration": 3.04
+    },
+    {
+      "text": "So what's actually going\non underneath the hood?",
+      "start": 1671.78,
+      "duration": 2.7
+    },
+    {
+      "text": "Right, so if you look at the\nthings that it's calling,",
+      "start": 1674.48,
+      "duration": 3.32
+    },
+    {
+      "text": "there is this long name,\nkernel at CUDA functor add.",
+      "start": 1677.8,
+      "duration": 7.84
+    },
+    {
+      "text": "So this is basically a\nkernel that adds to tensors.",
+      "start": 1685.64,
+      "duration": 6.1
+    },
+    {
+      "text": "And the times aren't going\nto be that interesting,",
+      "start": 1691.74,
+      "duration": 2.62
+    },
+    {
+      "text": "because I'm only adding.",
+      "start": 1694.36,
+      "duration": 1.11
+    },
+    {
+      "text": "So that's going to\ntake 100% of the time.",
+      "start": 1695.47,
+      "duration": 2.54
+    },
+    {
+      "text": "But this tells you that,\nwell, underneath the hood",
+      "start": 1698.01,
+      "duration": 2.28
+    },
+    {
+      "text": "there is this thing called add.",
+      "start": 1700.29,
+      "duration": 3.72
+    },
+    {
+      "text": "What about matmul?",
+      "start": 1704.01,
+      "duration": 1.26
+    },
+    {
+      "text": "In PyTorch, I'm doing a at b.",
+      "start": 1708.01,
+      "duration": 4.2
+    },
+    {
+      "text": "Similarly, there\nis this long name",
+      "start": 1712.21,
+      "duration": 2.68
+    },
+    {
+      "text": "that describes this\nparticular matmul kernel.",
+      "start": 1714.89,
+      "duration": 4.68
+    },
+    {
+      "text": "Cutlass f32, f32,\n64x64x16, and so on.",
+      "start": 1719.57,
+      "duration": 7.16
+    },
+    {
+      "text": "Notice that if you\nchange the dimensions--",
+      "start": 1726.73,
+      "duration": 3.22
+    },
+    {
+      "text": "so now I'm doing a\n128 by 128 matmul--",
+      "start": 1729.95,
+      "duration": 4.02
+    },
+    {
+      "text": "you get actually\na different one.",
+      "start": 1733.97,
+      "duration": 2.48
+    },
+    {
+      "text": "If you look closely, that this\nis 64x64x16, this is 32x32x16.",
+      "start": 1736.45,
+      "duration": 6.2
+    },
+    {
+      "text": "OK, so underneath\nthe hood, PyTorch,",
+      "start": 1742.65,
+      "duration": 4.36
+    },
+    {
+      "text": "it looks like you're\ndoing just at.",
+      "start": 1747.01,
+      "duration": 1.74
+    },
+    {
+      "text": "But underneath the hood,\nthere could be all sorts",
+      "start": 1748.75,
+      "duration": 2.042
+    },
+    {
+      "text": "of things that are happening.",
+      "start": 1750.792,
+      "duration": 2.988
+    },
+    {
+      "text": "So observations.",
+      "start": 1753.78,
+      "duration": 1.878
+    },
+    {
+      "text": "Here, you can see which\nCUDA kernels are actually",
+      "start": 1755.658,
+      "duration": 2.042
+    },
+    {
+      "text": "being called.",
+      "start": 1757.7,
+      "duration": 0.82
+    },
+    {
+      "text": "These are generally the ones\nthat have the long names.",
+      "start": 1758.52,
+      "duration": 3.12
+    },
+    {
+      "text": "And different CUDA kernels\nare invoked depending",
+      "start": 1761.64,
+      "duration": 2.02
+    },
+    {
+      "text": "on the tensor dimensions.",
+      "start": 1763.66,
+      "duration": 3.84
+    },
+    {
+      "text": "The name actually\ntells you something",
+      "start": 1767.5,
+      "duration": 1.64
+    },
+    {
+      "text": "about the\nimplementation as well.",
+      "start": 1769.14,
+      "duration": 2.36
+    },
+    {
+      "text": "So this name.",
+      "start": 1771.5,
+      "duration": 2.12
+    },
+    {
+      "text": "So cutlass is the NVIDIA CUDA\nlibrary for linear algebra.",
+      "start": 1773.62,
+      "duration": 4.84
+    },
+    {
+      "text": "SM100 corresponds to the\nBlackwell architecture.",
+      "start": 1778.46,
+      "duration": 3.86
+    },
+    {
+      "text": "So this is a kernel\nthat's specifically",
+      "start": 1782.32,
+      "duration": 1.7
+    },
+    {
+      "text": "designed for Blackwell.",
+      "start": 1784.02,
+      "duration": 2.48
+    },
+    {
+      "text": "This is f32.",
+      "start": 1786.5,
+      "duration": 2.2
+    },
+    {
+      "text": "And then 64x64x16 is\nthe shape of the tile,",
+      "start": 1788.7,
+      "duration": 6.1
+    },
+    {
+      "text": "which we're going to talk about\nlater when we talk about tiling",
+      "start": 1794.8,
+      "duration": 2.74
+    },
+    {
+      "text": "in the context of matmuls.",
+      "start": 1797.54,
+      "duration": 4.2
+    },
+    {
+      "text": "OK, so that's\nbenchmarking profiling.",
+      "start": 1801.74,
+      "duration": 4.02
+    },
+    {
+      "text": "Just remember to do it.",
+      "start": 1805.76,
+      "duration": 2.327
+    },
+    {
+      "text": "I think we make you do\nit on the assignment,",
+      "start": 1808.087,
+      "duration": 1.833
+    },
+    {
+      "text": "so you have no choice.",
+      "start": 1809.92,
+      "duration": 2.56
+    },
+    {
+      "text": "OK.",
+      "start": 1812.48,
+      "duration": 1.88
+    },
+    {
+      "text": "So let's apply this to another\nexample here on the GeLU.",
+      "start": 1814.36,
+      "duration": 6.96
+    },
+    {
+      "text": "So remember, the GeLU\nactivation function",
+      "start": 1821.32,
+      "duration": 5.76
+    },
+    {
+      "text": "is this function, which is a\ntypical non-linearity that's",
+      "start": 1827.08,
+      "duration": 5.12
+    },
+    {
+      "text": "used.",
+      "start": 1832.2,
+      "duration": 0.6
+    },
+    {
+      "text": "Often, it's approximated with\nthis tanh approximation, which",
+      "start": 1832.8,
+      "duration": 6.44
+    },
+    {
+      "text": "is more computer friendly.",
+      "start": 1839.24,
+      "duration": 3.68
+    },
+    {
+      "text": "OK, so naively, if you\nimplement the GeLU,",
+      "start": 1842.92,
+      "duration": 6.4
+    },
+    {
+      "text": "you can do it in\nPyTorch just like this.",
+      "start": 1849.32,
+      "duration": 3.92
+    },
+    {
+      "text": "So you take a tensor, you\njust take this equation",
+      "start": 1853.24,
+      "duration": 3.44
+    },
+    {
+      "text": "and you just put it\ninto PyTorch, OK.",
+      "start": 1856.68,
+      "duration": 3.36
+    },
+    {
+      "text": "That's fine.",
+      "start": 1860.04,
+      "duration": 1.4
+    },
+    {
+      "text": "And you get some number.",
+      "start": 1861.44,
+      "duration": 2.12
+    },
+    {
+      "text": "PyTorch also has a built in.",
+      "start": 1863.56,
+      "duration": 1.88
+    },
+    {
+      "text": "If you call functional GeLU, you\ncan get that version as well.",
+      "start": 1865.44,
+      "duration": 6.69
+    },
+    {
+      "text": "And you can check\nthat they're the same.",
+      "start": 1872.13,
+      "duration": 4.12
+    },
+    {
+      "text": "You can run the\ntwo GeLU versions",
+      "start": 1876.25,
+      "duration": 4.88
+    },
+    {
+      "text": "and make sure that the answer\nis the same for a random input.",
+      "start": 1881.13,
+      "duration": 5.04
+    },
+    {
+      "text": "There's also something that\npeople probably have discovered.",
+      "start": 1886.17,
+      "duration": 5.02
+    },
+    {
+      "text": "If you haven't\nencountered this, this",
+      "start": 1891.19,
+      "duration": 2.56
+    },
+    {
+      "text": "is an important thing to know.",
+      "start": 1893.75,
+      "duration": 2.02
+    },
+    {
+      "text": "Is that you can take\nany PyTorch function,",
+      "start": 1895.77,
+      "duration": 2.08
+    },
+    {
+      "text": "you call torch.compile\non it, and it",
+      "start": 1897.85,
+      "duration": 2.48
+    },
+    {
+      "text": "generates another function.",
+      "start": 1900.33,
+      "duration": 4.0
+    },
+    {
+      "text": "And it does the same thing.",
+      "start": 1904.33,
+      "duration": 3.48
+    },
+    {
+      "text": "OK, so we have three\nhorses in this race.",
+      "start": 1907.81,
+      "duration": 4.8
+    },
+    {
+      "text": "We have the naive\nimplementation.",
+      "start": 1912.61,
+      "duration": 3.44
+    },
+    {
+      "text": "We have the built-in\nimplementation.",
+      "start": 1916.05,
+      "duration": 1.5
+    },
+    {
+      "text": "We have the compiled\nimplementation.",
+      "start": 1917.55,
+      "duration": 1.5
+    },
+    {
+      "text": "So we can benchmark them.",
+      "start": 1919.05,
+      "duration": 1.6
+    },
+    {
+      "text": "Naive takes three.",
+      "start": 1920.65,
+      "duration": 2.22
+    },
+    {
+      "text": "I guess this is 3.75.",
+      "start": 1925.53,
+      "duration": 3.69
+    },
+    {
+      "text": "Built-in is much\nfaster and compiled",
+      "start": 1929.22,
+      "duration": 3.48
+    },
+    {
+      "text": "is much faster as well, but\nnot maybe as quite as fast",
+      "start": 1932.7,
+      "duration": 4.0
+    },
+    {
+      "text": "as built-in.",
+      "start": 1936.7,
+      "duration": 1.76
+    },
+    {
+      "text": "OK.",
+      "start": 1938.46,
+      "duration": 0.92
+    },
+    {
+      "text": "So what's happening here?",
+      "start": 1939.38,
+      "duration": 3.56
+    },
+    {
+      "text": "Why are these things different?",
+      "start": 1942.94,
+      "duration": 3.8
+    },
+    {
+      "text": "They all compute\nthe same answer,",
+      "start": 1946.74,
+      "duration": 2.36
+    },
+    {
+      "text": "but they have wildly different\nperformance characteristics.",
+      "start": 1949.1,
+      "duration": 4.72
+    },
+    {
+      "text": "And so here we can\npull up the profiler",
+      "start": 1953.82,
+      "duration": 2.44
+    },
+    {
+      "text": "and see what's actually\ngoing on underneath the hood.",
+      "start": 1956.26,
+      "duration": 3.04
+    },
+    {
+      "text": "So if you look at the\nnaive GeLU here and just do",
+      "start": 1959.3,
+      "duration": 6.08
+    },
+    {
+      "text": "a profile, this--",
+      "start": 1965.38,
+      "duration": 2.005
+    },
+    {
+      "text": "something's wrong\nwith this view,",
+      "start": 1967.385,
+      "duration": 1.375
+    },
+    {
+      "text": "so I'm going to go to this.",
+      "start": 1968.76,
+      "duration": 2.8
+    },
+    {
+      "text": "So you see that the profile\nshows how time is being spent.",
+      "start": 1971.56,
+      "duration": 7.74
+    },
+    {
+      "text": "There's a bunch of different\nkernels on this binary functor",
+      "start": 1979.3,
+      "duration": 4.5
+    },
+    {
+      "text": "unary add.",
+      "start": 1983.8,
+      "duration": 2.78
+    },
+    {
+      "text": "tanh is a kernel here.",
+      "start": 1986.58,
+      "duration": 3.1
+    },
+    {
+      "text": "And this corresponds to the\nfact that in PyTorch, when",
+      "start": 1989.68,
+      "duration": 3.36
+    },
+    {
+      "text": "we write the PyTorch\nexpression, you",
+      "start": 1993.04,
+      "duration": 2.04
+    },
+    {
+      "text": "look at the\ncomputation graph, and",
+      "start": 1995.08,
+      "duration": 1.8
+    },
+    {
+      "text": "each primitive in\nthe computation",
+      "start": 1996.88,
+      "duration": 1.96
+    },
+    {
+      "text": "graph is actually\nrealized in the kernel.",
+      "start": 1998.84,
+      "duration": 2.76
+    },
+    {
+      "text": "Right.",
+      "start": 2001.6,
+      "duration": 1.81
+    },
+    {
+      "text": "And the reason this is slow is\nthat when you launch a kernel,",
+      "start": 2003.41,
+      "duration": 5.67
+    },
+    {
+      "text": "the kernel has to read from HBM.",
+      "start": 2009.08,
+      "duration": 3.8
+    },
+    {
+      "text": "Pull it all the way over to\nyour SM, do the computation,",
+      "start": 2012.88,
+      "duration": 3.28
+    },
+    {
+      "text": "and write it back.",
+      "start": 2016.16,
+      "duration": 1.4
+    },
+    {
+      "text": "And then the kernel\npicks that up from HBM",
+      "start": 2017.56,
+      "duration": 3.48
+    },
+    {
+      "text": "and then writes it back,\nand so on and so forth.",
+      "start": 2021.04,
+      "duration": 2.14
+    },
+    {
+      "text": "So you're doing a lot of reads\nand writes back and forth.",
+      "start": 2023.18,
+      "duration": 3.8
+    },
+    {
+      "text": "Because between\nkernel invocations,",
+      "start": 2026.98,
+      "duration": 2.22
+    },
+    {
+      "text": "things have to go back to HBM.",
+      "start": 2029.2,
+      "duration": 4.96
+    },
+    {
+      "text": "So if you look at what\nthe built-in is doing,",
+      "start": 2034.16,
+      "duration": 4.72
+    },
+    {
+      "text": "this is actually not\nthat interesting.",
+      "start": 2038.88,
+      "duration": 1.68
+    },
+    {
+      "text": "There's this GeLU CUDA\nkernel implementation,",
+      "start": 2040.56,
+      "duration": 2.42
+    },
+    {
+      "text": "which is a single kernel that\njust implements the GeLU.",
+      "start": 2042.98,
+      "duration": 2.52
+    },
+    {
+      "text": "And so why does this exist?",
+      "start": 2045.5,
+      "duration": 2.929
+    },
+    {
+      "text": "Well, because people use GeLU.",
+      "start": 2048.429,
+      "duration": 3.349
+    },
+    {
+      "text": "So someone wrote a\nkernel for it and put it",
+      "start": 2051.778,
+      "duration": 1.792
+    },
+    {
+      "text": "in the standard library.",
+      "start": 2053.57,
+      "duration": 2.04
+    },
+    {
+      "text": "I mean, there's nothing magical.",
+      "start": 2055.61,
+      "duration": 5.6
+    },
+    {
+      "text": "So compilation is\nreally interesting here.",
+      "start": 2061.21,
+      "duration": 3.16
+    },
+    {
+      "text": "I'm not going to say too\nmuch about how it works,",
+      "start": 2064.37,
+      "duration": 2.579
+    },
+    {
+      "text": "but it's really, I think,\na fascinating topic where",
+      "start": 2066.949,
+      "duration": 6.101
+    },
+    {
+      "text": "you can take a naive\nimplementation, which, remember,",
+      "start": 2073.05,
+      "duration": 5.66
+    },
+    {
+      "text": "it's in PyTorch, it has\na computation graph.",
+      "start": 2078.71,
+      "duration": 2.42
+    },
+    {
+      "text": "And run a compiler.",
+      "start": 2081.13,
+      "duration": 1.72
+    },
+    {
+      "text": "Which basically, if you look\nat what's underneath the hood,",
+      "start": 2082.85,
+      "duration": 3.68
+    },
+    {
+      "text": "it's just a single kernel.",
+      "start": 2086.53,
+      "duration": 1.72
+    },
+    {
+      "text": "And this is because\nit's figured out",
+      "start": 2088.25,
+      "duration": 2.48
+    },
+    {
+      "text": "to look at the computation\ngraph and essentially write",
+      "start": 2090.73,
+      "duration": 5.88
+    },
+    {
+      "text": "that kernel in Triton.",
+      "start": 2096.61,
+      "duration": 2.532
+    },
+    {
+      "text": "So you can see that this is\nactually a Triton kernel.",
+      "start": 2099.142,
+      "duration": 2.208
+    },
+    {
+      "text": "OK, so naive implementation.",
+      "start": 2103.86,
+      "duration": 2.24
+    },
+    {
+      "text": "Multiple kernels requires\nmultiple reads and writes",
+      "start": 2106.1,
+      "duration": 2.36
+    },
+    {
+      "text": "to and from HBM.",
+      "start": 2108.46,
+      "duration": 1.56
+    },
+    {
+      "text": "There's no kernel fusion here.",
+      "start": 2110.02,
+      "duration": 2.92
+    },
+    {
+      "text": "This is slow.",
+      "start": 2112.94,
+      "duration": 1.88
+    },
+    {
+      "text": "The built-in compiler\nversion, there's one kernel.",
+      "start": 2114.82,
+      "duration": 3.28
+    },
+    {
+      "text": "Basically all the\noperation in the GeLU",
+      "start": 2118.1,
+      "duration": 1.88
+    },
+    {
+      "text": "have been fused together\ninto one kernel.",
+      "start": 2119.98,
+      "duration": 2.28
+    },
+    {
+      "text": "So you read from HBM once, you\nwrite to HBM once per element.",
+      "start": 2122.26,
+      "duration": 5.72
+    },
+    {
+      "text": "And you see that the compiled\nkernel is a Triton kernel.",
+      "start": 2127.98,
+      "duration": 3.9
+    },
+    {
+      "text": "OK, so that maybe\nis a good segue",
+      "start": 2134.78,
+      "duration": 2.92
+    },
+    {
+      "text": "to talk about what this\nTriton thing is all about.",
+      "start": 2137.7,
+      "duration": 3.54
+    },
+    {
+      "text": "Yeah?",
+      "start": 2141.24,
+      "duration": 0.58
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2141.82,
+      "duration": 2.56
+    },
+    {
+      "text": "Let's see.",
+      "start": 2151.62,
+      "duration": 0.56
+    },
+    {
+      "text": "I mean, I guess it says\nCUDA kernel implementation,",
+      "start": 2152.18,
+      "duration": 2.7
+    },
+    {
+      "text": "so I imagine someone\nwrote it in CUDA.",
+      "start": 2154.88,
+      "duration": 2.24
+    },
+    {
+      "text": "OK, any other questions?",
+      "start": 2163.236,
+      "duration": 4.274
+    },
+    {
+      "text": "Yeah?",
+      "start": 2167.51,
+      "duration": 1.68
+    },
+    {
+      "text": "Why is Triton kernel\nfaster than this one?",
+      "start": 2169.19,
+      "duration": 6.52
+    },
+    {
+      "text": "So why is the Triton\nkernel faster?",
+      "start": 2175.71,
+      "duration": 2.94
+    },
+    {
+      "text": "So a Triton kernel is actually\nnot faster in this case.",
+      "start": 2178.65,
+      "duration": 5.22
+    },
+    {
+      "text": "Oh, sorry.",
+      "start": 2183.87,
+      "duration": 1.36
+    },
+    {
+      "text": "The compiled kernel\nis one Triton kernel,",
+      "start": 2185.23,
+      "duration": 5.7
+    },
+    {
+      "text": "and this is slower\nthan the built-in.",
+      "start": 2190.93,
+      "duration": 1.98
+    },
+    {
+      "text": "Yeah.",
+      "start": 2192.91,
+      "duration": 1.56
+    },
+    {
+      "text": "I think last year when I did\nthis, it was actually closer.",
+      "start": 2194.47,
+      "duration": 4.52
+    },
+    {
+      "text": "But these things change, and\nit's very hardware dependent.",
+      "start": 2198.99,
+      "duration": 4.0
+    },
+    {
+      "text": "And I think none of this\nis terribly optimized.",
+      "start": 2202.99,
+      "duration": 5.1
+    },
+    {
+      "text": "This is just giving you\nthe general idea here.",
+      "start": 2208.09,
+      "duration": 3.66
+    },
+    {
+      "text": "OK, so let's write\nsome Triton kernels.",
+      "start": 2211.75,
+      "duration": 5.44
+    },
+    {
+      "text": "So remember our\nprogramming model.",
+      "start": 2217.19,
+      "duration": 3.94
+    },
+    {
+      "text": "You have a bunch of threads\norganized by Thread groups,",
+      "start": 2221.13,
+      "duration": 2.9
+    },
+    {
+      "text": "a thread blocks, and there's\na grid of thread blocks.",
+      "start": 2224.03,
+      "duration": 3.94
+    },
+    {
+      "text": "And if you were to write in\nCUDA, which was originally",
+      "start": 2227.97,
+      "duration": 5.28
+    },
+    {
+      "text": "developed by NVIDIA, and\nthat's been for years the thing",
+      "start": 2233.25,
+      "duration": 3.04
+    },
+    {
+      "text": "that you do when\nyou write kernels,",
+      "start": 2236.29,
+      "duration": 2.72
+    },
+    {
+      "text": "the mental model is,\nwhat does each thread do?",
+      "start": 2239.01,
+      "duration": 3.18
+    },
+    {
+      "text": "So you write a piece of\ncode which essentially",
+      "start": 2242.19,
+      "duration": 3.26
+    },
+    {
+      "text": "has some ID that\nidentifies which",
+      "start": 2245.45,
+      "duration": 2.08
+    },
+    {
+      "text": "thread you're talking about,\nand it just executes the code.",
+      "start": 2247.53,
+      "duration": 3.88
+    },
+    {
+      "text": "So the nice thing about this is\nthat it's very closely related",
+      "start": 2251.41,
+      "duration": 3.92
+    },
+    {
+      "text": "to what is actually happening\nunderneath the hood.",
+      "start": 2255.33,
+      "duration": 5.48
+    },
+    {
+      "text": "And it's fine-grained, gives\nyou fine-grained control.",
+      "start": 2260.81,
+      "duration": 6.24
+    },
+    {
+      "text": "But there's cons here,\nwhich is that, remember,",
+      "start": 2267.05,
+      "duration": 3.8
+    },
+    {
+      "text": "all these threads are\nin a thread block.",
+      "start": 2270.85,
+      "duration": 5.24
+    },
+    {
+      "text": "And some operations require\nthem to communicate.",
+      "start": 2276.09,
+      "duration": 4.49
+    },
+    {
+      "text": "So what has to happen is that\nthey have to synchronize.",
+      "start": 2280.58,
+      "duration": 4.72
+    },
+    {
+      "text": "And they read from\nHBM all at once.",
+      "start": 2285.3,
+      "duration": 4.18
+    },
+    {
+      "text": "And they have to synchronize\nand do the computation.",
+      "start": 2289.48,
+      "duration": 3.98
+    },
+    {
+      "text": "And you have to basically\ndo that bookkeeping.",
+      "start": 2293.46,
+      "duration": 3.32
+    },
+    {
+      "text": "So if you were doing all\nelement-wise operations,",
+      "start": 2296.78,
+      "duration": 3.64
+    },
+    {
+      "text": "this CUDA is just fine.",
+      "start": 2300.42,
+      "duration": 1.38
+    },
+    {
+      "text": "It doesn't really matter.",
+      "start": 2301.8,
+      "duration": 2.92
+    },
+    {
+      "text": "But as you get more\ncomplex operations,",
+      "start": 2304.72,
+      "duration": 2.46
+    },
+    {
+      "text": "then try and provide some\nvalue of the abstraction.",
+      "start": 2307.18,
+      "duration": 4.96
+    },
+    {
+      "text": "So Triton was\ndeveloped by OpenAI.",
+      "start": 2312.14,
+      "duration": 2.86
+    },
+    {
+      "text": "I think by now, it's\nbeen pretty standard.",
+      "start": 2315.0,
+      "duration": 2.78
+    },
+    {
+      "text": "You basically specify what\neach thread block does.",
+      "start": 2317.78,
+      "duration": 4.72
+    },
+    {
+      "text": "Generally it's powerful enough,\nespecially for this class",
+      "start": 2322.5,
+      "duration": 3.093
+    },
+    {
+      "text": "that you're getting started.",
+      "start": 2325.593,
+      "duration": 1.167
+    },
+    {
+      "text": "If you really go and want to\nexploit every single new feature",
+      "start": 2326.76,
+      "duration": 4.5
+    },
+    {
+      "text": "of the latest\nhardware, it might not",
+      "start": 2331.26,
+      "duration": 2.28
+    },
+    {
+      "text": "give you the full flexibility.",
+      "start": 2333.54,
+      "duration": 1.58
+    },
+    {
+      "text": "But let's not worry about that.",
+      "start": 2335.12,
+      "duration": 4.43
+    },
+    {
+      "text": "And the conceptual framework\nto think about in Triton",
+      "start": 2339.55,
+      "duration": 2.6
+    },
+    {
+      "text": "is that you're thinking\nabout, what does a block do?",
+      "start": 2342.15,
+      "duration": 3.68
+    },
+    {
+      "text": "A block is going to load\ndata into shared memory,",
+      "start": 2345.83,
+      "duration": 2.82
+    },
+    {
+      "text": "operate it on, and write\nit back to global memory.",
+      "start": 2348.65,
+      "duration": 4.38
+    },
+    {
+      "text": "So in some sense, these\nblocks are intermediate point",
+      "start": 2353.03,
+      "duration": 3.0
+    },
+    {
+      "text": "between thinking about what\nindividual elements are doing",
+      "start": 2356.03,
+      "duration": 3.84
+    },
+    {
+      "text": "as well as thinking about\nthe general operation.",
+      "start": 2359.87,
+      "duration": 2.7
+    },
+    {
+      "text": "And so in PyTorch, you basically\ndefine these huge matrices",
+      "start": 2362.57,
+      "duration": 2.74
+    },
+    {
+      "text": "and you say multiply\nthem together.",
+      "start": 2365.31,
+      "duration": 1.7
+    },
+    {
+      "text": "And that's the atomic operation.",
+      "start": 2367.01,
+      "duration": 2.035
+    },
+    {
+      "text": "And a lot of what\nyou're thinking about",
+      "start": 2369.045,
+      "duration": 1.625
+    },
+    {
+      "text": "is, how do I get things\ninto big matmuls?",
+      "start": 2370.67,
+      "duration": 3.4
+    },
+    {
+      "text": "Right, and at some\nlevel, Triton is",
+      "start": 2374.07,
+      "duration": 3.44
+    },
+    {
+      "text": "a hybrid between that and\nthe individual elements,",
+      "start": 2377.51,
+      "duration": 5.6
+    },
+    {
+      "text": "as we'll see.",
+      "start": 2383.11,
+      "duration": 1.24
+    },
+    {
+      "text": "OK, so let's start with\nthe GeLU example here.",
+      "start": 2384.35,
+      "duration": 6.24
+    },
+    {
+      "text": "So let's define an 8,000\ndimensional vector and start",
+      "start": 2390.59,
+      "duration": 4.44
+    },
+    {
+      "text": "writing some Triton.",
+      "start": 2395.03,
+      "duration": 2.02
+    },
+    {
+      "text": "OK, so Triton is basically\ngoing to be you write Python.",
+      "start": 2397.05,
+      "duration": 6.26
+    },
+    {
+      "text": "How many of you have\nwritten Triton before?",
+      "start": 2403.31,
+      "duration": 3.22
+    },
+    {
+      "text": "Just a show of hands.",
+      "start": 2406.53,
+      "duration": 1.14
+    },
+    {
+      "text": "OK, OK.",
+      "start": 2407.67,
+      "duration": 2.46
+    },
+    {
+      "text": "Not that many, which is good,\nbecause then you won't be bored.",
+      "start": 2410.13,
+      "duration": 5.96
+    },
+    {
+      "text": "OK, so this is normal PyTorch.",
+      "start": 2416.09,
+      "duration": 6.0
+    },
+    {
+      "text": "Right, there's no Triton here.",
+      "start": 2422.09,
+      "duration": 1.8
+    },
+    {
+      "text": "But I'm just preparing.",
+      "start": 2423.89,
+      "duration": 3.08
+    },
+    {
+      "text": "And so what I'm going to\ndo is I take this tensor,",
+      "start": 2426.97,
+      "duration": 4.36
+    },
+    {
+      "text": "and I'm going to allocate\nan output tensor.",
+      "start": 2431.33,
+      "duration": 4.56
+    },
+    {
+      "text": "OK, because in Triton, we're not\nthinking functionally anymore.",
+      "start": 2435.89,
+      "duration": 4.1
+    },
+    {
+      "text": "We're just thinking\nabout moving.",
+      "start": 2439.99,
+      "duration": 1.8
+    },
+    {
+      "text": "You have to explicitly\nread and write.",
+      "start": 2441.79,
+      "duration": 3.02
+    },
+    {
+      "text": "So there's no returning value.",
+      "start": 2444.81,
+      "duration": 2.22
+    },
+    {
+      "text": "So I'm going to\nallocate the output",
+      "start": 2447.03,
+      "duration": 1.58
+    },
+    {
+      "text": "tensor, which I'm going to--\nthe kernel's going to write to.",
+      "start": 2448.61,
+      "duration": 3.6
+    },
+    {
+      "text": "And then so this tensor can\nbe arbitrarily big, right.",
+      "start": 2452.21,
+      "duration": 6.57
+    },
+    {
+      "text": "And I can't generally\nfit this all into one SM,",
+      "start": 2458.78,
+      "duration": 4.36
+    },
+    {
+      "text": "because it's just too big.",
+      "start": 2463.14,
+      "duration": 4.16
+    },
+    {
+      "text": "So I need to break\nit up into blocks.",
+      "start": 2467.3,
+      "duration": 3.28
+    },
+    {
+      "text": "So what I'm going to do is\nyou can think about this x",
+      "start": 2470.58,
+      "duration": 5.8
+    },
+    {
+      "text": "as being this array.",
+      "start": 2476.38,
+      "duration": 1.92
+    },
+    {
+      "text": "I'm going to chop\nit up into blocks.",
+      "start": 2478.3,
+      "duration": 1.78
+    },
+    {
+      "text": "So the total number\nof elements is 8,000.",
+      "start": 2480.08,
+      "duration": 2.82
+    },
+    {
+      "text": "I'm just going to set the\nblocksize to 1,024 for now.",
+      "start": 2482.9,
+      "duration": 4.48
+    },
+    {
+      "text": "And then I have eight blocks.",
+      "start": 2487.38,
+      "duration": 4.0
+    },
+    {
+      "text": "OK.",
+      "start": 2491.38,
+      "duration": 2.74
+    },
+    {
+      "text": "So then I'm going to use this\nweird syntax to call the kernel.",
+      "start": 2494.12,
+      "duration": 8.86
+    },
+    {
+      "text": "So Triton GeLU kernel.",
+      "start": 2502.98,
+      "duration": 2.92
+    },
+    {
+      "text": "This basically in brackets\ntells me essentially the shape",
+      "start": 2505.9,
+      "duration": 7.29
+    },
+    {
+      "text": "of the grid.",
+      "start": 2513.19,
+      "duration": 1.44
+    },
+    {
+      "text": "So basically, this says\nthe grid has num blocks.",
+      "start": 2514.63,
+      "duration": 4.86
+    },
+    {
+      "text": "Blocks.",
+      "start": 2519.49,
+      "duration": 2.1
+    },
+    {
+      "text": "And I'm going to, for\nevery one of these blocks,",
+      "start": 2521.59,
+      "duration": 3.68
+    },
+    {
+      "text": "invoke this function,\nTriton GeLU kernel, which",
+      "start": 2525.27,
+      "duration": 3.52
+    },
+    {
+      "text": "I'll talk about in a bit.",
+      "start": 2528.79,
+      "duration": 1.58
+    },
+    {
+      "text": "I'm going to pass in an x, y\nnum elements and the blocksize.",
+      "start": 2530.37,
+      "duration": 6.74
+    },
+    {
+      "text": "OK.",
+      "start": 2537.11,
+      "duration": 1.79
+    },
+    {
+      "text": "All right, so\nunfortunately, I'm not",
+      "start": 2538.9,
+      "duration": 2.565
+    },
+    {
+      "text": "going to be able to\ntrace through this,",
+      "start": 2541.465,
+      "duration": 1.625
+    },
+    {
+      "text": "so I'll just show you what\nthe code looks like here.",
+      "start": 2543.09,
+      "duration": 4.96
+    },
+    {
+      "text": "So let me get rid of that.",
+      "start": 2548.05,
+      "duration": 2.72
+    },
+    {
+      "text": "OK, so this is probably the\nsimplest kernel you can imagine.",
+      "start": 2550.77,
+      "duration": 6.4
+    },
+    {
+      "text": "So when you are looking\nat the triton gelu kernel,",
+      "start": 2557.17,
+      "duration": 4.54
+    },
+    {
+      "text": "now this is before\nwe had x and y.",
+      "start": 2561.71,
+      "duration": 5.24
+    },
+    {
+      "text": "So now these are pointers.",
+      "start": 2566.95,
+      "duration": 2.2
+    },
+    {
+      "text": "Right, you can think about\nthese as just integers,",
+      "start": 2569.15,
+      "duration": 3.51
+    },
+    {
+      "text": "they're addresses.",
+      "start": 2572.66,
+      "duration": 1.78
+    },
+    {
+      "text": "So you have to get\ncomfortable with that.",
+      "start": 2574.44,
+      "duration": 2.6
+    },
+    {
+      "text": "And then we have the number\nof elements and the blocksize,",
+      "start": 2577.04,
+      "duration": 3.92
+    },
+    {
+      "text": "which are basically actually\npassed in from here.",
+      "start": 2580.96,
+      "duration": 8.72
+    },
+    {
+      "text": "OK, so the way to think about\nit is that for every block,",
+      "start": 2589.68,
+      "duration": 4.8
+    },
+    {
+      "text": "we're going to have this\nfunction being called.",
+      "start": 2594.48,
+      "duration": 5.76
+    },
+    {
+      "text": "And what happens is the\nfirst thing I'm going to do",
+      "start": 2600.24,
+      "duration": 5.44
+    },
+    {
+      "text": "is I'm going to wake up.",
+      "start": 2605.68,
+      "duration": 1.84
+    },
+    {
+      "text": "This block wakes up\nand say, who am I?",
+      "start": 2607.52,
+      "duration": 3.36
+    },
+    {
+      "text": "Well, the program\nID is-- basically",
+      "start": 2610.88,
+      "duration": 2.88
+    },
+    {
+      "text": "the PID is basically\nidentifying the block.",
+      "start": 2613.76,
+      "duration": 2.1
+    },
+    {
+      "text": "So PID would be 0 for this\nblock 1, 2, and 3 here.",
+      "start": 2615.86,
+      "duration": 4.74
+    },
+    {
+      "text": "OK, so now I have to\nfigure out what data",
+      "start": 2620.6,
+      "duration": 2.76
+    },
+    {
+      "text": "I'm going to operate on.",
+      "start": 2623.36,
+      "duration": 2.0
+    },
+    {
+      "text": "So that's PID times blocksize.",
+      "start": 2625.36,
+      "duration": 2.92
+    },
+    {
+      "text": "So this is the offset\ninto x pointer.",
+      "start": 2628.28,
+      "duration": 4.3
+    },
+    {
+      "text": "So if PID is 0, then start is 0.",
+      "start": 2632.58,
+      "duration": 3.62
+    },
+    {
+      "text": "If PID is 1, then\nstart is blocksize.",
+      "start": 2636.2,
+      "duration": 3.16
+    },
+    {
+      "text": "If PID is 2, then it's 2\ntimes blocksize, and so on.",
+      "start": 2639.36,
+      "duration": 4.16
+    },
+    {
+      "text": "OK.",
+      "start": 2643.52,
+      "duration": 0.5
+    },
+    {
+      "text": "So now, I'm going to figure\nout the span I'm operating on.",
+      "start": 2644.02,
+      "duration": 5.3
+    },
+    {
+      "text": "So offsets is start plus.",
+      "start": 2649.32,
+      "duration": 2.66
+    },
+    {
+      "text": "This is the Triton library.",
+      "start": 2651.98,
+      "duration": 5.28
+    },
+    {
+      "text": "A range 0 blocksize, which\nconceptually gives you",
+      "start": 2657.26,
+      "duration": 3.84
+    },
+    {
+      "text": "the integers 0 through\nblocksize minus 1.",
+      "start": 2661.1,
+      "duration": 3.68
+    },
+    {
+      "text": "So offsets is going\nto be essentially",
+      "start": 2664.78,
+      "duration": 4.52
+    },
+    {
+      "text": "for-- let's say\nblock 1, it's going",
+      "start": 2669.3,
+      "duration": 1.92
+    },
+    {
+      "text": "to be blocksize blocksize\nplus 1 all the way to blocks",
+      "start": 2671.22,
+      "duration": 2.68
+    },
+    {
+      "text": "2 times blocksize minus 1.",
+      "start": 2673.9,
+      "duration": 2.86
+    },
+    {
+      "text": "OK, so in this case, num\nelements divides by blocksize.",
+      "start": 2679.7,
+      "duration": 5.74
+    },
+    {
+      "text": "But in general,\nthat's not the case.",
+      "start": 2685.44,
+      "duration": 1.64
+    },
+    {
+      "text": "So you'll often see in train\ncode, there's this masking.",
+      "start": 2687.08,
+      "duration": 2.71
+    },
+    {
+      "text": "Which says, well, sometimes if\nthe-- let's say the tensor only",
+      "start": 2689.79,
+      "duration": 4.24
+    },
+    {
+      "text": "goes up to here.",
+      "start": 2694.03,
+      "duration": 1.32
+    },
+    {
+      "text": "Then I'm going to\nform a mask, which",
+      "start": 2695.35,
+      "duration": 3.0
+    },
+    {
+      "text": "is going to be true\nup until that point",
+      "start": 2698.35,
+      "duration": 3.2
+    },
+    {
+      "text": "and false after that point.",
+      "start": 2701.55,
+      "duration": 2.6
+    },
+    {
+      "text": "And for blocks that are\nnot the final block,",
+      "start": 2704.15,
+      "duration": 3.02
+    },
+    {
+      "text": "it's going to be just all ones.",
+      "start": 2707.17,
+      "duration": 4.1
+    },
+    {
+      "text": "OK, so now I've done the setup.",
+      "start": 2711.27,
+      "duration": 2.42
+    },
+    {
+      "text": "What I do is I read.",
+      "start": 2713.69,
+      "duration": 2.14
+    },
+    {
+      "text": "And this is basically\npointer arithmetic.",
+      "start": 2715.83,
+      "duration": 2.4
+    },
+    {
+      "text": "So x pointer, remember,\nis the integer",
+      "start": 2718.23,
+      "duration": 1.92
+    },
+    {
+      "text": "that specifies the memory\nlocation of where x is.",
+      "start": 2720.15,
+      "duration": 3.04
+    },
+    {
+      "text": "I'm going to add\noffsets to that,",
+      "start": 2723.19,
+      "duration": 2.04
+    },
+    {
+      "text": "which gives me the first\nblocksize number of elements",
+      "start": 2725.23,
+      "duration": 5.16
+    },
+    {
+      "text": "there.",
+      "start": 2730.39,
+      "duration": 1.8
+    },
+    {
+      "text": "According to the mask,\nif I'm masked out,",
+      "start": 2732.19,
+      "duration": 2.16
+    },
+    {
+      "text": "then I don't read it.",
+      "start": 2734.35,
+      "duration": 3.76
+    },
+    {
+      "text": "And then now I think you can\njust think about this a vector.",
+      "start": 2738.11,
+      "duration": 6.56
+    },
+    {
+      "text": "And then you do your\nnormal computation.",
+      "start": 2744.67,
+      "duration": 4.37
+    },
+    {
+      "text": "And then you get y.",
+      "start": 2749.04,
+      "duration": 3.68
+    },
+    {
+      "text": "And y is the same size as x.",
+      "start": 2752.72,
+      "duration": 2.56
+    },
+    {
+      "text": "And then you do\ntl store y pointer",
+      "start": 2755.28,
+      "duration": 3.56
+    },
+    {
+      "text": "plus offsets y and the mask.",
+      "start": 2758.84,
+      "duration": 4.08
+    },
+    {
+      "text": "OK, so this load loads\nfrom HBM, does some stuff,",
+      "start": 2762.92,
+      "duration": 5.0
+    },
+    {
+      "text": "and then it writes back to HBM.",
+      "start": 2767.92,
+      "duration": 1.82
+    },
+    {
+      "text": "OK, I'm going to stop there\nand take any questions",
+      "start": 2772.72,
+      "duration": 4.4
+    },
+    {
+      "text": "about this first Triton kernel.",
+      "start": 2777.12,
+      "duration": 4.88
+    },
+    {
+      "text": "Yeah?",
+      "start": 2782.0,
+      "duration": 0.8
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2782.8,
+      "duration": 3.693
+    },
+    {
+      "text": "Yeah.",
+      "start": 2793.22,
+      "duration": 0.5
+    },
+    {
+      "text": "So the difference is, what is\nthe difference between CUDA?",
+      "start": 2793.72,
+      "duration": 2.64
+    },
+    {
+      "text": "And for this element wise, it\nlooks pretty much the same,",
+      "start": 2796.36,
+      "duration": 4.84
+    },
+    {
+      "text": "right.",
+      "start": 2801.2,
+      "duration": 0.8
+    },
+    {
+      "text": "And in fact, CUDA is\neven, I think, simpler,",
+      "start": 2802.0,
+      "duration": 3.45
+    },
+    {
+      "text": "because it really\nis element wise.",
+      "start": 2805.45,
+      "duration": 1.82
+    },
+    {
+      "text": "You wake up, and you\nidentify the thread.",
+      "start": 2807.27,
+      "duration": 3.6
+    },
+    {
+      "text": "And then you just\noperate on that element.",
+      "start": 2810.87,
+      "duration": 3.06
+    },
+    {
+      "text": "Now the only thing\nhere is that it's",
+      "start": 2813.93,
+      "duration": 1.88
+    },
+    {
+      "text": "like the vectorized version,\nwhere you have a block",
+      "start": 2815.81,
+      "duration": 4.52
+    },
+    {
+      "text": "and you operate on that block.",
+      "start": 2820.33,
+      "duration": 2.96
+    },
+    {
+      "text": "Later, we'll see that\noperating on blocks",
+      "start": 2823.29,
+      "duration": 3.04
+    },
+    {
+      "text": "is doing more than-- if\nyou do something more",
+      "start": 2826.33,
+      "duration": 3.32
+    },
+    {
+      "text": "than element-wise,\nthen CUDA is going",
+      "start": 2829.65,
+      "duration": 1.92
+    },
+    {
+      "text": "to be a lot more\nannoying to work with.",
+      "start": 2831.57,
+      "duration": 2.96
+    },
+    {
+      "text": "So a bunch of questions.",
+      "start": 2834.53,
+      "duration": 1.18
+    },
+    {
+      "text": "Yeah, back there.",
+      "start": 2835.71,
+      "duration": 1.54
+    },
+    {
+      "text": "How does this relate to if you\nwanted to use the tensor units?",
+      "start": 2837.25,
+      "duration": 4.12
+    },
+    {
+      "text": "So how is this related to if you\nwant to use the tensor units?",
+      "start": 2841.37,
+      "duration": 4.36
+    },
+    {
+      "text": "So I'll later show you\nwhat this code actually",
+      "start": 2845.73,
+      "duration": 3.16
+    },
+    {
+      "text": "compiles down into.",
+      "start": 2848.89,
+      "duration": 2.2
+    },
+    {
+      "text": "And maybe I'll get back to that.",
+      "start": 2851.09,
+      "duration": 3.96
+    },
+    {
+      "text": "But the short answer is\nthat you don't control that.",
+      "start": 2855.05,
+      "duration": 2.74
+    },
+    {
+      "text": "The hardware figures\nout where to put things.",
+      "start": 2857.79,
+      "duration": 5.4
+    },
+    {
+      "text": "Yeah?",
+      "start": 2863.19,
+      "duration": 0.88
+    },
+    {
+      "text": "Can you actually\nwalk through what's",
+      "start": 2864.07,
+      "duration": 1.6
+    },
+    {
+      "text": "happening at tf.load from\nHBM to share to register?",
+      "start": 2865.67,
+      "duration": 5.4
+    },
+    {
+      "text": "What's the step by step where\ndata is actually flowing?",
+      "start": 2871.07,
+      "duration": 3.92
+    },
+    {
+      "text": "Yeah, so the question is, what\nis actually happening when",
+      "start": 2874.99,
+      "duration": 2.68
+    },
+    {
+      "text": "this statement is executed?",
+      "start": 2877.67,
+      "duration": 5.32
+    },
+    {
+      "text": "So the short version is that\nthis is in some sense a lie.",
+      "start": 2882.99,
+      "duration": 4.28
+    },
+    {
+      "text": "Right, it's not like\nthe GPU actually",
+      "start": 2887.27,
+      "duration": 3.12
+    },
+    {
+      "text": "calls the Triton\nlibrary on the GPU",
+      "start": 2890.39,
+      "duration": 3.1
+    },
+    {
+      "text": "and it's actually\nexecuting this code.",
+      "start": 2893.49,
+      "duration": 1.94
+    },
+    {
+      "text": "This is basically\nfor our consumption",
+      "start": 2895.43,
+      "duration": 3.08
+    },
+    {
+      "text": "to specify the computation.",
+      "start": 2898.51,
+      "duration": 2.8
+    },
+    {
+      "text": "The compiler takes this,\nas we'll see later,",
+      "start": 2901.31,
+      "duration": 2.24
+    },
+    {
+      "text": "and writes it into\nsomething called ptx,",
+      "start": 2903.55,
+      "duration": 1.72
+    },
+    {
+      "text": "and then it will\nactually do the work.",
+      "start": 2905.27,
+      "duration": 3.86
+    },
+    {
+      "text": "So that's mechanically\nwhat's happening,",
+      "start": 2912.99,
+      "duration": 2.28
+    },
+    {
+      "text": "which I'll get to later.",
+      "start": 2915.27,
+      "duration": 2.76
+    },
+    {
+      "text": "If you're asking about\nthe conceptual question,",
+      "start": 2918.03,
+      "duration": 4.33
+    },
+    {
+      "text": "the way to think about\nthis is that this--",
+      "start": 2922.36,
+      "duration": 6.64
+    },
+    {
+      "text": "x pointer is a memory\nlocation in HBM.",
+      "start": 2929.0,
+      "duration": 6.08
+    },
+    {
+      "text": "And this basically specifies\na range of memory locations.",
+      "start": 2935.08,
+      "duration": 3.82
+    },
+    {
+      "text": "And load takes those\nmemory locations",
+      "start": 2938.9,
+      "duration": 1.58
+    },
+    {
+      "text": "and returns the data\nassociated with them.",
+      "start": 2940.48,
+      "duration": 4.08
+    },
+    {
+      "text": "Here, I have a local\nvariable called x.",
+      "start": 2944.56,
+      "duration": 3.6
+    },
+    {
+      "text": "In practice, this is\ngoing to be generally",
+      "start": 2948.16,
+      "duration": 2.8
+    },
+    {
+      "text": "a register or shared memory.",
+      "start": 2950.96,
+      "duration": 5.4
+    },
+    {
+      "text": "Triton figures out\nwhat to do there.",
+      "start": 2956.36,
+      "duration": 4.48
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2960.84,
+      "duration": 1.96
+    },
+    {
+      "text": "--at the threat level.",
+      "start": 2962.8,
+      "duration": 3.24
+    },
+    {
+      "text": "When this is invoked,\nit's not really clear.",
+      "start": 2966.04,
+      "duration": 2.18
+    },
+    {
+      "text": "Did I line up what is\ngoing to be in shared",
+      "start": 2968.22,
+      "duration": 5.4
+    },
+    {
+      "text": "and going to be at the\nregister level beforehand,",
+      "start": 2973.62,
+      "duration": 2.2
+    },
+    {
+      "text": "or is it happening\nnow, which is way late?",
+      "start": 2975.82,
+      "duration": 3.43
+    },
+    {
+      "text": "And so then so that's\njust where all the threads",
+      "start": 2979.25,
+      "duration": 2.0
+    },
+    {
+      "text": "are sitting idle to get\na memory to flush in.",
+      "start": 2981.25,
+      "duration": 4.62
+    },
+    {
+      "text": "I'm sure it's ready to\nexecute so that we're not",
+      "start": 2988.93,
+      "duration": 3.322
+    },
+    {
+      "text": "sitting there\ntwiddling our thumbs,",
+      "start": 2992.252,
+      "duration": 1.458
+    },
+    {
+      "text": "just waiting for data\nto come in from HBM.",
+      "start": 2993.71,
+      "duration": 2.02
+    },
+    {
+      "text": "Yeah, yeah.",
+      "start": 2995.73,
+      "duration": 0.74
+    },
+    {
+      "text": "So the question is, when does\nthis actually get executed,",
+      "start": 2996.47,
+      "duration": 2.64
+    },
+    {
+      "text": "and doesn't this block?",
+      "start": 2999.11,
+      "duration": 2.26
+    },
+    {
+      "text": "Let me try to come\nback to this question",
+      "start": 3001.37,
+      "duration": 2.0
+    },
+    {
+      "text": "when I show you the ptx,\nand maybe hopefully it",
+      "start": 3003.37,
+      "duration": 2.52
+    },
+    {
+      "text": "will provide a bit more\ncontext on what's happening.",
+      "start": 3005.89,
+      "duration": 3.88
+    },
+    {
+      "text": "OK, any other questions?",
+      "start": 3009.77,
+      "duration": 1.5
+    },
+    {
+      "text": "OK, so all the kernels are going\nto look something like this.",
+      "start": 3015.49,
+      "duration": 3.66
+    },
+    {
+      "text": "So I do want to make\nsure people understand",
+      "start": 3019.15,
+      "duration": 3.86
+    },
+    {
+      "text": "just the general form, which\nis that you have generally",
+      "start": 3023.01,
+      "duration": 3.36
+    },
+    {
+      "text": "your inputs, your outputs.",
+      "start": 3026.37,
+      "duration": 1.88
+    },
+    {
+      "text": "You wake up, you\nfigure out which",
+      "start": 3028.25,
+      "duration": 2.31
+    },
+    {
+      "text": "index you're going to look at.",
+      "start": 3030.56,
+      "duration": 1.25
+    },
+    {
+      "text": "You read.",
+      "start": 3031.81,
+      "duration": 0.86
+    },
+    {
+      "text": "You do some stuff, and\nthen you write to HBM.",
+      "start": 3032.67,
+      "duration": 4.38
+    },
+    {
+      "text": "OK.",
+      "start": 3037.05,
+      "duration": 4.0
+    },
+    {
+      "text": "So let's talk about ptx briefly.",
+      "start": 3041.05,
+      "duration": 7.3
+    },
+    {
+      "text": "So let's see, does this work?",
+      "start": 3048.35,
+      "duration": 2.2
+    },
+    {
+      "text": "Does this link work?",
+      "start": 3050.55,
+      "duration": 2.52
+    },
+    {
+      "text": "OK, so when you write\nTriton, the compiler",
+      "start": 3053.07,
+      "duration": 7.72
+    },
+    {
+      "text": "generates ptx code, which is\nthis intermediate assembly",
+      "start": 3060.79,
+      "duration": 3.56
+    },
+    {
+      "text": "language for GPUs.",
+      "start": 3064.35,
+      "duration": 3.84
+    },
+    {
+      "text": "I am obviously not going\nto go through all of this,",
+      "start": 3068.19,
+      "duration": 3.1
+    },
+    {
+      "text": "but just to give you the\nflavor of what this looks like.",
+      "start": 3071.29,
+      "duration": 6.34
+    },
+    {
+      "text": "Let me actually start\nwith the observation.",
+      "start": 3077.63,
+      "duration": 3.34
+    },
+    {
+      "text": "So a few things.",
+      "start": 3080.97,
+      "duration": 1.58
+    },
+    {
+      "text": "So this is now what a\nthread is actually doing.",
+      "start": 3082.55,
+      "duration": 7.6
+    },
+    {
+      "text": "Not a thread block, because\nthat's been compiled away.",
+      "start": 3090.15,
+      "duration": 5.56
+    },
+    {
+      "text": "And so if you look at--",
+      "start": 3095.71,
+      "duration": 5.73
+    },
+    {
+      "text": "a few notes here.",
+      "start": 3101.44,
+      "duration": 1.92
+    },
+    {
+      "text": "So this LD global is\nbasically saying load from HBM",
+      "start": 3103.36,
+      "duration": 6.84
+    },
+    {
+      "text": "into some registers.",
+      "start": 3110.2,
+      "duration": 1.54
+    },
+    {
+      "text": "And the registers are denoted as\nthe r are integer registers, fr,",
+      "start": 3111.74,
+      "duration": 7.34
+    },
+    {
+      "text": "floating point registers.",
+      "start": 3119.08,
+      "duration": 2.68
+    },
+    {
+      "text": "And then you have statements\nlike mov 0 into r5,",
+      "start": 3121.76,
+      "duration": 4.1
+    },
+    {
+      "text": "mov 0 into r6, and so on.",
+      "start": 3125.86,
+      "duration": 3.18
+    },
+    {
+      "text": "And then you have\nmultiplication.",
+      "start": 3129.04,
+      "duration": 1.62
+    },
+    {
+      "text": "You're going to multiply this\nregister by this constant",
+      "start": 3130.66,
+      "duration": 3.7
+    },
+    {
+      "text": "and then put it into this.",
+      "start": 3134.36,
+      "duration": 3.48
+    },
+    {
+      "text": "So this code gets executed.",
+      "start": 3137.84,
+      "duration": 2.06
+    },
+    {
+      "text": "And at the bottom, you\nshould see global store.",
+      "start": 3139.9,
+      "duration": 5.16
+    },
+    {
+      "text": "So this is writing\nback into the HBM.",
+      "start": 3145.06,
+      "duration": 3.54
+    },
+    {
+      "text": "So this gets executed.",
+      "start": 3148.6,
+      "duration": 1.78
+    },
+    {
+      "text": "This is actually the code that\ngets executed on a thread.",
+      "start": 3150.38,
+      "duration": 6.43
+    },
+    {
+      "text": "And Triton is basically\na layer up above that.",
+      "start": 3156.81,
+      "duration": 5.88
+    },
+    {
+      "text": "One other thing to notice is\nthat you see all these blocks",
+      "start": 3162.69,
+      "duration": 4.76
+    },
+    {
+      "text": "and what's going on there.",
+      "start": 3167.45,
+      "duration": 1.96
+    },
+    {
+      "text": "And what's going on\nthere is I alluded",
+      "start": 3169.41,
+      "duration": 2.44
+    },
+    {
+      "text": "to thread coarsening, which\nis that this is one thread.",
+      "start": 3171.85,
+      "duration": 3.32
+    },
+    {
+      "text": "But rather than processing\na single element,",
+      "start": 3175.17,
+      "duration": 2.38
+    },
+    {
+      "text": "it's actually processing\neight elements.",
+      "start": 3177.55,
+      "duration": 2.08
+    },
+    {
+      "text": "So the compiler decided that,\nwell, actually, this thread",
+      "start": 3179.63,
+      "duration": 2.523
+    },
+    {
+      "text": "is pretty lightweight.",
+      "start": 3182.153,
+      "duration": 0.917
+    },
+    {
+      "text": "It doesn't do that\nmuch, so let's just",
+      "start": 3183.07,
+      "duration": 1.66
+    },
+    {
+      "text": "try to thicken it\nup a little bit.",
+      "start": 3184.73,
+      "duration": 3.2
+    },
+    {
+      "text": "So looking at ptx can give you\nsome of appreciation for what's",
+      "start": 3187.93,
+      "duration": 7.04
+    },
+    {
+      "text": "going on underneath the hood.",
+      "start": 3194.97,
+      "duration": 3.04
+    },
+    {
+      "text": "Yeah?",
+      "start": 3198.01,
+      "duration": 0.56
+    },
+    {
+      "text": "So it makes this for\neach individual--",
+      "start": 3198.57,
+      "duration": 2.64
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3201.21,
+      "duration": 2.48
+    },
+    {
+      "text": "So the question is, does it\nmake this for each thread?",
+      "start": 3207.09,
+      "duration": 3.58
+    },
+    {
+      "text": "So this is compiled once.",
+      "start": 3210.67,
+      "duration": 2.78
+    },
+    {
+      "text": "And it's the same piece of\ncode that each thread runs.",
+      "start": 3213.45,
+      "duration": 6.29
+    },
+    {
+      "text": "And the way that the\nthread distinguishes",
+      "start": 3219.74,
+      "duration": 2.64
+    },
+    {
+      "text": "itself is that this\npiece of code gets",
+      "start": 3222.38,
+      "duration": 3.2
+    },
+    {
+      "text": "passed basically the thread ID.",
+      "start": 3225.58,
+      "duration": 6.6
+    },
+    {
+      "text": "So here, the cta.x\nis the block index,",
+      "start": 3232.18,
+      "duration": 3.96
+    },
+    {
+      "text": "and tid.x is the thread index.",
+      "start": 3236.14,
+      "duration": 2.84
+    },
+    {
+      "text": "So this basically, if this\npiece of code is running,",
+      "start": 3238.98,
+      "duration": 4.32
+    },
+    {
+      "text": "this tells you\nwhich block I'm in.",
+      "start": 3243.3,
+      "duration": 3.72
+    },
+    {
+      "text": "And tid.x tells you which\nthread inside that block I'm in.",
+      "start": 3247.02,
+      "duration": 5.5
+    },
+    {
+      "text": "OK.",
+      "start": 3256.84,
+      "duration": 0.5
+    },
+    {
+      "text": "OK.",
+      "start": 3261.1,
+      "duration": 1.4
+    },
+    {
+      "text": "Any other questions?",
+      "start": 3262.5,
+      "duration": 1.06
+    },
+    {
+      "text": "And I'm trying to\nfigure out how to--",
+      "start": 3263.56,
+      "duration": 3.18
+    },
+    {
+      "text": "OK.",
+      "start": 3266.74,
+      "duration": 0.5
+    },
+    {
+      "text": "OK, so that's generally a flavor\nof your first Triton kernel",
+      "start": 3272.8,
+      "duration": 7.04
+    },
+    {
+      "text": "load from HBM compute\nright back to HBM.",
+      "start": 3279.84,
+      "duration": 3.08
+    },
+    {
+      "text": "And then we saw the ptx, which\nis the grungy what actually",
+      "start": 3282.92,
+      "duration": 7.96
+    },
+    {
+      "text": "happens underneath the hood.",
+      "start": 3290.88,
+      "duration": 1.96
+    },
+    {
+      "text": "There's still a lot of things\nthat are not specified in ptx.",
+      "start": 3292.84,
+      "duration": 4.64
+    },
+    {
+      "text": "Like, for example, which\nSM things are operating on",
+      "start": 3297.48,
+      "duration": 3.32
+    },
+    {
+      "text": "and the warps and everything.",
+      "start": 3300.8,
+      "duration": 2.44
+    },
+    {
+      "text": "A lot of those are\nhardware controlled,",
+      "start": 3303.24,
+      "duration": 1.94
+    },
+    {
+      "text": "so you don't even see.",
+      "start": 3305.18,
+      "duration": 2.16
+    },
+    {
+      "text": "Yeah?",
+      "start": 3307.34,
+      "duration": 1.7
+    },
+    {
+      "text": "So ptx code is generated by\nthe compiler, not something",
+      "start": 3309.04,
+      "duration": 4.44
+    },
+    {
+      "text": "that you would normally code?",
+      "start": 3313.48,
+      "duration": 3.28
+    },
+    {
+      "text": "It looks like it's\nassembly code.",
+      "start": 3316.76,
+      "duration": 2.2
+    },
+    {
+      "text": "Yeah, so the question is, is ptx\njust generated by the compiler?",
+      "start": 3318.96,
+      "duration": 5.22
+    },
+    {
+      "text": "So there are people\nwho do write ptx",
+      "start": 3324.18,
+      "duration": 3.7
+    },
+    {
+      "text": "if you really think you're\nbetter than the compiler.",
+      "start": 3327.88,
+      "duration": 5.97
+    },
+    {
+      "text": "And I think the NVIDIA compilers\nare generally pretty mature,",
+      "start": 3333.85,
+      "duration": 4.78
+    },
+    {
+      "text": "but some other accelerators\nthat are less developed.",
+      "start": 3338.63,
+      "duration": 3.48
+    },
+    {
+      "text": "I think sometimes you\njust have to reach in",
+      "start": 3342.11,
+      "duration": 2.1
+    },
+    {
+      "text": "and actually\nhandhold a bit more.",
+      "start": 3344.21,
+      "duration": 3.44
+    },
+    {
+      "text": "But generally, yeah, you\nshouldn't need to do that.",
+      "start": 3347.65,
+      "duration": 4.22
+    },
+    {
+      "text": "Yeah?",
+      "start": 3351.87,
+      "duration": 0.62
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3352.49,
+      "duration": 3.145
+    },
+    {
+      "text": "My work will get\nscheduled onto an SM.",
+      "start": 3356.53,
+      "duration": 2.52
+    },
+    {
+      "text": "I'll get to that\ntf.load and it's almost",
+      "start": 3359.05,
+      "duration": 2.2
+    },
+    {
+      "text": "like a CPU trap call\nwhere I'm just waiting",
+      "start": 3361.25,
+      "duration": 2.56
+    },
+    {
+      "text": "for something to happen.",
+      "start": 3363.81,
+      "duration": 3.62
+    },
+    {
+      "text": "And now I am turning my\nthumbs and some other work",
+      "start": 3367.43,
+      "duration": 2.9
+    },
+    {
+      "text": "will get scheduled over me.",
+      "start": 3370.33,
+      "duration": 2.1
+    },
+    {
+      "text": "And then it will do operations.",
+      "start": 3372.43,
+      "duration": 1.82
+    },
+    {
+      "text": "Now that you have\nto upload is done,",
+      "start": 3374.25,
+      "duration": 1.6
+    },
+    {
+      "text": "then I'll reschedule that work\nand then I'll continue on.",
+      "start": 3375.85,
+      "duration": 4.3
+    },
+    {
+      "text": "Is that--",
+      "start": 3380.15,
+      "duration": 1.02
+    },
+    {
+      "text": "Yeah, that's right.",
+      "start": 3381.17,
+      "duration": 1.18
+    },
+    {
+      "text": "So just to repeat the\nquestion or the comment.",
+      "start": 3382.35,
+      "duration": 5.02
+    },
+    {
+      "text": "So if you look at\nthis triangle code,",
+      "start": 3387.37,
+      "duration": 3.33
+    },
+    {
+      "text": "these statements,\nthis load, is going",
+      "start": 3390.7,
+      "duration": 3.6
+    },
+    {
+      "text": "to block for some\nnumber of cycles.",
+      "start": 3394.3,
+      "duration": 2.4
+    },
+    {
+      "text": "And then so this is\nrunning on some thread",
+      "start": 3396.7,
+      "duration": 2.06
+    },
+    {
+      "text": "on some warp on some SM.",
+      "start": 3398.76,
+      "duration": 1.74
+    },
+    {
+      "text": "And remember, the SM is running\nmultiple warps at the same time.",
+      "start": 3400.5,
+      "duration": 3.42
+    },
+    {
+      "text": "So when you get\nto that point, it",
+      "start": 3403.92,
+      "duration": 3.42
+    },
+    {
+      "text": "can just find\nanother warp to run.",
+      "start": 3407.34,
+      "duration": 3.243
+    },
+    {
+      "text": "And then when this is\ndone, the warp scheduler",
+      "start": 3410.583,
+      "duration": 1.917
+    },
+    {
+      "text": "comes back and takes over.",
+      "start": 3412.5,
+      "duration": 3.28
+    },
+    {
+      "text": "Why do you [INAUDIBLE]?",
+      "start": 3415.78,
+      "duration": 1.74
+    },
+    {
+      "text": "Sorry.",
+      "start": 3419.06,
+      "duration": 0.84
+    },
+    {
+      "text": "Oh, sorry.",
+      "start": 3419.9,
+      "duration": 1.24
+    },
+    {
+      "text": "I recall from [INAUDIBLE].",
+      "start": 3421.14,
+      "duration": 1.88
+    },
+    {
+      "text": "Yeah, so the question is,\nwhy four warp schedules?",
+      "start": 3426.62,
+      "duration": 3.18
+    },
+    {
+      "text": "I don't exactly the\nreason behind that.",
+      "start": 3429.8,
+      "duration": 2.96
+    },
+    {
+      "text": "OK, so now let's go through\nsome other examples.",
+      "start": 3435.66,
+      "duration": 3.54
+    },
+    {
+      "text": "Maybe just as a quick preview.",
+      "start": 3439.2,
+      "duration": 2.48
+    },
+    {
+      "text": "We're going to do\nthree more examples.",
+      "start": 3441.68,
+      "duration": 2.18
+    },
+    {
+      "text": "GeLU is the simplest form.",
+      "start": 3443.86,
+      "duration": 4.2
+    },
+    {
+      "text": "Even though the computation\nhas a lot of messiness.",
+      "start": 3448.06,
+      "duration": 4.56
+    },
+    {
+      "text": "It's just element wise.",
+      "start": 3452.62,
+      "duration": 1.12
+    },
+    {
+      "text": "So conceptually, in the\ncontext of this lecture,",
+      "start": 3453.74,
+      "duration": 4.38
+    },
+    {
+      "text": "is actually very simple.",
+      "start": 3458.12,
+      "duration": 2.0
+    },
+    {
+      "text": "Now we're going to look at\nSoftmax, where now you're",
+      "start": 3460.12,
+      "duration": 4.16
+    },
+    {
+      "text": "going to have to do reduction.",
+      "start": 3464.28,
+      "duration": 2.032
+    },
+    {
+      "text": "But in this case, we're\ngoing to think about the case",
+      "start": 3466.312,
+      "duration": 2.208
+    },
+    {
+      "text": "where row fits on a block.",
+      "start": 3468.52,
+      "duration": 1.64
+    },
+    {
+      "text": "And then we're going to\nconsider the case where",
+      "start": 3470.16,
+      "duration": 2.97
+    },
+    {
+      "text": "row doesn't fit on a\nblock, and then we're",
+      "start": 3473.13,
+      "duration": 1.75
+    },
+    {
+      "text": "going to do go up to matmul.",
+      "start": 3474.88,
+      "duration": 2.4
+    },
+    {
+      "text": "And then hopefully\nby that point,",
+      "start": 3477.28,
+      "duration": 1.893
+    },
+    {
+      "text": "you'll have all the\ningredients that you",
+      "start": 3479.173,
+      "duration": 1.667
+    },
+    {
+      "text": "need to do the assignment and\nimplement flash attention.",
+      "start": 3480.84,
+      "duration": 4.12
+    },
+    {
+      "text": "OK.",
+      "start": 3484.96,
+      "duration": 1.24
+    },
+    {
+      "text": "So so far, we looked at\nelement wise operations.",
+      "start": 3486.2,
+      "duration": 4.48
+    },
+    {
+      "text": "Now let's think about\nother operations",
+      "start": 3490.68,
+      "duration": 2.2
+    },
+    {
+      "text": "that aggregate over\nmultiple values.",
+      "start": 3492.88,
+      "duration": 3.32
+    },
+    {
+      "text": "So remember what\nthe Softmax does.",
+      "start": 3496.2,
+      "duration": 1.98
+    },
+    {
+      "text": "Let's just think of as a matrix.",
+      "start": 3501.48,
+      "duration": 2.24
+    },
+    {
+      "text": "You exponentiate and normalize\neach row of a matrix.",
+      "start": 3503.72,
+      "duration": 5.49
+    },
+    {
+      "text": "OK, so this is used in intention\nand used in generating output",
+      "start": 3509.21,
+      "duration": 4.68
+    },
+    {
+      "text": "probabilities.",
+      "start": 3513.89,
+      "duration": 1.52
+    },
+    {
+      "text": "Generally a good thing to do.",
+      "start": 3515.41,
+      "duration": 4.0
+    },
+    {
+      "text": "So let's just start with\na naive implementation",
+      "start": 3519.41,
+      "duration": 4.48
+    },
+    {
+      "text": "and just keep track\nof what's happening.",
+      "start": 3523.89,
+      "duration": 2.66
+    },
+    {
+      "text": "So here, I'm\ndefining this tensor.",
+      "start": 3526.55,
+      "duration": 3.1
+    },
+    {
+      "text": "And here's the naive\nimplementation.",
+      "start": 3529.65,
+      "duration": 5.72
+    },
+    {
+      "text": "Actually, I think this\nis on assignment one.",
+      "start": 3535.37,
+      "duration": 3.84
+    },
+    {
+      "text": "OK, anyway.",
+      "start": 3539.21,
+      "duration": 1.34
+    },
+    {
+      "text": "So here, I have\nan M by N matrix.",
+      "start": 3540.55,
+      "duration": 3.98
+    },
+    {
+      "text": "And so I need to, for\nevery row, compute the--",
+      "start": 3544.53,
+      "duration": 6.16
+    },
+    {
+      "text": "I'm going to compute\nthe max of each row.",
+      "start": 3550.69,
+      "duration": 2.84
+    },
+    {
+      "text": "And this is for\nnumerical stability.",
+      "start": 3553.53,
+      "duration": 2.04
+    },
+    {
+      "text": "I'm going to\nsubtract off the max.",
+      "start": 3555.57,
+      "duration": 3.68
+    },
+    {
+      "text": "And then I'm going to\nexponentiate element-wise.",
+      "start": 3559.25,
+      "duration": 4.34
+    },
+    {
+      "text": "And I'm going to sum and\ncompute the normalization",
+      "start": 3563.59,
+      "duration": 3.71
+    },
+    {
+      "text": "constant for every row.",
+      "start": 3567.3,
+      "duration": 4.08
+    },
+    {
+      "text": "And I'm going to divide.",
+      "start": 3571.38,
+      "duration": 3.52
+    },
+    {
+      "text": "And then that's it.",
+      "start": 3574.9,
+      "duration": 3.76
+    },
+    {
+      "text": "OK.",
+      "start": 3578.66,
+      "duration": 2.0
+    },
+    {
+      "text": "So if you count the number of\nreads and writes, remember,",
+      "start": 3580.66,
+      "duration": 4.8
+    },
+    {
+      "text": "this is just plain PyTorch.",
+      "start": 3585.46,
+      "duration": 1.72
+    },
+    {
+      "text": "So this is a different kernel.",
+      "start": 3587.18,
+      "duration": 1.34
+    },
+    {
+      "text": "This is a different kernel.",
+      "start": 3588.52,
+      "duration": 1.18
+    },
+    {
+      "text": "And unless you call\nto torch and compile,",
+      "start": 3589.7,
+      "duration": 2.2
+    },
+    {
+      "text": "these are going to be\ndifferent operations.",
+      "start": 3591.9,
+      "duration": 2.76
+    },
+    {
+      "text": "And each operation is going\nto read and write, read",
+      "start": 3594.66,
+      "duration": 2.92
+    },
+    {
+      "text": "and write from HBM.",
+      "start": 3597.58,
+      "duration": 1.52
+    },
+    {
+      "text": "OK, so you have five MN\nreads, three MN writes.",
+      "start": 3599.1,
+      "duration": 7.56
+    },
+    {
+      "text": "And in principle, you should\nreally only have much fewer.",
+      "start": 3606.66,
+      "duration": 7.332
+    },
+    {
+      "text": "OK, so this is a piece of code.",
+      "start": 3613.992,
+      "duration": 3.348
+    },
+    {
+      "text": "Makes sense.",
+      "start": 3617.34,
+      "duration": 0.74
+    },
+    {
+      "text": "Everyone should be familiar\nwhat the Softmax is doing.",
+      "start": 3618.08,
+      "duration": 3.06
+    },
+    {
+      "text": "OK.",
+      "start": 3621.14,
+      "duration": 2.21
+    },
+    {
+      "text": "So let's write down\nthe Triton kernel.",
+      "start": 3623.35,
+      "duration": 4.88
+    },
+    {
+      "text": "And in some sense, the form\nis going to be very similar.",
+      "start": 3628.23,
+      "duration": 5.8
+    },
+    {
+      "text": "Just like in the GeLU.",
+      "start": 3634.03,
+      "duration": 1.44
+    },
+    {
+      "text": "Right, once you do\nthe scaffolding,",
+      "start": 3635.47,
+      "duration": 1.56
+    },
+    {
+      "text": "the core computation looks very\nmuch like the naive version.",
+      "start": 3637.03,
+      "duration": 5.4
+    },
+    {
+      "text": "So what we're going\nto do is we're going",
+      "start": 3642.43,
+      "duration": 2.16
+    },
+    {
+      "text": "to say each row is a block.",
+      "start": 3644.59,
+      "duration": 3.32
+    },
+    {
+      "text": "OK.",
+      "start": 3647.91,
+      "duration": 0.68
+    },
+    {
+      "text": "And why do I make\neach row a block?",
+      "start": 3648.59,
+      "duration": 2.52
+    },
+    {
+      "text": "Well, because now,\nremember, each row,",
+      "start": 3651.11,
+      "duration": 2.2
+    },
+    {
+      "text": "I have to normalize and sum.",
+      "start": 3653.31,
+      "duration": 1.7
+    },
+    {
+      "text": "So it's not element-wise.",
+      "start": 3655.01,
+      "duration": 1.48
+    },
+    {
+      "text": "So Softmax is not\nan element wise.",
+      "start": 3656.49,
+      "duration": 1.82
+    },
+    {
+      "text": "But it is row wise.",
+      "start": 3658.31,
+      "duration": 2.08
+    },
+    {
+      "text": "So the blocks don't interact.",
+      "start": 3660.39,
+      "duration": 3.08
+    },
+    {
+      "text": "And the blocks don't have\nshared memory, so that's fine.",
+      "start": 3663.47,
+      "duration": 4.68
+    },
+    {
+      "text": "There's no shared\nmemory across blocks.",
+      "start": 3668.15,
+      "duration": 2.88
+    },
+    {
+      "text": "So then within each row, I'm\njust going to do some stuff.",
+      "start": 3671.03,
+      "duration": 5.56
+    },
+    {
+      "text": "OK, so let's see what happens.",
+      "start": 3676.59,
+      "duration": 3.16
+    },
+    {
+      "text": "So again, I'm going\nto, in Python,",
+      "start": 3679.75,
+      "duration": 2.48
+    },
+    {
+      "text": "I'm going to allocate\nmy output tensor.",
+      "start": 3682.23,
+      "duration": 2.58
+    },
+    {
+      "text": "I have this M by N matrix.",
+      "start": 3684.81,
+      "duration": 4.08
+    },
+    {
+      "text": "I'm going to define the\nblocksize as basically",
+      "start": 3688.89,
+      "duration": 6.32
+    },
+    {
+      "text": "the number of columns.",
+      "start": 3695.21,
+      "duration": 2.28
+    },
+    {
+      "text": "Go to the next power\nof 2 for good luck.",
+      "start": 3697.49,
+      "duration": 3.56
+    },
+    {
+      "text": "And then the number of blocks\nis just the number of rows.",
+      "start": 3701.05,
+      "duration": 4.8
+    },
+    {
+      "text": "OK, and I'm going\nto call this kernel.",
+      "start": 3705.85,
+      "duration": 2.88
+    },
+    {
+      "text": "So how many blocks are there?",
+      "start": 3708.73,
+      "duration": 3.146
+    },
+    {
+      "text": "M.",
+      "start": 3711.876,
+      "duration": 0.5
+    },
+    {
+      "text": "M. Right, one for each row.",
+      "start": 3712.376,
+      "duration": 2.154
+    },
+    {
+      "text": "And each block, I'm going\nto pass the input pointer,",
+      "start": 3714.53,
+      "duration": 3.4
+    },
+    {
+      "text": "the output pointer.",
+      "start": 3717.93,
+      "duration": 1.96
+    },
+    {
+      "text": "And then I'm going to also\npass these strides which",
+      "start": 3719.89,
+      "duration": 6.32
+    },
+    {
+      "text": "tell me how far to move down.",
+      "start": 3726.21,
+      "duration": 3.0
+    },
+    {
+      "text": "OK, let me actually go and show\nyou that Softmax kernel, OK.",
+      "start": 3734.21,
+      "duration": 6.73
+    },
+    {
+      "text": "OK, so what does\nthis look like here?",
+      "start": 3743.86,
+      "duration": 5.0
+    },
+    {
+      "text": "So I wake up.",
+      "start": 3748.86,
+      "duration": 2.28
+    },
+    {
+      "text": "I'm on a particular row, OK.",
+      "start": 3751.14,
+      "duration": 2.8
+    },
+    {
+      "text": "And this is going to give\nme all the columns from 0",
+      "start": 3753.94,
+      "duration": 4.24
+    },
+    {
+      "text": "to the number of blocksize,\nwhich I'm assuming",
+      "start": 3758.18,
+      "duration": 2.88
+    },
+    {
+      "text": "that's all the columns.",
+      "start": 3761.06,
+      "duration": 2.8
+    },
+    {
+      "text": "I'm going to read.",
+      "start": 3763.86,
+      "duration": 4.96
+    },
+    {
+      "text": "So basically, I need to figure\nout where to read from memory,",
+      "start": 3768.82,
+      "duration": 4.38
+    },
+    {
+      "text": "and that's going to be\nthe start of my data.",
+      "start": 3773.2,
+      "duration": 2.58
+    },
+    {
+      "text": "Plus which row.",
+      "start": 3775.78,
+      "duration": 3.28
+    },
+    {
+      "text": "And the row stride\nbasically gives me",
+      "start": 3779.06,
+      "duration": 2.4
+    },
+    {
+      "text": "every row is-- basically,\nthis is the number of columns,",
+      "start": 3781.46,
+      "duration": 5.2
+    },
+    {
+      "text": "essentially.",
+      "start": 3786.66,
+      "duration": 0.84
+    },
+    {
+      "text": "It's going to tell me\nwhere how far to go down.",
+      "start": 3787.5,
+      "duration": 3.72
+    },
+    {
+      "text": "And then this is x pointers\nis basically the addresses",
+      "start": 3791.22,
+      "duration": 2.8
+    },
+    {
+      "text": "of all the data I need to load.",
+      "start": 3794.02,
+      "duration": 1.64
+    },
+    {
+      "text": "I load them up.",
+      "start": 3795.66,
+      "duration": 3.01
+    },
+    {
+      "text": "And here, I do this thing\nwhere if it's masked out, then",
+      "start": 3798.67,
+      "duration": 4.52
+    },
+    {
+      "text": "I put minus infinity,\nbecause that's",
+      "start": 3803.19,
+      "duration": 3.8
+    },
+    {
+      "text": "going to be the equivalent of\na 0 for the Softmax operation.",
+      "start": 3806.99,
+      "duration": 6.12
+    },
+    {
+      "text": "And then this part is\nessentially the same",
+      "start": 3813.11,
+      "duration": 2.2
+    },
+    {
+      "text": "as the naive Softmax.",
+      "start": 3815.31,
+      "duration": 1.9
+    },
+    {
+      "text": "I'm just going to\ncompute the max,",
+      "start": 3817.21,
+      "duration": 2.48
+    },
+    {
+      "text": "subtract it off,\nexponentiate, sum, and divide.",
+      "start": 3819.69,
+      "duration": 4.38
+    },
+    {
+      "text": "And then I write it back.",
+      "start": 3824.07,
+      "duration": 1.26
+    },
+    {
+      "text": "OK.",
+      "start": 3828.95,
+      "duration": 1.28
+    },
+    {
+      "text": "Yeah.",
+      "start": 3830.23,
+      "duration": 0.88
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 3831.11,
+      "duration": 5.013
+    },
+    {
+      "text": "Yeah, so this is the version\nwhere each block can just",
+      "start": 3838.59,
+      "duration": 4.72
+    },
+    {
+      "text": "span the entire row.",
+      "start": 3843.31,
+      "duration": 3.72
+    },
+    {
+      "text": "And you can see that Triton\nmakes this very easy, right.",
+      "start": 3847.03,
+      "duration": 6.06
+    },
+    {
+      "text": "Because this is as if you\nwere just writing normal",
+      "start": 3853.09,
+      "duration": 3.56
+    },
+    {
+      "text": "PyTorch code.",
+      "start": 3856.65,
+      "duration": 1.06
+    },
+    {
+      "text": "So if everything fits in\na block, you basically--",
+      "start": 3860.57,
+      "duration": 3.06
+    },
+    {
+      "text": "the thing is, if you\ncan fit it into a block,",
+      "start": 3863.63,
+      "duration": 2.36
+    },
+    {
+      "text": "you can just write\nnormal PyTorch, almost.",
+      "start": 3865.99,
+      "duration": 3.34
+    },
+    {
+      "text": "Yeah?",
+      "start": 3869.33,
+      "duration": 1.16
+    },
+    {
+      "text": "What if my number of\ncolumns, the number of rows,",
+      "start": 3870.49,
+      "duration": 3.8
+    },
+    {
+      "text": "are bigger than blocksize?",
+      "start": 3874.29,
+      "duration": 3.575
+    },
+    {
+      "text": "Yeah, so we'll get to that.",
+      "start": 3877.865,
+      "duration": 1.125
+    },
+    {
+      "text": "Now the number of\ncolumns, rows, in general,",
+      "start": 3878.99,
+      "duration": 2.16
+    },
+    {
+      "text": "it's going to be much\nlarger than the blocksize.",
+      "start": 3881.15,
+      "duration": 2.0
+    },
+    {
+      "text": "So we'll come back\nto that, yeah.",
+      "start": 3883.15,
+      "duration": 1.375
+    },
+    {
+      "text": "So if you wanted to do\na Softmax per column,",
+      "start": 3884.525,
+      "duration": 3.085
+    },
+    {
+      "text": "do you have to do [INAUDIBLE]?",
+      "start": 3887.61,
+      "duration": 1.38
+    },
+    {
+      "text": "So the question is if you\nwant to do Softmax by column.",
+      "start": 3892.53,
+      "duration": 3.96
+    },
+    {
+      "text": "I think that should be\nfine, because here, we're",
+      "start": 3896.49,
+      "duration": 3.4
+    },
+    {
+      "text": "tracking these pointers, right.",
+      "start": 3899.89,
+      "duration": 1.46
+    },
+    {
+      "text": "So the pointers can be anything.",
+      "start": 3901.35,
+      "duration": 3.908
+    },
+    {
+      "text": "Basically, I think all\nyou would have to do",
+      "start": 3905.258,
+      "duration": 1.792
+    },
+    {
+      "text": "is change the stride here to\nbasically access the columns.",
+      "start": 3907.05,
+      "duration": 5.215
+    },
+    {
+      "text": "Actually, it would be here.",
+      "start": 3912.265,
+      "duration": 1.125
+    },
+    {
+      "text": "The column offsets, you\nwould just multiply this",
+      "start": 3913.39,
+      "duration": 4.67
+    },
+    {
+      "text": "by the row stride, I think.",
+      "start": 3918.06,
+      "duration": 3.56
+    },
+    {
+      "text": "OK, let's move on.",
+      "start": 3921.62,
+      "duration": 2.16
+    },
+    {
+      "text": "All right, so now,\nwarming up to the matmul.",
+      "start": 3923.78,
+      "duration": 6.72
+    },
+    {
+      "text": "Suppose that your row\ndoesn't fit into a block.",
+      "start": 3930.5,
+      "duration": 3.56
+    },
+    {
+      "text": "OK, so what do you\ndo in this case?",
+      "start": 3934.06,
+      "duration": 2.64
+    },
+    {
+      "text": "So for example, if\nyou have, let's say,",
+      "start": 3936.7,
+      "duration": 2.72
+    },
+    {
+      "text": "a row that's 4,000 columns, but\nthe blocksize is only 1,024.",
+      "start": 3939.42,
+      "duration": 7.0
+    },
+    {
+      "text": "So you have to do\nsomething here.",
+      "start": 3946.42,
+      "duration": 4.24
+    },
+    {
+      "text": "So here's the strategy.",
+      "start": 3950.66,
+      "duration": 2.04
+    },
+    {
+      "text": "We're going to break\nup the row into tiles.",
+      "start": 3952.7,
+      "duration": 3.36
+    },
+    {
+      "text": "So in this case, there's\ngoing to be four tiles.",
+      "start": 3956.06,
+      "duration": 2.8
+    },
+    {
+      "text": "And each thread is going\nto iterate over the tiles",
+      "start": 3958.86,
+      "duration": 3.92
+    },
+    {
+      "text": "and accumulate a sum.",
+      "start": 3962.78,
+      "duration": 2.08
+    },
+    {
+      "text": "And then finally\nat the end, we're",
+      "start": 3964.86,
+      "duration": 2.4
+    },
+    {
+      "text": "going to do the reduction\nby summing everything",
+      "start": 3967.26,
+      "duration": 8.65
+    },
+    {
+      "text": "that each thread produced.",
+      "start": 3975.91,
+      "duration": 1.62
+    },
+    {
+      "text": "So I'll show you\nan example of this.",
+      "start": 3977.53,
+      "duration": 2.24
+    },
+    {
+      "text": "And now I'm switching\nfrom Softmax",
+      "start": 3979.77,
+      "duration": 2.22
+    },
+    {
+      "text": "to row sum because it's\njust easier to think about.",
+      "start": 3981.99,
+      "duration": 5.06
+    },
+    {
+      "text": "OK, so here, OK, well, this\nis not very interesting.",
+      "start": 3987.05,
+      "duration": 5.72
+    },
+    {
+      "text": "The built-in row sum does\nwhat you would expect.",
+      "start": 3992.77,
+      "duration": 4.58
+    },
+    {
+      "text": "So the row sum operation\njust basically takes a matrix",
+      "start": 3997.35,
+      "duration": 5.12
+    },
+    {
+      "text": "and then computes the\nsum of each row, OK.",
+      "start": 4002.47,
+      "duration": 2.84
+    },
+    {
+      "text": "So just no surprises there.",
+      "start": 4005.31,
+      "duration": 3.32
+    },
+    {
+      "text": "OK, so conceptually what we're\ngoing to do here is as follows.",
+      "start": 4008.63,
+      "duration": 4.84
+    },
+    {
+      "text": "OK, so each block is still\nin charge of one row.",
+      "start": 4013.47,
+      "duration": 3.56
+    },
+    {
+      "text": "So that part hasn't changed.",
+      "start": 4017.03,
+      "duration": 1.92
+    },
+    {
+      "text": "So suppose block one, row one.",
+      "start": 4018.95,
+      "duration": 2.8
+    },
+    {
+      "text": "I wake up, and what do I do?",
+      "start": 4021.75,
+      "duration": 2.04
+    },
+    {
+      "text": "I'm going to remember,\nnow, there's tiles.",
+      "start": 4023.79,
+      "duration": 2.1
+    },
+    {
+      "text": "And suppose tile 0 is\ncolumns 0 through 3,",
+      "start": 4025.89,
+      "duration": 3.04
+    },
+    {
+      "text": "tile 1 is columns 4 through 7.",
+      "start": 4028.93,
+      "duration": 3.13
+    },
+    {
+      "text": "And then tile 2 is\ncolumns 8 through 11.",
+      "start": 4032.06,
+      "duration": 3.66
+    },
+    {
+      "text": "OK, so what I'm\ngoing to do here is",
+      "start": 4035.72,
+      "duration": 2.72
+    },
+    {
+      "text": "that I'm going to iterate now.",
+      "start": 4038.44,
+      "duration": 2.54
+    },
+    {
+      "text": "So first, I basically process\nthis, all the threads.",
+      "start": 4040.98,
+      "duration": 5.52
+    },
+    {
+      "text": "Basically, each thread\nkeeps a kind of accumulator",
+      "start": 4046.5,
+      "duration": 2.54
+    },
+    {
+      "text": "and processes the first tile.",
+      "start": 4049.04,
+      "duration": 3.0
+    },
+    {
+      "text": "And it's going to move\non to the next tile,",
+      "start": 4052.04,
+      "duration": 2.48
+    },
+    {
+      "text": "and it's going to add\nthe current element",
+      "start": 4054.52,
+      "duration": 3.84
+    },
+    {
+      "text": "to the accumulator.",
+      "start": 4058.36,
+      "duration": 1.06
+    },
+    {
+      "text": "So here, I'm putting 3, 1, 4, 1.",
+      "start": 4059.42,
+      "duration": 3.62
+    },
+    {
+      "text": "And then the second\nloop iteration,",
+      "start": 4063.04,
+      "duration": 4.66
+    },
+    {
+      "text": "I'm going to add 5 to this.",
+      "start": 4067.7,
+      "duration": 1.54
+    },
+    {
+      "text": "I get 8.",
+      "start": 4069.24,
+      "duration": 0.88
+    },
+    {
+      "text": "I add 9 to this, I get 10.",
+      "start": 4070.12,
+      "duration": 1.8
+    },
+    {
+      "text": "2 to 4, and 6 to 1, right.",
+      "start": 4071.92,
+      "duration": 2.54
+    },
+    {
+      "text": "So each of these\nfour threads is going",
+      "start": 4074.46,
+      "duration": 1.9
+    },
+    {
+      "text": "to be accumulating\nits own thing.",
+      "start": 4076.36,
+      "duration": 3.8
+    },
+    {
+      "text": "And then at the end, I\ndo another for tile 2.",
+      "start": 4080.16,
+      "duration": 3.76
+    },
+    {
+      "text": "I add 5 and 3 to the\nrespective accumulators.",
+      "start": 4083.92,
+      "duration": 4.6
+    },
+    {
+      "text": "So at the end of the day, I have\nthis, a vector of accumulators.",
+      "start": 4088.52,
+      "duration": 5.28
+    },
+    {
+      "text": "And then that is actually--",
+      "start": 4093.8,
+      "duration": 3.46
+    },
+    {
+      "text": "that, I can just sum up.",
+      "start": 4097.26,
+      "duration": 3.74
+    },
+    {
+      "text": "OK, so let's see what\nthe code looks like here.",
+      "start": 4101.0,
+      "duration": 4.5
+    },
+    {
+      "text": "So I'm just going to\ncall the row sum kernel.",
+      "start": 4105.5,
+      "duration": 3.399
+    },
+    {
+      "text": "And let's see.",
+      "start": 4108.899,
+      "duration": 4.014
+    },
+    {
+      "text": "OK, so here's what\nit looks like.",
+      "start": 4112.913,
+      "duration": 2.787
+    },
+    {
+      "text": "So wake up.",
+      "start": 4115.7,
+      "duration": 0.84
+    },
+    {
+      "text": "I am on a particular row.",
+      "start": 4116.54,
+      "duration": 2.12
+    },
+    {
+      "text": "And this is what\none row looks like.",
+      "start": 4118.66,
+      "duration": 4.159
+    },
+    {
+      "text": "There's one tile, a second\ntile, a third tile, and so on.",
+      "start": 4122.819,
+      "duration": 3.58
+    },
+    {
+      "text": "So n is the number of\nelements of that row.",
+      "start": 4126.399,
+      "duration": 4.261
+    },
+    {
+      "text": "And blocksize is the\nsize of this tile.",
+      "start": 4130.66,
+      "duration": 7.68
+    },
+    {
+      "text": "OK.",
+      "start": 4138.34,
+      "duration": 0.92
+    },
+    {
+      "text": "So remember, blocksize\nis the number of threads.",
+      "start": 4139.26,
+      "duration": 2.24
+    },
+    {
+      "text": "I'm processing more data than\nthe larger than the blocksize.",
+      "start": 4141.5,
+      "duration": 3.38
+    },
+    {
+      "text": "I just have to do\nit iteratively now.",
+      "start": 4144.88,
+      "duration": 2.46
+    },
+    {
+      "text": "So I'm going to loop\nover all of the tiles.",
+      "start": 4147.34,
+      "duration": 3.45
+    },
+    {
+      "text": "So start is going to\ngo from 0 to blocksize",
+      "start": 4150.79,
+      "duration": 3.84
+    },
+    {
+      "text": "to 2 times blocksize,\nand so on and so forth.",
+      "start": 4154.63,
+      "duration": 3.68
+    },
+    {
+      "text": "So each time I'm jumping\nacross, I am doing calls.",
+      "start": 4158.31,
+      "duration": 8.52
+    },
+    {
+      "text": "Basically get the offsets\nat the particular tile.",
+      "start": 4166.83,
+      "duration": 8.92
+    },
+    {
+      "text": "And then I'm going to\nload the data from HBM,",
+      "start": 4175.75,
+      "duration": 4.399
+    },
+    {
+      "text": "and I'm going to add\nit to the accumulation.",
+      "start": 4180.149,
+      "duration": 2.46
+    },
+    {
+      "text": "So this accumulation is going to\nbe either in registers or shared",
+      "start": 4182.609,
+      "duration": 3.741
+    },
+    {
+      "text": "memory.",
+      "start": 4186.35,
+      "duration": 1.719
+    },
+    {
+      "text": "OK.",
+      "start": 4188.069,
+      "duration": 1.239
+    },
+    {
+      "text": "And then finally after I\nloop over all the tiles,",
+      "start": 4189.308,
+      "duration": 2.042
+    },
+    {
+      "text": "I process the whole\nrow, I get basically--",
+      "start": 4191.35,
+      "duration": 2.839
+    },
+    {
+      "text": "for every thread I have\naccumulator of what",
+      "start": 4194.189,
+      "duration": 3.081
+    },
+    {
+      "text": "that thread has picked up.",
+      "start": 4197.27,
+      "duration": 1.9
+    },
+    {
+      "text": "And I can just do a sum to get\na scalar, and I write it out.",
+      "start": 4199.17,
+      "duration": 4.12
+    },
+    {
+      "text": "OK, so this is a little bit\nmore complicated than before,",
+      "start": 4205.865,
+      "duration": 2.375
+    },
+    {
+      "text": "because now we have a\nfor loop within a thread.",
+      "start": 4208.24,
+      "duration": 2.32
+    },
+    {
+      "text": "And this is necessary when your\ndata doesn't fit within a block.",
+      "start": 4210.56,
+      "duration": 4.7
+    },
+    {
+      "text": "Yeah?",
+      "start": 4218.32,
+      "duration": 0.9
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 4219.22,
+      "duration": 2.793
+    },
+    {
+      "text": "Just in case we don't\nhave enough register.",
+      "start": 4225.52,
+      "duration": 3.62
+    },
+    {
+      "text": "We have to put it in--",
+      "start": 4229.14,
+      "duration": 1.46
+    },
+    {
+      "text": "Yeah, so the question is\nI think if you can control",
+      "start": 4230.6,
+      "duration": 2.52
+    },
+    {
+      "text": "where the accumulator resides.",
+      "start": 4233.12,
+      "duration": 2.2
+    },
+    {
+      "text": "At least in this Triton program,\nyou don't explicitly say.",
+      "start": 4235.32,
+      "duration": 4.2
+    },
+    {
+      "text": "And this is up to\nthe Triton compiler",
+      "start": 4239.52,
+      "duration": 3.04
+    },
+    {
+      "text": "to figure out where to put it.",
+      "start": 4242.56,
+      "duration": 2.78
+    },
+    {
+      "text": "But in general, if the\nblocksize is large enough,",
+      "start": 4247.978,
+      "duration": 2.042
+    },
+    {
+      "text": "it has to go in shared memory.",
+      "start": 4250.02,
+      "duration": 2.64
+    },
+    {
+      "text": "OK.",
+      "start": 4255.48,
+      "duration": 1.5
+    },
+    {
+      "text": "All right, does this make sense?",
+      "start": 4256.98,
+      "duration": 2.56
+    },
+    {
+      "text": "Just to, I think, make sure\npeople are on the same page.",
+      "start": 4262.32,
+      "duration": 4.0
+    },
+    {
+      "text": "Remember when GeLU,\nwe also split a row",
+      "start": 4266.32,
+      "duration": 3.02
+    },
+    {
+      "text": "into a bunch of pieces.",
+      "start": 4269.34,
+      "duration": 2.32
+    },
+    {
+      "text": "But those were blocks.",
+      "start": 4271.66,
+      "duration": 1.92
+    },
+    {
+      "text": "Right, and so each\nof those pieces",
+      "start": 4273.58,
+      "duration": 1.68
+    },
+    {
+      "text": "was a block that was\nprocessed independently.",
+      "start": 4275.26,
+      "duration": 2.8
+    },
+    {
+      "text": "These are not blocks.",
+      "start": 4278.06,
+      "duration": 1.06
+    },
+    {
+      "text": "These are tiles.",
+      "start": 4279.12,
+      "duration": 2.1
+    },
+    {
+      "text": "The block corresponds\nto this whole row.",
+      "start": 4281.22,
+      "duration": 3.6
+    },
+    {
+      "text": "And the block has to basically\nprocess all the tiles.",
+      "start": 4284.82,
+      "duration": 3.74
+    },
+    {
+      "text": "And so this is where it starts\nto not look like PyTorch,",
+      "start": 4288.56,
+      "duration": 4.22
+    },
+    {
+      "text": "because you're not\nable to process all",
+      "start": 4292.78,
+      "duration": 2.68
+    },
+    {
+      "text": "your data in one nice kind of--",
+      "start": 4295.46,
+      "duration": 2.28
+    },
+    {
+      "text": "not everything fits\ninto shared memory.",
+      "start": 4297.74,
+      "duration": 2.32
+    },
+    {
+      "text": "Yeah?",
+      "start": 4300.06,
+      "duration": 0.76
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 4300.82,
+      "duration": 1.6
+    },
+    {
+      "text": "--also stored in shared memory?",
+      "start": 4302.42,
+      "duration": 2.04
+    },
+    {
+      "text": "Yeah.",
+      "start": 4304.46,
+      "duration": 1.12
+    },
+    {
+      "text": "Let's say the accumulator\nis stored in shared memory.",
+      "start": 4305.58,
+      "duration": 2.54
+    },
+    {
+      "text": "Yeah.",
+      "start": 4308.12,
+      "duration": 0.5
+    },
+    {
+      "text": "OK.",
+      "start": 4311.46,
+      "duration": 1.92
+    },
+    {
+      "text": "All right, so let's\nnow maybe go on",
+      "start": 4313.38,
+      "duration": 4.24
+    },
+    {
+      "text": "to our finale, which is matmul.",
+      "start": 4317.62,
+      "duration": 3.1
+    },
+    {
+      "text": "OK, so matmul, of course,\nis the bread and butter",
+      "start": 4320.72,
+      "duration": 3.15
+    },
+    {
+      "text": "of deep learning.",
+      "start": 4323.87,
+      "duration": 1.06
+    },
+    {
+      "text": "It's been optimized to death.",
+      "start": 4324.93,
+      "duration": 2.82
+    },
+    {
+      "text": "And it's, in some sense,\nvery fundamental operation.",
+      "start": 4327.75,
+      "duration": 6.58
+    },
+    {
+      "text": "So you take two matrices,\nyou multiply them.",
+      "start": 4334.33,
+      "duration": 2.2
+    },
+    {
+      "text": "I'm going to add a little\nbit of a twist here.",
+      "start": 4336.53,
+      "duration": 2.74
+    },
+    {
+      "text": "I'm going to do a matmul\nfollowed by a ReLU,",
+      "start": 4339.27,
+      "duration": 2.68
+    },
+    {
+      "text": "just because, just for kicks.",
+      "start": 4341.95,
+      "duration": 2.24
+    },
+    {
+      "text": "OK.",
+      "start": 4344.19,
+      "duration": 2.32
+    },
+    {
+      "text": "Well, this happens, right.",
+      "start": 4346.51,
+      "duration": 1.5
+    },
+    {
+      "text": "Because if you have one\nlinear layer, it's a matmul.",
+      "start": 4348.01,
+      "duration": 3.4
+    },
+    {
+      "text": "And then you apply\na ReLU activation.",
+      "start": 4351.41,
+      "duration": 3.08
+    },
+    {
+      "text": "So this is not completely\nout of nowhere.",
+      "start": 4354.49,
+      "duration": 3.26
+    },
+    {
+      "text": "But I'll show you\nlater why I did this.",
+      "start": 4357.75,
+      "duration": 3.6
+    },
+    {
+      "text": "OK, so how do you\nbuild a matmul kernel?",
+      "start": 4361.35,
+      "duration": 3.16
+    },
+    {
+      "text": "All right, so here's\na naive approach.",
+      "start": 4364.51,
+      "duration": 4.12
+    },
+    {
+      "text": "OK, so here's my,\nlet's say, a matrix.",
+      "start": 4368.63,
+      "duration": 2.44
+    },
+    {
+      "text": "I'm multiplying A\ntimes B. And I'm",
+      "start": 4371.07,
+      "duration": 3.88
+    },
+    {
+      "text": "trying to write out the matrix\nC. And A is M by K, B is K by N.",
+      "start": 4374.95,
+      "duration": 6.38
+    },
+    {
+      "text": "So C is M by N. OK, so\nwhat I'm going to do",
+      "start": 4381.33,
+      "duration": 4.07
+    },
+    {
+      "text": "is I'm going to fix\none of these elements.",
+      "start": 4385.4,
+      "duration": 4.3
+    },
+    {
+      "text": "Let's say M equals\n1, N equals 2.",
+      "start": 4389.7,
+      "duration": 2.64
+    },
+    {
+      "text": "OK, so I'm processing--\nactually, let's do M equals 1,",
+      "start": 4392.34,
+      "duration": 3.86
+    },
+    {
+      "text": "N equals 1.",
+      "start": 4396.2,
+      "duration": 0.62
+    },
+    {
+      "text": "So I'm doing C5.",
+      "start": 4396.82,
+      "duration": 1.74
+    },
+    {
+      "text": "And then, basically for every\nk, so I'm going to, yeah,",
+      "start": 4398.56,
+      "duration": 9.56
+    },
+    {
+      "text": "I'm going to iterate\nover the k, the rows of A",
+      "start": 4408.12,
+      "duration": 4.8
+    },
+    {
+      "text": "and the columns of B. I'm\ngoing to read from HBM.",
+      "start": 4412.92,
+      "duration": 4.12
+    },
+    {
+      "text": "I'm going to multiply\nthem, accumulate that.",
+      "start": 4417.04,
+      "duration": 2.54
+    },
+    {
+      "text": "And at the end, I'm\ngoing to write out",
+      "start": 4419.58,
+      "duration": 1.86
+    },
+    {
+      "text": "to this and this element.",
+      "start": 4421.44,
+      "duration": 2.84
+    },
+    {
+      "text": "So that is a valid\nmatmul kernel.",
+      "start": 4424.28,
+      "duration": 3.6
+    },
+    {
+      "text": "OK.",
+      "start": 4427.88,
+      "duration": 1.32
+    },
+    {
+      "text": "So what's wrong with it?",
+      "start": 4429.2,
+      "duration": 2.1
+    },
+    {
+      "text": "It's correct.",
+      "start": 4437.72,
+      "duration": 1.04
+    },
+    {
+      "text": "But if you look at how many\nreads and writes it's doing,",
+      "start": 4438.76,
+      "duration": 4.41
+    },
+    {
+      "text": "this is not good.",
+      "start": 4443.17,
+      "duration": 1.32
+    },
+    {
+      "text": "Right, so basically for\nevery M and N and K,",
+      "start": 4444.49,
+      "duration": 4.04
+    },
+    {
+      "text": "I have to read from HBM.",
+      "start": 4448.53,
+      "duration": 1.7
+    },
+    {
+      "text": "So it's on the order of\nM times K times N reads.",
+      "start": 4450.23,
+      "duration": 3.772
+    },
+    {
+      "text": "Number of writes.",
+      "start": 4454.002,
+      "duration": 0.708
+    },
+    {
+      "text": "I mean, it doesn't matter, but\nthis is the bottleneck, right.",
+      "start": 4454.71,
+      "duration": 3.94
+    },
+    {
+      "text": "And if you remember\nfrom the second lecture,",
+      "start": 4458.65,
+      "duration": 4.2
+    },
+    {
+      "text": "if you look at the\nnumber of operations",
+      "start": 4462.85,
+      "duration": 2.56
+    },
+    {
+      "text": "you're doing divided by\nthe number of bytes that",
+      "start": 4465.41,
+      "duration": 2.32
+    },
+    {
+      "text": "were transferred, that's\nthe arithmetic intensity",
+      "start": 4467.73,
+      "duration": 2.52
+    },
+    {
+      "text": "which you want to be high.",
+      "start": 4470.25,
+      "duration": 1.96
+    },
+    {
+      "text": "So the number of operations\nis M times K times N order.",
+      "start": 4472.21,
+      "duration": 4.68
+    },
+    {
+      "text": "And then the number of\nreads is also the same.",
+      "start": 4476.89,
+      "duration": 1.98
+    },
+    {
+      "text": "So arithmetic intensity is a\nconstant, which is not good.",
+      "start": 4478.87,
+      "duration": 4.66
+    },
+    {
+      "text": "OK, so if you look\ncarefully, you",
+      "start": 4483.53,
+      "duration": 3.68
+    },
+    {
+      "text": "notice that there is a\nlot of redundant reads.",
+      "start": 4487.21,
+      "duration": 2.1
+    },
+    {
+      "text": "So imagine computing C4.",
+      "start": 4489.31,
+      "duration": 3.5
+    },
+    {
+      "text": "You needed to read\nA4, A5, and A6.",
+      "start": 4492.81,
+      "duration": 3.64
+    },
+    {
+      "text": "And if you compute\nC5, you're going",
+      "start": 4496.45,
+      "duration": 2.2
+    },
+    {
+      "text": "to have to read those\nover again as well.",
+      "start": 4498.65,
+      "duration": 3.38
+    },
+    {
+      "text": "So if you can just\nread those once,",
+      "start": 4502.03,
+      "duration": 5.24
+    },
+    {
+      "text": "then you really save on\nreads, and that's great.",
+      "start": 4507.27,
+      "duration": 2.9
+    },
+    {
+      "text": "So let's try to use\nshared memory to do that.",
+      "start": 4510.17,
+      "duration": 4.5
+    },
+    {
+      "text": "So here's the\nidealized approach.",
+      "start": 4514.67,
+      "duration": 3.28
+    },
+    {
+      "text": "I'm going to load all of A\nand B into shared memory.",
+      "start": 4517.95,
+      "duration": 3.48
+    },
+    {
+      "text": "And then I'm going\nto just compute C. So",
+      "start": 4521.43,
+      "duration": 3.96
+    },
+    {
+      "text": "if I can do that, then I get--",
+      "start": 4525.39,
+      "duration": 3.12
+    },
+    {
+      "text": "now I don't have this\ncubic number of reads,",
+      "start": 4528.51,
+      "duration": 1.94
+    },
+    {
+      "text": "I only get quadratic\nnumber of reads,",
+      "start": 4530.45,
+      "duration": 2.42
+    },
+    {
+      "text": "which means I get the error\nintensity of order n, which",
+      "start": 4532.87,
+      "duration": 4.68
+    },
+    {
+      "text": "in the second lecture, I said\nwas a kind of ideal thing",
+      "start": 4537.55,
+      "duration": 4.72
+    },
+    {
+      "text": "you could hope for.",
+      "start": 4542.27,
+      "duration": 3.28
+    },
+    {
+      "text": "OK, so if you can\ndo that, that's",
+      "start": 4545.55,
+      "duration": 2.44
+    },
+    {
+      "text": "great, because you basically--\nthere's no redundant reads.",
+      "start": 4547.99,
+      "duration": 2.68
+    },
+    {
+      "text": "You read everything\nonce into shared memory.",
+      "start": 4550.67,
+      "duration": 1.98
+    },
+    {
+      "text": "You do the computation\nand you write it back.",
+      "start": 4552.65,
+      "duration": 2.86
+    },
+    {
+      "text": "OK, but what's the problem\nwith this idealized approach.",
+      "start": 4555.51,
+      "duration": 2.87
+    },
+    {
+      "text": "The problem is that\nA and B are usually",
+      "start": 4563.28,
+      "duration": 2.24
+    },
+    {
+      "text": "too large to fit\ninto shared memory.",
+      "start": 4565.52,
+      "duration": 3.646
+    },
+    {
+      "text": "Right.",
+      "start": 4569.166,
+      "duration": 1.274
+    },
+    {
+      "text": "So then, what do\nyou have to do now?",
+      "start": 4570.44,
+      "duration": 3.84
+    },
+    {
+      "text": "OK, so the idea here is this\nvery classic idea of tiling.",
+      "start": 4574.28,
+      "duration": 5.36
+    },
+    {
+      "text": "And the idea basically\nis to, well, fit as much",
+      "start": 4579.64,
+      "duration": 3.88
+    },
+    {
+      "text": "as you can to shared memory\nas you can, essentially.",
+      "start": 4583.52,
+      "duration": 3.16
+    },
+    {
+      "text": "So in some sense,\nit's going to look",
+      "start": 4586.68,
+      "duration": 2.76
+    },
+    {
+      "text": "like the naive-- it's going to\nglobally look like the naive",
+      "start": 4589.44,
+      "duration": 3.145
+    },
+    {
+      "text": "approach, but locally it look\nlike the idealized approach",
+      "start": 4592.585,
+      "duration": 2.375
+    },
+    {
+      "text": "is the way to think about it.",
+      "start": 4594.96,
+      "duration": 3.36
+    },
+    {
+      "text": "So here's the picture.",
+      "start": 4598.32,
+      "duration": 3.16
+    },
+    {
+      "text": "I think Tatsu\nshowed this as well.",
+      "start": 4601.48,
+      "duration": 1.983
+    },
+    {
+      "text": "So what we're going\nto do is we're",
+      "start": 4603.463,
+      "duration": 1.417
+    },
+    {
+      "text": "going to take this matrix\nC, and instead-- remember,",
+      "start": 4604.88,
+      "duration": 3.36
+    },
+    {
+      "text": "the naive approach just\nsaid for every element,",
+      "start": 4608.24,
+      "duration": 2.16
+    },
+    {
+      "text": "I'm going to compute it.",
+      "start": 4610.4,
+      "duration": 1.78
+    },
+    {
+      "text": "But now I'm going to say for\nevery tile, I'm going to do it.",
+      "start": 4612.18,
+      "duration": 3.81
+    },
+    {
+      "text": "So I break it up into tiles.",
+      "start": 4615.99,
+      "duration": 2.9
+    },
+    {
+      "text": "And each of these tiles is\ngoing to be a thread block.",
+      "start": 4618.89,
+      "duration": 3.72
+    },
+    {
+      "text": "And I'm going to have a\nbunch of threads that is",
+      "start": 4622.61,
+      "duration": 2.0
+    },
+    {
+      "text": "responsible for computing this.",
+      "start": 4624.61,
+      "duration": 2.84
+    },
+    {
+      "text": "Now a different\ntile is going to be",
+      "start": 4627.45,
+      "duration": 1.96
+    },
+    {
+      "text": "computed completely separately\nby another thread block.",
+      "start": 4629.41,
+      "duration": 4.68
+    },
+    {
+      "text": "OK, so I'm going to--",
+      "start": 4634.09,
+      "duration": 2.2
+    },
+    {
+      "text": "imagine I'm in Triton.",
+      "start": 4636.29,
+      "duration": 1.62
+    },
+    {
+      "text": "I wake up.",
+      "start": 4637.91,
+      "duration": 1.94
+    },
+    {
+      "text": "I'm looking at\nthis thread block.",
+      "start": 4639.85,
+      "duration": 1.84
+    },
+    {
+      "text": "So what do I have to do?",
+      "start": 4641.69,
+      "duration": 1.6
+    },
+    {
+      "text": "Well, in some\nsense, it's the same",
+      "start": 4643.29,
+      "duration": 1.44
+    },
+    {
+      "text": "as the naive approach where,\nfor every row tile of A,",
+      "start": 4644.73,
+      "duration": 7.72
+    },
+    {
+      "text": "I'm going to go scan\nacross the rows.",
+      "start": 4652.45,
+      "duration": 2.56
+    },
+    {
+      "text": "And for every column\ntile of B, I'm",
+      "start": 4655.01,
+      "duration": 3.2
+    },
+    {
+      "text": "going to load the corresponding\ntile A and the corresponding--",
+      "start": 4658.21,
+      "duration": 5.04
+    },
+    {
+      "text": "so say I'm here-- and\nthe corresponding tile",
+      "start": 4663.25,
+      "duration": 2.6
+    },
+    {
+      "text": "from B into shared memory.",
+      "start": 4665.85,
+      "duration": 2.8
+    },
+    {
+      "text": "I'm going to multiply\nthese two together.",
+      "start": 4668.65,
+      "duration": 2.8
+    },
+    {
+      "text": "And that's going to be like\nthe idealized approach.",
+      "start": 4671.45,
+      "duration": 6.95
+    },
+    {
+      "text": "And I'm going to accumulate\nthat in the partial sum.",
+      "start": 4678.4,
+      "duration": 4.0
+    },
+    {
+      "text": "And this is all sitting\nin shared memory.",
+      "start": 4682.4,
+      "duration": 1.74
+    },
+    {
+      "text": "And then after I finish all the\nsweep of the row and the column",
+      "start": 4684.14,
+      "duration": 3.52
+    },
+    {
+      "text": "here, then I can finally\nwrite this output tile to HBM.",
+      "start": 4687.66,
+      "duration": 3.42
+    },
+    {
+      "text": "OK, so that's the\nconceptually what's happening.",
+      "start": 4695.34,
+      "duration": 5.04
+    },
+    {
+      "text": "And then the arithmetic\nintensity here",
+      "start": 4700.38,
+      "duration": 1.8
+    },
+    {
+      "text": "now goes up to order tile size.",
+      "start": 4702.18,
+      "duration": 2.72
+    },
+    {
+      "text": "So you can generally\nnot reach order n,",
+      "start": 4704.9,
+      "duration": 2.8
+    },
+    {
+      "text": "because that would require\nyou to fit everything",
+      "start": 4707.7,
+      "duration": 2.24
+    },
+    {
+      "text": "into shared memory.",
+      "start": 4709.94,
+      "duration": 1.18
+    },
+    {
+      "text": "But if your tiles are big,\nthen that's still not too bad.",
+      "start": 4711.12,
+      "duration": 5.74
+    },
+    {
+      "text": "OK, so just as a bonus.",
+      "start": 4716.86,
+      "duration": 2.24
+    },
+    {
+      "text": "While you're doing all\nwriting a kernel for this",
+      "start": 4719.1,
+      "duration": 4.16
+    },
+    {
+      "text": "anyway, sometimes if you want to\napply an element-wise activation",
+      "start": 4723.26,
+      "duration": 4.04
+    },
+    {
+      "text": "function, it's very easy to\njust put it on at the end.",
+      "start": 4727.3,
+      "duration": 4.2
+    },
+    {
+      "text": "And this is kernel fusion.",
+      "start": 4731.5,
+      "duration": 2.04
+    },
+    {
+      "text": "OK, so very quickly,\nthe implementation here.",
+      "start": 4733.54,
+      "duration": 5.14
+    },
+    {
+      "text": "So-- oops.",
+      "start": 4738.68,
+      "duration": 5.04
+    },
+    {
+      "text": "OK, so just a reminder\nabout strides since this",
+      "start": 4743.72,
+      "duration": 4.24
+    },
+    {
+      "text": "is going to show up.",
+      "start": 4747.96,
+      "duration": 1.16
+    },
+    {
+      "text": "So a tensor is a\nmultidimensional array.",
+      "start": 4749.12,
+      "duration": 5.08
+    },
+    {
+      "text": "But in memory, it's linearized.",
+      "start": 4754.2,
+      "duration": 2.6
+    },
+    {
+      "text": "And strides of a tensor\ntells you basically",
+      "start": 4756.8,
+      "duration": 2.84
+    },
+    {
+      "text": "how to map from a\nmultidimensional index",
+      "start": 4759.64,
+      "duration": 2.76
+    },
+    {
+      "text": "such as a row, a column,\ninto an actual index.",
+      "start": 4762.4,
+      "duration": 4.5
+    },
+    {
+      "text": "And basically what you\ndo is multiply the row",
+      "start": 4766.9,
+      "duration": 1.94
+    },
+    {
+      "text": "by the stride, the\nplus the column",
+      "start": 4768.84,
+      "duration": 2.12
+    },
+    {
+      "text": "by the stride of the column.",
+      "start": 4770.96,
+      "duration": 2.36
+    },
+    {
+      "text": "OK, so in this case, every time\nyou go advance to the next row,",
+      "start": 4773.32,
+      "duration": 3.9
+    },
+    {
+      "text": "you go four positions\nin your memory.",
+      "start": 4777.22,
+      "duration": 3.04
+    },
+    {
+      "text": "And every time you advance\na column, you go one.",
+      "start": 4780.26,
+      "duration": 2.34
+    },
+    {
+      "text": "And if it were to transpose,\nit would be flipped.",
+      "start": 4782.6,
+      "duration": 3.96
+    },
+    {
+      "text": "OK, so what does this\nkernel look like here?",
+      "start": 4786.56,
+      "duration": 3.98
+    },
+    {
+      "text": "OK, so the launch\nis not interesting.",
+      "start": 4794.81,
+      "duration": 2.8
+    },
+    {
+      "text": "So you wake up and you\nare on tile M and N.",
+      "start": 4797.61,
+      "duration": 4.74
+    },
+    {
+      "text": "So it's like OK, I'm responsible\nfor computing the c matrix,",
+      "start": 4802.35,
+      "duration": 5.24
+    },
+    {
+      "text": "but for the M comma\nN tile there's",
+      "start": 4807.59,
+      "duration": 4.34
+    },
+    {
+      "text": "a bunch of index\nmanipulation which you can--",
+      "start": 4811.93,
+      "duration": 3.48
+    },
+    {
+      "text": "I'll just gloss through,\nbut it's straightforward",
+      "start": 4815.41,
+      "duration": 4.28
+    },
+    {
+      "text": "but a little bit.",
+      "start": 4819.69,
+      "duration": 0.84
+    },
+    {
+      "text": "You just have to\ntrack the indices.",
+      "start": 4820.53,
+      "duration": 4.08
+    },
+    {
+      "text": "So this basically tells you\nwhich rows of A, the matrix A,",
+      "start": 4824.61,
+      "duration": 4.92
+    },
+    {
+      "text": "I'm looking at.",
+      "start": 4829.53,
+      "duration": 1.04
+    },
+    {
+      "text": "Which rows of-- oh sorry, which\ncolumns of B I'm looking at.",
+      "start": 4830.57,
+      "duration": 3.74
+    },
+    {
+      "text": "And then this is just\nthe numbers 1 through K.",
+      "start": 4834.31,
+      "duration": 4.06
+    },
+    {
+      "text": "Then I'm going to get\nthe pointers into A and B",
+      "start": 4838.37,
+      "duration": 4.6
+    },
+    {
+      "text": "at my tile location.",
+      "start": 4842.97,
+      "duration": 3.36
+    },
+    {
+      "text": "And then I'm going to set\nup this accumulator matrix.",
+      "start": 4846.33,
+      "duration": 2.42
+    },
+    {
+      "text": "This is going to be\nin shared memory.",
+      "start": 4848.75,
+      "duration": 2.75
+    },
+    {
+      "text": "It's M by N. And\nthen this is going",
+      "start": 4851.5,
+      "duration": 2.16
+    },
+    {
+      "text": "to look like the row\nreduction, right.",
+      "start": 4853.66,
+      "duration": 3.66
+    },
+    {
+      "text": "You have this sum\nover all the tiles.",
+      "start": 4857.32,
+      "duration": 4.46
+    },
+    {
+      "text": "But instead of just\ngoing across the tiles,",
+      "start": 4861.78,
+      "duration": 2.4
+    },
+    {
+      "text": "I'm now going\nacross the row tiles",
+      "start": 4864.18,
+      "duration": 2.68
+    },
+    {
+      "text": "and also simultaneously\ndown the column",
+      "start": 4866.86,
+      "duration": 2.0
+    },
+    {
+      "text": "tiles of B. I load A, the small\nmatrix, I load B, the small B",
+      "start": 4868.86,
+      "duration": 4.96
+    },
+    {
+      "text": "tile.",
+      "start": 4873.82,
+      "duration": 0.72
+    },
+    {
+      "text": "And then I perform this dot.",
+      "start": 4874.54,
+      "duration": 1.857
+    },
+    {
+      "text": "So remember, whenever\nthings are in shared memory,",
+      "start": 4876.397,
+      "duration": 2.083
+    },
+    {
+      "text": "things look like PyTorch and\nI can just say, matmul it,",
+      "start": 4878.48,
+      "duration": 2.74
+    },
+    {
+      "text": "and it will do the thing.",
+      "start": 4881.22,
+      "duration": 2.72
+    },
+    {
+      "text": "And then I advance to\nthe next row tile of A",
+      "start": 4883.94,
+      "duration": 5.36
+    },
+    {
+      "text": "and the next column tile of B.",
+      "start": 4889.3,
+      "duration": 5.24
+    },
+    {
+      "text": "The bonus is that\nif I wanted to apply",
+      "start": 4894.54,
+      "duration": 3.08
+    },
+    {
+      "text": "element-wise non-linearity,\nI might as well do that here.",
+      "start": 4897.62,
+      "duration": 4.96
+    },
+    {
+      "text": "Before I write it out to HBM, I\ncan do some any operation on it.",
+      "start": 4902.58,
+      "duration": 4.9
+    },
+    {
+      "text": "And then finally, I\njust write it out.",
+      "start": 4907.48,
+      "duration": 3.64
+    },
+    {
+      "text": "OK, so there's some indices that\nyou have to pay attention to.",
+      "start": 4911.12,
+      "duration": 3.94
+    },
+    {
+      "text": "But hopefully, the form\nof the algorithm is clear.",
+      "start": 4915.06,
+      "duration": 4.48
+    },
+    {
+      "text": "OK.",
+      "start": 4926.26,
+      "duration": 0.5
+    },
+    {
+      "text": "Any questions about that?",
+      "start": 4926.76,
+      "duration": 2.26
+    },
+    {
+      "text": "All right.",
+      "start": 4932.2,
+      "duration": 0.5
+    },
+    {
+      "text": "Maybe I'll just summarize,\nand you can ask me later.",
+      "start": 4932.7,
+      "duration": 2.4
+    },
+    {
+      "text": "So today, we talked\nabout there's",
+      "start": 4935.1,
+      "duration": 3.26
+    },
+    {
+      "text": "a programming model,\nwhich is you're",
+      "start": 4938.36,
+      "duration": 2.16
+    },
+    {
+      "text": "talking about either\nPyTorch or Triton or ptx.",
+      "start": 4940.52,
+      "duration": 5.2
+    },
+    {
+      "text": "This is what the kind of\nprogrammer can control.",
+      "start": 4945.72,
+      "duration": 6.28
+    },
+    {
+      "text": "Right, and even ptx.",
+      "start": 4952.0,
+      "duration": 1.16
+    },
+    {
+      "text": "You can write ptx and you can\ncontrol every-- specialize",
+      "start": 4953.16,
+      "duration": 3.44
+    },
+    {
+      "text": "however you want.",
+      "start": 4956.6,
+      "duration": 1.96
+    },
+    {
+      "text": "But this is not\nthe full picture,",
+      "start": 4958.56,
+      "duration": 2.34
+    },
+    {
+      "text": "because the reality is that your\ncode has to run on hardware,",
+      "start": 4960.9,
+      "duration": 4.58
+    },
+    {
+      "text": "and there's only a\nfinite number of SMs,",
+      "start": 4965.48,
+      "duration": 3.29
+    },
+    {
+      "text": "a finite number of banks, and\nsizing of memory and registers.",
+      "start": 4968.77,
+      "duration": 5.7
+    },
+    {
+      "text": "All are finite.",
+      "start": 4974.47,
+      "duration": 1.18
+    },
+    {
+      "text": "So you come in with your\nbig matrix and transformer,",
+      "start": 4975.65,
+      "duration": 2.72
+    },
+    {
+      "text": "and want to-- it has to\nfit in with the constraints",
+      "start": 4978.37,
+      "duration": 3.36
+    },
+    {
+      "text": "of the hardware.",
+      "start": 4981.73,
+      "duration": 3.08
+    },
+    {
+      "text": "So that's why\nbenchmarking and profiling",
+      "start": 4984.81,
+      "duration": 2.76
+    },
+    {
+      "text": "are really important\nto understand",
+      "start": 4987.57,
+      "duration": 2.4
+    },
+    {
+      "text": "how the messiness\nof the hardware",
+      "start": 4989.97,
+      "duration": 3.08
+    },
+    {
+      "text": "translates to performance.",
+      "start": 4993.05,
+      "duration": 3.2
+    },
+    {
+      "text": "We talked about\nTriton, which is,",
+      "start": 4996.25,
+      "duration": 2.26
+    },
+    {
+      "text": "I think, a pretty nice,\nneat language to think",
+      "start": 4998.51,
+      "duration": 2.9
+    },
+    {
+      "text": "about thread blocks.",
+      "start": 5001.41,
+      "duration": 2.24
+    },
+    {
+      "text": "Hopefully by now\nyou can appreciate",
+      "start": 5003.65,
+      "duration": 1.96
+    },
+    {
+      "text": "that things are easier to\nthink about thread blocks",
+      "start": 5005.61,
+      "duration": 5.12
+    },
+    {
+      "text": "than individual threads,\nbecause you don't have",
+      "start": 5010.73,
+      "duration": 2.44
+    },
+    {
+      "text": "to think about explicitly\nsynchronizing threads or doing",
+      "start": 5013.17,
+      "duration": 4.0
+    },
+    {
+      "text": "shared memory.",
+      "start": 5017.17,
+      "duration": 1.32
+    },
+    {
+      "text": "And the way to think about it\nis that you figure out-- you",
+      "start": 5018.49,
+      "duration": 2.84
+    },
+    {
+      "text": "have your computation.",
+      "start": 5021.33,
+      "duration": 0.98
+    },
+    {
+      "text": "You break it down\ninto the thread",
+      "start": 5022.31,
+      "duration": 2.39
+    },
+    {
+      "text": "blocks where you just need\nto read from shared memory.",
+      "start": 5024.7,
+      "duration": 2.5
+    },
+    {
+      "text": "Do some stuff, and\nwrite it back into HBM.",
+      "start": 5027.2,
+      "duration": 3.18
+    },
+    {
+      "text": "And then we saw some examples\nof increasing difficulty.",
+      "start": 5030.38,
+      "duration": 2.98
+    },
+    {
+      "text": "Element wise is the easiest.",
+      "start": 5033.36,
+      "duration": 1.72
+    },
+    {
+      "text": "And then reduction over a row.",
+      "start": 5035.08,
+      "duration": 2.58
+    },
+    {
+      "text": "Reduction where it\ndoesn't fit into a row.",
+      "start": 5037.66,
+      "duration": 3.1
+    },
+    {
+      "text": "And we introduced\nthe baby tiling.",
+      "start": 5040.76,
+      "duration": 3.9
+    },
+    {
+      "text": "And then matmul is\nthe canonical example",
+      "start": 5044.66,
+      "duration": 3.88
+    },
+    {
+      "text": "where you actually do tiling.",
+      "start": 5048.54,
+      "duration": 2.12
+    },
+    {
+      "text": "OK, so that's all I'm\ngoing to say about how",
+      "start": 5050.66,
+      "duration": 3.2
+    },
+    {
+      "text": "to program a single GPU.",
+      "start": 5053.86,
+      "duration": 1.18
+    },
+    {
+      "text": "Next time, we're going to\ngo to more GPU and talk",
+      "start": 5055.04,
+      "duration": 3.18
+    },
+    {
+      "text": "about multi-GPU programming.",
+      "start": 5058.22,
+      "duration": 3.32
+    },
+    {
+      "text": "Yeah, question.",
+      "start": 5061.54,
+      "duration": 1.44
+    },
+    {
+      "text": "So if I want to\nwrite down kernels,",
+      "start": 5062.98,
+      "duration": 1.737
+    },
+    {
+      "text": "what are the alternatives?",
+      "start": 5064.717,
+      "duration": 1.083
+    },
+    {
+      "text": "Do I have to try them and--",
+      "start": 5065.8,
+      "duration": 2.06
+    },
+    {
+      "text": "for each of my\nchoices that I have,",
+      "start": 5067.86,
+      "duration": 1.84
+    },
+    {
+      "text": "how close can I get\nto the optimal level?",
+      "start": 5069.7,
+      "duration": 3.6
+    },
+    {
+      "text": "So the question is, what\nare alternatives to Triton?",
+      "start": 5073.3,
+      "duration": 6.28
+    },
+    {
+      "text": "So there's a trade off between--",
+      "start": 5079.58,
+      "duration": 3.29
+    },
+    {
+      "text": "every language has an\ninductive bias, right.",
+      "start": 5082.87,
+      "duration": 4.2
+    },
+    {
+      "text": "That makes certain things easier\nand certain things harder.",
+      "start": 5087.07,
+      "duration": 3.24
+    },
+    {
+      "text": "So most of what we do--",
+      "start": 5090.31,
+      "duration": 1.56
+    },
+    {
+      "text": "Triton was built by people\nwho train transformers.",
+      "start": 5091.87,
+      "duration": 4.48
+    },
+    {
+      "text": "So anything involving\ntransformers,",
+      "start": 5096.35,
+      "duration": 3.1
+    },
+    {
+      "text": "I think it's going to be\nrelatively easy there.",
+      "start": 5099.45,
+      "duration": 4.872
+    },
+    {
+      "text": "Of course, in the\nextreme, you can always",
+      "start": 5104.322,
+      "duration": 1.708
+    },
+    {
+      "text": "go to ptx and write that.",
+      "start": 5106.03,
+      "duration": 2.06
+    },
+    {
+      "text": "But I wouldn't advise\nthat as a first step.",
+      "start": 5108.09,
+      "duration": 2.32
+    },
+    {
+      "text": "There are a bunch\nof other libraries.",
+      "start": 5110.41,
+      "duration": 3.66
+    },
+    {
+      "text": "There's thunder kittens.",
+      "start": 5114.07,
+      "duration": 1.7
+    },
+    {
+      "text": "There's cute,\ndelirious DSLs that",
+      "start": 5115.77,
+      "duration": 3.54
+    },
+    {
+      "text": "allow you to give you-- they're\nnot necessarily comparable",
+      "start": 5119.31,
+      "duration": 5.4
+    },
+    {
+      "text": "either up or down the stack.",
+      "start": 5124.71,
+      "duration": 1.34
+    },
+    {
+      "text": "They just give you\ndifferent characteristics.",
+      "start": 5126.05,
+      "duration": 4.58
+    },
+    {
+      "text": "Yeah?",
+      "start": 5130.63,
+      "duration": 1.0
+    },
+    {
+      "text": "Do you have a high dimensional\ntensor magnification",
+      "start": 5131.63,
+      "duration": 3.54
+    },
+    {
+      "text": "or high dimensional\ntensor processing?",
+      "start": 5135.17,
+      "duration": 4.98
+    },
+    {
+      "text": "What is the best approach?",
+      "start": 5140.15,
+      "duration": 2.42
+    },
+    {
+      "text": "What I'm thinking is can I load\nunload the whole sensor, both",
+      "start": 5142.57,
+      "duration": 6.68
+    },
+    {
+      "text": "of the sensors on bunch of\nthreads or thread blocks",
+      "start": 5149.25,
+      "duration": 4.2
+    },
+    {
+      "text": "on my GPU at the same\ntime and compute them?",
+      "start": 5153.45,
+      "duration": 3.88
+    },
+    {
+      "text": "Or would it be better\nto take each element,",
+      "start": 5157.33,
+      "duration": 6.16
+    },
+    {
+      "text": "just what we did here, right.",
+      "start": 5163.49,
+      "duration": 2.72
+    },
+    {
+      "text": "A particular component\nof my sensor,",
+      "start": 5166.21,
+      "duration": 3.0
+    },
+    {
+      "text": "then process it and then\nwrite it back in the end.",
+      "start": 5169.21,
+      "duration": 3.52
+    },
+    {
+      "text": "Yeah, so briefly, the question--\nand we should probably wrap up--",
+      "start": 5172.73,
+      "duration": 2.84
+    },
+    {
+      "text": "is, is it better\nto read all at once",
+      "start": 5175.57,
+      "duration": 3.88
+    },
+    {
+      "text": "or maybe process individual\nelements at a time?",
+      "start": 5179.45,
+      "duration": 4.938
+    },
+    {
+      "text": "I think it's hard to answer\nthis in the abstract.",
+      "start": 5184.388,
+      "duration": 2.042
+    },
+    {
+      "text": "It depends on the nature\nof the computation.",
+      "start": 5186.43,
+      "duration": 4.5
+    },
+    {
+      "text": "Maybe we can talk\noffline about that.",
+      "start": 5190.93,
+      "duration": 2.56
+    },
+    {
+      "text": "OK, all right.",
+      "start": 5193.49,
+      "duration": 1.14
+    },
+    {
+      "text": "See you next time.",
+      "start": 5194.63,
+      "duration": 1.97
+    }
+  ]
+}

@@ -1,0 +1,7133 @@
+{
+  "video_id": "kuYAsz7zspQ",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 2: PyTorch (einops)",
+  "position": 2,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "I hope everyone is staying dry.",
+      "start": 5.04,
+      "duration": 3.12
+    },
+    {
+      "text": "I'm not.",
+      "start": 8.16,
+      "duration": 1.4
+    },
+    {
+      "text": "So as I mentioned last time, the\nMarin project had a 1e23 FLOPs",
+      "start": 9.56,
+      "duration": 4.8
+    },
+    {
+      "text": "which was running,\nand it finished.",
+      "start": 14.36,
+      "duration": 2.48
+    },
+    {
+      "text": "And it actually\nmatched the forecast.",
+      "start": 16.84,
+      "duration": 2.82
+    },
+    {
+      "text": "So remember we\nwere running this.",
+      "start": 19.66,
+      "duration": 1.68
+    },
+    {
+      "text": "Each of these curves\nis essentially",
+      "start": 21.34,
+      "duration": 2.9
+    },
+    {
+      "text": "IsoFLOPs curve, which is a\nbunch of smaller model runs.",
+      "start": 24.24,
+      "duration": 4.48
+    },
+    {
+      "text": "And you try to find the\ncompute optimal point.",
+      "start": 28.72,
+      "duration": 2.26
+    },
+    {
+      "text": "You fit a scaling law.",
+      "start": 30.98,
+      "duration": 1.42
+    },
+    {
+      "text": "And this was the point\nwhere we predicted the loss,",
+      "start": 32.4,
+      "duration": 5.88
+    },
+    {
+      "text": "and we ran the model and\nit got loss within 0.05.",
+      "start": 38.28,
+      "duration": 4.7
+    },
+    {
+      "text": "So I thought that\nwas pretty cool.",
+      "start": 42.98,
+      "duration": 1.6
+    },
+    {
+      "text": "And if you extrapolate out\nto GPT-5 level performance,",
+      "start": 44.58,
+      "duration": 4.4
+    },
+    {
+      "text": "this is the loss you get.",
+      "start": 48.98,
+      "duration": 1.24
+    },
+    {
+      "text": "Of course, your mileage\nmight vary depending",
+      "start": 50.22,
+      "duration": 3.66
+    },
+    {
+      "text": "on how these scaling loss are.",
+      "start": 53.88,
+      "duration": 2.96
+    },
+    {
+      "text": "OK, I just wanted\nto share that news.",
+      "start": 56.84,
+      "duration": 4.04
+    },
+    {
+      "text": "So last lecture I gave an\noverview of the entire class.",
+      "start": 60.88,
+      "duration": 4.68
+    },
+    {
+      "text": "And we are talking\nabout tokenization,",
+      "start": 65.56,
+      "duration": 2.24
+    },
+    {
+      "text": "which is going to be on\nthe first assignment.",
+      "start": 67.8,
+      "duration": 2.4
+    },
+    {
+      "text": "Today, I want to talk about\nresource accounting, which",
+      "start": 70.2,
+      "duration": 5.48
+    },
+    {
+      "text": "is going to be more on the\nsystems side of things.",
+      "start": 75.68,
+      "duration": 4.72
+    },
+    {
+      "text": "So to recall, the main\nthing we're trying to do",
+      "start": 80.4,
+      "duration": 5.76
+    },
+    {
+      "text": "is train the best model we can\ngiven a finite set of resources,",
+      "start": 86.16,
+      "duration": 5.3
+    },
+    {
+      "text": "which could be compute,\nmemory, sometimes data.",
+      "start": 91.46,
+      "duration": 3.12
+    },
+    {
+      "text": "But that's not really going\nto be a limiting factor for us",
+      "start": 94.58,
+      "duration": 3.02
+    },
+    {
+      "text": "in this class.",
+      "start": 97.6,
+      "duration": 1.56
+    },
+    {
+      "text": "And our goal is to\nsimply to maximize",
+      "start": 99.16,
+      "duration": 3.56
+    },
+    {
+      "text": "the computational\nefficiency of our training.",
+      "start": 102.72,
+      "duration": 3.72
+    },
+    {
+      "text": "So before you can optimize\nthe computational efficiency,",
+      "start": 106.44,
+      "duration": 3.34
+    },
+    {
+      "text": "we need to understand\nthe efficiency of a given",
+      "start": 109.78,
+      "duration": 2.9
+    },
+    {
+      "text": "computation.",
+      "start": 112.68,
+      "duration": 1.2
+    },
+    {
+      "text": "And for that, we need to\nunderstand the compute",
+      "start": 113.88,
+      "duration": 2.16
+    },
+    {
+      "text": "and memory characteristics.",
+      "start": 116.04,
+      "duration": 2.43
+    },
+    {
+      "text": "Just to give you a taste\nof the type of questions",
+      "start": 118.47,
+      "duration": 2.8
+    },
+    {
+      "text": "you will hopefully be able to\nanswer by the end of the class,",
+      "start": 121.27,
+      "duration": 3.605
+    },
+    {
+      "text": "so here's a question.",
+      "start": 124.875,
+      "duration": 0.875
+    },
+    {
+      "text": "How long would it take\nto train a 70 billion",
+      "start": 125.75,
+      "duration": 2.32
+    },
+    {
+      "text": "parameter model on 15\ntrillion tokens on 1024--",
+      "start": 128.07,
+      "duration": 4.68
+    },
+    {
+      "text": "actually, this should be H100.",
+      "start": 132.75,
+      "duration": 3.44
+    },
+    {
+      "text": "So how do you answer that?",
+      "start": 136.19,
+      "duration": 1.34
+    },
+    {
+      "text": "Well, there's a\nformula, which we'll",
+      "start": 137.53,
+      "duration": 1.78
+    },
+    {
+      "text": "talk about how you can\nget the number of FLOPs",
+      "start": 139.31,
+      "duration": 2.72
+    },
+    {
+      "text": "to be 6 times the\nnumber of parameters",
+      "start": 142.03,
+      "duration": 2.36
+    },
+    {
+      "text": "times the number of tokens.",
+      "start": 144.39,
+      "duration": 2.6
+    },
+    {
+      "text": "We can look up the spec sheet\nto see how fast the H100 is.",
+      "start": 146.99,
+      "duration": 5.04
+    },
+    {
+      "text": "We have this thing which called\nMFU, which we'll talk about 0.5.",
+      "start": 152.03,
+      "duration": 4.52
+    },
+    {
+      "text": "Then you can estimate\nthe number of FLOPs",
+      "start": 156.55,
+      "duration": 3.8
+    },
+    {
+      "text": "that you need that the\nhardware gives you per day.",
+      "start": 160.35,
+      "duration": 4.32
+    },
+    {
+      "text": "And then you can compute\nthe number of days.",
+      "start": 164.67,
+      "duration": 2.06
+    },
+    {
+      "text": "So the number of days is 143.",
+      "start": 166.73,
+      "duration": 3.68
+    },
+    {
+      "text": "Here's another question.",
+      "start": 170.41,
+      "duration": 1.0
+    },
+    {
+      "text": "What's the largest model you\ncan train on H100s using AdamW?",
+      "start": 171.41,
+      "duration": 5.38
+    },
+    {
+      "text": "So you can look at, well, H100s\nhave 80 gigabytes of each VM",
+      "start": 179.39,
+      "duration": 8.92
+    },
+    {
+      "text": "memory, the number of bytes per\nparameter, which is 2 plus 2",
+      "start": 188.31,
+      "duration": 6.72
+    },
+    {
+      "text": "plus 4 plus 4.",
+      "start": 195.03,
+      "duration": 2.28
+    },
+    {
+      "text": "We'll explain where\nthat comes from.",
+      "start": 197.31,
+      "duration": 2.2
+    },
+    {
+      "text": "And then the number\nof parameters",
+      "start": 199.51,
+      "duration": 1.72
+    },
+    {
+      "text": "is that you can get is going\nto be about 53 billion.",
+      "start": 201.23,
+      "duration": 6.1
+    },
+    {
+      "text": "So there's some\ncaveats here that we",
+      "start": 207.33,
+      "duration": 1.9
+    },
+    {
+      "text": "don't count the\nactivations which",
+      "start": 209.23,
+      "duration": 2.6
+    },
+    {
+      "text": "depends on batch size\nand the sequence length.",
+      "start": 211.83,
+      "duration": 3.76
+    },
+    {
+      "text": "So this is all very rough\nback-of-the-envelope",
+      "start": 215.59,
+      "duration": 2.08
+    },
+    {
+      "text": "calculations.",
+      "start": 217.67,
+      "duration": 1.2
+    },
+    {
+      "text": "But hopefully by the\nend of this class",
+      "start": 218.87,
+      "duration": 1.84
+    },
+    {
+      "text": "you'll understand\nwhere these come from.",
+      "start": 220.71,
+      "duration": 2.46
+    },
+    {
+      "text": "And the point is not\nto precisely calculate",
+      "start": 223.17,
+      "duration": 4.06
+    },
+    {
+      "text": "every single thing, but just\nget the rough shape of things.",
+      "start": 227.23,
+      "duration": 3.5
+    },
+    {
+      "text": "OK.",
+      "start": 234.23,
+      "duration": 0.54
+    },
+    {
+      "text": "So last time I talked about\nknowledge and what you",
+      "start": 234.77,
+      "duration": 3.66
+    },
+    {
+      "text": "can take away from this class--",
+      "start": 238.43,
+      "duration": 2.48
+    },
+    {
+      "text": "mechanics, which\nare how things work.",
+      "start": 240.91,
+      "duration": 2.96
+    },
+    {
+      "text": "So today, that would be\npretty straightforward.",
+      "start": 243.87,
+      "duration": 2.12
+    },
+    {
+      "text": "The mechanics are just how\nPyTorch work, how tensors work.",
+      "start": 245.99,
+      "duration": 3.04
+    },
+    {
+      "text": "It should be fairly--",
+      "start": 249.03,
+      "duration": 2.08
+    },
+    {
+      "text": "there's no magic here.",
+      "start": 251.11,
+      "duration": 2.8
+    },
+    {
+      "text": "The mindset I want\nto impart on you",
+      "start": 253.91,
+      "duration": 2.76
+    },
+    {
+      "text": "is that resource accounting\nis going to be very crucial.",
+      "start": 256.67,
+      "duration": 4.24
+    },
+    {
+      "text": "And I want everyone\nto get in the habit",
+      "start": 260.91,
+      "duration": 1.94
+    },
+    {
+      "text": "whenever you write\nthis line of code,",
+      "start": 262.85,
+      "duration": 3.06
+    },
+    {
+      "text": "think about the performance\ncharacteristics.",
+      "start": 265.91,
+      "duration": 4.14
+    },
+    {
+      "text": "And then finally intuitions.",
+      "start": 270.05,
+      "duration": 1.98
+    },
+    {
+      "text": "Here we're just going to get\na sense of the resources, how",
+      "start": 272.03,
+      "duration": 4.08
+    },
+    {
+      "text": "they're spent.",
+      "start": 276.11,
+      "duration": 1.08
+    },
+    {
+      "text": "There's going to be\nno ML magic today.",
+      "start": 277.19,
+      "duration": 2.26
+    },
+    {
+      "text": "I'll leave that to Tatsu\nfor the next lecture.",
+      "start": 279.45,
+      "duration": 3.24
+    },
+    {
+      "text": "OK.",
+      "start": 282.69,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's get into things.",
+      "start": 283.19,
+      "duration": 3.12
+    },
+    {
+      "text": "So let's start bottom up\nand start building up.",
+      "start": 286.31,
+      "duration": 3.14
+    },
+    {
+      "text": "So what is at the bottom?",
+      "start": 289.45,
+      "duration": 2.61
+    },
+    {
+      "text": "At the bottom are tensor.",
+      "start": 292.06,
+      "duration": 1.06
+    },
+    {
+      "text": "So tensors are the building\nblock of storing everything.",
+      "start": 293.12,
+      "duration": 3.54
+    },
+    {
+      "text": "If you have parameters\ngradients, optimizer states,",
+      "start": 296.66,
+      "duration": 3.06
+    },
+    {
+      "text": "data activation, everything\nessentially is a tensor.",
+      "start": 299.72,
+      "duration": 4.66
+    },
+    {
+      "text": "So for example, you can take a\nlook at the DeepSeek 3.2 model.",
+      "start": 304.38,
+      "duration": 6.52
+    },
+    {
+      "text": "And you see that\nthe model itself is",
+      "start": 310.9,
+      "duration": 2.08
+    },
+    {
+      "text": "a bunch of different tensors.",
+      "start": 312.98,
+      "duration": 1.42
+    },
+    {
+      "text": "Each tensor has\nsome shapes and also",
+      "start": 314.4,
+      "duration": 2.18
+    },
+    {
+      "text": "some precision, which\nI'll talk about later.",
+      "start": 316.58,
+      "duration": 4.4
+    },
+    {
+      "text": "And so as you know,\ntensor is subsume vectors,",
+      "start": 320.98,
+      "duration": 5.56
+    },
+    {
+      "text": "matrices, and can generalize\nto any number of entities.",
+      "start": 326.54,
+      "duration": 6.86
+    },
+    {
+      "text": "OK.",
+      "start": 333.4,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's talk about how\nmuch tensors take to store.",
+      "start": 333.9,
+      "duration": 8.52
+    },
+    {
+      "text": "So it depends on\nthe type of tensor.",
+      "start": 342.42,
+      "duration": 4.1
+    },
+    {
+      "text": "So in general, we're going to\nbe dealing with tensors that",
+      "start": 346.52,
+      "duration": 3.07
+    },
+    {
+      "text": "store floating point,\nbut tensors can also",
+      "start": 349.59,
+      "duration": 1.75
+    },
+    {
+      "text": "store integers and other types.",
+      "start": 351.34,
+      "duration": 5.16
+    },
+    {
+      "text": "So for floating point, typically\nwhenever you talk about float,",
+      "start": 356.5,
+      "duration": 6.58
+    },
+    {
+      "text": "I think the standard\npeople refer to as float",
+      "start": 363.08,
+      "duration": 2.86
+    },
+    {
+      "text": "what is called float32.",
+      "start": 365.94,
+      "duration": 2.76
+    },
+    {
+      "text": "So a float32, if you break\nit down, has 32 bits.",
+      "start": 368.7,
+      "duration": 5.52
+    },
+    {
+      "text": "One of the bits\nis a sign, 8 bits",
+      "start": 374.22,
+      "duration": 2.08
+    },
+    {
+      "text": "are the exponent, which\ngives you dynamic range.",
+      "start": 376.3,
+      "duration": 2.76
+    },
+    {
+      "text": "And the rest is the\nmantissa or the fraction,",
+      "start": 379.06,
+      "duration": 4.44
+    },
+    {
+      "text": "which gives you variation.",
+      "start": 383.5,
+      "duration": 3.4
+    },
+    {
+      "text": "This is also known as\nfp32 or single precision.",
+      "start": 386.9,
+      "duration": 7.48
+    },
+    {
+      "text": "And the term single\nprecision comes from the fact",
+      "start": 394.38,
+      "duration": 2.64
+    },
+    {
+      "text": "that back in the day when you\nwere doing scientific computing,",
+      "start": 397.02,
+      "duration": 2.94
+    },
+    {
+      "text": "float32 was like a baseline.",
+      "start": 399.96,
+      "duration": 2.08
+    },
+    {
+      "text": "It was just like you would\nexpect if someone gave you",
+      "start": 402.04,
+      "duration": 2.34
+    },
+    {
+      "text": "a float, you would expect it to\nbe at least single precision.",
+      "start": 404.38,
+      "duration": 3.53
+    },
+    {
+      "text": "And if you want more\nprecision, then you",
+      "start": 407.91,
+      "duration": 4.86
+    },
+    {
+      "text": "can get double precision\nas that's float64.",
+      "start": 412.77,
+      "duration": 3.8
+    },
+    {
+      "text": "But in deep learning,\nwe're going the other way,",
+      "start": 416.57,
+      "duration": 2.36
+    },
+    {
+      "text": "because even 32 is a lot.",
+      "start": 418.93,
+      "duration": 3.32
+    },
+    {
+      "text": "And the types of computations\nthat we want to do",
+      "start": 422.25,
+      "duration": 3.2
+    },
+    {
+      "text": "don't demand the high\nprecision that some kind",
+      "start": 425.45,
+      "duration": 2.68
+    },
+    {
+      "text": "of numeric simulations do.",
+      "start": 428.13,
+      "duration": 2.5
+    },
+    {
+      "text": "OK.",
+      "start": 430.63,
+      "duration": 0.5
+    },
+    {
+      "text": "So before we get to other types,\nlet's just look at float32.",
+      "start": 431.13,
+      "duration": 4.12
+    },
+    {
+      "text": "So let's construct\na 4 by 8 matrix.",
+      "start": 435.25,
+      "duration": 3.28
+    },
+    {
+      "text": "By default, the type of\ntensor you create is float32.",
+      "start": 438.53,
+      "duration": 4.54
+    },
+    {
+      "text": "So if you want something\nelse, you should declare it.",
+      "start": 443.07,
+      "duration": 3.74
+    },
+    {
+      "text": "And the memory usage is just\nthe number of elements times",
+      "start": 446.81,
+      "duration": 3.2
+    },
+    {
+      "text": "the element size here, which\nis 4 bytes for a 32-bit number.",
+      "start": 450.01,
+      "duration": 6.32
+    },
+    {
+      "text": "And that's going\nto be 128 bytes.",
+      "start": 456.33,
+      "duration": 2.06
+    },
+    {
+      "text": "So just to give you a\nkind of perspective,",
+      "start": 461.64,
+      "duration": 2.91
+    },
+    {
+      "text": "so in GPT-3, which\nis a fairly old model",
+      "start": 464.55,
+      "duration": 2.6
+    },
+    {
+      "text": "one of the matrix in\nthe feedforward layer",
+      "start": 467.15,
+      "duration": 2.9
+    },
+    {
+      "text": "is about 2.3 gigabytes.",
+      "start": 470.05,
+      "duration": 6.0
+    },
+    {
+      "text": "So these tensors\ncan get quite big.",
+      "start": 476.05,
+      "duration": 3.46
+    },
+    {
+      "text": "And this is not even the biggest\none that one can imagine.",
+      "start": 479.51,
+      "duration": 4.88
+    },
+    {
+      "text": "OK.",
+      "start": 484.39,
+      "duration": 1.96
+    },
+    {
+      "text": "So since we're\ninterested in efficiency,",
+      "start": 486.35,
+      "duration": 3.82
+    },
+    {
+      "text": "we want to generally reduce\nthe amount of storage.",
+      "start": 490.17,
+      "duration": 4.36
+    },
+    {
+      "text": "And we'll see that as\nyou reduce the precision,",
+      "start": 494.53,
+      "duration": 4.68
+    },
+    {
+      "text": "you actually save memory.",
+      "start": 499.21,
+      "duration": 1.66
+    },
+    {
+      "text": "And you also save time\nbecause operating on 16 bits",
+      "start": 500.87,
+      "duration": 5.54
+    },
+    {
+      "text": "is going to be faster,\nlet's say, twice",
+      "start": 506.41,
+      "duration": 3.8
+    },
+    {
+      "text": "as fast, but not always.",
+      "start": 510.21,
+      "duration": 1.44
+    },
+    {
+      "text": "It depends.",
+      "start": 511.65,
+      "duration": 3.06
+    },
+    {
+      "text": "And then memory,\nby reducing memory,",
+      "start": 514.71,
+      "duration": 3.42
+    },
+    {
+      "text": "we'll see later that\nactually reducing memory",
+      "start": 518.13,
+      "duration": 1.919
+    },
+    {
+      "text": "can save time as well,\nwhich is maybe less obvious.",
+      "start": 520.049,
+      "duration": 3.661
+    },
+    {
+      "text": "But it will hopefully\nbecome clear.",
+      "start": 523.71,
+      "duration": 2.98
+    },
+    {
+      "text": "So the obvious thing\nis you say, OK,",
+      "start": 526.69,
+      "duration": 3.06
+    },
+    {
+      "text": "let's take away half the bits.",
+      "start": 529.75,
+      "duration": 1.48
+    },
+    {
+      "text": "Now you have float16.",
+      "start": 531.23,
+      "duration": 1.66
+    },
+    {
+      "text": "So float16 says you have a sign.",
+      "start": 532.89,
+      "duration": 2.02
+    },
+    {
+      "text": "You have only 5\nbits of exponent,",
+      "start": 534.91,
+      "duration": 1.62
+    },
+    {
+      "text": "and then the rest\nis the mantissa.",
+      "start": 536.53,
+      "duration": 3.76
+    },
+    {
+      "text": "So float16 is good, except\nfor its dynamic range is poor.",
+      "start": 540.29,
+      "duration": 10.52
+    },
+    {
+      "text": "So even if you have, let's say,\ntry to construct 1e minus 8",
+      "start": 550.81,
+      "duration": 5.12
+    },
+    {
+      "text": "tensor, then that\nis actually just 0.",
+      "start": 555.93,
+      "duration": 3.08
+    },
+    {
+      "text": "So you can't really\nrepresent very big numbers,",
+      "start": 559.01,
+      "duration": 1.96
+    },
+    {
+      "text": "and you can't represent\nvery small numbers.",
+      "start": 560.97,
+      "duration": 4.12
+    },
+    {
+      "text": "And the reason is\nthat this exponent",
+      "start": 565.09,
+      "duration": 2.36
+    },
+    {
+      "text": "it's only 5 bits of\nexponent compared to 8.",
+      "start": 567.45,
+      "duration": 8.24
+    },
+    {
+      "text": "So if you train with fp16, which\npeople did back in the day,",
+      "start": 575.69,
+      "duration": 8.51
+    },
+    {
+      "text": "you will get instability.",
+      "start": 584.2,
+      "duration": 2.02
+    },
+    {
+      "text": "You will get underflow.",
+      "start": 586.22,
+      "duration": 1.16
+    },
+    {
+      "text": "You get overflow.",
+      "start": 587.38,
+      "duration": 0.92
+    },
+    {
+      "text": "You'll get NaNs.",
+      "start": 588.3,
+      "duration": 1.5
+    },
+    {
+      "text": "It's pretty challenging.",
+      "start": 589.8,
+      "duration": 4.0
+    },
+    {
+      "text": "So bfloat16 was invented.",
+      "start": 593.8,
+      "duration": 5.06
+    },
+    {
+      "text": "So this was developed\nin actually 2018",
+      "start": 598.86,
+      "duration": 2.66
+    },
+    {
+      "text": "to address this issue.",
+      "start": 601.52,
+      "duration": 1.92
+    },
+    {
+      "text": "And the observation was that\nwell, let's not compromise",
+      "start": 603.44,
+      "duration": 4.88
+    },
+    {
+      "text": "on the number of bits.",
+      "start": 608.32,
+      "duration": 2.28
+    },
+    {
+      "text": "The number of bits is going\nto be the same as fp16.",
+      "start": 610.6,
+      "duration": 3.0
+    },
+    {
+      "text": "But we're going to shift some\nof the bits from the mantissa",
+      "start": 613.6,
+      "duration": 2.92
+    },
+    {
+      "text": "to the exponent.",
+      "start": 616.52,
+      "duration": 1.6
+    },
+    {
+      "text": "So that means it has more\ndynamic range than float16.",
+      "start": 618.12,
+      "duration": 4.08
+    },
+    {
+      "text": "And it actually has the same\ndynamic range as float32.",
+      "start": 626.84,
+      "duration": 3.4
+    },
+    {
+      "text": "But of course, the\nresolution is worse",
+      "start": 630.24,
+      "duration": 3.48
+    },
+    {
+      "text": "because there's no\nfree lunch here.",
+      "start": 633.72,
+      "duration": 1.96
+    },
+    {
+      "text": "But it turns out that in a lot\nof deep learning applications,",
+      "start": 635.68,
+      "duration": 3.08
+    },
+    {
+      "text": "this is well worth\nthe trade-off.",
+      "start": 638.76,
+      "duration": 1.98
+    },
+    {
+      "text": "You want the dynamic range to\nnot overflow and underflow.",
+      "start": 640.74,
+      "duration": 3.94
+    },
+    {
+      "text": "And because things are kind of\nsloppy and stochastic anyway,",
+      "start": 644.68,
+      "duration": 3.6
+    },
+    {
+      "text": "you don't need that\nmuch resolution.",
+      "start": 648.28,
+      "duration": 2.34
+    },
+    {
+      "text": "So let me actually\nskip over this part.",
+      "start": 654.8,
+      "duration": 5.74
+    },
+    {
+      "text": "So OK.",
+      "start": 660.54,
+      "duration": 1.16
+    },
+    {
+      "text": "So to summarize, what are the\nimplications for training?",
+      "start": 661.7,
+      "duration": 4.1
+    },
+    {
+      "text": "So you can absolutely\ntrain with float32.",
+      "start": 665.8,
+      "duration": 3.12
+    },
+    {
+      "text": "And if you're training\na small model,",
+      "start": 668.92,
+      "duration": 1.745
+    },
+    {
+      "text": "you probably just-- and you\ndon't want to worry about it,",
+      "start": 670.665,
+      "duration": 2.375
+    },
+    {
+      "text": "just float32 is fine.",
+      "start": 673.04,
+      "duration": 2.64
+    },
+    {
+      "text": "But it requires 4 bytes of--",
+      "start": 675.68,
+      "duration": 5.56
+    },
+    {
+      "text": "sorry, 4 bytes of\nmemory per float.",
+      "start": 681.24,
+      "duration": 4.56
+    },
+    {
+      "text": "And that can take\nup a lot of memory.",
+      "start": 685.8,
+      "duration": 2.92
+    },
+    {
+      "text": "And if you train with\nfloat16, then that's",
+      "start": 688.72,
+      "duration": 5.56
+    },
+    {
+      "text": "going to be too risky.",
+      "start": 694.28,
+      "duration": 1.18
+    },
+    {
+      "text": "So bf16 is the sweet spot.",
+      "start": 695.46,
+      "duration": 7.06
+    },
+    {
+      "text": "Even bf16 can be risky as well.",
+      "start": 702.52,
+      "duration": 3.16
+    },
+    {
+      "text": "Maybe [INAUDIBLE] a little bit.",
+      "start": 705.68,
+      "duration": 3.36
+    },
+    {
+      "text": "One thing that people have--",
+      "start": 709.04,
+      "duration": 3.04
+    },
+    {
+      "text": "has become common practice is\nto use mixed precision training.",
+      "start": 712.08,
+      "duration": 5.52
+    },
+    {
+      "text": "And the actually let me--",
+      "start": 717.6,
+      "duration": 1.92
+    },
+    {
+      "text": "OK, let me compile this again.",
+      "start": 722.84,
+      "duration": 2.56
+    },
+    {
+      "text": "I think these are stale.",
+      "start": 725.4,
+      "duration": 1.22
+    },
+    {
+      "text": "So mixed precision training is\nwhere some of the computations",
+      "start": 726.62,
+      "duration": 6.22
+    },
+    {
+      "text": "use some precision, and\nfor other computations",
+      "start": 732.84,
+      "duration": 3.68
+    },
+    {
+      "text": "use other precision.",
+      "start": 736.52,
+      "duration": 1.56
+    },
+    {
+      "text": "So in general, as\na general rule,",
+      "start": 738.08,
+      "duration": 2.68
+    },
+    {
+      "text": "bf16 is what you would use\nfor parameters, activations,",
+      "start": 740.76,
+      "duration": 6.96
+    },
+    {
+      "text": "and gradients.",
+      "start": 747.72,
+      "duration": 1.72
+    },
+    {
+      "text": "And for optimizer states,\nyou would use fp32.",
+      "start": 749.44,
+      "duration": 3.44
+    },
+    {
+      "text": "And we'll discuss a little\nbit more about that later.",
+      "start": 752.88,
+      "duration": 3.35
+    },
+    {
+      "text": "And to do invoke mixed\nprecision training,",
+      "start": 756.23,
+      "duration": 2.3
+    },
+    {
+      "text": "so PyTorch has an AMP library.",
+      "start": 758.53,
+      "duration": 2.047
+    },
+    {
+      "text": "We're not going to talk\ntoo much about this,",
+      "start": 760.577,
+      "duration": 1.833
+    },
+    {
+      "text": "but you basically\nwrap your code,",
+      "start": 762.41,
+      "duration": 3.38
+    },
+    {
+      "text": "and PyTorch has-- the\nlibrary takes care of it",
+      "start": 765.79,
+      "duration": 3.92
+    },
+    {
+      "text": "automatically for\nyou in the sense",
+      "start": 769.71,
+      "duration": 2.0
+    },
+    {
+      "text": "that it tries to cast things\ninto a bf16 when it's safe.",
+      "start": 771.71,
+      "duration": 4.46
+    },
+    {
+      "text": "So, for example, MatMuls\nare generally safe.",
+      "start": 776.17,
+      "duration": 2.16
+    },
+    {
+      "text": "But if you try to\ndo exponentiation,",
+      "start": 778.33,
+      "duration": 2.84
+    },
+    {
+      "text": "then it will try to\nleave things as fp32.",
+      "start": 781.17,
+      "duration": 5.14
+    },
+    {
+      "text": "OK.",
+      "start": 786.31,
+      "duration": 0.5
+    },
+    {
+      "text": "So we could do bf16\nI think is probably",
+      "start": 786.81,
+      "duration": 2.22
+    },
+    {
+      "text": "where this class will end.",
+      "start": 789.03,
+      "duration": 2.12
+    },
+    {
+      "text": "But if you're feeling very\nadventurous, you can go farther.",
+      "start": 791.15,
+      "duration": 4.7
+    },
+    {
+      "text": "So fp8, this was\nintroduced four years ago.",
+      "start": 795.85,
+      "duration": 4.1
+    },
+    {
+      "text": "It actually has\nbeen standardized.",
+      "start": 799.95,
+      "duration": 2.66
+    },
+    {
+      "text": "So if you look at fp8,\nthere's actually two versions",
+      "start": 802.61,
+      "duration": 3.9
+    },
+    {
+      "text": "because depending on if you\nneed more dynamic range or more",
+      "start": 806.51,
+      "duration": 3.88
+    },
+    {
+      "text": "resolution.",
+      "start": 810.39,
+      "duration": 1.88
+    },
+    {
+      "text": "And there's two\nversions of them.",
+      "start": 812.27,
+      "duration": 4.91
+    },
+    {
+      "text": "And so we're not going\nto talk about that.",
+      "start": 817.18,
+      "duration": 1.75
+    },
+    {
+      "text": "But NVIDIA has some--",
+      "start": 818.93,
+      "duration": 2.38
+    },
+    {
+      "text": "the transformer\nengine supports fp8.",
+      "start": 821.31,
+      "duration": 2.6
+    },
+    {
+      "text": "And most recently, you can\nactually go down to fp4.",
+      "start": 823.91,
+      "duration": 3.56
+    },
+    {
+      "text": "So last year, NVIDIA\ndeveloped nvfp4,",
+      "start": 827.47,
+      "duration": 3.24
+    },
+    {
+      "text": "and there's only\n4 bits per value.",
+      "start": 830.71,
+      "duration": 2.483
+    },
+    {
+      "text": "So if you just to-- so\nwe're on the same page.",
+      "start": 833.193,
+      "duration": 1.917
+    },
+    {
+      "text": "4 bits is not a lot.",
+      "start": 835.11,
+      "duration": 1.48
+    },
+    {
+      "text": "I can write all the values\ndown on a single line here",
+      "start": 836.59,
+      "duration": 3.68
+    },
+    {
+      "text": "between minus 6 and 6.",
+      "start": 840.27,
+      "duration": 2.96
+    },
+    {
+      "text": "So that's not very\nmuch precision.",
+      "start": 843.23,
+      "duration": 2.28
+    },
+    {
+      "text": "Now there's a little\nbit of a cheat here.",
+      "start": 845.51,
+      "duration": 1.86
+    },
+    {
+      "text": "Because if you just naively\nonly use these values,",
+      "start": 847.37,
+      "duration": 3.66
+    },
+    {
+      "text": "you're not going to be\nable to train very well.",
+      "start": 851.03,
+      "duration": 3.92
+    },
+    {
+      "text": "So what actually this\nmeans is that every value",
+      "start": 854.95,
+      "duration": 4.0
+    },
+    {
+      "text": "you can have this 4 bits of\nfreedom, but there are blocks.",
+      "start": 858.95,
+      "duration": 4.72
+    },
+    {
+      "text": "And each block can be scaled\nup and down accordingly.",
+      "start": 863.67,
+      "duration": 2.74
+    },
+    {
+      "text": "So you can actually\nrepresent more values",
+      "start": 866.41,
+      "duration": 1.86
+    },
+    {
+      "text": "but you can't represent\nthe full dynamic range",
+      "start": 868.27,
+      "duration": 5.08
+    },
+    {
+      "text": "for every single value.",
+      "start": 873.35,
+      "duration": 1.88
+    },
+    {
+      "text": "And there is a model\nreleased actually this year,",
+      "start": 875.23,
+      "duration": 4.1
+    },
+    {
+      "text": "the Nemotron 3 Super,\nwhich was trained in fp4,",
+      "start": 879.33,
+      "duration": 3.2
+    },
+    {
+      "text": "which I think is pretty cool.",
+      "start": 882.53,
+      "duration": 2.9
+    },
+    {
+      "text": "OK.",
+      "start": 885.43,
+      "duration": 0.84
+    },
+    {
+      "text": "So some of this it's\njust good to know.",
+      "start": 886.27,
+      "duration": 3.76
+    },
+    {
+      "text": "And some of this you\ncan't even touch.",
+      "start": 890.03,
+      "duration": 2.265
+    },
+    {
+      "text": "It's not like you\ncreate a tensor",
+      "start": 892.295,
+      "duration": 1.375
+    },
+    {
+      "text": "and you call it fp--\nyou can make it fp4.",
+      "start": 893.67,
+      "duration": 4.42
+    },
+    {
+      "text": "A lot of this is done under the\nhood by NVIDIA's software stack.",
+      "start": 898.09,
+      "duration": 7.28
+    },
+    {
+      "text": "OK.",
+      "start": 905.37,
+      "duration": 0.5
+    },
+    {
+      "text": "This was a bit of\na long digression,",
+      "start": 905.87,
+      "duration": 2.86
+    },
+    {
+      "text": "but it's maybe\nhelpful to appreciate",
+      "start": 908.73,
+      "duration": 2.26
+    },
+    {
+      "text": "that the intricacies\nof precision here.",
+      "start": 910.99,
+      "duration": 3.72
+    },
+    {
+      "text": "Any questions before I move on?",
+      "start": 914.71,
+      "duration": 2.76
+    },
+    {
+      "text": "Yeah.",
+      "start": 917.47,
+      "duration": 0.68
+    },
+    {
+      "text": "Sorry.",
+      "start": 918.15,
+      "duration": 0.96
+    },
+    {
+      "text": "It was a question like,\nwhen you have a block,",
+      "start": 919.11,
+      "duration": 2.1
+    },
+    {
+      "text": "you're scaling all those same\nthings in tensor by that block.",
+      "start": 921.21,
+      "duration": 3.84
+    },
+    {
+      "text": "So then the ratios of all\nthat will still be in fp4.",
+      "start": 925.05,
+      "duration": 5.23
+    },
+    {
+      "text": "Yeah.",
+      "start": 930.28,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question is to just--",
+      "start": 930.78,
+      "duration": 1.36
+    },
+    {
+      "text": "[INAUDIBLE] maximum value\nis to have more specificity.",
+      "start": 932.14,
+      "duration": 4.08
+    },
+    {
+      "text": "Yeah, so the\nquestion is, OK, just",
+      "start": 936.22,
+      "duration": 2.04
+    },
+    {
+      "text": "to explain the block a bit more.",
+      "start": 938.26,
+      "duration": 1.62
+    },
+    {
+      "text": "So you have, let's say a block.",
+      "start": 939.88,
+      "duration": 1.94
+    },
+    {
+      "text": "Within that block, you can\nvary up within the 4 bits.",
+      "start": 941.82,
+      "duration": 5.72
+    },
+    {
+      "text": "And in addition,\nall those values",
+      "start": 947.54,
+      "duration": 1.92
+    },
+    {
+      "text": "can be scaled up\nand down according",
+      "start": 949.46,
+      "duration": 2.0
+    },
+    {
+      "text": "to how many bits you're\nscaling factor is.",
+      "start": 951.46,
+      "duration": 2.84
+    },
+    {
+      "text": "So if you look at\nan individual value,",
+      "start": 954.3,
+      "duration": 4.16
+    },
+    {
+      "text": "you actually get more than\n4 bits of dynamic range.",
+      "start": 958.46,
+      "duration": 3.06
+    },
+    {
+      "text": "But it's just like\nyou can't have",
+      "start": 961.52,
+      "duration": 1.82
+    },
+    {
+      "text": "this value be way over here\nand the neighboring value way",
+      "start": 963.34,
+      "duration": 3.0
+    },
+    {
+      "text": "down here.",
+      "start": 966.34,
+      "duration": 1.76
+    },
+    {
+      "text": "One question about, what about\n1 bits [INAUDIBLE] affect 1 bit",
+      "start": 968.1,
+      "duration": 7.38
+    },
+    {
+      "text": "[INAUDIBLE]?",
+      "start": 975.48,
+      "duration": 0.82
+    },
+    {
+      "text": "Yeah, so there's a lot\nof training obviously.",
+      "start": 976.3,
+      "duration": 3.2
+    },
+    {
+      "text": "So maybe this is a good point.",
+      "start": 979.5,
+      "duration": 1.62
+    },
+    {
+      "text": "So the question is about 1\nbit because you can't really",
+      "start": 981.12,
+      "duration": 3.1
+    },
+    {
+      "text": "go lower than that.",
+      "start": 984.22,
+      "duration": 2.08
+    },
+    {
+      "text": "So there's a difference\nbetween training and inference.",
+      "start": 986.3,
+      "duration": 4.3
+    },
+    {
+      "text": "So a lot of the low bit\nstuff, if we talk about--",
+      "start": 990.6,
+      "duration": 3.647
+    },
+    {
+      "text": "I think we'll talk about\nquantization later,",
+      "start": 994.247,
+      "duration": 1.833
+    },
+    {
+      "text": "is that you train a model\non and maybe even bf16.",
+      "start": 996.08,
+      "duration": 5.74
+    },
+    {
+      "text": "And then you quantize into,\nlet's say, 1 or 2 bits.",
+      "start": 1001.82,
+      "duration": 4.24
+    },
+    {
+      "text": "And that is much easier than\ntraining a 1-bit language model,",
+      "start": 1006.06,
+      "duration": 4.86
+    },
+    {
+      "text": "which I don't think\nanyone has done.",
+      "start": 1010.92,
+      "duration": 3.08
+    },
+    {
+      "text": "Maybe it's possible,\nbut I don't think",
+      "start": 1014.0,
+      "duration": 1.7
+    },
+    {
+      "text": "anyone has trained\nanything credible there.",
+      "start": 1015.7,
+      "duration": 3.28
+    },
+    {
+      "text": "OK.",
+      "start": 1018.98,
+      "duration": 1.2
+    },
+    {
+      "text": "Let us go on then.",
+      "start": 1020.18,
+      "duration": 1.98
+    },
+    {
+      "text": "So we talked about tensors.",
+      "start": 1022.16,
+      "duration": 2.06
+    },
+    {
+      "text": "And the memory calculus\nis pretty simple,",
+      "start": 1024.22,
+      "duration": 2.7
+    },
+    {
+      "text": "just the number of\nelements times however",
+      "start": 1026.92,
+      "duration": 2.1
+    },
+    {
+      "text": "much memory each\nelement takes up.",
+      "start": 1029.02,
+      "duration": 3.44
+    },
+    {
+      "text": "So by default, the tensors\nyou create in PyTorch",
+      "start": 1032.46,
+      "duration": 3.72
+    },
+    {
+      "text": "are going to be on CPU.",
+      "start": 1036.18,
+      "duration": 1.58
+    },
+    {
+      "text": "And of course, you have to--\nif you want things to go fast,",
+      "start": 1040.61,
+      "duration": 4.35
+    },
+    {
+      "text": "you want to move them to GPU.",
+      "start": 1044.96,
+      "duration": 2.129
+    },
+    {
+      "text": "And actually, so\nthere's a bit of a--",
+      "start": 1047.089,
+      "duration": 3.681
+    },
+    {
+      "text": "I have a slight\nissue with the slides",
+      "start": 1050.77,
+      "duration": 1.888
+    },
+    {
+      "text": "that they were executed\non my laptop, which",
+      "start": 1052.658,
+      "duration": 1.792
+    },
+    {
+      "text": "means that I don't have GPU.",
+      "start": 1054.45,
+      "duration": 1.9
+    },
+    {
+      "text": "So some of the code I'll\njust show but not execute.",
+      "start": 1056.35,
+      "duration": 3.88
+    },
+    {
+      "text": "OK.",
+      "start": 1063.85,
+      "duration": 0.5
+    },
+    {
+      "text": "Let's see.",
+      "start": 1064.35,
+      "duration": 1.3
+    },
+    {
+      "text": "This is maybe not\nthat interesting,",
+      "start": 1065.65,
+      "duration": 2.34
+    },
+    {
+      "text": "but I think everyone knows\nhow to move tensors to GPU.",
+      "start": 1067.99,
+      "duration": 4.392
+    },
+    {
+      "text": "But just remember to do that.",
+      "start": 1072.382,
+      "duration": 1.208
+    },
+    {
+      "text": "Otherwise you won't\nget your speed-ups.",
+      "start": 1073.59,
+      "duration": 5.1
+    },
+    {
+      "text": "OK, so we talked about\nmemory of tensors,",
+      "start": 1078.69,
+      "duration": 2.34
+    },
+    {
+      "text": "which is very straightforward.",
+      "start": 1081.03,
+      "duration": 1.72
+    },
+    {
+      "text": "Now let's talk about\ncomputing with tensors.",
+      "start": 1082.75,
+      "duration": 2.98
+    },
+    {
+      "text": "So before talking\nabout FLOPs accounting",
+      "start": 1085.73,
+      "duration": 2.04
+    },
+    {
+      "text": "for the tensor\noperations, let's take",
+      "start": 1087.77,
+      "duration": 4.28
+    },
+    {
+      "text": "a little bit of a digression\nto talk about einops.",
+      "start": 1092.05,
+      "duration": 3.36
+    },
+    {
+      "text": "So how many of you are\nfamiliar used einops before?",
+      "start": 1095.41,
+      "duration": 4.18
+    },
+    {
+      "text": "OK.",
+      "start": 1099.59,
+      "duration": 0.5
+    },
+    {
+      "text": "So maybe 2/3.",
+      "start": 1100.09,
+      "duration": 1.8
+    },
+    {
+      "text": "OK.",
+      "start": 1101.89,
+      "duration": 0.5
+    },
+    {
+      "text": "Good.",
+      "start": 1102.39,
+      "duration": 0.58
+    },
+    {
+      "text": "So the motivation behind\neinops, for those of you",
+      "start": 1102.97,
+      "duration": 3.88
+    },
+    {
+      "text": "who might not be indoctrinated\nis, it's very easy to mess up.",
+      "start": 1106.85,
+      "duration": 5.62
+    },
+    {
+      "text": "Or I find it very confusing\nto look at code such as this.",
+      "start": 1112.47,
+      "duration": 5.74
+    },
+    {
+      "text": "And you have x and y.",
+      "start": 1118.21,
+      "duration": 3.28
+    },
+    {
+      "text": "And then you have transpose\nminus 2 and minus 1.",
+      "start": 1121.49,
+      "duration": 2.96
+    },
+    {
+      "text": "And you're trying to figure out\nwhat minus 2 and minus 1 is.",
+      "start": 1124.45,
+      "duration": 6.48
+    },
+    {
+      "text": "And so this is\nmaybe the motivation",
+      "start": 1130.93,
+      "duration": 5.04
+    },
+    {
+      "text": "for using variable and\nnames rather than indices.",
+      "start": 1135.97,
+      "duration": 6.04
+    },
+    {
+      "text": "So einops is a library\nfor manipulating tensors",
+      "start": 1142.01,
+      "duration": 3.2
+    },
+    {
+      "text": "where the dimensions are named.",
+      "start": 1145.21,
+      "duration": 1.38
+    },
+    {
+      "text": "And this is inspired by\nEinstein summation notation.",
+      "start": 1146.59,
+      "duration": 3.8
+    },
+    {
+      "text": "There's a nice tutorial\nwhich you can go through.",
+      "start": 1150.39,
+      "duration": 2.42
+    },
+    {
+      "text": "I'm just going to cover\nsome of the basics.",
+      "start": 1152.81,
+      "duration": 4.92
+    },
+    {
+      "text": "So basically, the way\nto think about einsum",
+      "start": 1157.73,
+      "duration": 2.52
+    },
+    {
+      "text": "is a generalized\nmatrix multiplication",
+      "start": 1160.25,
+      "duration": 2.56
+    },
+    {
+      "text": "with good bookkeeping.",
+      "start": 1162.81,
+      "duration": 2.46
+    },
+    {
+      "text": "So here's an example.",
+      "start": 1165.27,
+      "duration": 1.52
+    },
+    {
+      "text": "So I have a matrix 3 by 4.",
+      "start": 1166.79,
+      "duration": 4.9
+    },
+    {
+      "text": "I have a 4 by 3 matrix.",
+      "start": 1171.69,
+      "duration": 1.6
+    },
+    {
+      "text": "And if I do the MatMul, this\nis actually pretty nice.",
+      "start": 1173.29,
+      "duration": 6.18
+    },
+    {
+      "text": "It's pretty easy to understand.",
+      "start": 1179.47,
+      "duration": 2.18
+    },
+    {
+      "text": "In einops, basically you say\nx has two dimensions, the row",
+      "start": 1181.65,
+      "duration": 5.8
+    },
+    {
+      "text": "and the column, which I'm\ngoing to name seq1 and hidden.",
+      "start": 1187.45,
+      "duration": 2.58
+    },
+    {
+      "text": "I'm going to have y.",
+      "start": 1190.03,
+      "duration": 1.04
+    },
+    {
+      "text": "That's a matrix which has also\nrows and columns, which I'm",
+      "start": 1191.07,
+      "duration": 3.74
+    },
+    {
+      "text": "going to name hidden and seq2.",
+      "start": 1194.81,
+      "duration": 4.16
+    },
+    {
+      "text": "And I'm going to\nproduce tensor or here",
+      "start": 1198.97,
+      "duration": 4.44
+    },
+    {
+      "text": "a matrix, where the dimensions\nare indexed by seq1 and seq2.",
+      "start": 1203.41,
+      "duration": 5.4
+    },
+    {
+      "text": "And anything that is\nnot mentioned here,",
+      "start": 1208.81,
+      "duration": 2.64
+    },
+    {
+      "text": "the hidden gets summed out.",
+      "start": 1211.45,
+      "duration": 2.88
+    },
+    {
+      "text": "So the way this works is\nI'm going to sum over--",
+      "start": 1214.33,
+      "duration": 3.56
+    },
+    {
+      "text": "enumerate over all possible\nvalues of all the variables",
+      "start": 1217.89,
+      "duration": 4.79
+    },
+    {
+      "text": "that occur here, which are\nseq1's hidden and seq2.",
+      "start": 1222.68,
+      "duration": 5.4
+    },
+    {
+      "text": "And I'm going to basically\nindex into x, index into y,",
+      "start": 1228.08,
+      "duration": 5.34
+    },
+    {
+      "text": "multiply them and dump\nthem, accumulate them",
+      "start": 1233.42,
+      "duration": 2.46
+    },
+    {
+      "text": "into the result z\nsub seq1 and seq2.",
+      "start": 1235.88,
+      "duration": 4.6
+    },
+    {
+      "text": "All right.",
+      "start": 1243.4,
+      "duration": 0.5
+    },
+    {
+      "text": "So you say this is--",
+      "start": 1243.9,
+      "duration": 2.94
+    },
+    {
+      "text": "come on.",
+      "start": 1246.84,
+      "duration": 0.5
+    },
+    {
+      "text": "This is much easier\nthan this, Right",
+      "start": 1247.34,
+      "duration": 4.18
+    },
+    {
+      "text": "OK, let's try a more\ncomplicated example.",
+      "start": 1251.52,
+      "duration": 1.86
+    },
+    {
+      "text": "So here's the example\nI showed before.",
+      "start": 1253.38,
+      "duration": 3.4
+    },
+    {
+      "text": "Now we have a tensor.",
+      "start": 1256.78,
+      "duration": 2.14
+    },
+    {
+      "text": "It's 2 by 3 by 4, another\ntensor 2 by 3 by 4.",
+      "start": 1258.92,
+      "duration": 4.2
+    },
+    {
+      "text": "And if I were doing things\nthe old way, basically what",
+      "start": 1263.12,
+      "duration": 5.6
+    },
+    {
+      "text": "I'm doing is transposing\nthese last two.",
+      "start": 1268.72,
+      "duration": 4.04
+    },
+    {
+      "text": "And then because at\nimplicitly batches",
+      "start": 1272.76,
+      "duration": 5.24
+    },
+    {
+      "text": "the dimensions that are not\nthe MatMul dimensions, then",
+      "start": 1278.0,
+      "duration": 4.72
+    },
+    {
+      "text": "you get the answer.",
+      "start": 1282.72,
+      "duration": 1.3
+    },
+    {
+      "text": "So you have to reason\nabout this a bit.",
+      "start": 1284.02,
+      "duration": 2.38
+    },
+    {
+      "text": "Einops makes this very clear.",
+      "start": 1286.4,
+      "duration": 2.6
+    },
+    {
+      "text": "It says there's a\nbatch dimension.",
+      "start": 1289.0,
+      "duration": 2.04
+    },
+    {
+      "text": "There's seq1\nhidden, seq2 hidden.",
+      "start": 1291.04,
+      "duration": 3.18
+    },
+    {
+      "text": "And I'm just going to\nproduce batch seq1 and seq2.",
+      "start": 1294.22,
+      "duration": 4.42
+    },
+    {
+      "text": "And notice that there's no\ntranspose because I just--",
+      "start": 1298.64,
+      "duration": 4.4
+    },
+    {
+      "text": "in some sense I've done the\ntranspose by the naming.",
+      "start": 1303.04,
+      "duration": 2.92
+    },
+    {
+      "text": "If I had hidden and seq2,\nthen it would be no transpose.",
+      "start": 1305.96,
+      "duration": 4.28
+    },
+    {
+      "text": "I always get confused\nby transposes.",
+      "start": 1310.24,
+      "duration": 1.82
+    },
+    {
+      "text": "And the fact I don't have to\nthink about transposing it",
+      "start": 1312.06,
+      "duration": 2.38
+    },
+    {
+      "text": "makes me happy.",
+      "start": 1314.44,
+      "duration": 3.48
+    },
+    {
+      "text": "OK.",
+      "start": 1317.92,
+      "duration": 1.48
+    },
+    {
+      "text": "So if you want to get fancy,\nyou can say, well, batch--",
+      "start": 1319.4,
+      "duration": 5.88
+    },
+    {
+      "text": "I'm just going to replace\nwith dot, dot, dot.",
+      "start": 1325.28,
+      "duration": 2.44
+    },
+    {
+      "text": "And this means that if\nI had, let's say, rank",
+      "start": 1327.72,
+      "duration": 5.56
+    },
+    {
+      "text": "10 tensor with eight\ndifferent batching dimensions,",
+      "start": 1333.28,
+      "duration": 4.18
+    },
+    {
+      "text": "I can just write dot dot, dot\nwithout enumerating all of them.",
+      "start": 1337.46,
+      "duration": 3.18
+    },
+    {
+      "text": "And this comes up\nin language modeling",
+      "start": 1340.64,
+      "duration": 2.6
+    },
+    {
+      "text": "because you might have\na batch dimension.",
+      "start": 1343.24,
+      "duration": 2.04
+    },
+    {
+      "text": "You might have a\nsequence dimension.",
+      "start": 1345.28,
+      "duration": 1.5
+    },
+    {
+      "text": "You might have a head dimension.",
+      "start": 1346.78,
+      "duration": 1.48
+    },
+    {
+      "text": "And you're trying to do\nthis matrix operation",
+      "start": 1348.26,
+      "duration": 2.42
+    },
+    {
+      "text": "for all of them.",
+      "start": 1350.68,
+      "duration": 1.06
+    },
+    {
+      "text": "And you might not want to\nhave to just worry about this.",
+      "start": 1351.74,
+      "duration": 5.162
+    },
+    {
+      "text": "And the nice thing is that you\ncan write modular code where",
+      "start": 1356.902,
+      "duration": 2.458
+    },
+    {
+      "text": "you can write this dot,\ndot, dot without worrying",
+      "start": 1359.36,
+      "duration": 2.72
+    },
+    {
+      "text": "about even the shape of\nthe tensor that comes in.",
+      "start": 1362.08,
+      "duration": 3.62
+    },
+    {
+      "text": "All right.",
+      "start": 1369.67,
+      "duration": 0.67
+    },
+    {
+      "text": "So that's eisum which is\nin the einops library.",
+      "start": 1370.34,
+      "duration": 5.22
+    },
+    {
+      "text": "There's a reduce.",
+      "start": 1375.56,
+      "duration": 2.72
+    },
+    {
+      "text": "So this is a generalization\nof sum, mean, max, and min.",
+      "start": 1378.28,
+      "duration": 5.04
+    },
+    {
+      "text": "So for example, if you\nhave, let's say, this tensor",
+      "start": 1383.32,
+      "duration": 6.04
+    },
+    {
+      "text": "and you want to sum according\nto dimension of dim minus 1,",
+      "start": 1389.36,
+      "duration": 5.15
+    },
+    {
+      "text": "which means sum along\nthe last dimension here.",
+      "start": 1394.51,
+      "duration": 5.2
+    },
+    {
+      "text": "So again, I don't\nlike this notation.",
+      "start": 1399.71,
+      "duration": 3.78
+    },
+    {
+      "text": "But what you can\ndo is call reduce.",
+      "start": 1403.49,
+      "duration": 2.38
+    },
+    {
+      "text": "And basically what you\nsay is that there's",
+      "start": 1405.87,
+      "duration": 2.84
+    },
+    {
+      "text": "some batching dimensions.",
+      "start": 1408.71,
+      "duration": 1.3
+    },
+    {
+      "text": "In this case, it would\nbe these first two.",
+      "start": 1410.01,
+      "duration": 3.5
+    },
+    {
+      "text": "And then there's\nsome hidden dimension",
+      "start": 1413.51,
+      "duration": 2.84
+    },
+    {
+      "text": "which doesn't appear on\nthe right side, which",
+      "start": 1416.35,
+      "duration": 1.92
+    },
+    {
+      "text": "means that it gets summed.",
+      "start": 1418.27,
+      "duration": 1.76
+    },
+    {
+      "text": "And here, I put sum, which means\nthat the aggregation reduction",
+      "start": 1420.03,
+      "duration": 2.92
+    },
+    {
+      "text": "operation is sum.",
+      "start": 1422.95,
+      "duration": 1.1
+    },
+    {
+      "text": "But you can replace it\nwith mean or max or min.",
+      "start": 1424.05,
+      "duration": 3.42
+    },
+    {
+      "text": "Yeah.",
+      "start": 1427.47,
+      "duration": 2.6
+    },
+    {
+      "text": "Is there some speed-up to this?",
+      "start": 1430.07,
+      "duration": 1.7
+    },
+    {
+      "text": "This basically reduces\nto the same type",
+      "start": 1431.77,
+      "duration": 2.1
+    },
+    {
+      "text": "of primitive operations.",
+      "start": 1433.87,
+      "duration": 1.3
+    },
+    {
+      "text": "You can think about\nit as just sugar.",
+      "start": 1435.17,
+      "duration": 2.278
+    },
+    {
+      "text": "So it should be the same.",
+      "start": 1437.448,
+      "duration": 1.042
+    },
+    {
+      "text": "OK.",
+      "start": 1443.17,
+      "duration": 0.5
+    },
+    {
+      "text": "So the final thing I'll\ntalk about is rearrange.",
+      "start": 1443.67,
+      "duration": 3.22
+    },
+    {
+      "text": "So this is, I think, a\npretty powerful tool.",
+      "start": 1446.89,
+      "duration": 3.38
+    },
+    {
+      "text": "I think it will come up\nin an assignment once.",
+      "start": 1450.27,
+      "duration": 3.56
+    },
+    {
+      "text": "So sometimes you\nhave a dimension",
+      "start": 1453.83,
+      "duration": 1.6
+    },
+    {
+      "text": "that actually represents\ntwo dimensions,",
+      "start": 1455.43,
+      "duration": 3.4
+    },
+    {
+      "text": "and you want to\noperate on one of them.",
+      "start": 1458.83,
+      "duration": 2.255
+    },
+    {
+      "text": "And the reason this happens is\nthat sometimes you have a matrix",
+      "start": 1461.085,
+      "duration": 2.625
+    },
+    {
+      "text": "and you flatten it.",
+      "start": 1463.71,
+      "duration": 2.04
+    },
+    {
+      "text": "And then you want to maybe\nunflatten and flatten.",
+      "start": 1465.75,
+      "duration": 2.74
+    },
+    {
+      "text": "So this is the way\nthat it works here.",
+      "start": 1468.49,
+      "duration": 3.9
+    },
+    {
+      "text": "So imagine I have\na matrix 3 by 8",
+      "start": 1472.39,
+      "duration": 3.84
+    },
+    {
+      "text": "but where this dimension,\n8 actually represents a 2",
+      "start": 1476.23,
+      "duration": 8.24
+    },
+    {
+      "text": "by 4 matrix.",
+      "start": 1484.47,
+      "duration": 2.52
+    },
+    {
+      "text": "So I want to multiply that 2 by\n4 matrix by this 4 by 4 matrix.",
+      "start": 1486.99,
+      "duration": 6.44
+    },
+    {
+      "text": "So what I'm going to do,\nactually, is to call rearrange.",
+      "start": 1493.43,
+      "duration": 6.16
+    },
+    {
+      "text": "And what I am doing\nhere is saying, look,",
+      "start": 1499.59,
+      "duration": 5.14
+    },
+    {
+      "text": "this is some number\nof batch dimensions,",
+      "start": 1504.73,
+      "duration": 2.1
+    },
+    {
+      "text": "which here just corresponds\nto the first element here.",
+      "start": 1506.83,
+      "duration": 4.08
+    },
+    {
+      "text": "And then here, I use parentheses\nto say that this h actually",
+      "start": 1510.91,
+      "duration": 4.32
+    },
+    {
+      "text": "represents the product\nof heads and hidden1,",
+      "start": 1515.23,
+      "duration": 4.16
+    },
+    {
+      "text": "where I have to-- obviously\nthere's multiple ways",
+      "start": 1519.39,
+      "duration": 2.08
+    },
+    {
+      "text": "to decompose this.",
+      "start": 1521.47,
+      "duration": 0.86
+    },
+    {
+      "text": "It could be 2 by 4, 4 by 2.",
+      "start": 1522.33,
+      "duration": 1.28
+    },
+    {
+      "text": "So I said the number\nof heads is 2,",
+      "start": 1523.61,
+      "duration": 1.78
+    },
+    {
+      "text": "which means that hidden1 is 4.",
+      "start": 1525.39,
+      "duration": 2.6
+    },
+    {
+      "text": "And then I can break that up\ninto two dimensions, heads",
+      "start": 1527.99,
+      "duration": 6.4
+    },
+    {
+      "text": "and hidden.",
+      "start": 1534.39,
+      "duration": 0.96
+    },
+    {
+      "text": "OK.",
+      "start": 1535.35,
+      "duration": 0.5
+    },
+    {
+      "text": "So this creates this.",
+      "start": 1535.85,
+      "duration": 2.92
+    },
+    {
+      "text": "So before x looked like this,\nand now x looks like this.",
+      "start": 1538.77,
+      "duration": 6.42
+    },
+    {
+      "text": "So I guess this might be\na little bit hard to see.",
+      "start": 1545.19,
+      "duration": 5.08
+    },
+    {
+      "text": "So then you can perform your\noperation transformation on w.",
+      "start": 1550.27,
+      "duration": 5.4
+    },
+    {
+      "text": "And this is what we've\nseen before where",
+      "start": 1555.67,
+      "duration": 2.4
+    },
+    {
+      "text": "you have just a\nstandard MatMul where",
+      "start": 1558.07,
+      "duration": 4.16
+    },
+    {
+      "text": "there's some number of\nbatching dimensions for x here.",
+      "start": 1562.23,
+      "duration": 4.92
+    },
+    {
+      "text": "And this is hidden\ntimes hidden by hidden2.",
+      "start": 1567.15,
+      "duration": 5.39
+    },
+    {
+      "text": "And then once you've\ndone that transformation,",
+      "start": 1572.54,
+      "duration": 2.44
+    },
+    {
+      "text": "you can rearrange it back.",
+      "start": 1574.98,
+      "duration": 2.68
+    },
+    {
+      "text": "And this is straightforward.",
+      "start": 1577.66,
+      "duration": 1.18
+    },
+    {
+      "text": "You basically look\nat two dimensions,",
+      "start": 1578.84,
+      "duration": 2.08
+    },
+    {
+      "text": "and then you can group\nthem into one dimension.",
+      "start": 1580.92,
+      "duration": 3.88
+    },
+    {
+      "text": "Yeah.",
+      "start": 1590.22,
+      "duration": 1.097
+    },
+    {
+      "text": "Could you take a\ntwo-dimensional thing",
+      "start": 1591.317,
+      "duration": 1.583
+    },
+    {
+      "text": "and shape it into one dimension,\naren't there two ways?",
+      "start": 1592.9,
+      "duration": 2.94
+    },
+    {
+      "text": "Like, you can do it row\nmajor or column major?",
+      "start": 1595.84,
+      "duration": 2.24
+    },
+    {
+      "text": "Yeah, so the question is if you\nhave a one-dimensional thing",
+      "start": 1598.08,
+      "duration": 2.5
+    },
+    {
+      "text": "and you shift it into-- sorry,\nyou have a two-dimensional thing",
+      "start": 1600.58,
+      "duration": 3.107
+    },
+    {
+      "text": "and you shift it into\none-dimensional thing,",
+      "start": 1603.687,
+      "duration": 1.833
+    },
+    {
+      "text": "which way do you do it?",
+      "start": 1605.52,
+      "duration": 2.08
+    },
+    {
+      "text": "Well, the order you do it is\nspecified in the order here.",
+      "start": 1607.6,
+      "duration": 4.28
+    },
+    {
+      "text": "OK.",
+      "start": 1611.88,
+      "duration": 0.74
+    },
+    {
+      "text": "Yeah.",
+      "start": 1612.62,
+      "duration": 0.5
+    },
+    {
+      "text": "So sometimes I find it takes a\nbit of time to get it used to,",
+      "start": 1617.08,
+      "duration": 3.82
+    },
+    {
+      "text": "but it's well worth it because\nonce you have an einsum,",
+      "start": 1620.9,
+      "duration": 3.78
+    },
+    {
+      "text": "you just think in\na different way.",
+      "start": 1624.68,
+      "duration": 2.68
+    },
+    {
+      "text": "And all the transposes and\nreductions, all that, it's just",
+      "start": 1627.36,
+      "duration": 2.98
+    },
+    {
+      "text": "it becomes more fluid.",
+      "start": 1630.34,
+      "duration": 2.96
+    },
+    {
+      "text": "You have to think through\nthese more bespoke primitives.",
+      "start": 1633.3,
+      "duration": 3.74
+    },
+    {
+      "text": "All right.",
+      "start": 1639.74,
+      "duration": 0.66
+    },
+    {
+      "text": "So OK.",
+      "start": 1640.4,
+      "duration": 1.38
+    },
+    {
+      "text": "We're going to use einops.",
+      "start": 1641.78,
+      "duration": 2.92
+    },
+    {
+      "text": "We'll see a little bit later.",
+      "start": 1644.7,
+      "duration": 2.76
+    },
+    {
+      "text": "So now let's go return back\nto the resource accounting",
+      "start": 1647.46,
+      "duration": 2.76
+    },
+    {
+      "text": "question.",
+      "start": 1650.22,
+      "duration": 0.66
+    },
+    {
+      "text": "So I have tensors.",
+      "start": 1650.88,
+      "duration": 1.24
+    },
+    {
+      "text": "We've talked about\nhow they take memory.",
+      "start": 1652.12,
+      "duration": 2.38
+    },
+    {
+      "text": "So how much compute\ndo they take?",
+      "start": 1654.5,
+      "duration": 2.48
+    },
+    {
+      "text": "So the thing we're going to\nuse to measure computation cost",
+      "start": 1656.98,
+      "duration": 5.0
+    },
+    {
+      "text": "is the number of FLOPs.",
+      "start": 1661.98,
+      "duration": 1.34
+    },
+    {
+      "text": "A FLOP is a\nfloating-point operation.",
+      "start": 1663.32,
+      "duration": 2.26
+    },
+    {
+      "text": "And we're going to assume it's\na basic operation like addition",
+      "start": 1665.58,
+      "duration": 3.4
+    },
+    {
+      "text": "or multiplication.",
+      "start": 1668.98,
+      "duration": 1.76
+    },
+    {
+      "text": "So now there's other\nthings that GPUs can do.",
+      "start": 1670.74,
+      "duration": 2.745
+    },
+    {
+      "text": "But for the most\npart, we're just",
+      "start": 1673.485,
+      "duration": 1.375
+    },
+    {
+      "text": "going to ignore them because\nthese are the bread and butter,",
+      "start": 1674.86,
+      "duration": 4.24
+    },
+    {
+      "text": "and are going to eat\nup most of your time.",
+      "start": 1679.1,
+      "duration": 4.16
+    },
+    {
+      "text": "So one thing that is a pet peeve\nis that if I say the word FLOPs,",
+      "start": 1683.26,
+      "duration": 5.61
+    },
+    {
+      "text": "it's actually\nambiguous what I mean.",
+      "start": 1688.87,
+      "duration": 2.7
+    },
+    {
+      "text": "So there's FLOPs,\nwhich is saying",
+      "start": 1691.57,
+      "duration": 3.48
+    },
+    {
+      "text": "the number of\nfloating-point operations,",
+      "start": 1695.05,
+      "duration": 1.88
+    },
+    {
+      "text": "usually written FLOPs\nwith a lowercase s.",
+      "start": 1696.93,
+      "duration": 3.32
+    },
+    {
+      "text": "This is a measured amount\nof computation done.",
+      "start": 1700.25,
+      "duration": 2.24
+    },
+    {
+      "text": "And then there's FLOP/s, which\nis floating-point operations",
+      "start": 1702.49,
+      "duration": 4.12
+    },
+    {
+      "text": "per second.",
+      "start": 1706.61,
+      "duration": 1.8
+    },
+    {
+      "text": "Sometimes it's also very\nconfusing and written as FLOPS",
+      "start": 1708.41,
+      "duration": 2.44
+    },
+    {
+      "text": "with uppercase S, which-- but\nI'm going to always write /s",
+      "start": 1710.85,
+      "duration": 3.48
+    },
+    {
+      "text": "to make it clear that this is\nmeasuring the speed of hardware.",
+      "start": 1714.33,
+      "duration": 4.0
+    },
+    {
+      "text": "So if you go and see that\nH100s have 800, 989 teraflops,",
+      "start": 1718.33,
+      "duration": 7.42
+    },
+    {
+      "text": "it's the second.",
+      "start": 1725.75,
+      "duration": 1.08
+    },
+    {
+      "text": "And when I say that GPT-3 took\n325 or whatever it is FLOPs,",
+      "start": 1726.83,
+      "duration": 5.88
+    },
+    {
+      "text": "that's the former.",
+      "start": 1732.71,
+      "duration": 1.42
+    },
+    {
+      "text": "So just to get that\nout of the way.",
+      "start": 1734.13,
+      "duration": 4.28
+    },
+    {
+      "text": "So just to give you\nan order of magnitude.",
+      "start": 1738.41,
+      "duration": 2.58
+    },
+    {
+      "text": "So the number of FLOPs when I\ntalk about 1e22 or 23 or 25,",
+      "start": 1740.99,
+      "duration": 5.56
+    },
+    {
+      "text": "these are referring implicitly\nto the amount of compute",
+      "start": 1746.55,
+      "duration": 3.02
+    },
+    {
+      "text": "or the scale of some\nof these models.",
+      "start": 1749.57,
+      "duration": 3.48
+    },
+    {
+      "text": "And so if you look at H100s--",
+      "start": 1753.05,
+      "duration": 4.84
+    },
+    {
+      "text": "if you look at this\nglossy spec sheet--",
+      "start": 1757.89,
+      "duration": 5.64
+    },
+    {
+      "text": "actually it's not on this page.",
+      "start": 1763.53,
+      "duration": 1.58
+    },
+    {
+      "text": "OK.",
+      "start": 1765.11,
+      "duration": 0.54
+    },
+    {
+      "text": "Forget it.",
+      "start": 1765.65,
+      "duration": 1.4
+    },
+    {
+      "text": "There is a spec sheet\nand I'll tell you",
+      "start": 1767.05,
+      "duration": 2.32
+    },
+    {
+      "text": "that for bf16, the\nnumber of FLOP/s is 1979.",
+      "start": 1769.37,
+      "duration": 11.28
+    },
+    {
+      "text": "And then you go and\nyou benchmark it,",
+      "start": 1780.65,
+      "duration": 2.0
+    },
+    {
+      "text": "and it's like wait a\nminute, that's not actually",
+      "start": 1782.65,
+      "duration": 2.0
+    },
+    {
+      "text": "what I'm getting.",
+      "start": 1784.65,
+      "duration": 1.14
+    },
+    {
+      "text": "And then you go\nread the fine print.",
+      "start": 1785.79,
+      "duration": 2.16
+    },
+    {
+      "text": "And there's a footnote that\nsays this is with sparsity.",
+      "start": 1787.95,
+      "duration": 2.52
+    },
+    {
+      "text": "So sparse matrix and\nfor dense over 2.",
+      "start": 1790.47,
+      "duration": 4.3
+    },
+    {
+      "text": "So you always have to take\nthese numbers divide by 2.",
+      "start": 1794.77,
+      "duration": 2.86
+    },
+    {
+      "text": "So that's why you see\nthese divide by 2.",
+      "start": 1797.63,
+      "duration": 3.48
+    },
+    {
+      "text": "OK.",
+      "start": 1801.11,
+      "duration": 0.5
+    },
+    {
+      "text": "So this allows us to--",
+      "start": 1804.37,
+      "duration": 2.64
+    },
+    {
+      "text": "just for intuition,\nso if you have 8 H100s",
+      "start": 1809.665,
+      "duration": 2.705
+    },
+    {
+      "text": "so there's one\nnode for two weeks.",
+      "start": 1812.37,
+      "duration": 3.28
+    },
+    {
+      "text": "That's 8 times the number\nof seconds per in two weeks.",
+      "start": 1815.65,
+      "duration": 8.08
+    },
+    {
+      "text": "Actually, this looks\nlike it's one week.",
+      "start": 1823.73,
+      "duration": 2.32
+    },
+    {
+      "text": "OK fine.",
+      "start": 1826.05,
+      "duration": 0.78
+    },
+    {
+      "text": "It's one week times the number\nof FLOPs you get per second.",
+      "start": 1826.83,
+      "duration": 4.04
+    },
+    {
+      "text": "So that's about 5e 21.",
+      "start": 1830.87,
+      "duration": 4.78
+    },
+    {
+      "text": "OK.",
+      "start": 1835.65,
+      "duration": 0.5
+    },
+    {
+      "text": "So this is just of\nbuilding intuition",
+      "start": 1836.15,
+      "duration": 1.66
+    },
+    {
+      "text": "for the number of FLOPs that\ncertain types of hardware have",
+      "start": 1837.81,
+      "duration": 2.52
+    },
+    {
+      "text": "and how many FLOPs certain\ntypes of models require.",
+      "start": 1840.33,
+      "duration": 4.52
+    },
+    {
+      "text": "It's nothing fancy.",
+      "start": 1844.85,
+      "duration": 1.26
+    },
+    {
+      "text": "It's just math and napkin math.",
+      "start": 1846.11,
+      "duration": 3.58
+    },
+    {
+      "text": "OK.",
+      "start": 1849.69,
+      "duration": 0.8
+    },
+    {
+      "text": "So now let's do something\nmore mechanical.",
+      "start": 1850.49,
+      "duration": 4.36
+    },
+    {
+      "text": "So suppose you have\na linear model.",
+      "start": 1854.85,
+      "duration": 4.75
+    },
+    {
+      "text": "It turns out that a lot of\nthis calculus of counting FLOPs",
+      "start": 1859.6,
+      "duration": 5.16
+    },
+    {
+      "text": "is actually going to be at the\ncore it's like linear MatMuls.",
+      "start": 1864.76,
+      "duration": 3.98
+    },
+    {
+      "text": "So this is actually not without\ntoo much loss of generality.",
+      "start": 1868.74,
+      "duration": 3.0
+    },
+    {
+      "text": "So you have n points.",
+      "start": 1871.74,
+      "duration": 0.92
+    },
+    {
+      "text": "Each point is d-dimensional.",
+      "start": 1872.66,
+      "duration": 1.54
+    },
+    {
+      "text": "And we're going to map each\nof these d-dimensional vectors",
+      "start": 1874.2,
+      "duration": 7.04
+    },
+    {
+      "text": "to a k-dimensional output.",
+      "start": 1881.24,
+      "duration": 4.02
+    },
+    {
+      "text": "So B is going to be\nthe number of points.",
+      "start": 1885.26,
+      "duration": 3.3
+    },
+    {
+      "text": "D is the number of\ndimension, input dimensions,",
+      "start": 1888.56,
+      "duration": 2.6
+    },
+    {
+      "text": "and K is the number\nof output dimensions.",
+      "start": 1891.16,
+      "duration": 1.82
+    },
+    {
+      "text": "OK.",
+      "start": 1892.98,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's construct some x,\nwhich is the data matrix",
+      "start": 1893.48,
+      "duration": 6.2
+    },
+    {
+      "text": "B by D. The weight\nmatrix is D by K.",
+      "start": 1899.68,
+      "duration": 3.04
+    },
+    {
+      "text": "And when you do the MatMul,\nthe question is how many",
+      "start": 1902.72,
+      "duration": 5.04
+    },
+    {
+      "text": "FLOPs that is.",
+      "start": 1907.76,
+      "duration": 2.0
+    },
+    {
+      "text": "And it turns out\nthat this is going",
+      "start": 1909.76,
+      "duration": 2.72
+    },
+    {
+      "text": "to be 2 times basically the\nproduct of all the three",
+      "start": 1912.48,
+      "duration": 6.8
+    },
+    {
+      "text": "dimensions.",
+      "start": 1919.28,
+      "duration": 1.36
+    },
+    {
+      "text": "And the way to see\nthat is that we",
+      "start": 1920.64,
+      "duration": 2.48
+    },
+    {
+      "text": "have one multiplication for\neach triple and then also one",
+      "start": 1923.12,
+      "duration": 6.96
+    },
+    {
+      "text": "addition.",
+      "start": 1930.08,
+      "duration": 1.64
+    },
+    {
+      "text": "So there's a minus\n1, because if you",
+      "start": 1931.72,
+      "duration": 3.2
+    },
+    {
+      "text": "don't have to actually add like\nin this case D minus 1 times.",
+      "start": 1934.92,
+      "duration": 5.94
+    },
+    {
+      "text": "But let's ignore that.",
+      "start": 1940.86,
+      "duration": 2.04
+    },
+    {
+      "text": "OK.",
+      "start": 1942.9,
+      "duration": 0.5
+    },
+    {
+      "text": "I'll come back to this.",
+      "start": 1943.4,
+      "duration": 1.44
+    },
+    {
+      "text": "If this was a bit\nfast, I think there's",
+      "start": 1944.84,
+      "duration": 2.56
+    },
+    {
+      "text": "another way to derive this.",
+      "start": 1947.4,
+      "duration": 4.2
+    },
+    {
+      "text": "So what about the FLOPs\nof other operations?",
+      "start": 1951.6,
+      "duration": 3.22
+    },
+    {
+      "text": "So elementwise operations are\njust the size of a matrix.",
+      "start": 1954.82,
+      "duration": 4.84
+    },
+    {
+      "text": "I think that's fairly clear.",
+      "start": 1959.66,
+      "duration": 1.32
+    },
+    {
+      "text": "So addition also\nrequires m n FLOPs.",
+      "start": 1960.98,
+      "duration": 3.02
+    },
+    {
+      "text": "So in general, no\nother operation",
+      "start": 1964.0,
+      "duration": 2.48
+    },
+    {
+      "text": "you'll encounter as expensive\nas matrix multiplication",
+      "start": 1966.48,
+      "duration": 3.64
+    },
+    {
+      "text": "for large enough matrices.",
+      "start": 1970.12,
+      "duration": 1.46
+    },
+    {
+      "text": "So in general, we're\njust going to focus",
+      "start": 1971.58,
+      "duration": 2.06
+    },
+    {
+      "text": "on what MatMuls are doing,\nwith important caveat of when",
+      "start": 1973.64,
+      "duration": 4.12
+    },
+    {
+      "text": "we talk about memory.",
+      "start": 1977.76,
+      "duration": 1.12
+    },
+    {
+      "text": "Yeah.",
+      "start": 1978.88,
+      "duration": 1.32
+    },
+    {
+      "text": "Just from interest, there\nare some other algorithms",
+      "start": 1980.2,
+      "duration": 4.52
+    },
+    {
+      "text": "for doing matrix multiplication.",
+      "start": 1984.72,
+      "duration": 1.7
+    },
+    {
+      "text": "Is this only for just\ndoing it normally?",
+      "start": 1986.42,
+      "duration": 3.62
+    },
+    {
+      "text": "So the question is that\nthere are other algorithms",
+      "start": 1990.04,
+      "duration": 2.16
+    },
+    {
+      "text": "of doing matrix multiplication.",
+      "start": 1992.2,
+      "duration": 1.66
+    },
+    {
+      "text": "You mean like sub\ncubic algorithms?",
+      "start": 1993.86,
+      "duration": 2.88
+    },
+    {
+      "text": "Yes.",
+      "start": 1996.74,
+      "duration": 0.62
+    },
+    {
+      "text": "So in general, that's--",
+      "start": 1997.36,
+      "duration": 2.68
+    },
+    {
+      "text": "the optimization, the\nalgorithms that people",
+      "start": 2000.04,
+      "duration": 1.92
+    },
+    {
+      "text": "are going to explore for\nmultiple matrix multiplications",
+      "start": 2001.96,
+      "duration": 2.44
+    },
+    {
+      "text": "are going to be much more\nabout how you co-design",
+      "start": 2004.4,
+      "duration": 3.16
+    },
+    {
+      "text": "with the systems,\nrather than these more",
+      "start": 2007.56,
+      "duration": 1.68
+    },
+    {
+      "text": "asymptotic algorithms.",
+      "start": 2009.24,
+      "duration": 2.84
+    },
+    {
+      "text": "Yeah.",
+      "start": 2012.08,
+      "duration": 1.72
+    },
+    {
+      "text": "Yeah.",
+      "start": 2013.8,
+      "duration": 1.04
+    },
+    {
+      "text": "We're considering\nadditional multiplication",
+      "start": 2014.84,
+      "duration": 2.28
+    },
+    {
+      "text": "in the same way is not possible\nto do division more efficiently",
+      "start": 2017.12,
+      "duration": 3.84
+    },
+    {
+      "text": "than multiplication.",
+      "start": 2020.96,
+      "duration": 1.56
+    },
+    {
+      "text": "Yeah, so I think the way\nthe hardware is built,",
+      "start": 2022.52,
+      "duration": 3.44
+    },
+    {
+      "text": "the two are basically the same.",
+      "start": 2025.96,
+      "duration": 2.92
+    },
+    {
+      "text": "But yeah, intuitively it seems\nlike I can do addition faster",
+      "start": 2028.88,
+      "duration": 2.73
+    },
+    {
+      "text": "than I do multiplication.",
+      "start": 2031.61,
+      "duration": 1.52
+    },
+    {
+      "text": "But the way the hardware\nis kind of the same.",
+      "start": 2033.13,
+      "duration": 5.9
+    },
+    {
+      "text": "OK.",
+      "start": 2039.03,
+      "duration": 0.5
+    },
+    {
+      "text": "So you can think\nabout this MatMul",
+      "start": 2039.53,
+      "duration": 2.3
+    },
+    {
+      "text": "as B is the number\nof data points.",
+      "start": 2041.83,
+      "duration": 5.26
+    },
+    {
+      "text": "And D K is the\nnumber of parameters.",
+      "start": 2047.09,
+      "duration": 2.28
+    },
+    {
+      "text": "So remember x is B\nby D and w is D by K.",
+      "start": 2049.37,
+      "duration": 5.14
+    },
+    {
+      "text": "So another way to think\nabout this formula",
+      "start": 2054.51,
+      "duration": 3.72
+    },
+    {
+      "text": "is that the number of\nFLOPs in order to do",
+      "start": 2058.23,
+      "duration": 5.0
+    },
+    {
+      "text": "a forward pass of\nthis linear matrix",
+      "start": 2063.23,
+      "duration": 3.159
+    },
+    {
+      "text": "is actually 2 times the number\nof tokens or data points",
+      "start": 2066.389,
+      "duration": 4.441
+    },
+    {
+      "text": "times the number of parameters.",
+      "start": 2070.83,
+      "duration": 2.32
+    },
+    {
+      "text": "So it turns out\nthat this actually",
+      "start": 2073.15,
+      "duration": 3.48
+    },
+    {
+      "text": "generalizes to\ntransformers, which",
+      "start": 2076.63,
+      "duration": 1.799
+    },
+    {
+      "text": "if you remember the 6\ntimes n times d formula,",
+      "start": 2078.429,
+      "duration": 2.681
+    },
+    {
+      "text": "we can see the shape\nof that forming.",
+      "start": 2081.11,
+      "duration": 4.66
+    },
+    {
+      "text": "OK.",
+      "start": 2085.77,
+      "duration": 0.5
+    },
+    {
+      "text": "So unfortunately\nthese calculations",
+      "start": 2086.27,
+      "duration": 3.48
+    },
+    {
+      "text": "are not going to\nbe very meaningful",
+      "start": 2089.75,
+      "duration": 1.92
+    },
+    {
+      "text": "because I'm doing this on CPU.",
+      "start": 2091.67,
+      "duration": 2.38
+    },
+    {
+      "text": "But I'll just walk\nthrough the code here.",
+      "start": 2094.05,
+      "duration": 4.78
+    },
+    {
+      "text": "So what we've so far\ndone is measured FLOPs.",
+      "start": 2098.83,
+      "duration": 6.0
+    },
+    {
+      "text": "So this is independent\nof hardware.",
+      "start": 2104.83,
+      "duration": 3.092
+    },
+    {
+      "text": "It's just like the\nnumber of calculations",
+      "start": 2107.922,
+      "duration": 1.708
+    },
+    {
+      "text": "you need to do for your model.",
+      "start": 2109.63,
+      "duration": 2.4
+    },
+    {
+      "text": "So now the question is,\nhow long does it actually",
+      "start": 2112.03,
+      "duration": 2.16
+    },
+    {
+      "text": "take on hardware?",
+      "start": 2114.19,
+      "duration": 1.6
+    },
+    {
+      "text": "So one way to find out\nis you just time it.",
+      "start": 2115.79,
+      "duration": 3.0
+    },
+    {
+      "text": "So in this class, I think\nin the few lectures,",
+      "start": 2118.79,
+      "duration": 2.62
+    },
+    {
+      "text": "we're going to talk\nmore about benchmarking.",
+      "start": 2121.41,
+      "duration": 3.58
+    },
+    {
+      "text": "But here's a little preview.",
+      "start": 2124.99,
+      "duration": 2.28
+    },
+    {
+      "text": "So in general, when you\ntime especially on GPU,",
+      "start": 2127.27,
+      "duration": 5.96
+    },
+    {
+      "text": "you have to call\ncuda synchronize",
+      "start": 2133.23,
+      "duration": 3.92
+    },
+    {
+      "text": "to make sure that-- because the\nGPU is running asynchronously,",
+      "start": 2137.15,
+      "duration": 3.9
+    },
+    {
+      "text": "you want to make sure that you\nhave this synchronization point.",
+      "start": 2141.05,
+      "duration": 5.06
+    },
+    {
+      "text": "And then you perform\nthe operation.",
+      "start": 2146.11,
+      "duration": 1.52
+    },
+    {
+      "text": "And after operation,\nthen you also",
+      "start": 2147.63,
+      "duration": 5.32
+    },
+    {
+      "text": "have to have the\nsynchronization barrier.",
+      "start": 2152.95,
+      "duration": 2.12
+    },
+    {
+      "text": "If you omit this, you're\ngoing to find that wow,",
+      "start": 2155.07,
+      "duration": 2.74
+    },
+    {
+      "text": "your timings are really fast.",
+      "start": 2157.81,
+      "duration": 1.282
+    },
+    {
+      "text": "And that's because this\nis a non-blocking call.",
+      "start": 2159.092,
+      "duration": 1.958
+    },
+    {
+      "text": "It just returns.",
+      "start": 2161.05,
+      "duration": 1.78
+    },
+    {
+      "text": "And often it's\ngeneral good practice",
+      "start": 2162.83,
+      "duration": 1.92
+    },
+    {
+      "text": "to try this multiple times\nand take the average.",
+      "start": 2164.75,
+      "duration": 3.02
+    },
+    {
+      "text": "So the actual FLOPs per second\nis basically the number of FLOPs",
+      "start": 2171.958,
+      "duration": 8.112
+    },
+    {
+      "text": "you did times the time that\nyou recorded on your hardware.",
+      "start": 2180.07,
+      "duration": 4.92
+    },
+    {
+      "text": "And so remember, there's\nalso another number, which",
+      "start": 2184.99,
+      "duration": 5.0
+    },
+    {
+      "text": "is the GPU has a spec sheet.",
+      "start": 2189.99,
+      "duration": 2.6
+    },
+    {
+      "text": "Let's see if I can pull\nit up on this link.",
+      "start": 2192.59,
+      "duration": 3.74
+    },
+    {
+      "text": "I feel like maybe I\nhave the wrong link.",
+      "start": 2199.03,
+      "duration": 2.02
+    },
+    {
+      "text": "I'll have to fix\nthat after class.",
+      "start": 2201.05,
+      "duration": 1.74
+    },
+    {
+      "text": "--that it gives you\nsome number of FLOPs,",
+      "start": 2202.79,
+      "duration": 7.37
+    },
+    {
+      "text": "which was 989 teraflops.",
+      "start": 2210.16,
+      "duration": 4.66
+    },
+    {
+      "text": "And so in general, the number\nof actual FLOPs per second",
+      "start": 2214.82,
+      "duration": 4.44
+    },
+    {
+      "text": "is going to be different from\nthe promised FLOPs per second.",
+      "start": 2219.26,
+      "duration": 3.5
+    },
+    {
+      "text": "OK.",
+      "start": 2227.5,
+      "duration": 1.36
+    },
+    {
+      "text": "Oops, sorry.",
+      "start": 2228.86,
+      "duration": 3.24
+    },
+    {
+      "text": "And the way to directly\nthink about the discrepancy",
+      "start": 2232.1,
+      "duration": 3.56
+    },
+    {
+      "text": "is something called Model\nFLOPs Utilization, or MFU.",
+      "start": 2235.66,
+      "duration": 4.72
+    },
+    {
+      "text": "And the definition of\nMFU is the actual FLOPs",
+      "start": 2240.38,
+      "duration": 4.12
+    },
+    {
+      "text": "per second divided by the\npromise of FLOPs per second.",
+      "start": 2244.5,
+      "duration": 3.44
+    },
+    {
+      "text": "And here this is ignoring\nthe communication",
+      "start": 2247.94,
+      "duration": 4.8
+    },
+    {
+      "text": "and other overhead.",
+      "start": 2252.74,
+      "duration": 1.48
+    },
+    {
+      "text": "So you basically take the actual\nand divide by the promise.",
+      "start": 2254.22,
+      "duration": 4.92
+    },
+    {
+      "text": "So in general, it's rare\nthat you get more than was--",
+      "start": 2259.14,
+      "duration": 5.16
+    },
+    {
+      "text": "I mean, it's-- yeah, you just\nnever get anything more than",
+      "start": 2264.3,
+      "duration": 5.28
+    },
+    {
+      "text": "what you were promised.",
+      "start": 2269.58,
+      "duration": 1.18
+    },
+    {
+      "text": "Often you get less.",
+      "start": 2270.76,
+      "duration": 1.3
+    },
+    {
+      "text": "And in general, if you get about\nMFU of 0.5 for modern models,",
+      "start": 2272.06,
+      "duration": 5.92
+    },
+    {
+      "text": "you should be pretty\nhappy with yourself.",
+      "start": 2277.98,
+      "duration": 3.16
+    },
+    {
+      "text": "If you have just like\na straight up MatMul,",
+      "start": 2281.14,
+      "duration": 2.82
+    },
+    {
+      "text": "you can get maybe\npotentially like 80.8 even,",
+      "start": 2283.96,
+      "duration": 5.22
+    },
+    {
+      "text": "but you usually\ncan't get that high.",
+      "start": 2289.18,
+      "duration": 3.32
+    },
+    {
+      "text": "And sometimes if you\nhave really-- something's",
+      "start": 2292.5,
+      "duration": 4.383
+    },
+    {
+      "text": "really wrong,\nyou'll get something",
+      "start": 2296.883,
+      "duration": 1.417
+    },
+    {
+      "text": "like 0.1, which means that\nyou should do something.",
+      "start": 2298.3,
+      "duration": 3.6
+    },
+    {
+      "text": "OK.",
+      "start": 2301.9,
+      "duration": 0.8
+    },
+    {
+      "text": "So whenever you write your\nmodel, you can calculate.",
+      "start": 2302.7,
+      "duration": 4.6
+    },
+    {
+      "text": "You now know how to calculate\nthe MFU through a combination",
+      "start": 2307.3,
+      "duration": 2.8
+    },
+    {
+      "text": "of counting the number\nof logical FLOPs",
+      "start": 2310.1,
+      "duration": 2.32
+    },
+    {
+      "text": "that your model needs to do, and\nthen looking at the wall clock",
+      "start": 2312.42,
+      "duration": 7.2
+    },
+    {
+      "text": "time and essentially dividing.",
+      "start": 2319.62,
+      "duration": 2.2
+    },
+    {
+      "text": "Yeah.",
+      "start": 2321.82,
+      "duration": 0.677
+    },
+    {
+      "text": "Was there a question over there?",
+      "start": 2322.497,
+      "duration": 1.333
+    },
+    {
+      "text": "Oh.",
+      "start": 2323.83,
+      "duration": 0.72
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 2324.55,
+      "duration": 3.43
+    },
+    {
+      "text": "Yeah.",
+      "start": 2329.37,
+      "duration": 0.5
+    },
+    {
+      "text": "So is the promise-- what is\nthe promise FLOPs number?",
+      "start": 2329.87,
+      "duration": 3.34
+    },
+    {
+      "text": "That is in the spec\nsheet, it is already",
+      "start": 2333.21,
+      "duration": 4.36
+    },
+    {
+      "text": "divided by 2 of the 989 number.",
+      "start": 2337.57,
+      "duration": 5.36
+    },
+    {
+      "text": "And then on top of that, you\nonly get 0.5 of that in general",
+      "start": 2342.93,
+      "duration": 3.84
+    },
+    {
+      "text": "depending on your computation.",
+      "start": 2346.77,
+      "duration": 3.6
+    },
+    {
+      "text": "[INAUDIBLE] you're\ngetting 50% MFU?",
+      "start": 2350.37,
+      "duration": 5.18
+    },
+    {
+      "text": "Yeah, so why are you\ngetting only 50% MFU?",
+      "start": 2355.55,
+      "duration": 2.905
+    },
+    {
+      "text": "Actually, that's\na good question.",
+      "start": 2358.455,
+      "duration": 1.375
+    },
+    {
+      "text": "I'll come back to that when we\ntalk about memory bottlenecks.",
+      "start": 2359.83,
+      "duration": 2.76
+    },
+    {
+      "text": "OK.",
+      "start": 2366.226,
+      "duration": 0.904
+    },
+    {
+      "text": "So to summarize here,\nmatrix multiplications",
+      "start": 2367.13,
+      "duration": 4.76
+    },
+    {
+      "text": "dominate generally\nthe computations.",
+      "start": 2371.89,
+      "duration": 3.9
+    },
+    {
+      "text": "And that's by design.",
+      "start": 2375.79,
+      "duration": 2.36
+    },
+    {
+      "text": "And the number of FLOPs per\nsecond depends on the hardware.",
+      "start": 2381.862,
+      "duration": 4.708
+    },
+    {
+      "text": "So better hardware\nleads to more FLOPs",
+      "start": 2386.57,
+      "duration": 4.52
+    },
+    {
+      "text": "and also it depends\non the data type.",
+      "start": 2391.09,
+      "duration": 3.32
+    },
+    {
+      "text": "Which means that if you\nlook at the spec sheet,",
+      "start": 2394.41,
+      "duration": 3.68
+    },
+    {
+      "text": "different data types will\nhave different FLOPs.",
+      "start": 2398.09,
+      "duration": 2.18
+    },
+    {
+      "text": "If you try to do\nfloat32 nowadays,",
+      "start": 2400.27,
+      "duration": 2.16
+    },
+    {
+      "text": "it's going to be really, really\nslow because they're not really",
+      "start": 2402.43,
+      "duration": 3.26
+    },
+    {
+      "text": "optimizing for that workload.",
+      "start": 2405.69,
+      "duration": 2.06
+    },
+    {
+      "text": "Whereas now bf16 or fp8 are\ngoing to be much faster.",
+      "start": 2407.75,
+      "duration": 8.26
+    },
+    {
+      "text": "And MFU-- now you\nknow what MFU is.",
+      "start": 2416.01,
+      "duration": 2.76
+    },
+    {
+      "text": "It's the actual FLOPs\ndivided by promised FLOPs.",
+      "start": 2418.77,
+      "duration": 3.82
+    },
+    {
+      "text": "All right.",
+      "start": 2427.33,
+      "duration": 0.78
+    },
+    {
+      "text": "So to go back to the\nquestion of why is MFU 0.5.",
+      "start": 2428.11,
+      "duration": 4.645
+    },
+    {
+      "text": "And to understand\nthat, I'm going",
+      "start": 2432.755,
+      "duration": 1.375
+    },
+    {
+      "text": "to have to introduce this\nidea of arithmetic intensity.",
+      "start": 2434.13,
+      "duration": 3.48
+    },
+    {
+      "text": "And the reason is that,\nwell, it's not just",
+      "start": 2437.61,
+      "duration": 4.44
+    },
+    {
+      "text": "doing a bunch of\nMatMuls and then you're",
+      "start": 2442.05,
+      "duration": 4.36
+    },
+    {
+      "text": "done and looking at how\nlong the MatMuls take.",
+      "start": 2446.41,
+      "duration": 3.72
+    },
+    {
+      "text": "This is my very cartoon version\nof what hardware looks like.",
+      "start": 2450.13,
+      "duration": 5.92
+    },
+    {
+      "text": "You have high bandwidth memory.",
+      "start": 2456.05,
+      "duration": 2.88
+    },
+    {
+      "text": "And then you have where\nthe compute cores are,",
+      "start": 2458.93,
+      "duration": 3.18
+    },
+    {
+      "text": "the accelerators chips are.",
+      "start": 2462.11,
+      "duration": 2.74
+    },
+    {
+      "text": "And then how do you compute?",
+      "start": 2464.85,
+      "duration": 3.2
+    },
+    {
+      "text": "Well, you have to send your\ninputs, your matrices--",
+      "start": 2468.05,
+      "duration": 5.44
+    },
+    {
+      "text": "the tensors are\nsitting down here--",
+      "start": 2473.49,
+      "duration": 1.6
+    },
+    {
+      "text": "from the memory to\nthe accelerator.",
+      "start": 2475.09,
+      "duration": 1.96
+    },
+    {
+      "text": "You do the computation,\nand then you send it back.",
+      "start": 2477.05,
+      "duration": 5.92
+    },
+    {
+      "text": "So if you want to measure\nhow long this takes,",
+      "start": 2482.97,
+      "duration": 3.04
+    },
+    {
+      "text": "this depends on two things.",
+      "start": 2486.01,
+      "duration": 1.78
+    },
+    {
+      "text": "One is the accelerator\nspeed, which",
+      "start": 2487.79,
+      "duration": 2.78
+    },
+    {
+      "text": "is what we've talked\nabout just now.",
+      "start": 2490.57,
+      "duration": 3.697
+    },
+    {
+      "text": "But the other thing that\nmatters is the memory bandwidth",
+      "start": 2494.267,
+      "duration": 2.333
+    },
+    {
+      "text": "of your hardware, which\nwe haven't talked about.",
+      "start": 2496.6,
+      "duration": 3.16
+    },
+    {
+      "text": "And if you look\nat the spec sheet,",
+      "start": 2499.76,
+      "duration": 2.66
+    },
+    {
+      "text": "we talked about how the FLOPs\nper second was 1979e12 divided",
+      "start": 2502.42,
+      "duration": 6.54
+    },
+    {
+      "text": "by 2.",
+      "start": 2508.96,
+      "duration": 1.08
+    },
+    {
+      "text": "And the bytes per second,\nwhich is the memory bandwidth,",
+      "start": 2510.04,
+      "duration": 2.66
+    },
+    {
+      "text": "this is 3.3\nterabytes per second.",
+      "start": 2512.7,
+      "duration": 4.7
+    },
+    {
+      "text": "And remember why we\nwere looking at memory,",
+      "start": 2517.4,
+      "duration": 6.8
+    },
+    {
+      "text": "how much things took to store.",
+      "start": 2524.2,
+      "duration": 2.84
+    },
+    {
+      "text": "It's most obviously\nthat, well, if you",
+      "start": 2527.04,
+      "duration": 4.057
+    },
+    {
+      "text": "have a model that's\ntoo big it doesn't",
+      "start": 2531.097,
+      "duration": 1.583
+    },
+    {
+      "text": "fit in your memory, that's\nnot going to be fun.",
+      "start": 2532.68,
+      "duration": 2.68
+    },
+    {
+      "text": "But also it turns\nout that memory--",
+      "start": 2535.36,
+      "duration": 3.6
+    },
+    {
+      "text": "you need to move this\nmemory, which takes time.",
+      "start": 2538.96,
+      "duration": 2.34
+    },
+    {
+      "text": "So actually the size\nof how large things",
+      "start": 2541.3,
+      "duration": 2.66
+    },
+    {
+      "text": "actually influences\nspeed as well.",
+      "start": 2543.96,
+      "duration": 3.1
+    },
+    {
+      "text": "OK.",
+      "start": 2547.06,
+      "duration": 0.5
+    },
+    {
+      "text": "So I'm going to talk\nthrough some operations,",
+      "start": 2547.56,
+      "duration": 4.04
+    },
+    {
+      "text": "and I'm going to\nbasically compute",
+      "start": 2551.6,
+      "duration": 1.6
+    },
+    {
+      "text": "how long things are going\nto take and introduce",
+      "start": 2553.2,
+      "duration": 2.64
+    },
+    {
+      "text": "this idea of\narithmetic intensity.",
+      "start": 2555.84,
+      "duration": 2.2
+    },
+    {
+      "text": "OK, so suppose I have a million\ndimensional vector of bf16.",
+      "start": 2558.04,
+      "duration": 7.94
+    },
+    {
+      "text": "And I'm going to just\ncompute a ReLU on this.",
+      "start": 2565.98,
+      "duration": 3.92
+    },
+    {
+      "text": "So remember ReLU\nis just max of x",
+      "start": 2569.9,
+      "duration": 2.5
+    },
+    {
+      "text": "and 0 done elementwise on\nthe entire vector here.",
+      "start": 2572.4,
+      "duration": 5.92
+    },
+    {
+      "text": "So I count two things,\none is the number",
+      "start": 2578.32,
+      "duration": 4.36
+    },
+    {
+      "text": "of bytes that were moved.",
+      "start": 2582.68,
+      "duration": 2.8
+    },
+    {
+      "text": "So I have to read x in--",
+      "start": 2585.48,
+      "duration": 4.68
+    },
+    {
+      "text": "copy it into the accelerators.",
+      "start": 2590.16,
+      "duration": 4.56
+    },
+    {
+      "text": "And each of this\nis going to be 2",
+      "start": 2594.72,
+      "duration": 3.52
+    },
+    {
+      "text": "because bf16 is 2 bytes\nper float times n floats.",
+      "start": 2598.24,
+      "duration": 3.52
+    },
+    {
+      "text": "So that's 2n.",
+      "start": 2601.76,
+      "duration": 1.16
+    },
+    {
+      "text": "And then I'm going\nto write y back.",
+      "start": 2602.92,
+      "duration": 2.12
+    },
+    {
+      "text": "So that's another 2n.",
+      "start": 2605.04,
+      "duration": 2.04
+    },
+    {
+      "text": "OK.",
+      "start": 2607.08,
+      "duration": 0.5
+    },
+    {
+      "text": "So that's the number of\nbytes that have to be moved.",
+      "start": 2607.58,
+      "duration": 2.46
+    },
+    {
+      "text": "And then how many\nFLOPs were done?",
+      "start": 2610.04,
+      "duration": 2.84
+    },
+    {
+      "text": "Well, each of these elements,\nI'm just comparing it with zero,",
+      "start": 2612.88,
+      "duration": 4.72
+    },
+    {
+      "text": "and that's it.",
+      "start": 2617.6,
+      "duration": 0.66
+    },
+    {
+      "text": "So that's n comparisons.",
+      "start": 2618.26,
+      "duration": 3.62
+    },
+    {
+      "text": "So now I look at the\ncommunication time,",
+      "start": 2621.88,
+      "duration": 4.62
+    },
+    {
+      "text": "which is the number of bytes\nthat I needed to move divided",
+      "start": 2626.5,
+      "duration": 6.38
+    },
+    {
+      "text": "by the speed of that movement.",
+      "start": 2632.88,
+      "duration": 2.72
+    },
+    {
+      "text": "And that gives me the time,\nwhich is 1e minus 6 seconds.",
+      "start": 2635.6,
+      "duration": 5.4
+    },
+    {
+      "text": "And what about the\ncomputation time?",
+      "start": 2641.0,
+      "duration": 1.74
+    },
+    {
+      "text": "That's the FLOPs divided\nby FLOPs per second.",
+      "start": 2642.74,
+      "duration": 2.58
+    },
+    {
+      "text": "So that's 1 minus 9.",
+      "start": 2645.32,
+      "duration": 3.96
+    },
+    {
+      "text": "OK.",
+      "start": 2649.28,
+      "duration": 1.48
+    },
+    {
+      "text": "So there's also going to be\nanother important assumption",
+      "start": 2650.76,
+      "duration": 3.56
+    },
+    {
+      "text": "which generally, we try to hold\nis that we overlap communication",
+      "start": 2654.32,
+      "duration": 4.36
+    },
+    {
+      "text": "and computation.",
+      "start": 2658.68,
+      "duration": 0.773
+    },
+    {
+      "text": "We're going to talk\nmore about that when",
+      "start": 2659.453,
+      "duration": 1.667
+    },
+    {
+      "text": "we talk more deeply about GPUs.",
+      "start": 2661.12,
+      "duration": 2.08
+    },
+    {
+      "text": "But the idea is\nthat in this case",
+      "start": 2663.2,
+      "duration": 3.12
+    },
+    {
+      "text": "as we don't sit here waiting\nfor the things to move.",
+      "start": 2666.32,
+      "duration": 5.69
+    },
+    {
+      "text": "As soon as they're there,\nwe start computing them,",
+      "start": 2672.01,
+      "duration": 2.44
+    },
+    {
+      "text": "and then we move them back.",
+      "start": 2674.45,
+      "duration": 2.5
+    },
+    {
+      "text": "So this movement\nand also the compute",
+      "start": 2676.95,
+      "duration": 4.08
+    },
+    {
+      "text": "is happening at the same time.",
+      "start": 2681.03,
+      "duration": 2.64
+    },
+    {
+      "text": "So mathematically,\nwe're just going",
+      "start": 2683.67,
+      "duration": 3.24
+    },
+    {
+      "text": "to assume that the total\ntime is the max of the two,",
+      "start": 2686.91,
+      "duration": 2.755
+    },
+    {
+      "text": "because we're going to\nassume that we can perfectly",
+      "start": 2689.665,
+      "duration": 2.125
+    },
+    {
+      "text": "overlap them.",
+      "start": 2691.79,
+      "duration": 0.6
+    },
+    {
+      "text": "In practice, it's not going\nto be perfectly overlapped.",
+      "start": 2692.39,
+      "duration": 1.82
+    },
+    {
+      "text": "There's going to\nbe some overhead.",
+      "start": 2694.21,
+      "duration": 1.417
+    },
+    {
+      "text": "But this is good enough for now.",
+      "start": 2695.627,
+      "duration": 2.643
+    },
+    {
+      "text": "OK.",
+      "start": 2698.27,
+      "duration": 0.5
+    },
+    {
+      "text": "So the total time, as we\nsee here, is 1e minus 6.",
+      "start": 2698.77,
+      "duration": 5.54
+    },
+    {
+      "text": "OK.",
+      "start": 2704.31,
+      "duration": 1.0
+    },
+    {
+      "text": "So if you ask what is\nthe bottleneck here?",
+      "start": 2705.31,
+      "duration": 3.44
+    },
+    {
+      "text": "So when the communication time\nis greater than the computation",
+      "start": 2708.75,
+      "duration": 3.48
+    },
+    {
+      "text": "time, then we call it the\nalgorithm memory bound,",
+      "start": 2712.23,
+      "duration": 3.23
+    },
+    {
+      "text": "because you're spending most\nof your time just waiting",
+      "start": 2715.46,
+      "duration": 2.25
+    },
+    {
+      "text": "for bits to show up.",
+      "start": 2717.71,
+      "duration": 1.52
+    },
+    {
+      "text": "And when the computation\ntime is greater",
+      "start": 2719.23,
+      "duration": 1.943
+    },
+    {
+      "text": "and the communication\ntime, that's",
+      "start": 2721.173,
+      "duration": 1.417
+    },
+    {
+      "text": "compute bound,\nbecause then you're",
+      "start": 2722.59,
+      "duration": 2.24
+    },
+    {
+      "text": "actually-- your bottleneck is\nactually doing the compute.",
+      "start": 2724.83,
+      "duration": 4.44
+    },
+    {
+      "text": "And so in this\ncase, what is ReLU?",
+      "start": 2729.27,
+      "duration": 2.38
+    },
+    {
+      "text": "Rectified Linear Unit.",
+      "start": 2734.39,
+      "duration": 1.3
+    },
+    {
+      "text": "Oh, sorry.",
+      "start": 2735.69,
+      "duration": 0.6
+    },
+    {
+      "text": "Is it memory bound\nor compute bound?",
+      "start": 2736.29,
+      "duration": 3.3
+    },
+    {
+      "text": "Memory bound.",
+      "start": 2739.59,
+      "duration": 1.32
+    },
+    {
+      "text": "Memory bound.",
+      "start": 2740.91,
+      "duration": 0.7
+    },
+    {
+      "text": "Yeah.",
+      "start": 2741.61,
+      "duration": 0.5
+    },
+    {
+      "text": "And it's clear, because\nthe compute is way less",
+      "start": 2744.87,
+      "duration": 4.28
+    },
+    {
+      "text": "than the communication.",
+      "start": 2749.15,
+      "duration": 1.34
+    },
+    {
+      "text": "So here's another way to see it.",
+      "start": 2753.31,
+      "duration": 3.16
+    },
+    {
+      "text": "And this is where I'm going\nto define the intensity.",
+      "start": 2756.47,
+      "duration": 3.86
+    },
+    {
+      "text": "So what is the intensity of\nan accelerator is essentially",
+      "start": 2760.33,
+      "duration": 3.34
+    },
+    {
+      "text": "how much work can the\naccelerator do per byte",
+      "start": 2763.67,
+      "duration": 3.76
+    },
+    {
+      "text": "transferred.",
+      "start": 2767.43,
+      "duration": 1.52
+    },
+    {
+      "text": "And for any given accelerator\nbased on the spec sheet,",
+      "start": 2768.95,
+      "duration": 3.28
+    },
+    {
+      "text": "you basically have the\nFLOPs per second divided",
+      "start": 2772.23,
+      "duration": 4.72
+    },
+    {
+      "text": "by the bytes per second.",
+      "start": 2776.95,
+      "duration": 3.36
+    },
+    {
+      "text": "So how much useful work\ncan you do per byte",
+      "start": 2780.31,
+      "duration": 3.68
+    },
+    {
+      "text": "that's moved for each 100?",
+      "start": 2783.99,
+      "duration": 2.06
+    },
+    {
+      "text": "That's 295.",
+      "start": 2786.05,
+      "duration": 2.78
+    },
+    {
+      "text": "So that means for\nevery byte of--",
+      "start": 2788.83,
+      "duration": 5.08
+    },
+    {
+      "text": "you can do 295 floating\npoint operations.",
+      "start": 2793.91,
+      "duration": 4.36
+    },
+    {
+      "text": "So that's an intuitive number\nto have in your head, about 300.",
+      "start": 2798.27,
+      "duration": 5.12
+    },
+    {
+      "text": "OK.",
+      "start": 2803.39,
+      "duration": 0.5
+    },
+    {
+      "text": "So now the arithmetic\nintensity of algorithm",
+      "start": 2803.89,
+      "duration": 3.66
+    },
+    {
+      "text": "is how much actual work was\ndone per byte for this workload.",
+      "start": 2807.55,
+      "duration": 4.04
+    },
+    {
+      "text": "And if you look at it\nfor the ReLU computation,",
+      "start": 2811.59,
+      "duration": 3.08
+    },
+    {
+      "text": "it's FLOPs over bytes and it's\nactually-- so this is actually",
+      "start": 2814.67,
+      "duration": 4.44
+    },
+    {
+      "text": "a quarter, I guess, not half.",
+      "start": 2819.11,
+      "duration": 3.28
+    },
+    {
+      "text": "So the point is that\nit's very small, 0.25.",
+      "start": 2822.39,
+      "duration": 5.28
+    },
+    {
+      "text": "OK.",
+      "start": 2827.67,
+      "duration": 0.5
+    },
+    {
+      "text": "So now we can talk\nabout bottlenecks",
+      "start": 2828.17,
+      "duration": 1.74
+    },
+    {
+      "text": "through the language\nof intensity.",
+      "start": 2829.91,
+      "duration": 2.22
+    },
+    {
+      "text": "So something is memory bound\nif the arithmetic intensity is",
+      "start": 2832.13,
+      "duration": 4.66
+    },
+    {
+      "text": "smaller than the\naccelerator intensity",
+      "start": 2836.79,
+      "duration": 3.72
+    },
+    {
+      "text": "and compute bound\nif it's greater",
+      "start": 2840.51,
+      "duration": 1.6
+    },
+    {
+      "text": "than accelerator intensity.",
+      "start": 2842.11,
+      "duration": 3.31
+    },
+    {
+      "text": "So these are equivalent.",
+      "start": 2845.42,
+      "duration": 1.22
+    },
+    {
+      "text": "And if you look at\nthe algebra, it's",
+      "start": 2846.64,
+      "duration": 1.5
+    },
+    {
+      "text": "basically you have\ntwo fractions.",
+      "start": 2848.14,
+      "duration": 1.375
+    },
+    {
+      "text": "And then you just multiply\nand divide to-- you",
+      "start": 2849.515,
+      "duration": 3.705
+    },
+    {
+      "text": "basically switch\nthe terms around.",
+      "start": 2853.22,
+      "duration": 2.58
+    },
+    {
+      "text": "OK.",
+      "start": 2855.8,
+      "duration": 0.5
+    },
+    {
+      "text": "So in this case,\nwe're memory bound.",
+      "start": 2856.3,
+      "duration": 6.24
+    },
+    {
+      "text": "So in general, we're going to\nfind ourselves in a situation",
+      "start": 2862.54,
+      "duration": 3.0
+    },
+    {
+      "text": "where we're memory bound because\ndata movement is expensive.",
+      "start": 2865.54,
+      "duration": 3.64
+    },
+    {
+      "text": "And so if you can get\nhigher arithmetic intensity,",
+      "start": 2869.18,
+      "duration": 3.36
+    },
+    {
+      "text": "that's good.",
+      "start": 2872.54,
+      "duration": 2.04
+    },
+    {
+      "text": "So 0.25, if you see that\nnumber, if someone tells you",
+      "start": 2874.58,
+      "duration": 3.96
+    },
+    {
+      "text": "arithmetic density is\n0.25, you should say, oh,",
+      "start": 2878.54,
+      "duration": 3.32
+    },
+    {
+      "text": "this is really bad.",
+      "start": 2881.86,
+      "duration": 1.46
+    },
+    {
+      "text": "Yeah.",
+      "start": 2883.32,
+      "duration": 0.5
+    },
+    {
+      "text": "What's some typical arithmetic\nintensity for some transformer",
+      "start": 2883.82,
+      "duration": 3.58
+    },
+    {
+      "text": "[INAUDIBLE]?",
+      "start": 2887.4,
+      "duration": 0.9
+    },
+    {
+      "text": "Yeah, so we'll get to that.",
+      "start": 2888.3,
+      "duration": 1.32
+    },
+    {
+      "text": "OK.",
+      "start": 2889.62,
+      "duration": 2.206
+    },
+    {
+      "text": "All right.",
+      "start": 2891.826,
+      "duration": 0.814
+    },
+    {
+      "text": "So OK.",
+      "start": 2892.64,
+      "duration": 2.16
+    },
+    {
+      "text": "So one way to think about\nincreasing arithmetic intensity",
+      "start": 2894.8,
+      "duration": 3.46
+    },
+    {
+      "text": "is that let's just try\nto do more stuff per unit",
+      "start": 2898.26,
+      "duration": 4.16
+    },
+    {
+      "text": "of byte moved.",
+      "start": 2902.42,
+      "duration": 1.2
+    },
+    {
+      "text": "So the GELU is\nanother activation.",
+      "start": 2903.62,
+      "duration": 2.92
+    },
+    {
+      "text": "It looks like this, some\nformula that is more--",
+      "start": 2906.54,
+      "duration": 5.36
+    },
+    {
+      "text": "doesn't have zeros.",
+      "start": 2911.9,
+      "duration": 4.0
+    },
+    {
+      "text": "And if you do this calculation,\nthe number of bytes are moved",
+      "start": 2915.9,
+      "duration": 4.84
+    },
+    {
+      "text": "back and forth is\nstill 2n plus 2n.",
+      "start": 2920.74,
+      "duration": 4.8
+    },
+    {
+      "text": "And the FLOPs here it's about\n20 FLOPs per elementwise scalar",
+      "start": 2925.54,
+      "duration": 7.0
+    },
+    {
+      "text": "operation, so it's 20n.",
+      "start": 2932.54,
+      "duration": 2.22
+    },
+    {
+      "text": "So the arithmetic\nintensity is, let's say, 5.",
+      "start": 2934.76,
+      "duration": 3.02
+    },
+    {
+      "text": "This is a crude estimate.",
+      "start": 2937.78,
+      "duration": 2.2
+    },
+    {
+      "text": "And in this case, are we\nmemory bound or compute bound?",
+      "start": 2939.98,
+      "duration": 3.74
+    },
+    {
+      "text": "Memory bound.",
+      "start": 2949.522,
+      "duration": 1.458
+    },
+    {
+      "text": "Memory bound, because 5 is still\nsmaller than 295, way smaller.",
+      "start": 2950.98,
+      "duration": 6.08
+    },
+    {
+      "text": "So even though GELU does a lot\nof work, more work than ReLU,",
+      "start": 2957.06,
+      "duration": 7.04
+    },
+    {
+      "text": "in the way that\nthings are structured,",
+      "start": 2964.1,
+      "duration": 2.28
+    },
+    {
+      "text": "it's still memory bound.",
+      "start": 2966.38,
+      "duration": 3.64
+    },
+    {
+      "text": "Which means that if you were\njust computing ReLU and GELU,",
+      "start": 2970.02,
+      "duration": 3.48
+    },
+    {
+      "text": "you think that, well,\nGELU is so complicated,",
+      "start": 2973.5,
+      "duration": 3.74
+    },
+    {
+      "text": "it must be really expensive.",
+      "start": 2977.24,
+      "duration": 1.4
+    },
+    {
+      "text": "But actually it's\nexactly the same,",
+      "start": 2978.64,
+      "duration": 1.98
+    },
+    {
+      "text": "because that's not\nwhere the bottleneck is.",
+      "start": 2980.62,
+      "duration": 2.14
+    },
+    {
+      "text": "OK, so now let's look at\nsome linear operations,",
+      "start": 2986.22,
+      "duration": 3.26
+    },
+    {
+      "text": "so dot product.",
+      "start": 2989.48,
+      "duration": 1.0
+    },
+    {
+      "text": "So dot product, you\nhave a vector x.",
+      "start": 2990.48,
+      "duration": 2.6
+    },
+    {
+      "text": "You have a vector w, size n,\nand you take the dot product.",
+      "start": 2993.08,
+      "duration": 3.6
+    },
+    {
+      "text": "So how many bytes are moved?",
+      "start": 2996.68,
+      "duration": 1.52
+    },
+    {
+      "text": "So you read x, which is\n2n; read w, which is 2n;",
+      "start": 2998.2,
+      "duration": 3.44
+    },
+    {
+      "text": "and then you write y, which\nis a scalar, which is 2.",
+      "start": 3001.64,
+      "duration": 4.12
+    },
+    {
+      "text": "And the number of FLOPs is\nyou do the n multiplications",
+      "start": 3005.76,
+      "duration": 4.86
+    },
+    {
+      "text": "and n minus 1 additions.",
+      "start": 3010.62,
+      "duration": 2.82
+    },
+    {
+      "text": "So that's 2n minus 1.",
+      "start": 3013.44,
+      "duration": 2.86
+    },
+    {
+      "text": "OK.",
+      "start": 3016.3,
+      "duration": 0.6
+    },
+    {
+      "text": "So what's the\narithmetic intensity?",
+      "start": 3016.9,
+      "duration": 2.85
+    },
+    {
+      "text": "Oh, for this one, it's about\nhalf, which is also pretty bad.",
+      "start": 3019.75,
+      "duration": 4.98
+    },
+    {
+      "text": "Which means that--\nhopefully you get",
+      "start": 3024.73,
+      "duration": 2.12
+    },
+    {
+      "text": "the idea-- it's memory bound.",
+      "start": 3026.85,
+      "duration": 2.26
+    },
+    {
+      "text": "So what about a\nmatrix vector product?",
+      "start": 3033.06,
+      "duration": 3.09
+    },
+    {
+      "text": "So I have this x is a vector.\nw is an n by n matrix.",
+      "start": 3036.15,
+      "duration": 4.94
+    },
+    {
+      "text": "And you form this product.",
+      "start": 3041.09,
+      "duration": 2.52
+    },
+    {
+      "text": "How many of you think this\nwill be compute bound?",
+      "start": 3043.61,
+      "duration": 2.96
+    },
+    {
+      "text": "How many of you\nthink memory bound?",
+      "start": 3046.57,
+      "duration": 1.5
+    },
+    {
+      "text": "OK.",
+      "start": 3048.07,
+      "duration": 0.66
+    },
+    {
+      "text": "So let's see.",
+      "start": 3048.73,
+      "duration": 2.56
+    },
+    {
+      "text": "So I'm going to read x\nread, which is 2n; read w,",
+      "start": 3051.29,
+      "duration": 3.76
+    },
+    {
+      "text": "which is 2n squared; and\nwrite y, which is 2n.",
+      "start": 3055.05,
+      "duration": 4.12
+    },
+    {
+      "text": "And there's the number\nof FLOPs is basically",
+      "start": 3059.17,
+      "duration": 2.92
+    },
+    {
+      "text": "you're doing n dot products.",
+      "start": 3062.09,
+      "duration": 3.14
+    },
+    {
+      "text": "So that's n times the cost\nof doing a dot product.",
+      "start": 3065.23,
+      "duration": 3.78
+    },
+    {
+      "text": "And the arithmetic intensity\nis barely, barely higher.",
+      "start": 3069.01,
+      "duration": 5.02
+    },
+    {
+      "text": "So this is also memory bound.",
+      "start": 3076.87,
+      "duration": 4.28
+    },
+    {
+      "text": "OK.",
+      "start": 3081.15,
+      "duration": 0.5
+    },
+    {
+      "text": "So now let's talk about\nmatrix multiplication.",
+      "start": 3081.65,
+      "duration": 3.62
+    },
+    {
+      "text": "So this is where\nthings get interesting.",
+      "start": 3085.27,
+      "duration": 2.42
+    },
+    {
+      "text": "So I have an n by m matrix,\nanother m by n matrix.",
+      "start": 3087.69,
+      "duration": 2.54
+    },
+    {
+      "text": "And I multiply them.",
+      "start": 3090.23,
+      "duration": 1.3
+    },
+    {
+      "text": "And the number of bytes that\nwere moved was 2n squared plus",
+      "start": 3091.53,
+      "duration": 6.56
+    },
+    {
+      "text": "2n squared.",
+      "start": 3098.09,
+      "duration": 1.16
+    },
+    {
+      "text": "And then I have to write\n2n squared bytes back to y.",
+      "start": 3099.25,
+      "duration": 4.36
+    },
+    {
+      "text": "And the number of FLOPs here\nis n squared dot products.",
+      "start": 3103.61,
+      "duration": 6.08
+    },
+    {
+      "text": "And then what's\narithmetic intensity?",
+      "start": 3109.69,
+      "duration": 2.48
+    },
+    {
+      "text": "It's 300.",
+      "start": 3112.17,
+      "duration": 1.06
+    },
+    {
+      "text": "Whew.",
+      "start": 3113.23,
+      "duration": 0.5
+    },
+    {
+      "text": "OK, so 340.",
+      "start": 3113.73,
+      "duration": 2.28
+    },
+    {
+      "text": "And in general, it's\nroughly n over 3.",
+      "start": 3116.01,
+      "duration": 5.4
+    },
+    {
+      "text": "And intuitively this\nmakes sense because you're",
+      "start": 3121.41,
+      "duration": 3.76
+    },
+    {
+      "text": "sending n squared things, but\nyou're computing n cubed things.",
+      "start": 3125.17,
+      "duration": 5.18
+    },
+    {
+      "text": "So the number of things\nyou're computing over",
+      "start": 3130.35,
+      "duration": 2.26
+    },
+    {
+      "text": "a number of things you're\nsending is order n.",
+      "start": 3132.61,
+      "duration": 3.63
+    },
+    {
+      "text": "And this gets better the\nlarger you make the matrices.",
+      "start": 3136.24,
+      "duration": 3.32
+    },
+    {
+      "text": "So in general, this is why when\nyou hear people talk about, oh,",
+      "start": 3139.56,
+      "duration": 5.58
+    },
+    {
+      "text": "we need to make large batch\nsizes or have large matrices,",
+      "start": 3145.14,
+      "duration": 3.64
+    },
+    {
+      "text": "it's exactly this.",
+      "start": 3148.78,
+      "duration": 1.16
+    },
+    {
+      "text": "If you're under the accelerator\nintensity, making things smaller",
+      "start": 3149.94,
+      "duration": 6.42
+    },
+    {
+      "text": "doesn't actually\nspeed things up.",
+      "start": 3156.36,
+      "duration": 1.86
+    },
+    {
+      "text": "It's all the same.",
+      "start": 3158.22,
+      "duration": 1.4
+    },
+    {
+      "text": "Whereas if you get to a\npoint where you're over this,",
+      "start": 3159.62,
+      "duration": 3.84
+    },
+    {
+      "text": "then you're actually\nsaturating your GPUs.",
+      "start": 3163.46,
+      "duration": 4.4
+    },
+    {
+      "text": "OK.",
+      "start": 3167.86,
+      "duration": 0.5
+    },
+    {
+      "text": "So finally, this\nis compute bound.",
+      "start": 3168.36,
+      "duration": 3.76
+    },
+    {
+      "text": "OK.",
+      "start": 3172.12,
+      "duration": 1.28
+    },
+    {
+      "text": "So as long as we\nhave large matrices,",
+      "start": 3173.4,
+      "duration": 2.14
+    },
+    {
+      "text": "we're actually pretty good.",
+      "start": 3175.54,
+      "duration": 1.44
+    },
+    {
+      "text": "We're in a compute bound\nsaturating the accelerator.",
+      "start": 3176.98,
+      "duration": 2.62
+    },
+    {
+      "text": "And the question earlier\nabout what about transformers?",
+      "start": 3179.6,
+      "duration": 3.7
+    },
+    {
+      "text": "Well, it turns out we'll\nsee in both your assignment,",
+      "start": 3183.3,
+      "duration": 3.36
+    },
+    {
+      "text": "but also in the next\nlecture that transformers",
+      "start": 3186.66,
+      "duration": 2.06
+    },
+    {
+      "text": "are essentially big matrix\nmultiplications with some things",
+      "start": 3188.72,
+      "duration": 4.4
+    },
+    {
+      "text": "sprinkled in between.",
+      "start": 3193.12,
+      "duration": 1.64
+    },
+    {
+      "text": "So that's good news from\narithmetic intensity.",
+      "start": 3194.76,
+      "duration": 4.612
+    },
+    {
+      "text": "And this is, by\ndesign, transformer",
+      "start": 3199.372,
+      "duration": 1.458
+    },
+    {
+      "text": "is designed in a certain way to\nhave high arithmetic intensity.",
+      "start": 3200.83,
+      "duration": 5.97
+    },
+    {
+      "text": "And one comment here,\njust to foreshadow",
+      "start": 3206.8,
+      "duration": 2.56
+    },
+    {
+      "text": "the inference lecture, is\nthat matrix vector products",
+      "start": 3209.36,
+      "duration": 2.92
+    },
+    {
+      "text": "is essentially what\ngoes on when you're",
+      "start": 3212.28,
+      "duration": 2.08
+    },
+    {
+      "text": "doing transformer inference.",
+      "start": 3214.36,
+      "duration": 1.84
+    },
+    {
+      "text": "Because inference, you're\ngenerating one token at a time.",
+      "start": 3216.2,
+      "duration": 3.24
+    },
+    {
+      "text": "And so you only get\nto-- it's like a vector",
+      "start": 3219.44,
+      "duration": 2.24
+    },
+    {
+      "text": "that you're trying to dot\nproduct with a matrix.",
+      "start": 3221.68,
+      "duration": 3.88
+    },
+    {
+      "text": "And that's as we saw\nwith memory bound.",
+      "start": 3225.56,
+      "duration": 4.4
+    },
+    {
+      "text": "Whereas at training time,\nyou get this whole sequence",
+      "start": 3229.96,
+      "duration": 2.56
+    },
+    {
+      "text": "and you're processing\nall at once.",
+      "start": 3232.52,
+      "duration": 3.63
+    },
+    {
+      "text": "OK.",
+      "start": 3236.15,
+      "duration": 1.99
+    },
+    {
+      "text": "So note also that the intensity\ndepends on the precision.",
+      "start": 3238.14,
+      "duration": 5.16
+    },
+    {
+      "text": "So by default everything\nwe're doing here is fp16.",
+      "start": 3243.3,
+      "duration": 2.62
+    },
+    {
+      "text": "OK.",
+      "start": 3248.86,
+      "duration": 0.5
+    },
+    {
+      "text": "So also to tie it to the\nother question about MFU,",
+      "start": 3249.36,
+      "duration": 3.44
+    },
+    {
+      "text": "and the reason you might\nbe getting low MFU is",
+      "start": 3252.8,
+      "duration": 3.44
+    },
+    {
+      "text": "that while you might be doing--",
+      "start": 3256.24,
+      "duration": 5.72
+    },
+    {
+      "text": "so MFU is a promise FLOPs--",
+      "start": 3261.96,
+      "duration": 3.08
+    },
+    {
+      "text": "sorry, actual over promise.",
+      "start": 3265.04,
+      "duration": 3.08
+    },
+    {
+      "text": "So if you have really\nlarge memory bottlenecks,",
+      "start": 3268.12,
+      "duration": 4.16
+    },
+    {
+      "text": "then you're not actually going\nto get very good throughput,",
+      "start": 3272.28,
+      "duration": 3.26
+    },
+    {
+      "text": "even though you--",
+      "start": 3275.54,
+      "duration": 3.26
+    },
+    {
+      "text": "the promise is if you didn't\nhave memory bottlenecks,",
+      "start": 3278.8,
+      "duration": 2.695
+    },
+    {
+      "text": "you were just like going through\nand doing all the computations",
+      "start": 3281.495,
+      "duration": 2.625
+    },
+    {
+      "text": "of your model.",
+      "start": 3284.12,
+      "duration": 0.9
+    },
+    {
+      "text": "OK.",
+      "start": 3287.88,
+      "duration": 0.8
+    },
+    {
+      "text": "Final thing on arithmetic\nintensity roofline plots.",
+      "start": 3288.68,
+      "duration": 4.32
+    },
+    {
+      "text": "So there's a nice way to-- yeah.",
+      "start": 3293.0,
+      "duration": 1.88
+    },
+    {
+      "text": "[INAUDIBLE] generally\nspeaking, these models",
+      "start": 3294.88,
+      "duration": 5.12
+    },
+    {
+      "text": "tend to be memory bound, as they\nsay for most of the computation.",
+      "start": 3300.0,
+      "duration": 4.44
+    },
+    {
+      "text": "But yet the accelerators\nare 50% is not as good.",
+      "start": 3304.44,
+      "duration": 4.51
+    },
+    {
+      "text": "And maybe you get 70, maybe\nyou get 80 that's really good,",
+      "start": 3308.95,
+      "duration": 2.84
+    },
+    {
+      "text": "meaning that the\naccelerator is outsized",
+      "start": 3311.79,
+      "duration": 3.64
+    },
+    {
+      "text": "compared to memory bandwidth.",
+      "start": 3315.43,
+      "duration": 3.56
+    },
+    {
+      "text": "Why is it like that?",
+      "start": 3318.99,
+      "duration": 1.42
+    },
+    {
+      "text": "Why do these accelerators--",
+      "start": 3320.41,
+      "duration": 2.98
+    },
+    {
+      "text": "are just big while they're just\nidling or waiting for memory?",
+      "start": 3323.39,
+      "duration": 4.36
+    },
+    {
+      "text": "So the question is, could you\ndesign maybe accelerators that",
+      "start": 3327.75,
+      "duration": 4.12
+    },
+    {
+      "text": "had better characteristics?",
+      "start": 3331.87,
+      "duration": 3.88
+    },
+    {
+      "text": "Yeah.",
+      "start": 3335.75,
+      "duration": 0.5
+    },
+    {
+      "text": "Maybe when we talk about\nGPUs and understand",
+      "start": 3336.25,
+      "duration": 1.9
+    },
+    {
+      "text": "a bit more how they work, we\ncan talk about why this is.",
+      "start": 3338.15,
+      "duration": 4.08
+    },
+    {
+      "text": "But if you have an answer,\nyou should tell Jensen.",
+      "start": 3342.23,
+      "duration": 2.58
+    },
+    {
+      "text": "And maybe you can design\na better hardware.",
+      "start": 3344.81,
+      "duration": 4.98
+    },
+    {
+      "text": "OK, so let's visualize the\nrelationship between arithmetic",
+      "start": 3349.79,
+      "duration": 4.6
+    },
+    {
+      "text": "intensity and performance.",
+      "start": 3354.39,
+      "duration": 1.1
+    },
+    {
+      "text": "So this plot basically plots\nthe arithmetic intensity",
+      "start": 3355.49,
+      "duration": 4.1
+    },
+    {
+      "text": "on the x-axis.",
+      "start": 3359.59,
+      "duration": 1.06
+    },
+    {
+      "text": "So every slice here corresponds\nto a particular, let's say,",
+      "start": 3360.65,
+      "duration": 5.22
+    },
+    {
+      "text": "algorithm.",
+      "start": 3365.87,
+      "duration": 1.12
+    },
+    {
+      "text": "And then we have\nthese lines here.",
+      "start": 3366.99,
+      "duration": 2.4
+    },
+    {
+      "text": "And each of these lines\ncorresponds to, let's say,",
+      "start": 3369.39,
+      "duration": 2.9
+    },
+    {
+      "text": "a particular accelerator.",
+      "start": 3372.29,
+      "duration": 1.48
+    },
+    {
+      "text": "Maybe H100 or B200 or so.",
+      "start": 3373.77,
+      "duration": 5.22
+    },
+    {
+      "text": "And so what this shows\nis-- and then on the y-axis",
+      "start": 3378.99,
+      "duration": 3.68
+    },
+    {
+      "text": "is the FLOPs per second\nthat are realized.",
+      "start": 3382.67,
+      "duration": 4.2
+    },
+    {
+      "text": "So if your algorithm has low\narithmetic intensity, like, ReLU",
+      "start": 3386.87,
+      "duration": 5.24
+    },
+    {
+      "text": "or dot products,\nyou're going to be",
+      "start": 3392.11,
+      "duration": 1.6
+    },
+    {
+      "text": "over here, which means that\nthe FLOPs per second realize",
+      "start": 3393.71,
+      "duration": 3.92
+    },
+    {
+      "text": "is going to be not as high\nas your peak accelerator.",
+      "start": 3397.63,
+      "duration": 5.32
+    },
+    {
+      "text": "And as you increase the\nmemory arithmetic intensity,",
+      "start": 3402.95,
+      "duration": 4.12
+    },
+    {
+      "text": "that's going to--",
+      "start": 3407.07,
+      "duration": 1.48
+    },
+    {
+      "text": "things are going to be better.",
+      "start": 3408.55,
+      "duration": 1.4
+    },
+    {
+      "text": "You're going to be able to\nsaturate your hardware up",
+      "start": 3409.95,
+      "duration": 3.6
+    },
+    {
+      "text": "until a certain point.",
+      "start": 3413.55,
+      "duration": 1.56
+    },
+    {
+      "text": "And after a certain\npoint your compute bound.",
+      "start": 3415.11,
+      "duration": 2.24
+    },
+    {
+      "text": "And obviously you can't\nexceed the peak FLOPs.",
+      "start": 3417.35,
+      "duration": 4.18
+    },
+    {
+      "text": "All right.",
+      "start": 3424.45,
+      "duration": 0.76
+    },
+    {
+      "text": "So let's go on here.",
+      "start": 3425.21,
+      "duration": 3.9
+    },
+    {
+      "text": "OK.",
+      "start": 3429.11,
+      "duration": 1.5
+    },
+    {
+      "text": "So now I'm going to go\nback and talk about memory",
+      "start": 3430.61,
+      "duration": 5.94
+    },
+    {
+      "text": "and compute for the operations\nthat we need in training.",
+      "start": 3436.55,
+      "duration": 6.44
+    },
+    {
+      "text": "So far we've done tensor\noperations, basically MatMuls.",
+      "start": 3442.99,
+      "duration": 4.0
+    },
+    {
+      "text": "And we saw basically\nhow much memory it took",
+      "start": 3446.99,
+      "duration": 3.6
+    },
+    {
+      "text": "and how much compute it took and\nthe interaction between them.",
+      "start": 3450.59,
+      "duration": 4.16
+    },
+    {
+      "text": "So now let's actually think\nabout what it takes to train.",
+      "start": 3454.75,
+      "duration": 3.1
+    },
+    {
+      "text": "So here is our\nrunning example here.",
+      "start": 3457.85,
+      "duration": 4.02
+    },
+    {
+      "text": "Actually it's not a linear\nnetwork, just a deep network.",
+      "start": 3461.87,
+      "duration": 3.68
+    },
+    {
+      "text": "So I'm going to consider a case\nwhere I have an input, which",
+      "start": 3465.55,
+      "duration": 4.24
+    },
+    {
+      "text": "is a B by D input,\nand a number of layers",
+      "start": 3469.79,
+      "duration": 4.44
+    },
+    {
+      "text": "where each layer\nis a D by D MatMul.",
+      "start": 3474.23,
+      "duration": 5.56
+    },
+    {
+      "text": "And then that produces\nsome set of preactivations",
+      "start": 3479.79,
+      "duration": 4.11
+    },
+    {
+      "text": "and then element wise ReLU\nthat produces some activations",
+      "start": 3483.9,
+      "duration": 3.56
+    },
+    {
+      "text": "of the first layer.",
+      "start": 3487.46,
+      "duration": 1.14
+    },
+    {
+      "text": "And then this is\nrepeated again and again.",
+      "start": 3488.6,
+      "duration": 3.42
+    },
+    {
+      "text": "And the output is just\ngoing to be the same size.",
+      "start": 3492.02,
+      "duration": 2.34
+    },
+    {
+      "text": "So the deep network,\nI mean, just",
+      "start": 3497.26,
+      "duration": 3.08
+    },
+    {
+      "text": "to see what it looks\nlike in PyTorch,",
+      "start": 3500.34,
+      "duration": 2.32
+    },
+    {
+      "text": "just so it's basically\na set of blocks.",
+      "start": 3502.66,
+      "duration": 2.96
+    },
+    {
+      "text": "Each block has a weight vector--",
+      "start": 3505.62,
+      "duration": 5.4
+    },
+    {
+      "text": "sorry, a weight matrix\nassociated with it.",
+      "start": 3511.02,
+      "duration": 3.48
+    },
+    {
+      "text": "And so when you the\nnumber of parameters",
+      "start": 3514.5,
+      "duration": 6.0
+    },
+    {
+      "text": "here is D squared times\nthe number of layers L.",
+      "start": 3520.5,
+      "duration": 5.32
+    },
+    {
+      "text": "And when you run the model on\nthe batch of data, what we're",
+      "start": 3525.82,
+      "duration": 4.4
+    },
+    {
+      "text": "doing is we're going through\nthe layers, and each layer",
+      "start": 3530.22,
+      "duration": 4.08
+    },
+    {
+      "text": "we basically apply the linear\ntransformation and then",
+      "start": 3534.3,
+      "duration": 4.44
+    },
+    {
+      "text": "a pointwise ReLU activation.",
+      "start": 3538.74,
+      "duration": 3.64
+    },
+    {
+      "text": "And then we do that\nfor all the layers.",
+      "start": 3542.38,
+      "duration": 1.7
+    },
+    {
+      "text": "So this is hopefully\nstraightforward",
+      "start": 3544.08,
+      "duration": 3.14
+    },
+    {
+      "text": "very simple model.",
+      "start": 3547.22,
+      "duration": 2.64
+    },
+    {
+      "text": "OK.",
+      "start": 3549.86,
+      "duration": 0.5
+    },
+    {
+      "text": "So now let's talk\nabout gradients.",
+      "start": 3550.36,
+      "duration": 5.22
+    },
+    {
+      "text": "So let's use actually\neven simpler example.",
+      "start": 3555.58,
+      "duration": 3.68
+    },
+    {
+      "text": "So this is just a simple\nlinear model regression.",
+      "start": 3559.26,
+      "duration": 5.08
+    },
+    {
+      "text": "So we have a vector 1, 2,\n3, a weight vector 1, 1, 1.",
+      "start": 3564.34,
+      "duration": 9.08
+    },
+    {
+      "text": "And we take the dot product,\nand we form this MSE loss.",
+      "start": 3573.42,
+      "duration": 4.6
+    },
+    {
+      "text": "OK.",
+      "start": 3578.02,
+      "duration": 0.5
+    },
+    {
+      "text": "And what happens when we take\nthe-- do the backward pass is",
+      "start": 3578.52,
+      "duration": 5.78
+    },
+    {
+      "text": "that each of the variables\ninvolved in this computation",
+      "start": 3584.3,
+      "duration": 4.32
+    },
+    {
+      "text": "graph has a gradient that\nis either set or not set.",
+      "start": 3588.62,
+      "duration": 4.5
+    },
+    {
+      "text": "So the w.grad gets\nset to 1, 2, 3.",
+      "start": 3593.12,
+      "duration": 8.38
+    },
+    {
+      "text": "So this is just basic\nmechanics of PyTorch.",
+      "start": 3601.5,
+      "duration": 3.38
+    },
+    {
+      "text": "I think it should be\nfamiliar to all of you.",
+      "start": 3604.88,
+      "duration": 3.78
+    },
+    {
+      "text": "So now the question is, how much\ncompute does gradients take?",
+      "start": 3608.66,
+      "duration": 6.82
+    },
+    {
+      "text": "OK.",
+      "start": 3615.48,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's count FLOPs\nfor computing gradients.",
+      "start": 3615.98,
+      "duration": 5.28
+    },
+    {
+      "text": "So let's take a\nsimplified model where",
+      "start": 3621.26,
+      "duration": 4.12
+    },
+    {
+      "text": "you have an x, which is\nBID and times w1 matrix.",
+      "start": 3625.38,
+      "duration": 8.0
+    },
+    {
+      "text": "We're going to ignore\nthis ReLU for now",
+      "start": 3633.38,
+      "duration": 2.84
+    },
+    {
+      "text": "just for simplicity times w2,\nwhich is the same D by D--",
+      "start": 3636.22,
+      "duration": 3.4
+    },
+    {
+      "text": "same shape D by D matrix.",
+      "start": 3639.62,
+      "duration": 2.34
+    },
+    {
+      "text": "OK.",
+      "start": 3641.96,
+      "duration": 0.5
+    },
+    {
+      "text": "I'm going to use einsum here for\nreasons that will become clear.",
+      "start": 3642.46,
+      "duration": 5.28
+    },
+    {
+      "text": "So the first thing you\ndo in this linear network",
+      "start": 3647.74,
+      "duration": 2.24
+    },
+    {
+      "text": "is you take x and you take w1.\nx is batch by input dimension.",
+      "start": 3649.98,
+      "duration": 5.88
+    },
+    {
+      "text": "w1 is as in buy out, and\nyou get a batch buy out.",
+      "start": 3655.86,
+      "duration": 4.23
+    },
+    {
+      "text": "And h2 takes h1 and w2,\nand it's the same story.",
+      "start": 3660.09,
+      "duration": 5.282
+    },
+    {
+      "text": "These are just MatMuls.",
+      "start": 3665.372,
+      "duration": 0.958
+    },
+    {
+      "text": "And then you form a loss.",
+      "start": 3669.05,
+      "duration": 1.29
+    },
+    {
+      "text": "I'm just sending it\nto some arbitrary just",
+      "start": 3670.34,
+      "duration": 1.75
+    },
+    {
+      "text": "to get a number out.",
+      "start": 3672.09,
+      "duration": 1.5
+    },
+    {
+      "text": "OK.",
+      "start": 3673.59,
+      "duration": 0.5
+    },
+    {
+      "text": "So what happens in\nthe backward pass,",
+      "start": 3674.09,
+      "duration": 4.293
+    },
+    {
+      "text": "I'm going to call\nthese retain gradients",
+      "start": 3678.383,
+      "duration": 1.667
+    },
+    {
+      "text": "for debugging purposes,\nwhich you'll see later.",
+      "start": 3680.05,
+      "duration": 3.12
+    },
+    {
+      "text": "You take the backward\npass on the loss.",
+      "start": 3683.17,
+      "duration": 2.48
+    },
+    {
+      "text": "And the question\nis, how much work",
+      "start": 3685.65,
+      "duration": 2.04
+    },
+    {
+      "text": "did that-- how many floating\npoint operations was that?",
+      "start": 3687.69,
+      "duration": 3.92
+    },
+    {
+      "text": "So let's zoom in on one layer.",
+      "start": 3691.61,
+      "duration": 1.62
+    },
+    {
+      "text": "Let's focus on the second\nlayer here, so this layer.",
+      "start": 3693.23,
+      "duration": 5.86
+    },
+    {
+      "text": "And so the second layer takes\nh1 and just multiplies it",
+      "start": 3699.09,
+      "duration": 4.32
+    },
+    {
+      "text": "by a matrix w2 to get h2.",
+      "start": 3703.41,
+      "duration": 2.32
+    },
+    {
+      "text": "And that's it.",
+      "start": 3705.73,
+      "duration": 1.24
+    },
+    {
+      "text": "So if you look at the\nFLOPs in the forward pass,",
+      "start": 3706.97,
+      "duration": 4.32
+    },
+    {
+      "text": "this is just a MatMul.",
+      "start": 3711.29,
+      "duration": 2.32
+    },
+    {
+      "text": "And we just take the\nthree dimensions,",
+      "start": 3713.61,
+      "duration": 2.88
+    },
+    {
+      "text": "and we multiply them\ntogether and bf16.",
+      "start": 3716.49,
+      "duration": 2.3
+    },
+    {
+      "text": "That's 2 bytes.",
+      "start": 3718.79,
+      "duration": 1.98
+    },
+    {
+      "text": "Sorry, that's irrelevant.",
+      "start": 3720.77,
+      "duration": 2.04
+    },
+    {
+      "text": "This is just 2 because it's an\naddition and a multiplication.",
+      "start": 3722.81,
+      "duration": 5.67
+    },
+    {
+      "text": "So in the backward pass,\nwhat does this look like?",
+      "start": 3728.48,
+      "duration": 3.73
+    },
+    {
+      "text": "So in the backward pass,\nif you remember your chain",
+      "start": 3732.21,
+      "duration": 2.88
+    },
+    {
+      "text": "rule and your\nbackprop algorithm,",
+      "start": 3735.09,
+      "duration": 2.0
+    },
+    {
+      "text": "you have to compute two things.",
+      "start": 3737.09,
+      "duration": 1.8
+    },
+    {
+      "text": "You have to compute\nthe backward message,",
+      "start": 3738.89,
+      "duration": 4.2
+    },
+    {
+      "text": "the gradient of the loss\nwith respect to your input.",
+      "start": 3743.09,
+      "duration": 7.64
+    },
+    {
+      "text": "And you also have to compute\nthe gradient with respect",
+      "start": 3750.73,
+      "duration": 2.52
+    },
+    {
+      "text": "to your parameters.",
+      "start": 3753.25,
+      "duration": 2.76
+    },
+    {
+      "text": "And what do those\ngradients look like?",
+      "start": 3756.01,
+      "duration": 3.36
+    },
+    {
+      "text": "This is just by the\ndefinition of these--",
+      "start": 3759.37,
+      "duration": 4.52
+    },
+    {
+      "text": "I guess this is just the\nchain rule here written",
+      "start": 3763.89,
+      "duration": 2.52
+    },
+    {
+      "text": "in einsum notation.",
+      "start": 3766.41,
+      "duration": 1.42
+    },
+    {
+      "text": "You take the d loss d\nh2, which is h2 grad.",
+      "start": 3767.83,
+      "duration": 6.29
+    },
+    {
+      "text": "That's a batch by Alt\nmatrix, and you multiply it",
+      "start": 3774.12,
+      "duration": 5.8
+    },
+    {
+      "text": "by w2, which is in by out.",
+      "start": 3779.92,
+      "duration": 4.8
+    },
+    {
+      "text": "And then that gives you h1 grad,\nwhich is d loss d h1 and which",
+      "start": 3784.72,
+      "duration": 9.28
+    },
+    {
+      "text": "is batch n.",
+      "start": 3794.0,
+      "duration": 2.16
+    },
+    {
+      "text": "So I always get this confused\nwhenever if you see--",
+      "start": 3796.16,
+      "duration": 4.28
+    },
+    {
+      "text": "learn calculus, there's like,\none of them has a transpose,",
+      "start": 3800.44,
+      "duration": 2.72
+    },
+    {
+      "text": "and I forget which\norder to put them in.",
+      "start": 3803.16,
+      "duration": 2.54
+    },
+    {
+      "text": "And einsum I think\nmakes it very clear,",
+      "start": 3805.7,
+      "duration": 2.02
+    },
+    {
+      "text": "because you can remember even\njust looking at the scalar case",
+      "start": 3807.72,
+      "duration": 4.78
+    },
+    {
+      "text": "that it has to look like h1\ngrad is h2 grad times w2.",
+      "start": 3812.5,
+      "duration": 4.66
+    },
+    {
+      "text": "And the only question is,\nhow do you index things?",
+      "start": 3817.16,
+      "duration": 3.64
+    },
+    {
+      "text": "And you index\nthings by basically",
+      "start": 3820.8,
+      "duration": 1.92
+    },
+    {
+      "text": "looking at the shape of these--",
+      "start": 3822.72,
+      "duration": 1.8
+    },
+    {
+      "text": "and the named dimensions.",
+      "start": 3824.52,
+      "duration": 2.08
+    },
+    {
+      "text": "And in this case, it's just\na matrix multiplication",
+      "start": 3826.6,
+      "duration": 2.92
+    },
+    {
+      "text": "where you are summing\nover the output dimension.",
+      "start": 3829.52,
+      "duration": 4.88
+    },
+    {
+      "text": "And when you do that,\nwe can check that.",
+      "start": 3834.4,
+      "duration": 3.42
+    },
+    {
+      "text": "So h1.grad was the thing that\nwas computed by loss.backward.",
+      "start": 3837.82,
+      "duration": 3.94
+    },
+    {
+      "text": "And this is actually\nindeed the same thing",
+      "start": 3841.76,
+      "duration": 2.16
+    },
+    {
+      "text": "that I wrote out here\njust as a sanity check.",
+      "start": 3843.92,
+      "duration": 3.2
+    },
+    {
+      "text": "So the other thing\nyou have to compute",
+      "start": 3847.12,
+      "duration": 1.68
+    },
+    {
+      "text": "is w, the gradient with\nrespect to the parameters.",
+      "start": 3848.8,
+      "duration": 4.64
+    },
+    {
+      "text": "And that's d loss d h2 times h1.",
+      "start": 3853.44,
+      "duration": 5.36
+    },
+    {
+      "text": "So it's the same kind of\nbackward message that's",
+      "start": 3858.8,
+      "duration": 2.12
+    },
+    {
+      "text": "coming back but multiplying\nwith the other thing",
+      "start": 3860.92,
+      "duration": 2.0
+    },
+    {
+      "text": "that you're not taking the\ngradient with respect to.",
+      "start": 3862.92,
+      "duration": 4.76
+    },
+    {
+      "text": "And you just write\nout the dimensions.",
+      "start": 3867.68,
+      "duration": 2.68
+    },
+    {
+      "text": "And in this case, you're summing\nover the batch dimension.",
+      "start": 3870.36,
+      "duration": 4.86
+    },
+    {
+      "text": "But the nice thing is that\nif you just look at this,",
+      "start": 3880.324,
+      "duration": 3.036
+    },
+    {
+      "text": "we know how expensive this is.",
+      "start": 3883.36,
+      "duration": 4.04
+    },
+    {
+      "text": "The number of FLOPs is\nessentially the product",
+      "start": 3887.4,
+      "duration": 3.32
+    },
+    {
+      "text": "of all the dimensions.",
+      "start": 3890.72,
+      "duration": 1.34
+    },
+    {
+      "text": "It doesn't matter which\nones you're batching or not.",
+      "start": 3892.06,
+      "duration": 3.04
+    },
+    {
+      "text": "It's basically you enumerate\nover the i, j, k, and you",
+      "start": 3895.1,
+      "duration": 3.82
+    },
+    {
+      "text": "aggregate.",
+      "start": 3898.92,
+      "duration": 0.52
+    },
+    {
+      "text": "The way that you\naggregate is different,",
+      "start": 3899.44,
+      "duration": 1.7
+    },
+    {
+      "text": "but the FLOPs is the same.",
+      "start": 3901.14,
+      "duration": 4.28
+    },
+    {
+      "text": "OK.",
+      "start": 3905.42,
+      "duration": 0.5
+    },
+    {
+      "text": "So notice that the backward\npass is exactly twice as",
+      "start": 3905.92,
+      "duration": 4.2
+    },
+    {
+      "text": "expensive as the forward pass.",
+      "start": 3910.12,
+      "duration": 1.96
+    },
+    {
+      "text": "And this is because\nyou have to take--",
+      "start": 3912.08,
+      "duration": 3.36
+    },
+    {
+      "text": "compute two gradients,\none with respect",
+      "start": 3915.44,
+      "duration": 2.76
+    },
+    {
+      "text": "to the parameters\nfor each parameter,",
+      "start": 3918.2,
+      "duration": 2.3
+    },
+    {
+      "text": "and then one with\nrespect to the input,",
+      "start": 3920.5,
+      "duration": 3.26
+    },
+    {
+      "text": "the other thing that's\nnot the parameter.",
+      "start": 3923.76,
+      "duration": 3.96
+    },
+    {
+      "text": "Maybe I'll pause.",
+      "start": 3927.72,
+      "duration": 2.26
+    },
+    {
+      "text": "Any questions about that.",
+      "start": 3929.98,
+      "duration": 1.96
+    },
+    {
+      "text": "OK.",
+      "start": 3939.58,
+      "duration": 0.5
+    },
+    {
+      "text": "So now that was just for w2.",
+      "start": 3940.08,
+      "duration": 3.84
+    },
+    {
+      "text": "And you just need to apply\nthis to all the parameters",
+      "start": 3943.92,
+      "duration": 2.48
+    },
+    {
+      "text": "in the network.",
+      "start": 3946.4,
+      "duration": 0.78
+    },
+    {
+      "text": "And you put it all together, you\nwill see that for this network,",
+      "start": 3947.18,
+      "duration": 5.21
+    },
+    {
+      "text": "the forward pass is\n2 times the number",
+      "start": 3952.39,
+      "duration": 2.96
+    },
+    {
+      "text": "of data points, which is b times\nthe number of parameters FLOPs.",
+      "start": 3955.35,
+      "duration": 4.08
+    },
+    {
+      "text": "And the backward pass\nis twice of that,",
+      "start": 3959.43,
+      "duration": 2.022
+    },
+    {
+      "text": "which is 4 times the number of\ndata points times the number",
+      "start": 3961.452,
+      "duration": 2.458
+    },
+    {
+      "text": "of parameters FLOPs.",
+      "start": 3963.91,
+      "duration": 1.52
+    },
+    {
+      "text": "And so the grand total is 2 plus\n4 is 6 and 6 times the number",
+      "start": 3965.43,
+      "duration": 5.48
+    },
+    {
+      "text": "of data points and parameters.",
+      "start": 3970.91,
+      "duration": 1.82
+    },
+    {
+      "text": "So this is where the 6 nd\ncomes from that you might",
+      "start": 3972.73,
+      "duration": 4.06
+    },
+    {
+      "text": "have seen in various places.",
+      "start": 3976.79,
+      "duration": 1.76
+    },
+    {
+      "text": "It's just by counting\nforward and backward.",
+      "start": 3978.55,
+      "duration": 5.76
+    },
+    {
+      "text": "So we did this for just\nthese deep networks.",
+      "start": 3984.31,
+      "duration": 4.257
+    },
+    {
+      "text": "But it turns out\nthat this is actually",
+      "start": 3988.567,
+      "duration": 1.583
+    },
+    {
+      "text": "a good approximation\nfor transformers",
+      "start": 3990.15,
+      "duration": 3.16
+    },
+    {
+      "text": "as well-- as long as the\ncontext length isn't too large.",
+      "start": 3993.31,
+      "duration": 3.202
+    },
+    {
+      "text": "If the context\nlength is too large,",
+      "start": 3996.512,
+      "duration": 1.458
+    },
+    {
+      "text": "then you get the\ncontext length squared,",
+      "start": 3997.97,
+      "duration": 1.667
+    },
+    {
+      "text": "and that's more FLOPs that isn't\nin this kind of accounting.",
+      "start": 3999.637,
+      "duration": 4.313
+    },
+    {
+      "text": "OK.",
+      "start": 4007.49,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's talk a bit about--\nso now we have gradients.",
+      "start": 4007.99,
+      "duration": 4.88
+    },
+    {
+      "text": "Now we have to--\nthe other piece when",
+      "start": 4012.87,
+      "duration": 1.84
+    },
+    {
+      "text": "you do training is we\nhave to do optimization.",
+      "start": 4014.71,
+      "duration": 2.68
+    },
+    {
+      "text": "So here's our deep network.",
+      "start": 4017.39,
+      "duration": 4.2
+    },
+    {
+      "text": "Just so that I'm not just giving\nyou what's in assignment 1,",
+      "start": 4021.59,
+      "duration": 3.84
+    },
+    {
+      "text": "I'm going to use the\nAdaGrad optimizer, which",
+      "start": 4025.43,
+      "duration": 3.64
+    },
+    {
+      "text": "this from-- this is from 2011.",
+      "start": 4029.07,
+      "duration": 3.54
+    },
+    {
+      "text": "This is predates Adam.",
+      "start": 4032.61,
+      "duration": 1.383
+    },
+    {
+      "text": "It's where you can think\nabout it as somewhere",
+      "start": 4033.993,
+      "duration": 1.917
+    },
+    {
+      "text": "in between SGD and Adam.",
+      "start": 4035.91,
+      "duration": 2.68
+    },
+    {
+      "text": "And basically it's SGD where\nyou look at the second moments",
+      "start": 4038.59,
+      "duration": 7.92
+    },
+    {
+      "text": "of the gradient.",
+      "start": 4046.51,
+      "duration": 1.84
+    },
+    {
+      "text": "Momentum is what you look at\nthe first moment gradients.",
+      "start": 4048.35,
+      "duration": 2.42
+    },
+    {
+      "text": "And Adam is where\ncombine the two of them.",
+      "start": 4050.77,
+      "duration": 5.5
+    },
+    {
+      "text": "I'm not going to have time to go\ninto the optimizer details here,",
+      "start": 4056.27,
+      "duration": 2.86
+    },
+    {
+      "text": "since we're focusing\nmostly on the usage.",
+      "start": 4059.13,
+      "duration": 3.46
+    },
+    {
+      "text": "So we can define an optimizer.",
+      "start": 4062.59,
+      "duration": 4.36
+    },
+    {
+      "text": "And when you compute\nthe gradients",
+      "start": 4066.95,
+      "duration": 7.4
+    },
+    {
+      "text": "and you compute the\ngradients and then",
+      "start": 4074.35,
+      "duration": 2.68
+    },
+    {
+      "text": "when you take an\noptimizer step, if you're",
+      "start": 4077.03,
+      "duration": 3.92
+    },
+    {
+      "text": "defining a new optimizer,\nso in the assignment 1,",
+      "start": 4080.95,
+      "duration": 2.12
+    },
+    {
+      "text": "you're going to implement Adam.",
+      "start": 4083.07,
+      "duration": 3.64
+    },
+    {
+      "text": "For each of the parameter\ngroups which are,",
+      "start": 4086.71,
+      "duration": 5.1
+    },
+    {
+      "text": "in this case w1 or\nw2, we look at--",
+      "start": 4091.81,
+      "duration": 4.74
+    },
+    {
+      "text": "there's something called\noptimizer state, which",
+      "start": 4096.55,
+      "duration": 2.479
+    },
+    {
+      "text": "is of storage that you\ncan-- the optimizer",
+      "start": 4099.029,
+      "duration": 4.2
+    },
+    {
+      "text": "uses while it's running.",
+      "start": 4103.229,
+      "duration": 3.96
+    },
+    {
+      "text": "And what we're\ncomputing in AdaGrad",
+      "start": 4107.189,
+      "duration": 2.281
+    },
+    {
+      "text": "is something-- is the\nsquared gradients, the sum",
+      "start": 4109.47,
+      "duration": 4.559
+    },
+    {
+      "text": "of the squared gradients.",
+      "start": 4114.029,
+      "duration": 2.361
+    },
+    {
+      "text": "So here we're getting it\nfrom the optimizer state.",
+      "start": 4116.39,
+      "duration": 3.96
+    },
+    {
+      "text": "We're updating it with\nthe current gradient,",
+      "start": 4120.35,
+      "duration": 2.589
+    },
+    {
+      "text": "and we're storing it back.",
+      "start": 4122.939,
+      "duration": 1.88
+    },
+    {
+      "text": "And then after\nyou update the g2,",
+      "start": 4124.819,
+      "duration": 2.801
+    },
+    {
+      "text": "then you update the parameters.",
+      "start": 4127.62,
+      "duration": 3.12
+    },
+    {
+      "text": "So in AdaGrad,\nit's you basically",
+      "start": 4130.74,
+      "duration": 2.88
+    },
+    {
+      "text": "divide by the square root of the\naverage gradient squared or sum",
+      "start": 4133.62,
+      "duration": 3.92
+    },
+    {
+      "text": "of gradient squared, rather.",
+      "start": 4137.54,
+      "duration": 3.38
+    },
+    {
+      "text": "OK.",
+      "start": 4140.92,
+      "duration": 0.5
+    },
+    {
+      "text": "So let's see.",
+      "start": 4141.42,
+      "duration": 5.0
+    },
+    {
+      "text": "So I'm actually going to\nmaybe skip the training loop.",
+      "start": 4146.42,
+      "duration": 6.76
+    },
+    {
+      "text": "Actually, wait.",
+      "start": 4153.18,
+      "duration": 2.44
+    },
+    {
+      "text": "Hold on.",
+      "start": 4155.62,
+      "duration": 1.319
+    },
+    {
+      "text": "I think I actually skipped\nsomething I didn't mean to.",
+      "start": 4156.939,
+      "duration": 2.801
+    },
+    {
+      "text": "OK.",
+      "start": 4159.74,
+      "duration": 0.72
+    },
+    {
+      "text": "So that was the optimizer\nstate, and now let's look",
+      "start": 4160.46,
+      "duration": 4.08
+    },
+    {
+      "text": "at how much memory the\noptimizer is using.",
+      "start": 4164.54,
+      "duration": 3.18
+    },
+    {
+      "text": "Or in general what\nis the memory usage?",
+      "start": 4167.72,
+      "duration": 2.12
+    },
+    {
+      "text": "So for parameters\nin this network,",
+      "start": 4169.84,
+      "duration": 3.099
+    },
+    {
+      "text": "there's D squared parameters\nper each of the L layers.",
+      "start": 4172.939,
+      "duration": 4.081
+    },
+    {
+      "text": "And each parameter takes 2 bytes\nif we're storing it in fp16.",
+      "start": 4177.02,
+      "duration": 4.02
+    },
+    {
+      "text": "So that's the number\nof parameters.",
+      "start": 4181.04,
+      "duration": 1.62
+    },
+    {
+      "text": "Activations-- this is 2 times--",
+      "start": 4182.66,
+      "duration": 7.48
+    },
+    {
+      "text": "which is for bf16 batch times\nD times the number of layers.",
+      "start": 4190.14,
+      "duration": 5.32
+    },
+    {
+      "text": "For every layer you\nhave activation.",
+      "start": 4195.46,
+      "duration": 2.12
+    },
+    {
+      "text": "You have gradients\nwhich is basically",
+      "start": 4197.58,
+      "duration": 3.12
+    },
+    {
+      "text": "a copy of all the parameters.",
+      "start": 4200.7,
+      "duration": 2.2
+    },
+    {
+      "text": "And this is also bf16.",
+      "start": 4202.9,
+      "duration": 1.92
+    },
+    {
+      "text": "And the optimizer\nstate is for every--",
+      "start": 4204.82,
+      "duration": 3.32
+    },
+    {
+      "text": "actually this should be the--",
+      "start": 4208.14,
+      "duration": 2.52
+    },
+    {
+      "text": "I think this should be--\nsorry, I'll fix this.",
+      "start": 4210.66,
+      "duration": 2.115
+    },
+    {
+      "text": "This is a typo.",
+      "start": 4212.775,
+      "duration": 0.625
+    },
+    {
+      "text": "This should be the number\nof parameters, not parameter",
+      "start": 4213.4,
+      "duration": 2.25
+    },
+    {
+      "text": "memory.",
+      "start": 4215.65,
+      "duration": 0.563
+    },
+    {
+      "text": "And this should be\nnumber of parameters,",
+      "start": 4216.213,
+      "duration": 1.667
+    },
+    {
+      "text": "so number of parameters\ntimes 2, and then this",
+      "start": 4217.88,
+      "duration": 3.5
+    },
+    {
+      "text": "is 4 times the\nnumber of parameters.",
+      "start": 4221.38,
+      "duration": 2.96
+    },
+    {
+      "text": "And the reason for\nthis is that it's",
+      "start": 4224.34,
+      "duration": 1.56
+    },
+    {
+      "text": "customary to use fp32 for the\noptimizer states for stability",
+      "start": 4225.9,
+      "duration": 5.08
+    },
+    {
+      "text": "reasons.",
+      "start": 4230.98,
+      "duration": 1.0
+    },
+    {
+      "text": "Obviously people have\ntried using bf16.",
+      "start": 4231.98,
+      "duration": 3.4
+    },
+    {
+      "text": "And what ends up happening is\nthat you're taking squares,",
+      "start": 4235.38,
+      "duration": 3.32
+    },
+    {
+      "text": "and you're averaging multiple\nsteps, and it doesn't--",
+      "start": 4238.7,
+      "duration": 3.04
+    },
+    {
+      "text": "it's not very stable.",
+      "start": 4241.74,
+      "duration": 3.28
+    },
+    {
+      "text": "And for AdaGrad, it's here--\nwe have 4 bytes per parameter",
+      "start": 4245.02,
+      "duration": 3.92
+    },
+    {
+      "text": "for storing the optimizer state.",
+      "start": 4248.94,
+      "duration": 1.78
+    },
+    {
+      "text": "Adam-- you store the first\norder bit and the second order",
+      "start": 4250.72,
+      "duration": 3.34
+    },
+    {
+      "text": "moments, so that's 8 bytes.",
+      "start": 4254.06,
+      "duration": 2.262
+    },
+    {
+      "text": "So if you think\nabout the optimizer",
+      "start": 4256.322,
+      "duration": 1.458
+    },
+    {
+      "text": "states is actually a\nlot of the memory used.",
+      "start": 4257.78,
+      "duration": 6.8
+    },
+    {
+      "text": "One note is that remember\nmemory serves two purposes.",
+      "start": 4264.58,
+      "duration": 4.78
+    },
+    {
+      "text": "One is how much-- you have to\nstore this thing in your HBM.",
+      "start": 4269.36,
+      "duration": 3.62
+    },
+    {
+      "text": "But the other thing\nis that it has",
+      "start": 4272.98,
+      "duration": 1.56
+    },
+    {
+      "text": "to be shipped to\nthe accelerators.",
+      "start": 4274.54,
+      "duration": 8.0
+    },
+    {
+      "text": "And in general,\nthe optimizer state",
+      "start": 4282.54,
+      "duration": 2.88
+    },
+    {
+      "text": "is not really the\nbottleneck for compute.",
+      "start": 4285.42,
+      "duration": 2.58
+    },
+    {
+      "text": "So the amount of memory\nhere is not really",
+      "start": 4288.0,
+      "duration": 3.46
+    },
+    {
+      "text": "so important for performance\nin terms of speed,",
+      "start": 4291.46,
+      "duration": 3.98
+    },
+    {
+      "text": "but it means that you can't fit\nlarge models in your memory.",
+      "start": 4295.44,
+      "duration": 6.81
+    },
+    {
+      "text": "OK.",
+      "start": 4302.25,
+      "duration": 0.54
+    },
+    {
+      "text": "So to put it together,\nas we mentioned,",
+      "start": 4302.79,
+      "duration": 4.2
+    },
+    {
+      "text": "the number of parameters\nhere is D times D times L,",
+      "start": 4306.99,
+      "duration": 2.3
+    },
+    {
+      "text": "and the number of FLOPs is\nD times number of tokens",
+      "start": 4309.29,
+      "duration": 3.68
+    },
+    {
+      "text": "or number of data points\ntimes number of parameters.",
+      "start": 4312.97,
+      "duration": 2.28
+    },
+    {
+      "text": "So for transformers,\nthis is going",
+      "start": 4315.25,
+      "duration": 1.84
+    },
+    {
+      "text": "to be a bit more complicated.",
+      "start": 4317.09,
+      "duration": 2.26
+    },
+    {
+      "text": "But you're going to do\nthat in assignment 1.",
+      "start": 4319.35,
+      "duration": 1.92
+    },
+    {
+      "text": "And you do it more carefully.",
+      "start": 4321.27,
+      "duration": 2.68
+    },
+    {
+      "text": "OK.",
+      "start": 4323.95,
+      "duration": 0.5
+    },
+    {
+      "text": "I'm going to skip\nthe training loop.",
+      "start": 4324.45,
+      "duration": 1.5
+    },
+    {
+      "text": "This is just a general review.",
+      "start": 4325.95,
+      "duration": 4.06
+    },
+    {
+      "text": "Two things I want to quickly\ntouch on before we conclude.",
+      "start": 4330.01,
+      "duration": 2.92
+    },
+    {
+      "text": "One is that as we see, memory\ndoes have an important effect",
+      "start": 4332.93,
+      "duration": 6.12
+    },
+    {
+      "text": "both on the ability\nto store large models,",
+      "start": 4339.05,
+      "duration": 2.14
+    },
+    {
+      "text": "but also sometimes\non your speed.",
+      "start": 4341.19,
+      "duration": 2.86
+    },
+    {
+      "text": "And so in general, you want\nto reduce your memory usage.",
+      "start": 4344.05,
+      "duration": 2.5
+    },
+    {
+      "text": "So there's two things\nthat people typically do.",
+      "start": 4346.55,
+      "duration": 4.02
+    },
+    {
+      "text": "One is gradient accumulation.",
+      "start": 4350.57,
+      "duration": 3.44
+    },
+    {
+      "text": "So in general, you want\nto use batch sizes that",
+      "start": 4354.01,
+      "duration": 3.32
+    },
+    {
+      "text": "are large enough to\nimprove stability",
+      "start": 4357.33,
+      "duration": 3.2
+    },
+    {
+      "text": "up to a critical\nbatch size, which",
+      "start": 4360.53,
+      "duration": 2.36
+    },
+    {
+      "text": "Tatsu will talk about later.",
+      "start": 4362.89,
+      "duration": 2.84
+    },
+    {
+      "text": "And as we saw that activation\nmemory scales with batch size.",
+      "start": 4365.73,
+      "duration": 4.36
+    },
+    {
+      "text": "So you might want to run\nout of memory at some point",
+      "start": 4370.09,
+      "duration": 2.56
+    },
+    {
+      "text": "if you have two\nlarge batch sizes.",
+      "start": 4372.65,
+      "duration": 1.9
+    },
+    {
+      "text": "So gradient accumulation\nsays, well, you compute.",
+      "start": 4374.55,
+      "duration": 3.96
+    },
+    {
+      "text": "You have these micro batches,\nand you compute the gradient",
+      "start": 4378.51,
+      "duration": 2.66
+    },
+    {
+      "text": "on the micro batches.",
+      "start": 4381.17,
+      "duration": 1.148
+    },
+    {
+      "text": "And then you just\naccumulate the gradients.",
+      "start": 4382.318,
+      "duration": 1.792
+    },
+    {
+      "text": "You don't zero\nout the gradients.",
+      "start": 4384.11,
+      "duration": 1.48
+    },
+    {
+      "text": "And every batch size\nover microbatch size",
+      "start": 4385.59,
+      "duration": 3.14
+    },
+    {
+      "text": "steps, you update the parameters\nand zero out the gradients.",
+      "start": 4388.73,
+      "duration": 3.44
+    },
+    {
+      "text": "OK, so this is actually a\nvery simple code change which",
+      "start": 4392.17,
+      "duration": 3.84
+    },
+    {
+      "text": "allows you to save on compute.",
+      "start": 4396.01,
+      "duration": 3.52
+    },
+    {
+      "text": "So the other thing\nI'll quickly mention",
+      "start": 4399.53,
+      "duration": 1.8
+    },
+    {
+      "text": "is activation checkpointing.",
+      "start": 4401.33,
+      "duration": 1.92
+    },
+    {
+      "text": "So in training, we need to\nstore in general the activations",
+      "start": 4403.25,
+      "duration": 7.23
+    },
+    {
+      "text": "of all the layers.",
+      "start": 4410.48,
+      "duration": 0.75
+    },
+    {
+      "text": "This is done by default.\nActually, interestingly,",
+      "start": 4411.23,
+      "duration": 3.51
+    },
+    {
+      "text": "for inference we don't need\nto compute the gradient,",
+      "start": 4414.74,
+      "duration": 2.72
+    },
+    {
+      "text": "so we only need to store the\ncurrent layer's activations.",
+      "start": 4417.46,
+      "duration": 3.3
+    },
+    {
+      "text": "But for training, the memory\nusage is B times D times 2 times",
+      "start": 4420.76,
+      "duration": 9.52
+    },
+    {
+      "text": "L.",
+      "start": 4430.28,
+      "duration": 2.16
+    },
+    {
+      "text": "And the question is,\ncan you reduce this?",
+      "start": 4432.44,
+      "duration": 4.08
+    },
+    {
+      "text": "So activation\ncheckpointing, also known",
+      "start": 4436.52,
+      "duration": 1.92
+    },
+    {
+      "text": "as gradient checkpointing or\nrematerialization-- the key idea",
+      "start": 4438.44,
+      "duration": 2.84
+    },
+    {
+      "text": "here is that in\nthe forward pass,",
+      "start": 4441.28,
+      "duration": 2.9
+    },
+    {
+      "text": "you just keep activations for\nonly a subset of the layers.",
+      "start": 4444.18,
+      "duration": 3.14
+    },
+    {
+      "text": "And in the backward pass,\nyou recompute the missing",
+      "start": 4447.32,
+      "duration": 2.88
+    },
+    {
+      "text": "activations from\nthe last checkpoint.",
+      "start": 4450.2,
+      "duration": 2.458
+    },
+    {
+      "text": "That's why it's\ncalled checkpointing.",
+      "start": 4452.658,
+      "duration": 1.542
+    },
+    {
+      "text": "And this is a general trick\nthat you see in systems",
+      "start": 4454.2,
+      "duration": 3.72
+    },
+    {
+      "text": "which is trading off.",
+      "start": 4457.92,
+      "duration": 1.18
+    },
+    {
+      "text": "If you want to reduce memory,\nyou can just recompute things.",
+      "start": 4459.1,
+      "duration": 3.94
+    },
+    {
+      "text": "So here we're going to define\nthis to operationalize this.",
+      "start": 4463.04,
+      "duration": 4.38
+    },
+    {
+      "text": "This is actually fairly easy.",
+      "start": 4467.42,
+      "duration": 6.02
+    },
+    {
+      "text": "Actually, I didn't--",
+      "start": 4473.44,
+      "duration": 2.2
+    },
+    {
+      "text": "OK, maybe I didn't see the--",
+      "start": 4475.64,
+      "duration": 1.62
+    },
+    {
+      "text": "OK, so basically\nwhat you do here",
+      "start": 4477.26,
+      "duration": 2.14
+    },
+    {
+      "text": "is you have the same model,\nexcept for you just add Torch",
+      "start": 4479.4,
+      "duration": 5.92
+    },
+    {
+      "text": "utils at checkpoint on a layer.",
+      "start": 4485.32,
+      "duration": 2.64
+    },
+    {
+      "text": "So that means do\nthis computation,",
+      "start": 4487.96,
+      "duration": 2.28
+    },
+    {
+      "text": "but don't store any of the\nintermediate activations.",
+      "start": 4490.24,
+      "duration": 4.44
+    },
+    {
+      "text": "Only store what is needed.",
+      "start": 4494.68,
+      "duration": 3.48
+    },
+    {
+      "text": "So this means that if you store\nall the activations, remember",
+      "start": 4498.16,
+      "duration": 6.24
+    },
+    {
+      "text": "in your deep network,\nyou have the thing that's",
+      "start": 4504.4,
+      "duration": 2.4
+    },
+    {
+      "text": "pre the ReLU and the thing\nthat's after the ReLU right.",
+      "start": 4506.8,
+      "duration": 3.26
+    },
+    {
+      "text": "So that's a lot of storage.",
+      "start": 4510.06,
+      "duration": 2.3
+    },
+    {
+      "text": "And instead if you do activation\ncheckpointing on those blocks",
+      "start": 4512.36,
+      "duration": 3.4
+    },
+    {
+      "text": "where each block has\na linear and ReLU,",
+      "start": 4515.76,
+      "duration": 2.42
+    },
+    {
+      "text": "you don't store the pre ReLU,\nand you save basically half.",
+      "start": 4518.18,
+      "duration": 4.06
+    },
+    {
+      "text": "You can get away\nwith half the memory.",
+      "start": 4522.24,
+      "duration": 2.52
+    },
+    {
+      "text": "And then when you're doing the\nbackward pass, you need g3,",
+      "start": 4524.76,
+      "duration": 4.54
+    },
+    {
+      "text": "but you can compute\ng3 easily from h2.",
+      "start": 4529.3,
+      "duration": 3.52
+    },
+    {
+      "text": "OK.",
+      "start": 4532.82,
+      "duration": 0.5
+    },
+    {
+      "text": "You can go further than this.",
+      "start": 4533.32,
+      "duration": 2.88
+    },
+    {
+      "text": "You can say, well, I can\nstore all the layers,",
+      "start": 4536.2,
+      "duration": 3.76
+    },
+    {
+      "text": "but in the extreme case, I\ncan just store no layers.",
+      "start": 4539.96,
+      "duration": 5.48
+    },
+    {
+      "text": "And so that will be\nmaximally memory efficient.",
+      "start": 4545.44,
+      "duration": 4.103
+    },
+    {
+      "text": "The only thing is\nthat the compute",
+      "start": 4549.543,
+      "duration": 1.417
+    },
+    {
+      "text": "is going to be L squared.",
+      "start": 4550.96,
+      "duration": 1.42
+    },
+    {
+      "text": "Because for every\none of these layers,",
+      "start": 4552.38,
+      "duration": 1.98
+    },
+    {
+      "text": "you have to start\nfrom the beginning.",
+      "start": 4554.36,
+      "duration": 2.72
+    },
+    {
+      "text": "And maybe a sweet spot is\nif you store the checkpoints",
+      "start": 4557.08,
+      "duration": 2.96
+    },
+    {
+      "text": "at square root L layers, that\nmeans your activation memory is",
+      "start": 4560.04,
+      "duration": 3.88
+    },
+    {
+      "text": "square root of L, and your\nrecomputation overhead",
+      "start": 4563.92,
+      "duration": 4.56
+    },
+    {
+      "text": "is also square root of\nL. So that's balanced.",
+      "start": 4568.48,
+      "duration": 6.88
+    },
+    {
+      "text": "OK.",
+      "start": 4575.36,
+      "duration": 0.88
+    },
+    {
+      "text": "So to summarize this\nlecture, everything",
+      "start": 4576.24,
+      "duration": 3.24
+    },
+    {
+      "text": "is operating on tensors--\nparameters, gradients,",
+      "start": 4579.48,
+      "duration": 2.48
+    },
+    {
+      "text": "activations, optimization\nstates, data.",
+      "start": 4581.96,
+      "duration": 3.44
+    },
+    {
+      "text": "We introduced this einops,\nwhich hopefully you guys",
+      "start": 4585.4,
+      "duration": 2.23
+    },
+    {
+      "text": "can embrace as a way to think\nabout tensor operations.",
+      "start": 4587.63,
+      "duration": 2.96
+    },
+    {
+      "text": "6 times number of data points\ntimes number of parameters",
+      "start": 4590.59,
+      "duration": 3.32
+    },
+    {
+      "text": "is a formula which now\nwe have demystified",
+      "start": 4593.91,
+      "duration": 3.2
+    },
+    {
+      "text": "as the number of FLOPs per--",
+      "start": 4597.11,
+      "duration": 2.8
+    },
+    {
+      "text": "for training step.",
+      "start": 4599.91,
+      "duration": 1.52
+    },
+    {
+      "text": "And actually if this is training\nstep, this should be batch size.",
+      "start": 4601.43,
+      "duration": 5.36
+    },
+    {
+      "text": "And then we talked about\narithmetic intensity",
+      "start": 4606.79,
+      "duration": 2.08
+    },
+    {
+      "text": "and roofline\nanalysis, which allows",
+      "start": 4608.87,
+      "duration": 2.0
+    },
+    {
+      "text": "us to diagnose whether\na computation is",
+      "start": 4610.87,
+      "duration": 2.44
+    },
+    {
+      "text": "memory bound or compute bound.",
+      "start": 4613.31,
+      "duration": 3.48
+    },
+    {
+      "text": "Matrix multiplications\nare compute bound.",
+      "start": 4616.79,
+      "duration": 2.34
+    },
+    {
+      "text": "Basically everything\nelse is memory bound.",
+      "start": 4619.13,
+      "duration": 2.74
+    },
+    {
+      "text": "And then finally, gradient\naccumulation, activation,",
+      "start": 4621.87,
+      "duration": 2.58
+    },
+    {
+      "text": "checkpointing are ways\nto reduce the memory.",
+      "start": 4624.45,
+      "duration": 3.02
+    },
+    {
+      "text": "And by reducing the\nmemory, that allows",
+      "start": 4627.47,
+      "duration": 2.72
+    },
+    {
+      "text": "you to use bigger batch sizes.",
+      "start": 4630.19,
+      "duration": 3.42
+    },
+    {
+      "text": "OK.",
+      "start": 4633.61,
+      "duration": 0.5
+    },
+    {
+      "text": "So that's it for\ntoday's lecture.",
+      "start": 4634.11,
+      "duration": 2.42
+    },
+    {
+      "text": "So next week, Tatsu will\ntalk about architectures.",
+      "start": 4636.53,
+      "duration": 4.25
+    }
+  ]
+}

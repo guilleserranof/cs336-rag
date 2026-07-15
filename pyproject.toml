@@ -20,6 +20,9 @@ dependencies = [
     "tenacity>=9.0",
 ]
 
+[project.scripts]
+cs336-rag = "cs336_rag.cli:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8.3",

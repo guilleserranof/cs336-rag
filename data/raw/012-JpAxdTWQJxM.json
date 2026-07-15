@@ -1,0 +1,6888 @@
+{
+  "video_id": "JpAxdTWQJxM",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 12: Evaluation",
+  "position": 12,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "So today, we're going to\ntalk about evaluation.",
+      "start": 5.72,
+      "duration": 3.56
+    },
+    {
+      "text": "So far in this class\nwe've done everything we",
+      "start": 9.28,
+      "duration": 4.12
+    },
+    {
+      "text": "need to train a language model.",
+      "start": 13.4,
+      "duration": 2.28
+    },
+    {
+      "text": "We defined the architecture,\nthe optimizer, the main training",
+      "start": 15.68,
+      "duration": 4.24
+    },
+    {
+      "text": "loop.",
+      "start": 19.92,
+      "duration": 0.62
+    },
+    {
+      "text": "We showed how to make the\ntraining fast with kernels,",
+      "start": 20.54,
+      "duration": 4.62
+    },
+    {
+      "text": "parallelism.",
+      "start": 25.16,
+      "duration": 1.68
+    },
+    {
+      "text": "And then we saw scaling laws.",
+      "start": 26.84,
+      "duration": 2.4
+    },
+    {
+      "text": "We saw a little bit of how to\nmake inference fast as well.",
+      "start": 29.24,
+      "duration": 4.32
+    },
+    {
+      "text": "So the only missing piece\nnow is talking about the data",
+      "start": 33.56,
+      "duration": 3.28
+    },
+    {
+      "text": "that you train on.",
+      "start": 36.84,
+      "duration": 2.04
+    },
+    {
+      "text": "So we're going to spend next\nweek talking about that.",
+      "start": 38.88,
+      "duration": 4.48
+    },
+    {
+      "text": "And data is going to\nshape the model behavior.",
+      "start": 43.36,
+      "duration": 3.28
+    },
+    {
+      "text": "If you train on\ncode, then presumably",
+      "start": 46.64,
+      "duration": 2.88
+    },
+    {
+      "text": "your model is going\nto be good at code.",
+      "start": 49.52,
+      "duration": 1.86
+    },
+    {
+      "text": "If you train only\non DNA sequences,",
+      "start": 51.38,
+      "duration": 1.86
+    },
+    {
+      "text": "it probably can't speak English.",
+      "start": 53.24,
+      "duration": 3.08
+    },
+    {
+      "text": "But before we even\nget to data, we",
+      "start": 56.32,
+      "duration": 2.6
+    },
+    {
+      "text": "need to talk about what\nbehavior we want from a model,",
+      "start": 58.92,
+      "duration": 3.25
+    },
+    {
+      "text": "and that's going to be\nthe topic of evaluation.",
+      "start": 62.17,
+      "duration": 3.319
+    },
+    {
+      "text": "So evaluation asks a\nvery simple question--",
+      "start": 65.489,
+      "duration": 2.801
+    },
+    {
+      "text": "given the model that we've\ntrained, how good is it?",
+      "start": 68.29,
+      "duration": 4.96
+    },
+    {
+      "text": "So what is good?",
+      "start": 73.25,
+      "duration": 1.64
+    },
+    {
+      "text": "So evaluation might seem like\na fairly mechanical process.",
+      "start": 74.89,
+      "duration": 4.88
+    },
+    {
+      "text": "You define some\nprompts, you send",
+      "start": 79.77,
+      "duration": 1.52
+    },
+    {
+      "text": "these prompts to your model,\nyou get back some responses,",
+      "start": 81.29,
+      "duration": 2.58
+    },
+    {
+      "text": "and then you compute\nthe accuracy.",
+      "start": 83.87,
+      "duration": 1.6
+    },
+    {
+      "text": "So why do we have a whole\nlecture on evaluation?",
+      "start": 85.47,
+      "duration": 3.54
+    },
+    {
+      "text": "But actually, evaluation\nis a very deep topic,",
+      "start": 89.01,
+      "duration": 3.1
+    },
+    {
+      "text": "and it's also very important\nbecause evaluation is what",
+      "start": 92.11,
+      "duration": 2.58
+    },
+    {
+      "text": "shapes the development of AI.",
+      "start": 94.69,
+      "duration": 1.96
+    },
+    {
+      "text": "Evaluation sets North Stars\nand model developers--",
+      "start": 96.65,
+      "duration": 4.4
+    },
+    {
+      "text": "open, closed-- everyone\nlooks at evaluation",
+      "start": 101.05,
+      "duration": 3.64
+    },
+    {
+      "text": "as a measure of progress.",
+      "start": 104.69,
+      "duration": 4.6
+    },
+    {
+      "text": "So by thinking carefully\nabout your evaluation,",
+      "start": 109.29,
+      "duration": 2.92
+    },
+    {
+      "text": "you implicitly shape\nthe development",
+      "start": 112.21,
+      "duration": 2.4
+    },
+    {
+      "text": "of what your model is\ngoing to be able to do.",
+      "start": 114.61,
+      "duration": 3.18
+    },
+    {
+      "text": "So what's hard about\nevaluation is the following.",
+      "start": 117.79,
+      "duration": 3.56
+    },
+    {
+      "text": "So often, you start it with\nan abstract construct of what",
+      "start": 121.35,
+      "duration": 3.84
+    },
+    {
+      "text": "do I want my model to do?",
+      "start": 125.19,
+      "duration": 1.96
+    },
+    {
+      "text": "Maybe I want my model to\nbe good at conversation",
+      "start": 127.15,
+      "duration": 4.48
+    },
+    {
+      "text": "or good at reasoning.",
+      "start": 131.63,
+      "duration": 2.12
+    },
+    {
+      "text": "OK.",
+      "start": 133.75,
+      "duration": 0.5
+    },
+    {
+      "text": "So those are abstract concepts.",
+      "start": 134.25,
+      "duration": 1.98
+    },
+    {
+      "text": "And then evaluation\nis really the process",
+      "start": 136.23,
+      "duration": 2.24
+    },
+    {
+      "text": "of turning that into a concrete\nmetric powered by, presumably,",
+      "start": 138.47,
+      "duration": 4.56
+    },
+    {
+      "text": "some concrete prompts\nor environments.",
+      "start": 143.03,
+      "duration": 3.64
+    },
+    {
+      "text": "So this is going to\nbe the core challenge,",
+      "start": 146.67,
+      "duration": 3.26
+    },
+    {
+      "text": "and we'll see many\nexamples of how",
+      "start": 149.93,
+      "duration": 2.34
+    },
+    {
+      "text": "this process of abstract\nconstruct, concrete metric",
+      "start": 152.27,
+      "duration": 3.92
+    },
+    {
+      "text": "shows up.",
+      "start": 156.19,
+      "duration": 1.88
+    },
+    {
+      "text": "So let's go back to a question\nof what makes a model good.",
+      "start": 158.07,
+      "duration": 4.0
+    },
+    {
+      "text": "Just kind of superficially.",
+      "start": 162.07,
+      "duration": 2.36
+    },
+    {
+      "text": "Maybe a model is good if\nit does well on benchmarks.",
+      "start": 164.43,
+      "duration": 2.86
+    },
+    {
+      "text": "So there's this website,\nArtificial Analysis,",
+      "start": 167.29,
+      "duration": 2.6
+    },
+    {
+      "text": "which has become a bit of a\nstandard for thinking about",
+      "start": 169.89,
+      "duration": 4.78
+    },
+    {
+      "text": "quote unquote,\n\"intelligence of models.\"",
+      "start": 174.67,
+      "duration": 2.53
+    },
+    {
+      "text": "So if you go to\nArtificial Analysis AI,",
+      "start": 177.2,
+      "duration": 2.64
+    },
+    {
+      "text": "you can see a ranking of\ndifferent models from GPT-5.5,",
+      "start": 179.84,
+      "duration": 4.08
+    },
+    {
+      "text": "all the way down-- well, there's\nmany more models after this",
+      "start": 183.92,
+      "duration": 3.32
+    },
+    {
+      "text": "point.",
+      "start": 187.24,
+      "duration": 2.4
+    },
+    {
+      "text": "And so this is a measure.",
+      "start": 189.64,
+      "duration": 3.47
+    },
+    {
+      "text": "It includes a bunch of different\ndata sets, some of which",
+      "start": 193.11,
+      "duration": 2.89
+    },
+    {
+      "text": "we'll talk about.",
+      "start": 196.0,
+      "duration": 2.36
+    },
+    {
+      "text": "Or maybe a model is good if\nit does well on benchmark",
+      "start": 198.36,
+      "duration": 2.6
+    },
+    {
+      "text": "and is also cheap to run,\nbecause cost should matter.",
+      "start": 200.96,
+      "duration": 5.2
+    },
+    {
+      "text": "And this plot shows both\nthe intelligence index",
+      "start": 206.16,
+      "duration": 4.28
+    },
+    {
+      "text": "from before, but\nagainst how much money",
+      "start": 210.44,
+      "duration": 3.08
+    },
+    {
+      "text": "it costs to run a particular\nmodel based on inference cost.",
+      "start": 213.52,
+      "duration": 4.56
+    },
+    {
+      "text": "And you can see, of course,\nas you might expect,",
+      "start": 218.08,
+      "duration": 3.48
+    },
+    {
+      "text": "that the two are correlated.",
+      "start": 221.56,
+      "duration": 2.26
+    },
+    {
+      "text": "The more you pay to run, the\nhigher the intelligence index,",
+      "start": 223.82,
+      "duration": 4.04
+    },
+    {
+      "text": "but it's not exactly aligned.",
+      "start": 227.86,
+      "duration": 4.94
+    },
+    {
+      "text": "But maybe a model is good\nif people just prefer it.",
+      "start": 232.8,
+      "duration": 4.97
+    },
+    {
+      "text": "Later we'll also go a\nlittle bit more into depth.",
+      "start": 237.77,
+      "duration": 2.38
+    },
+    {
+      "text": "So this is the take that\nArena AI, formerly known",
+      "start": 240.15,
+      "duration": 3.86
+    },
+    {
+      "text": "as Chatbot Arena, takes.",
+      "start": 244.01,
+      "duration": 2.28
+    },
+    {
+      "text": "And you can form a\nranking based on models,",
+      "start": 246.29,
+      "duration": 2.28
+    },
+    {
+      "text": "based on whether\npeople like it or not.",
+      "start": 248.57,
+      "duration": 2.76
+    },
+    {
+      "text": "Or maybe a model is\ngood if people simply",
+      "start": 251.33,
+      "duration": 3.36
+    },
+    {
+      "text": "choose to use it, and\ntherefore, pay for it.",
+      "start": 254.69,
+      "duration": 3.18
+    },
+    {
+      "text": "So OpenRouter is\nthis service that",
+      "start": 257.87,
+      "duration": 4.14
+    },
+    {
+      "text": "allows one to use\nmultiple different models",
+      "start": 262.01,
+      "duration": 3.0
+    },
+    {
+      "text": "through a central endpoint.",
+      "start": 265.01,
+      "duration": 3.942
+    },
+    {
+      "text": "And as a result,\nthey collect a lot",
+      "start": 268.952,
+      "duration": 1.458
+    },
+    {
+      "text": "of statistics of what\nmodels people are using.",
+      "start": 270.41,
+      "duration": 4.0
+    },
+    {
+      "text": "And they publish\nstatistics, which",
+      "start": 274.41,
+      "duration": 3.4
+    },
+    {
+      "text": "is really interesting\nto look at,",
+      "start": 277.81,
+      "duration": 1.52
+    },
+    {
+      "text": "the top bottles that are\nused through OpenRouter.",
+      "start": 279.33,
+      "duration": 3.88
+    },
+    {
+      "text": "So now, this is not\nrepresentative of all model",
+      "start": 283.21,
+      "duration": 2.44
+    },
+    {
+      "text": "usage, but it gives you a sense\nof what people on open router",
+      "start": 285.65,
+      "duration": 4.76
+    },
+    {
+      "text": "are doing.",
+      "start": 290.41,
+      "duration": 1.04
+    },
+    {
+      "text": "And so this is kind of\nmore of an economic lens.",
+      "start": 291.45,
+      "duration": 2.39
+    },
+    {
+      "text": "I don't what good is, but\nif people are paying for it,",
+      "start": 293.84,
+      "duration": 4.16
+    },
+    {
+      "text": "it must be good.",
+      "start": 298.0,
+      "duration": 3.66
+    },
+    {
+      "text": "OK.",
+      "start": 301.66,
+      "duration": 0.58
+    },
+    {
+      "text": "So none of those are\nnecessarily the correct answer.",
+      "start": 302.24,
+      "duration": 4.96
+    },
+    {
+      "text": "I don't know If there\nis a correct answer,",
+      "start": 307.2,
+      "duration": 2.56
+    },
+    {
+      "text": "but I'm just trying to get you\nto think about different ways",
+      "start": 309.76,
+      "duration": 3.06
+    },
+    {
+      "text": "of thinking about what good is.",
+      "start": 312.82,
+      "duration": 3.24
+    },
+    {
+      "text": "So let's start now by looking at\ndifferent ways, concrete ways,",
+      "start": 316.06,
+      "duration": 5.12
+    },
+    {
+      "text": "of evaluating language models.",
+      "start": 321.18,
+      "duration": 2.12
+    },
+    {
+      "text": "And there's no better place\nto start than going back",
+      "start": 323.3,
+      "duration": 3.16
+    },
+    {
+      "text": "to the core idea of a\nlanguage model, which",
+      "start": 326.46,
+      "duration": 4.4
+    },
+    {
+      "text": "is that it's a distribution P\nof x over sequences of tokens.",
+      "start": 330.86,
+      "duration": 5.32
+    },
+    {
+      "text": "And through that lens,\nthere's a very natural way",
+      "start": 336.18,
+      "duration": 2.44
+    },
+    {
+      "text": "to evaluate a\ndistribution, which",
+      "start": 338.62,
+      "duration": 2.64
+    },
+    {
+      "text": "is a perplexity, or\nlikelihood or log loss.",
+      "start": 341.26,
+      "duration": 5.28
+    },
+    {
+      "text": "Those are all kind\nof related concepts.",
+      "start": 346.54,
+      "duration": 3.0
+    },
+    {
+      "text": "And it basically says, I\nhave a test data set d,",
+      "start": 349.54,
+      "duration": 4.7
+    },
+    {
+      "text": "and I'm going to see how much\nprobability mass my language",
+      "start": 354.24,
+      "duration": 4.44
+    },
+    {
+      "text": "model assigns to that d.",
+      "start": 358.68,
+      "duration": 2.24
+    },
+    {
+      "text": "And I normalize it and\ndivide so that the numbers",
+      "start": 360.92,
+      "duration": 2.44
+    },
+    {
+      "text": "are more interpretable.",
+      "start": 363.36,
+      "duration": 2.48
+    },
+    {
+      "text": "But that's basically it.",
+      "start": 365.84,
+      "duration": 1.58
+    },
+    {
+      "text": "How much mass does my\nprobability language model",
+      "start": 367.42,
+      "duration": 4.3
+    },
+    {
+      "text": "assigned to a data set.",
+      "start": 371.72,
+      "duration": 2.72
+    },
+    {
+      "text": "OK, so this is fairly natural.",
+      "start": 374.44,
+      "duration": 1.66
+    },
+    {
+      "text": "In fact, when we\nwere doing training,",
+      "start": 376.1,
+      "duration": 2.94
+    },
+    {
+      "text": "we minimized the perplexity\non the training set.",
+      "start": 379.04,
+      "duration": 3.56
+    },
+    {
+      "text": "So the obvious thing to do\nis measure the perplexity",
+      "start": 382.6,
+      "duration": 2.8
+    },
+    {
+      "text": "on the test set, and this is\nwhat people traditionally did",
+      "start": 385.4,
+      "duration": 2.92
+    },
+    {
+      "text": "in language modeling research\nfor many years throughout",
+      "start": 388.32,
+      "duration": 2.96
+    },
+    {
+      "text": "the 2010s.",
+      "start": 391.28,
+      "duration": 1.96
+    },
+    {
+      "text": "If you pick up a\nlanguage modeling paper,",
+      "start": 393.24,
+      "duration": 2.14
+    },
+    {
+      "text": "this is what they did.",
+      "start": 395.38,
+      "duration": 1.26
+    },
+    {
+      "text": "And back then,\nstandard data sets",
+      "start": 396.64,
+      "duration": 3.2
+    },
+    {
+      "text": "included the Penn\nTreebank, WikiText-103.",
+      "start": 399.84,
+      "duration": 4.48
+    },
+    {
+      "text": "There was also this One\nBillion Word Benchmark,",
+      "start": 404.32,
+      "duration": 2.88
+    },
+    {
+      "text": "which was taken from\nmachine translation sources.",
+      "start": 407.2,
+      "duration": 6.13
+    },
+    {
+      "text": "And this is all in the\nclassic paradigm, which is",
+      "start": 413.33,
+      "duration": 3.32
+    },
+    {
+      "text": "in-distribution of evaluation.",
+      "start": 416.65,
+      "duration": 2.1
+    },
+    {
+      "text": "You train on some train\nsplit of that data set,",
+      "start": 418.75,
+      "duration": 3.36
+    },
+    {
+      "text": "and then you evaluate on some\ntest split of that data set.",
+      "start": 422.11,
+      "duration": 4.98
+    },
+    {
+      "text": "And people actually\nmade a lot of progress,",
+      "start": 427.09,
+      "duration": 4.4
+    },
+    {
+      "text": "which was just measured\nin perplexity reduction.",
+      "start": 431.49,
+      "duration": 2.96
+    },
+    {
+      "text": "So for example, there's\nthis famous paper",
+      "start": 434.45,
+      "duration": 2.04
+    },
+    {
+      "text": "from 2016, which\nshowed that you could",
+      "start": 436.49,
+      "duration": 6.0
+    },
+    {
+      "text": "apply CNNs and LSTMs to this\nOne Billion Word Benchmark",
+      "start": 442.49,
+      "duration": 4.96
+    },
+    {
+      "text": "and get a huge\nperplexity reduction.",
+      "start": 447.45,
+      "duration": 3.64
+    },
+    {
+      "text": "And bear in mind,\naround that time,",
+      "start": 451.09,
+      "duration": 2.02
+    },
+    {
+      "text": "people were talking still\nabout n-gram models and maybe",
+      "start": 453.11,
+      "duration": 2.38
+    },
+    {
+      "text": "hybrid models.",
+      "start": 455.49,
+      "duration": 2.16
+    },
+    {
+      "text": "And this was the first\ndefinitive result",
+      "start": 457.65,
+      "duration": 3.24
+    },
+    {
+      "text": "that showed just pure neural\nis clearly the way to go.",
+      "start": 460.89,
+      "duration": 5.16
+    },
+    {
+      "text": "OK, so life was very\nsimple back then.",
+      "start": 466.05,
+      "duration": 2.23
+    },
+    {
+      "text": "You train on the train split.",
+      "start": 468.28,
+      "duration": 1.36
+    },
+    {
+      "text": "You test on a test\nsplit for perplexity.",
+      "start": 469.64,
+      "duration": 3.26
+    },
+    {
+      "text": "So then when GPT-2 came\naround in 2019 from OpenAI,",
+      "start": 472.9,
+      "duration": 5.48
+    },
+    {
+      "text": "they trained on\nthe data set called",
+      "start": 478.38,
+      "duration": 3.16
+    },
+    {
+      "text": "WebText, which was 40\ngigabytes of text websites",
+      "start": 481.54,
+      "duration": 3.08
+    },
+    {
+      "text": "that were linked from Reddit.",
+      "start": 484.62,
+      "duration": 2.52
+    },
+    {
+      "text": "And the way they evaluated\nwas actually different.",
+      "start": 487.14,
+      "duration": 3.78
+    },
+    {
+      "text": "They evaluated zero-shot\non standard data sets",
+      "start": 490.92,
+      "duration": 5.14
+    },
+    {
+      "text": "that everyone else\nwas evaluating on.",
+      "start": 496.06,
+      "duration": 3.32
+    },
+    {
+      "text": "So this is out-of-distribution\nevaluation.",
+      "start": 499.38,
+      "duration": 2.46
+    },
+    {
+      "text": "So this is a table from their\npaper, which show that as they",
+      "start": 501.84,
+      "duration": 3.98
+    },
+    {
+      "text": "train different models.",
+      "start": 505.82,
+      "duration": 1.58
+    },
+    {
+      "text": "So the biggest model is\n1.5 billion parameters.",
+      "start": 507.4,
+      "duration": 3.3
+    },
+    {
+      "text": "And they were able to show\nquite a bit of improvement,",
+      "start": 510.7,
+      "duration": 5.76
+    },
+    {
+      "text": "especially on the\nsmall data sets.",
+      "start": 516.46,
+      "duration": 2.98
+    },
+    {
+      "text": "So for example, PTB,\nwhich is a tiny data set.",
+      "start": 519.44,
+      "duration": 3.34
+    },
+    {
+      "text": "They were getting 35 perplexity\ncompared to the State",
+      "start": 522.78,
+      "duration": 3.7
+    },
+    {
+      "text": "of The Art, which is 46.",
+      "start": 526.48,
+      "duration": 1.92
+    },
+    {
+      "text": "Now, if you have enough\nin-distribution data,",
+      "start": 528.4,
+      "duration": 2.42
+    },
+    {
+      "text": "you don't quite do\nas well as the SOTA.",
+      "start": 530.82,
+      "duration": 3.14
+    },
+    {
+      "text": "But nonetheless, this\nis kind of impressive,",
+      "start": 533.96,
+      "duration": 4.16
+    },
+    {
+      "text": "given that this model was not\ntrained on One Billion Word's",
+      "start": 538.12,
+      "duration": 4.08
+    },
+    {
+      "text": "data set at all.",
+      "start": 542.2,
+      "duration": 2.28
+    },
+    {
+      "text": "I don't know.",
+      "start": 544.48,
+      "duration": 0.64
+    },
+    {
+      "text": "Maybe there was some\noverlap, because I",
+      "start": 545.12,
+      "duration": 1.92
+    },
+    {
+      "text": "don't know if they did a\ncareful train test decontam.",
+      "start": 547.04,
+      "duration": 7.28
+    },
+    {
+      "text": "And so it ushered\nin a new paradigm",
+      "start": 554.32,
+      "duration": 6.12
+    },
+    {
+      "text": "of thinking about language\nmodels as not just",
+      "start": 560.44,
+      "duration": 2.48
+    },
+    {
+      "text": "the in-distribution\nsetting, but how",
+      "start": 562.92,
+      "duration": 4.12
+    },
+    {
+      "text": "we wanted to train\non a large data set",
+      "start": 567.04,
+      "duration": 4.44
+    },
+    {
+      "text": "and evaluate on standard\nbenchmarks, which nowadays I",
+      "start": 571.48,
+      "duration": 3.08
+    },
+    {
+      "text": "think has been very\ncommon standard.",
+      "start": 574.56,
+      "duration": 2.74
+    },
+    {
+      "text": "But back then, it was seen\nas a bit of a novelty.",
+      "start": 577.3,
+      "duration": 4.32
+    },
+    {
+      "text": "I will also argue, since we're\ntalking about perplexity, that",
+      "start": 586.53,
+      "duration": 3.36
+    },
+    {
+      "text": "perplexity is you all need.",
+      "start": 589.89,
+      "duration": 3.16
+    },
+    {
+      "text": "I wouldn't to take\nthis too seriously,",
+      "start": 593.05,
+      "duration": 1.94
+    },
+    {
+      "text": "but I think it is\na mindset, I think,",
+      "start": 594.99,
+      "duration": 2.26
+    },
+    {
+      "text": "that drives a lot of\nlanguage modeling research.",
+      "start": 597.25,
+      "duration": 3.88
+    },
+    {
+      "text": "And the basic argument\ngoes like this.",
+      "start": 601.13,
+      "duration": 2.68
+    },
+    {
+      "text": "So there's some true\ndistribution out there--",
+      "start": 603.81,
+      "duration": 2.02
+    },
+    {
+      "text": "let's call it t--",
+      "start": 605.83,
+      "duration": 1.46
+    },
+    {
+      "text": "and you're training\nthis model p.",
+      "start": 607.29,
+      "duration": 2.68
+    },
+    {
+      "text": "So what is the best\nperplexity you could obtain?",
+      "start": 609.97,
+      "duration": 4.24
+    },
+    {
+      "text": "Well, the best\nperplexity is the entropy",
+      "start": 614.21,
+      "duration": 3.68
+    },
+    {
+      "text": "of that true\ndistribution, and that",
+      "start": 617.89,
+      "duration": 3.96
+    },
+    {
+      "text": "is realized when p equals t.",
+      "start": 621.85,
+      "duration": 4.28
+    },
+    {
+      "text": "So by minimizing\nperplexity, you're basically",
+      "start": 626.13,
+      "duration": 4.16
+    },
+    {
+      "text": "pushing down the perplexity.",
+      "start": 630.29,
+      "duration": 4.84
+    },
+    {
+      "text": "And the only unique minimizer\nis when you actually",
+      "start": 635.13,
+      "duration": 3.48
+    },
+    {
+      "text": "get the true distribution.",
+      "start": 638.61,
+      "duration": 2.17
+    },
+    {
+      "text": "And when you have the true\ndistribution, you're done.",
+      "start": 640.78,
+      "duration": 4.1
+    },
+    {
+      "text": "You just model everything.",
+      "start": 644.88,
+      "duration": 1.186
+    },
+    {
+      "text": "You can solve all\nthe problems, and you",
+      "start": 646.066,
+      "duration": 1.994
+    },
+    {
+      "text": "can do things like\ncondition on the problem,",
+      "start": 648.06,
+      "duration": 2.72
+    },
+    {
+      "text": "generate a solution.",
+      "start": 650.78,
+      "duration": 1.22
+    },
+    {
+      "text": "You can condition on a\nquestion, generate the answer.",
+      "start": 652.0,
+      "duration": 3.74
+    },
+    {
+      "text": "So by pushing down\non perplexity,",
+      "start": 655.74,
+      "duration": 3.4
+    },
+    {
+      "text": "we'll eventually reach\nAGI, is the argument.",
+      "start": 659.14,
+      "duration": 4.64
+    },
+    {
+      "text": "I mean, this might\nsound, I don't know,",
+      "start": 663.78,
+      "duration": 1.72
+    },
+    {
+      "text": "either a bit fantastical.",
+      "start": 665.5,
+      "duration": 2.6
+    },
+    {
+      "text": "But in some sense,\nthis is really,",
+      "start": 668.1,
+      "duration": 2.8
+    },
+    {
+      "text": "I think, a strong\ndriver of many people",
+      "start": 670.9,
+      "duration": 2.36
+    },
+    {
+      "text": "who have been scaling and\nscaling language models",
+      "start": 673.26,
+      "duration": 3.72
+    },
+    {
+      "text": "at a time when, maybe, the\ngains weren't as obvious.",
+      "start": 676.98,
+      "duration": 5.64
+    },
+    {
+      "text": "Before GPT-3, I\nthink it wasn't clear",
+      "start": 682.62,
+      "duration": 1.88
+    },
+    {
+      "text": "that language models were going\nto have such a huge impact.",
+      "start": 684.5,
+      "duration": 4.68
+    },
+    {
+      "text": "And it was really this belief\nthat, if you drove perplexity",
+      "start": 689.18,
+      "duration": 3.84
+    },
+    {
+      "text": "down, good things will happen.",
+      "start": 693.02,
+      "duration": 3.92
+    },
+    {
+      "text": "So of course, Perplexity\nis maybe not all.",
+      "start": 696.94,
+      "duration": 6.82
+    },
+    {
+      "text": "And one way to frame it is\nthat perplexity is maybe more",
+      "start": 703.76,
+      "duration": 4.0
+    },
+    {
+      "text": "than you need.",
+      "start": 707.76,
+      "duration": 1.265
+    },
+    {
+      "text": "So for example, if you have\na sentence like \"Stanford was",
+      "start": 709.025,
+      "duration": 2.375
+    },
+    {
+      "text": "founded in 1885,\"\nperplexity will say,",
+      "start": 711.4,
+      "duration": 3.96
+    },
+    {
+      "text": "penalize the prediction\non all tokens.",
+      "start": 715.36,
+      "duration": 4.04
+    },
+    {
+      "text": "So in particular, it'll say,\nwhat is the probability of 1885,",
+      "start": 719.4,
+      "duration": 4.24
+    },
+    {
+      "text": "given the rest?",
+      "start": 723.64,
+      "duration": 1.28
+    },
+    {
+      "text": "And that token is\nprobably pretty useful.",
+      "start": 724.92,
+      "duration": 3.06
+    },
+    {
+      "text": "It's basically a Q&A example,\nphrased as sentence completion.",
+      "start": 727.98,
+      "duration": 5.98
+    },
+    {
+      "text": "So it captures knowledge\nabout the world.",
+      "start": 733.96,
+      "duration": 3.52
+    },
+    {
+      "text": "But other ones-- for example,\nthe first word of a sentence,",
+      "start": 737.48,
+      "duration": 4.7
+    },
+    {
+      "text": "or even \"founded\"--",
+      "start": 742.18,
+      "duration": 2.94
+    },
+    {
+      "text": "maybe not that\ninteresting, I think.",
+      "start": 745.12,
+      "duration": 4.44
+    },
+    {
+      "text": "And perplexity doesn't care.",
+      "start": 749.56,
+      "duration": 1.78
+    },
+    {
+      "text": "It's going to charge you bits\nfor every bit of a deviation",
+      "start": 751.34,
+      "duration": 6.91
+    },
+    {
+      "text": "from the true distribution.",
+      "start": 758.25,
+      "duration": 3.24
+    },
+    {
+      "text": "So there is a bit\nof a solution here,",
+      "start": 761.49,
+      "duration": 2.66
+    },
+    {
+      "text": "which is you can always measure\nthe conditional perplexity.",
+      "start": 764.15,
+      "duration": 3.04
+    },
+    {
+      "text": "You can condition\non some prompt,",
+      "start": 767.19,
+      "duration": 1.52
+    },
+    {
+      "text": "and then you can measure the\nperplexity of the remaining",
+      "start": 768.71,
+      "duration": 4.82
+    },
+    {
+      "text": "response.",
+      "start": 773.53,
+      "duration": 0.92
+    },
+    {
+      "text": "So that allows you\nto, in general,",
+      "start": 774.45,
+      "duration": 1.96
+    },
+    {
+      "text": "focus on certain\ntokens that you believe",
+      "start": 776.41,
+      "duration": 2.28
+    },
+    {
+      "text": "to be relevant\nand less on others",
+      "start": 778.69,
+      "duration": 4.04
+    },
+    {
+      "text": "that are sort of incidental.",
+      "start": 782.73,
+      "duration": 3.86
+    },
+    {
+      "text": "OK.",
+      "start": 786.59,
+      "duration": 2.326
+    },
+    {
+      "text": "And also, it's\nimportant to remember",
+      "start": 788.916,
+      "duration": 2.654
+    },
+    {
+      "text": "that some benchmarks, even\nthough they are not explicitly",
+      "start": 791.57,
+      "duration": 4.0
+    },
+    {
+      "text": "a perplexity\nmeasure, are actually",
+      "start": 795.57,
+      "duration": 1.56
+    },
+    {
+      "text": "just perplexity in disguise.",
+      "start": 797.13,
+      "duration": 1.8
+    },
+    {
+      "text": "So, for example, if you\nthink about closed tasks.",
+      "start": 798.93,
+      "duration": 3.18
+    },
+    {
+      "text": "There's this lambada paper\nfrom, actually, a while ago,",
+      "start": 802.11,
+      "duration": 4.0
+    },
+    {
+      "text": "2016, which is basically\nfill in the blank.",
+      "start": 806.11,
+      "duration": 3.54
+    },
+    {
+      "text": "And you have a context,\nyou have a sentence.",
+      "start": 809.65,
+      "duration": 3.64
+    },
+    {
+      "text": "\"Do you honestly think I will\nwant you to have a blank.\"",
+      "start": 813.29,
+      "duration": 3.09
+    },
+    {
+      "text": "And the goal is to\nfigure out that word.",
+      "start": 816.38,
+      "duration": 3.88
+    },
+    {
+      "text": "And even though this is\nmeasured in terms of accuracy,",
+      "start": 820.26,
+      "duration": 4.06
+    },
+    {
+      "text": "it is really a next-token\nprediction problem.",
+      "start": 824.32,
+      "duration": 4.58
+    },
+    {
+      "text": "And here, it's not\nperplexity of all the words,",
+      "start": 828.9,
+      "duration": 3.78
+    },
+    {
+      "text": "it's carefully chosen.",
+      "start": 832.68,
+      "duration": 1.32
+    },
+    {
+      "text": "If you read this paper,\nit's really carefully chosen",
+      "start": 834.0,
+      "duration": 2.94
+    },
+    {
+      "text": "to be words, such\nthat you actually need",
+      "start": 836.94,
+      "duration": 3.12
+    },
+    {
+      "text": "a bunch of long-contexts\nto resolve.",
+      "start": 840.06,
+      "duration": 3.72
+    },
+    {
+      "text": "So this is actually something\nthat the early GPT papers really",
+      "start": 843.78,
+      "duration": 5.2
+    },
+    {
+      "text": "latched on to because they\nwere interested in long-context",
+      "start": 848.98,
+      "duration": 5.84
+    },
+    {
+      "text": "modeling, thinking that\nthat was a key to unlocking",
+      "start": 854.82,
+      "duration": 3.16
+    },
+    {
+      "text": "reasoning and all these things.",
+      "start": 857.98,
+      "duration": 2.92
+    },
+    {
+      "text": "And really, by\nfocusing on positions",
+      "start": 860.9,
+      "duration": 3.72
+    },
+    {
+      "text": "where, to resolve\nthat, it requires",
+      "start": 864.62,
+      "duration": 4.68
+    },
+    {
+      "text": "long-distance\ndependencies, is a way",
+      "start": 869.3,
+      "duration": 5.57
+    },
+    {
+      "text": "to sharpen the perplexity\nto some phenomenon",
+      "start": 874.87,
+      "duration": 4.48
+    },
+    {
+      "text": "that you care about.",
+      "start": 879.35,
+      "duration": 2.56
+    },
+    {
+      "text": "Here's another\npopular classic data",
+      "start": 881.91,
+      "duration": 2.36
+    },
+    {
+      "text": "set that you see in some\nlanguage modeling vowels.",
+      "start": 884.27,
+      "duration": 2.62
+    },
+    {
+      "text": "HellaSwag.",
+      "start": 886.89,
+      "duration": 1.1
+    },
+    {
+      "text": "So what is HellaSwag?",
+      "start": 887.99,
+      "duration": 1.18
+    },
+    {
+      "text": "They went to various different\ndata sets and sources,",
+      "start": 889.17,
+      "duration": 3.78
+    },
+    {
+      "text": "and came up with--\nit's multiple choice,",
+      "start": 892.95,
+      "duration": 3.08
+    },
+    {
+      "text": "but it's really\nsentence completion.",
+      "start": 896.03,
+      "duration": 1.82
+    },
+    {
+      "text": "And at some level,\nit's perplexity.",
+      "start": 897.85,
+      "duration": 2.28
+    },
+    {
+      "text": "So here's a sentence.",
+      "start": 900.13,
+      "duration": 1.42
+    },
+    {
+      "text": "\"A woman is outside\nwith a bucket and a dog.",
+      "start": 901.55,
+      "duration": 1.86
+    },
+    {
+      "text": "The dog is running around.",
+      "start": 903.41,
+      "duration": 1.28
+    },
+    {
+      "text": "She blank.\"",
+      "start": 904.69,
+      "duration": 1.115
+    },
+    {
+      "text": "And then you're trying\nto fill in which",
+      "start": 905.805,
+      "duration": 1.625
+    },
+    {
+      "text": "sentence completes it the best.",
+      "start": 907.43,
+      "duration": 2.72
+    },
+    {
+      "text": "So it's not exactly perplexity,\nit's multiple choice.",
+      "start": 910.15,
+      "duration": 2.5
+    },
+    {
+      "text": "But in some ways,\nit's perplexity.",
+      "start": 912.65,
+      "duration": 6.26
+    },
+    {
+      "text": "So one word of warning.",
+      "start": 918.91,
+      "duration": 2.06
+    },
+    {
+      "text": "If you ever decide that\nyou're sold on perplexity",
+      "start": 920.97,
+      "duration": 4.7
+    },
+    {
+      "text": "as, really, the\nmeasure and you're",
+      "start": 925.67,
+      "duration": 3.4
+    },
+    {
+      "text": "going to launch a leaderboard\nand have people compete",
+      "start": 929.07,
+      "duration": 3.1
+    },
+    {
+      "text": "against perplexity,\njust a word of caution",
+      "start": 932.17,
+      "duration": 3.72
+    },
+    {
+      "text": "is that, what is a perplexity\nleaderboard look like?",
+      "start": 935.89,
+      "duration": 3.92
+    },
+    {
+      "text": "So people are going to submit\na language model to you,",
+      "start": 939.81,
+      "duration": 3.32
+    },
+    {
+      "text": "and you have to\ncompute a logprob.",
+      "start": 943.13,
+      "duration": 4.1
+    },
+    {
+      "text": "You send them the test data, and\nthey give you back a logprob.",
+      "start": 947.23,
+      "duration": 3.82
+    },
+    {
+      "text": "Well, you look at\nthat and say, hmm,",
+      "start": 951.05,
+      "duration": 2.08
+    },
+    {
+      "text": "that might be a little\nbit fishy because you",
+      "start": 953.13,
+      "duration": 5.0
+    },
+    {
+      "text": "need to trust that the\nprobabilities they hand back",
+      "start": 958.13,
+      "duration": 3.52
+    },
+    {
+      "text": "to you are valid and\nthat they sum to 1.",
+      "start": 961.65,
+      "duration": 4.74
+    },
+    {
+      "text": "Otherwise, I could\njust have implement LM,",
+      "start": 966.39,
+      "duration": 2.1
+    },
+    {
+      "text": "and it always returns 1\nor, I guess, logprob 0.",
+      "start": 968.49,
+      "duration": 5.92
+    },
+    {
+      "text": "And I would get very\ngood perplexity,",
+      "start": 974.41,
+      "duration": 2.86
+    },
+    {
+      "text": "but clearly, that's not\na valid distribution.",
+      "start": 977.27,
+      "duration": 5.26
+    },
+    {
+      "text": "And so with this\ncontract it's not",
+      "start": 982.53,
+      "duration": 1.68
+    },
+    {
+      "text": "really easy to check\nthat someone is actually",
+      "start": 984.21,
+      "duration": 3.44
+    },
+    {
+      "text": "internally having\na log probability,",
+      "start": 987.65,
+      "duration": 1.86
+    },
+    {
+      "text": "so there's some trust.",
+      "start": 989.51,
+      "duration": 1.01
+    },
+    {
+      "text": "Maybe you have to look\nat the code or something.",
+      "start": 990.52,
+      "duration": 3.34
+    },
+    {
+      "text": "For downstream tasks, this\nis much more straightforward",
+      "start": 993.86,
+      "duration": 5.2
+    },
+    {
+      "text": "because you can\nhave a black box LM.",
+      "start": 999.06,
+      "duration": 1.647
+    },
+    {
+      "text": "I give you a prompt,\nyou give me a response,",
+      "start": 1000.707,
+      "duration": 1.833
+    },
+    {
+      "text": "and I can just use that response\nand calculate some accuracy.",
+      "start": 1002.54,
+      "duration": 3.72
+    },
+    {
+      "text": "So perplexity is\nfundamentally different",
+      "start": 1006.26,
+      "duration": 1.88
+    },
+    {
+      "text": "because it deals\nwith distributions,",
+      "start": 1008.14,
+      "duration": 1.94
+    },
+    {
+      "text": "and you have to\nbe a bit careful.",
+      "start": 1010.08,
+      "duration": 2.58
+    },
+    {
+      "text": "And not to mention,\nthere's lots of problems",
+      "start": 1012.66,
+      "duration": 3.32
+    },
+    {
+      "text": "with autoregressive models.",
+      "start": 1015.98,
+      "duration": 1.22
+    },
+    {
+      "text": "But if you have VAEs or there's\nsome models where you can't even",
+      "start": 1017.2,
+      "duration": 3.98
+    },
+    {
+      "text": "compute the distribution--\nyou can compute only a bound--",
+      "start": 1021.18,
+      "duration": 3.6
+    },
+    {
+      "text": "then you have to really actually\ntrust the math as well that this",
+      "start": 1024.78,
+      "duration": 3.68
+    },
+    {
+      "text": "is actually a valid bound.",
+      "start": 1028.46,
+      "duration": 2.6
+    },
+    {
+      "text": "OK.",
+      "start": 1031.06,
+      "duration": 1.5
+    },
+    {
+      "text": "So The summary of perplexity\nis that it is actually",
+      "start": 1032.56,
+      "duration": 3.86
+    },
+    {
+      "text": "still used quite heavily in\nlanguage model development.",
+      "start": 1036.42,
+      "duration": 6.399
+    },
+    {
+      "text": "It has some nice properties.",
+      "start": 1042.819,
+      "duration": 1.461
+    },
+    {
+      "text": "We saw that it's generally\nused for scaling laws",
+      "start": 1044.28,
+      "duration": 3.339
+    },
+    {
+      "text": "because it's also\nsmoothly varying",
+      "start": 1047.619,
+      "duration": 3.291
+    },
+    {
+      "text": "with scale, which is important\nfor getting scaling laws.",
+      "start": 1050.91,
+      "duration": 4.6
+    },
+    {
+      "text": "But, at the end of the day,\nespecially if you're not",
+      "start": 1055.51,
+      "duration": 4.68
+    },
+    {
+      "text": "a believer, then you need some\nbenchmarks to really capture",
+      "start": 1060.19,
+      "duration": 4.88
+    },
+    {
+      "text": "real world situations,\nto convince people",
+      "start": 1065.07,
+      "duration": 1.92
+    },
+    {
+      "text": "that your language\nmodel is good.",
+      "start": 1066.99,
+      "duration": 2.0
+    },
+    {
+      "text": "For the believers, if I show you\na remarkably slow perplexity,",
+      "start": 1068.99,
+      "duration": 4.1
+    },
+    {
+      "text": "they'll be convinced.",
+      "start": 1073.09,
+      "duration": 3.18
+    },
+    {
+      "text": "OK, any questions\nabout perplexity?",
+      "start": 1076.27,
+      "duration": 2.26
+    },
+    {
+      "text": "OK.",
+      "start": 1090.37,
+      "duration": 0.5
+    },
+    {
+      "text": "Hopefully, everyone's\na believer now.",
+      "start": 1090.87,
+      "duration": 3.68
+    },
+    {
+      "text": "OK, so let's talk\nabout exam benchmarks.",
+      "start": 1094.55,
+      "duration": 4.04
+    },
+    {
+      "text": "So exams, as all of\nyour students know,",
+      "start": 1098.59,
+      "duration": 3.24
+    },
+    {
+      "text": "is a way that we\nuse to test humans.",
+      "start": 1101.83,
+      "duration": 4.3
+    },
+    {
+      "text": "And so you can adopt\nthe same mentality",
+      "start": 1106.13,
+      "duration": 2.2
+    },
+    {
+      "text": "to test language models.",
+      "start": 1108.33,
+      "duration": 2.4
+    },
+    {
+      "text": "The nice thing about\nexams is that you",
+      "start": 1110.73,
+      "duration": 1.64
+    },
+    {
+      "text": "have a very careful\ncontrol over the subject,",
+      "start": 1112.37,
+      "duration": 3.2
+    },
+    {
+      "text": "over the difficulty.",
+      "start": 1115.57,
+      "duration": 2.84
+    },
+    {
+      "text": "You can design them to have\nunambiguous correct answers,",
+      "start": 1118.41,
+      "duration": 4.1
+    },
+    {
+      "text": "which makes them easy to grade.",
+      "start": 1122.51,
+      "duration": 2.14
+    },
+    {
+      "text": "So there's a lot of nice\nproperties about exams.",
+      "start": 1124.65,
+      "duration": 3.28
+    },
+    {
+      "text": "And so, for this reason, a\nlot of LM benchmarking culture",
+      "start": 1127.93,
+      "duration": 4.48
+    },
+    {
+      "text": "was based on just\nthis idea of exams.",
+      "start": 1132.41,
+      "duration": 3.8
+    },
+    {
+      "text": "So obviously, there's\nbeen a lot of benchmarks,",
+      "start": 1136.21,
+      "duration": 3.573
+    },
+    {
+      "text": "but I'll just highlight\nsome of the ones",
+      "start": 1139.783,
+      "duration": 1.667
+    },
+    {
+      "text": "that I think have\nbeen influential",
+      "start": 1141.45,
+      "duration": 3.4
+    },
+    {
+      "text": "in the development\nof language models.",
+      "start": 1144.85,
+      "duration": 2.44
+    },
+    {
+      "text": "So this one is MMLU, or Massive\nMultitask Language Understanding",
+      "start": 1147.29,
+      "duration": 4.16
+    },
+    {
+      "text": "from Hendrycks et al, 2020.",
+      "start": 1151.45,
+      "duration": 4.32
+    },
+    {
+      "text": "And at that time,\nit wasn't clear",
+      "start": 1155.77,
+      "duration": 3.24
+    },
+    {
+      "text": "that language models were\nreally like general purpose task",
+      "start": 1159.01,
+      "duration": 4.68
+    },
+    {
+      "text": "solvers.",
+      "start": 1163.69,
+      "duration": 0.5
+    },
+    {
+      "text": "This was around the time\nwhen GPT-3 came out.",
+      "start": 1164.19,
+      "duration": 5.27
+    },
+    {
+      "text": "Many people, I think, still\nthought of language models",
+      "start": 1169.46,
+      "duration": 2.32
+    },
+    {
+      "text": "as, well, language models.",
+      "start": 1171.78,
+      "duration": 2.02
+    },
+    {
+      "text": "You generate fluent English.",
+      "start": 1173.8,
+      "duration": 2.54
+    },
+    {
+      "text": "But they had this\nidea that, well,",
+      "start": 1176.34,
+      "duration": 2.6
+    },
+    {
+      "text": "let's just try to be\nahead of the curve here.",
+      "start": 1178.94,
+      "duration": 2.94
+    },
+    {
+      "text": "We're going to go\nthrough 57 subjects,",
+      "start": 1181.88,
+      "duration": 4.16
+    },
+    {
+      "text": "we're going to have\na team of students",
+      "start": 1186.04,
+      "duration": 4.1
+    },
+    {
+      "text": "scour the internet\nfor different sources,",
+      "start": 1190.14,
+      "duration": 2.76
+    },
+    {
+      "text": "and really put together this\nvery comprehensive data set.",
+      "start": 1192.9,
+      "duration": 7.12
+    },
+    {
+      "text": "And despite the name MMLU,\nwhich has the word Language",
+      "start": 1200.02,
+      "duration": 3.4
+    },
+    {
+      "text": "Understanding, it's\nreally about testing",
+      "start": 1203.42,
+      "duration": 1.76
+    },
+    {
+      "text": "knowledge and reasoning\nand less so just",
+      "start": 1205.18,
+      "duration": 2.4
+    },
+    {
+      "text": "pure language understanding.",
+      "start": 1207.58,
+      "duration": 2.08
+    },
+    {
+      "text": "And the way they evaluated\nit was with GPT-3,",
+      "start": 1209.66,
+      "duration": 4.36
+    },
+    {
+      "text": "using few-shot prompting.",
+      "start": 1214.02,
+      "duration": 1.7
+    },
+    {
+      "text": "So they essentially said,\nI have formed this prompt.",
+      "start": 1215.72,
+      "duration": 6.42
+    },
+    {
+      "text": "The following are questions\nabout high school mathematics.",
+      "start": 1222.14,
+      "duration": 2.75
+    },
+    {
+      "text": "Some in-context examples of\nquestion, answer, question,",
+      "start": 1224.89,
+      "duration": 3.5
+    },
+    {
+      "text": "answer, and then the final\nquestion, and then the model",
+      "start": 1228.39,
+      "duration": 3.12
+    },
+    {
+      "text": "has to predict the answer.",
+      "start": 1231.51,
+      "duration": 2.32
+    },
+    {
+      "text": "So this seems very mundane.",
+      "start": 1233.83,
+      "duration": 1.82
+    },
+    {
+      "text": "But at that time\nit was, I think,",
+      "start": 1235.65,
+      "duration": 2.42
+    },
+    {
+      "text": "pretty radical that\nyou would construct",
+      "start": 1238.07,
+      "duration": 3.56
+    },
+    {
+      "text": "this fairly complicated question\nand with in-context examples",
+      "start": 1241.63,
+      "duration": 4.64
+    },
+    {
+      "text": "and everything, and\nexpect a language",
+      "start": 1246.27,
+      "duration": 1.8
+    },
+    {
+      "text": "model to actually do\nsomething reasonable.",
+      "start": 1248.07,
+      "duration": 3.76
+    },
+    {
+      "text": "And sure enough, at the outset,\nthe models were not great,",
+      "start": 1251.83,
+      "duration": 6.14
+    },
+    {
+      "text": "I would say.",
+      "start": 1257.97,
+      "duration": 0.58
+    },
+    {
+      "text": "Some of the small models\nwere barely above chance.",
+      "start": 1261.43,
+      "duration": 3.46
+    },
+    {
+      "text": "And the larger\nmodel-- this GPT-3--",
+      "start": 1264.89,
+      "duration": 2.58
+    },
+    {
+      "text": "was actually well above chance,\nso this was kind of encouraging.",
+      "start": 1267.47,
+      "duration": 6.44
+    },
+    {
+      "text": "And then over the\nyears, as we know,",
+      "start": 1273.91,
+      "duration": 8.02
+    },
+    {
+      "text": "this benchmark has\nessentially saturated.",
+      "start": 1281.93,
+      "duration": 4.1
+    },
+    {
+      "text": "So this is a site I don't think\nthis has all the data in it,",
+      "start": 1286.03,
+      "duration": 3.52
+    },
+    {
+      "text": "but about 3.5 Turbo.",
+      "start": 1289.55,
+      "duration": 2.56
+    },
+    {
+      "text": "This was like--",
+      "start": 1292.11,
+      "duration": 3.18
+    },
+    {
+      "text": "I guess, beginning of\n2024-- oh, '23 actually--",
+      "start": 1295.29,
+      "duration": 4.28
+    },
+    {
+      "text": "to GPT-4.",
+      "start": 1299.57,
+      "duration": 1.52
+    },
+    {
+      "text": "And then, now it's in the 90s.",
+      "start": 1301.09,
+      "duration": 6.94
+    },
+    {
+      "text": "So there's also a\nlink you can follow up",
+      "start": 1308.03,
+      "duration": 4.22
+    },
+    {
+      "text": "later on, where you can\nactually browse some",
+      "start": 1312.25,
+      "duration": 1.96
+    },
+    {
+      "text": "of the predictions of these\nmodels, which is always",
+      "start": 1314.21,
+      "duration": 3.4
+    },
+    {
+      "text": "fun to see what models\nactually goof up on",
+      "start": 1317.61,
+      "duration": 3.08
+    },
+    {
+      "text": "and what they get right.",
+      "start": 1320.69,
+      "duration": 3.16
+    },
+    {
+      "text": "OK.",
+      "start": 1323.85,
+      "duration": 2.505
+    },
+    {
+      "text": "So around 2024, when it\nseemed like MMLU, there",
+      "start": 1326.355,
+      "duration": 4.575
+    },
+    {
+      "text": "was a lot of progress\nmade, it was like, OK--",
+      "start": 1330.93,
+      "duration": 2.827
+    },
+    {
+      "text": "you're going to see\nthis theme again--",
+      "start": 1333.757,
+      "duration": 1.583
+    },
+    {
+      "text": "OK, this benchmark\nis getting too easy.",
+      "start": 1335.34,
+      "duration": 3.23
+    },
+    {
+      "text": "Let's try to make it harder.",
+      "start": 1338.57,
+      "duration": 3.955
+    },
+    {
+      "text": "Well, first of\nall, they actually",
+      "start": 1342.525,
+      "duration": 1.375
+    },
+    {
+      "text": "noticed that there was some\nnoisy and trivial problems,",
+      "start": 1343.9,
+      "duration": 2.42
+    },
+    {
+      "text": "so let's get rid of them.",
+      "start": 1346.32,
+      "duration": 1.58
+    },
+    {
+      "text": "Four choices might be\na little bit too easy,",
+      "start": 1347.9,
+      "duration": 3.06
+    },
+    {
+      "text": "so let's expand that to 10.",
+      "start": 1350.96,
+      "duration": 3.34
+    },
+    {
+      "text": "At that point, it was much more\nin vogue to use chain of thought",
+      "start": 1354.3,
+      "duration": 4.52
+    },
+    {
+      "text": "to solve these benchmarks,\nwhereas when GPT-3 came out,",
+      "start": 1358.82,
+      "duration": 3.92
+    },
+    {
+      "text": "that wasn't really a thing.",
+      "start": 1362.74,
+      "duration": 3.56
+    },
+    {
+      "text": "And it's clear that\nsome of these questions",
+      "start": 1366.3,
+      "duration": 2.52
+    },
+    {
+      "text": "could benefit from a\nfew reasoning steps.",
+      "start": 1368.82,
+      "duration": 3.24
+    },
+    {
+      "text": "So this new\nbenchmark was harder.",
+      "start": 1372.06,
+      "duration": 3.68
+    },
+    {
+      "text": "So now the accuracy of\nthe model is back at 33.",
+      "start": 1375.74,
+      "duration": 4.08
+    },
+    {
+      "text": "But as you can maybe\nsee from the progress",
+      "start": 1379.82,
+      "duration": 4.32
+    },
+    {
+      "text": "so far it started low.",
+      "start": 1384.14,
+      "duration": 3.46
+    },
+    {
+      "text": "And now it's back to I guess\nit's like 88 almost 90, OK.",
+      "start": 1387.6,
+      "duration": 5.6
+    },
+    {
+      "text": "So this benchmark might be a\nlittle bit too easy as well.",
+      "start": 1393.2,
+      "duration": 5.15
+    },
+    {
+      "text": "OK, so there's another\nbenchmark called",
+      "start": 1398.35,
+      "duration": 2.48
+    },
+    {
+      "text": "GPQA, which stands\nfor Google-Proof QA.",
+      "start": 1400.83,
+      "duration": 5.96
+    },
+    {
+      "text": "And the idea here is\nthat OK, how can we",
+      "start": 1406.79,
+      "duration": 5.16
+    },
+    {
+      "text": "get a really good benchmark?",
+      "start": 1411.95,
+      "duration": 3.98
+    },
+    {
+      "text": "And the idea is that, well,\nif you can solve a problem",
+      "start": 1415.93,
+      "duration": 2.34
+    },
+    {
+      "text": "by looking at Google.",
+      "start": 1418.27,
+      "duration": 1.44
+    },
+    {
+      "text": "Google has the internet\nand a language model",
+      "start": 1419.71,
+      "duration": 2.52
+    },
+    {
+      "text": "is trained on the internet.",
+      "start": 1422.23,
+      "duration": 1.14
+    },
+    {
+      "text": "So if you can just solve it\nthen that's probably too easy.",
+      "start": 1423.37,
+      "duration": 3.04
+    },
+    {
+      "text": "So they got some now PhD level.",
+      "start": 1426.41,
+      "duration": 3.56
+    },
+    {
+      "text": "So I think MMLU was\nthink about as actually--",
+      "start": 1429.97,
+      "duration": 5.94
+    },
+    {
+      "text": "maybe some of these were like\nundergrad but maybe grad level.",
+      "start": 1435.91,
+      "duration": 4.14
+    },
+    {
+      "text": "But now, it's more explicitly\nabout questions that",
+      "start": 1440.05,
+      "duration": 3.06
+    },
+    {
+      "text": "are meant to be pretty hard.",
+      "start": 1443.11,
+      "duration": 3.2
+    },
+    {
+      "text": "And at this point\nnow you say, OK,",
+      "start": 1446.31,
+      "duration": 2.587
+    },
+    {
+      "text": "how do I come up with\nreally hard questions?",
+      "start": 1448.897,
+      "duration": 1.833
+    },
+    {
+      "text": "You actually have to go through\nquite a bit of human labor",
+      "start": 1450.73,
+      "duration": 3.06
+    },
+    {
+      "text": "to get really hard questions.",
+      "start": 1453.79,
+      "duration": 2.17
+    },
+    {
+      "text": "So this was 61 PhD\ncontractors from Upwork.",
+      "start": 1455.96,
+      "duration": 3.96
+    },
+    {
+      "text": "Someone writes a question.",
+      "start": 1459.92,
+      "duration": 1.76
+    },
+    {
+      "text": "It goes through an expert\nvalidation which then provides",
+      "start": 1461.68,
+      "duration": 3.0
+    },
+    {
+      "text": "feedback on the questions.",
+      "start": 1464.68,
+      "duration": 2.24
+    },
+    {
+      "text": "And then the question writer\ngoes and revises the question.",
+      "start": 1466.92,
+      "duration": 2.82
+    },
+    {
+      "text": "And another expert\nlooks at the question.",
+      "start": 1469.74,
+      "duration": 2.62
+    },
+    {
+      "text": "And then you have the question.",
+      "start": 1472.36,
+      "duration": 3.98
+    },
+    {
+      "text": "And then you send it\nto some non-experts",
+      "start": 1476.34,
+      "duration": 2.02
+    },
+    {
+      "text": "who are given Google access.",
+      "start": 1478.36,
+      "duration": 2.86
+    },
+    {
+      "text": "And then you see if they\ncan solve the question.",
+      "start": 1481.22,
+      "duration": 2.9
+    },
+    {
+      "text": "So there's a subset of these\nquestions called the DIAMOND set",
+      "start": 1484.12,
+      "duration": 3.2
+    },
+    {
+      "text": "that you might see in\npeople's leaderboards",
+      "start": 1487.32,
+      "duration": 4.48
+    },
+    {
+      "text": "where if the two experts agree\nand at one of the non-experts",
+      "start": 1491.8,
+      "duration": 4.2
+    },
+    {
+      "text": "is able to answer the question,\nthen that's deemed a good kind",
+      "start": 1496.0,
+      "duration": 3.28
+    },
+    {
+      "text": "of DIAMOND question.",
+      "start": 1499.28,
+      "duration": 1.96
+    },
+    {
+      "text": "So this is pretty\nrigorous review process.",
+      "start": 1501.24,
+      "duration": 3.92
+    },
+    {
+      "text": "And PhD experts were\nonly able to get 65%.",
+      "start": 1505.16,
+      "duration": 7.14
+    },
+    {
+      "text": "So this is I think mostly\nfour-way multiple choice.",
+      "start": 1512.3,
+      "duration": 3.38
+    },
+    {
+      "text": "So this is above random.",
+      "start": 1515.68,
+      "duration": 2.6
+    },
+    {
+      "text": "But this is not a good grade if\nyou're getting 65% on an exam.",
+      "start": 1518.28,
+      "duration": 6.98
+    },
+    {
+      "text": "And it's not experts, even if\nthey had 30 minutes with access",
+      "start": 1525.26,
+      "duration": 3.64
+    },
+    {
+      "text": "to Google, they were getting a\nbit over chance, but not much.",
+      "start": 1528.9,
+      "duration": 4.96
+    },
+    {
+      "text": "And at that point\nGPT-4 was like 39%,",
+      "start": 1533.86,
+      "duration": 3.96
+    },
+    {
+      "text": "and let's see how\nit's doing now.",
+      "start": 1537.82,
+      "duration": 3.14
+    },
+    {
+      "text": "So GPQA is now again 94.",
+      "start": 1545.14,
+      "duration": 8.86
+    },
+    {
+      "text": "So these benchmarks have a shelf\nlife of not too high I guess.",
+      "start": 1554.0,
+      "duration": 7.692
+    },
+    {
+      "text": "I will say that some\nof these benchmarks,",
+      "start": 1561.692,
+      "duration": 1.708
+    },
+    {
+      "text": "even though they saturate\nthe larger models,",
+      "start": 1563.4,
+      "duration": 2.12
+    },
+    {
+      "text": "they're still useful\nfor developing",
+      "start": 1565.52,
+      "duration": 1.54
+    },
+    {
+      "text": "smaller models or fitting\nscaling laws and so on.",
+      "start": 1567.06,
+      "duration": 3.88
+    },
+    {
+      "text": "So then, yeah.",
+      "start": 1570.94,
+      "duration": 4.01
+    },
+    {
+      "text": "How do you know that\nwhen these tests are",
+      "start": 1574.95,
+      "duration": 3.72
+    },
+    {
+      "text": "being used for training\nand actually your models",
+      "start": 1578.67,
+      "duration": 3.72
+    },
+    {
+      "text": "are communicating with these?",
+      "start": 1582.39,
+      "duration": 1.88
+    },
+    {
+      "text": "Yeah, so this is a very\nimportant question.",
+      "start": 1584.27,
+      "duration": 2.42
+    },
+    {
+      "text": "So how do you know that\nthese questions aren't",
+      "start": 1586.69,
+      "duration": 3.06
+    },
+    {
+      "text": "just in the training set?",
+      "start": 1589.75,
+      "duration": 2.64
+    },
+    {
+      "text": "So the short answer is we\ndon't know because I don't know",
+      "start": 1592.39,
+      "duration": 2.88
+    },
+    {
+      "text": "what's in the training set.",
+      "start": 1595.27,
+      "duration": 1.88
+    },
+    {
+      "text": "I'll come back to\nthis contamination",
+      "start": 1597.15,
+      "duration": 1.88
+    },
+    {
+      "text": "point a little bit later\nand ways of addressing it.",
+      "start": 1599.03,
+      "duration": 3.5
+    },
+    {
+      "text": "But you should always--",
+      "start": 1602.53,
+      "duration": 1.58
+    },
+    {
+      "text": "I'm glad you asked this.",
+      "start": 1604.11,
+      "duration": 1.22
+    },
+    {
+      "text": "You should always\ntake these numbers",
+      "start": 1605.33,
+      "duration": 1.66
+    },
+    {
+      "text": "with a little bit of a grain of\nsalt, because it's only trust.",
+      "start": 1606.99,
+      "duration": 4.18
+    },
+    {
+      "text": "Maybe just to say one more.",
+      "start": 1614.59,
+      "duration": 1.38
+    },
+    {
+      "text": "I think train contamination\nis a little bit subtle.",
+      "start": 1615.97,
+      "duration": 3.9
+    },
+    {
+      "text": "Because it's probably\nnot the case that",
+      "start": 1619.87,
+      "duration": 1.96
+    },
+    {
+      "text": "they literally train on the set.",
+      "start": 1621.83,
+      "duration": 2.48
+    },
+    {
+      "text": "But questions can be\nderived from other sources.",
+      "start": 1624.31,
+      "duration": 3.74
+    },
+    {
+      "text": "And those sources\ncould be trained on.",
+      "start": 1628.05,
+      "duration": 1.71
+    },
+    {
+      "text": "So often contamination is\na much more subtle process",
+      "start": 1629.76,
+      "duration": 4.96
+    },
+    {
+      "text": "than literally accidentally\ntraining on the test.",
+      "start": 1634.72,
+      "duration": 4.72
+    },
+    {
+      "text": "Was there another question?",
+      "start": 1639.44,
+      "duration": 1.26
+    },
+    {
+      "text": "Same question.",
+      "start": 1640.7,
+      "duration": 0.78
+    },
+    {
+      "text": "OK, great.",
+      "start": 1641.48,
+      "duration": 1.8
+    },
+    {
+      "text": "Good always good\nto be skeptical.",
+      "start": 1643.28,
+      "duration": 2.52
+    },
+    {
+      "text": "OK, so the final exam\nbenchmark I'll talk about",
+      "start": 1645.8,
+      "duration": 3.52
+    },
+    {
+      "text": "is something ominously\ncalled Humanity's Last Exam.",
+      "start": 1649.32,
+      "duration": 5.08
+    },
+    {
+      "text": "This is from last year.",
+      "start": 1654.4,
+      "duration": 2.08
+    },
+    {
+      "text": "And they were saying,\nOK, well these models",
+      "start": 1656.48,
+      "duration": 1.84
+    },
+    {
+      "text": "are getting so good.",
+      "start": 1658.32,
+      "duration": 1.18
+    },
+    {
+      "text": "Let's just give it\nall we can to create",
+      "start": 1659.5,
+      "duration": 2.06
+    },
+    {
+      "text": "something that's really tough.",
+      "start": 1661.56,
+      "duration": 2.52
+    },
+    {
+      "text": "So this is multimodal,\nmany subjects.",
+      "start": 1664.08,
+      "duration": 2.38
+    },
+    {
+      "text": "It's still multiple choice.",
+      "start": 1666.46,
+      "duration": 1.16
+    },
+    {
+      "text": "And I guess some short answer.",
+      "start": 1667.62,
+      "duration": 2.58
+    },
+    {
+      "text": "So this was crowdsourced.",
+      "start": 1670.2,
+      "duration": 3.14
+    },
+    {
+      "text": "They had some money to\nincentivize people who were",
+      "start": 1673.34,
+      "duration": 5.78
+    },
+    {
+      "text": "into money to create questions.",
+      "start": 1679.12,
+      "duration": 2.34
+    },
+    {
+      "text": "They also incentivize\nwith authorship",
+      "start": 1681.46,
+      "duration": 1.78
+    },
+    {
+      "text": "for those who are into that.",
+      "start": 1683.24,
+      "duration": 2.92
+    },
+    {
+      "text": "And they went through\nmultiple stages of reviews",
+      "start": 1686.16,
+      "duration": 2.58
+    },
+    {
+      "text": "filtered by frontier models.",
+      "start": 1688.74,
+      "duration": 2.12
+    },
+    {
+      "text": "There's a whole process.",
+      "start": 1690.86,
+      "duration": 1.68
+    },
+    {
+      "text": "Another answer to your question\nis that they also held out",
+      "start": 1692.54,
+      "duration": 3.24
+    },
+    {
+      "text": "a private set that was\nnot released publicly,",
+      "start": 1695.78,
+      "duration": 2.7
+    },
+    {
+      "text": "so that they could make\nsure that this did not",
+      "start": 1698.48,
+      "duration": 3.86
+    },
+    {
+      "text": "enter training.",
+      "start": 1702.34,
+      "duration": 1.92
+    },
+    {
+      "text": "And then you just\nhope that the APIs",
+      "start": 1704.26,
+      "duration": 1.96
+    },
+    {
+      "text": "that you-- because you still\nhave to send this to the model,",
+      "start": 1706.22,
+      "duration": 3.22
+    },
+    {
+      "text": "that those prompts don't\nend up in the training.",
+      "start": 1709.44,
+      "duration": 3.3
+    },
+    {
+      "text": "But let's hope that's the case.",
+      "start": 1712.74,
+      "duration": 4.0
+    },
+    {
+      "text": "So every data set\npaper looks like this.",
+      "start": 1716.74,
+      "duration": 4.9
+    },
+    {
+      "text": "Previous benchmarks, look\nthe models are doing so well.",
+      "start": 1721.64,
+      "duration": 3.0
+    },
+    {
+      "text": "My data set, look all the\nmodels are doing really poorly.",
+      "start": 1724.64,
+      "duration": 3.82
+    },
+    {
+      "text": "So this is a common pattern.",
+      "start": 1728.46,
+      "duration": 1.86
+    },
+    {
+      "text": "And this was especially\nsingle digits.",
+      "start": 1730.32,
+      "duration": 1.88
+    },
+    {
+      "text": "It's pretty abysmal here.",
+      "start": 1732.2,
+      "duration": 3.42
+    },
+    {
+      "text": "And let's see how\nwe're doing in 2026.",
+      "start": 1735.62,
+      "duration": 5.4
+    },
+    {
+      "text": "So this one is-- it\nstill has some room.",
+      "start": 1741.02,
+      "duration": 4.66
+    },
+    {
+      "text": "So it's only at--",
+      "start": 1745.68,
+      "duration": 1.47
+    },
+    {
+      "text": "even Mythos is only at 64.7.",
+      "start": 1747.15,
+      "duration": 4.52
+    },
+    {
+      "text": "So this is indeed a pretty-- it\nseems like a pretty hard exam.",
+      "start": 1751.67,
+      "duration": 4.38
+    },
+    {
+      "text": "OK, so to summarize this\nsection, as you can see,",
+      "start": 1760.55,
+      "duration": 5.68
+    },
+    {
+      "text": "we've trained it towards\nharder and harder questions",
+      "start": 1766.23,
+      "duration": 2.24
+    },
+    {
+      "text": "as the models improve and we\nsaturate existing benchmarks.",
+      "start": 1768.47,
+      "duration": 4.56
+    },
+    {
+      "text": "It's interesting that multiple\nchoice format still survives",
+      "start": 1773.03,
+      "duration": 4.2
+    },
+    {
+      "text": "because it's--",
+      "start": 1777.23,
+      "duration": 2.865
+    },
+    {
+      "text": "with multiple\nchoice, I mean, you",
+      "start": 1780.095,
+      "duration": 1.375
+    },
+    {
+      "text": "can make it as\ndifficult as you want.",
+      "start": 1781.47,
+      "duration": 2.56
+    },
+    {
+      "text": "So some people think, well,\nmultiple choice is too easy.",
+      "start": 1784.03,
+      "duration": 3.1
+    },
+    {
+      "text": "Well, I mean, I can\ngive you a very hard",
+      "start": 1787.13,
+      "duration": 1.86
+    },
+    {
+      "text": "multiple-choice question.",
+      "start": 1788.99,
+      "duration": 2.02
+    },
+    {
+      "text": "That's not really the point.",
+      "start": 1791.01,
+      "duration": 2.62
+    },
+    {
+      "text": "I think more the point is\nthat multiple choice restricts",
+      "start": 1793.63,
+      "duration": 3.04
+    },
+    {
+      "text": "the set of questions\nyou can ask.",
+      "start": 1796.67,
+      "duration": 2.12
+    },
+    {
+      "text": "But in terms of difficulty, no\nproblem with multiple choice.",
+      "start": 1798.79,
+      "duration": 4.72
+    },
+    {
+      "text": "The main problem with\nexam-based questions",
+      "start": 1803.51,
+      "duration": 4.37
+    },
+    {
+      "text": "is that this does not\ncapture real-world usage.",
+      "start": 1807.88,
+      "duration": 4.52
+    },
+    {
+      "text": "No one asks HLE questions\nto a language model",
+      "start": 1812.4,
+      "duration": 4.76
+    },
+    {
+      "text": "except for when you're\nevaluating on HLE.",
+      "start": 1817.16,
+      "duration": 3.28
+    },
+    {
+      "text": "Most of the time people are\nasking open-ended questions.",
+      "start": 1820.44,
+      "duration": 3.72
+    },
+    {
+      "text": "They don't even necessarily\nhave a correct answer.",
+      "start": 1824.16,
+      "duration": 2.46
+    },
+    {
+      "text": "They might not be well\nformed, and these benchmarks",
+      "start": 1826.62,
+      "duration": 3.18
+    },
+    {
+      "text": "do not capture that.",
+      "start": 1829.8,
+      "duration": 3.28
+    },
+    {
+      "text": "OK, so question.",
+      "start": 1833.08,
+      "duration": 3.997
+    },
+    {
+      "text": "How is the model output compared\nwith the ground truth answer?",
+      "start": 1837.077,
+      "duration": 2.583
+    },
+    {
+      "text": "So for HLE?",
+      "start": 1839.66,
+      "duration": 2.86
+    },
+    {
+      "text": "For accuracy, how is\nthe model's output",
+      "start": 1842.52,
+      "duration": 1.84
+    },
+    {
+      "text": "compared with the\nground truth answer,",
+      "start": 1844.36,
+      "duration": 2.64
+    },
+    {
+      "text": "to calculate the accuracy?",
+      "start": 1847.0,
+      "duration": 1.4
+    },
+    {
+      "text": "To calculate the accuracy\nfor how is the ground truth",
+      "start": 1848.4,
+      "duration": 3.48
+    },
+    {
+      "text": "compared.",
+      "start": 1851.88,
+      "duration": 0.92
+    },
+    {
+      "text": "So for multiple\nchoice, it's just like,",
+      "start": 1852.8,
+      "duration": 3.84
+    },
+    {
+      "text": "did you get the right answer?",
+      "start": 1856.64,
+      "duration": 2.438
+    },
+    {
+      "text": "So will we check the probability\ndistribution for each option",
+      "start": 1859.078,
+      "duration": 2.542
+    },
+    {
+      "text": "or how is--",
+      "start": 1861.62,
+      "duration": 3.23
+    },
+    {
+      "text": "So the language\nmodel generates C.",
+      "start": 1864.85,
+      "duration": 4.48
+    },
+    {
+      "text": "And my answer is either\nB or C or A or D,",
+      "start": 1869.33,
+      "duration": 3.52
+    },
+    {
+      "text": "and I just check if\nthey're the same or not.",
+      "start": 1872.85,
+      "duration": 3.16
+    },
+    {
+      "text": "So we are only\ngenerating one token?",
+      "start": 1876.01,
+      "duration": 2.88
+    },
+    {
+      "text": "Yes, well, OK.",
+      "start": 1878.89,
+      "duration": 1.1
+    },
+    {
+      "text": "So then the question is\nless about evaluation.",
+      "start": 1879.99,
+      "duration": 2.16
+    },
+    {
+      "text": "But how does the model\ngenerate an answer?",
+      "start": 1882.15,
+      "duration": 3.1
+    },
+    {
+      "text": "So there's a few options.",
+      "start": 1885.25,
+      "duration": 2.46
+    },
+    {
+      "text": "One is that you generate--",
+      "start": 1887.71,
+      "duration": 2.3
+    },
+    {
+      "text": "literally you sample and\nit generates a letter.",
+      "start": 1890.01,
+      "duration": 2.44
+    },
+    {
+      "text": "Or more commonly now you\ngenerate a chain of thought.",
+      "start": 1892.45,
+      "duration": 3.22
+    },
+    {
+      "text": "You generate the answer\nmaybe some explanation.",
+      "start": 1895.67,
+      "duration": 2.78
+    },
+    {
+      "text": "But there is a way of extracting\nan answer which does matter.",
+      "start": 1898.45,
+      "duration": 5.24
+    },
+    {
+      "text": "And language model evaluations\ncan be very sensitive to that",
+      "start": 1903.69,
+      "duration": 3.46
+    },
+    {
+      "text": "but I'm not going to\ntalk about that here.",
+      "start": 1907.15,
+      "duration": 2.08
+    },
+    {
+      "text": "So let's talk about a very\ndifferent class of benchmarks",
+      "start": 1912.37,
+      "duration": 4.52
+    },
+    {
+      "text": "called chat benchmarks.",
+      "start": 1916.89,
+      "duration": 3.6
+    },
+    {
+      "text": "So far we've talked about\nmultiple-choice tasks.",
+      "start": 1920.49,
+      "duration": 3.36
+    },
+    {
+      "text": "So they're still pretty good\nat capturing some notion",
+      "start": 1923.85,
+      "duration": 3.34
+    },
+    {
+      "text": "of intelligence and difficulty.",
+      "start": 1927.19,
+      "duration": 2.76
+    },
+    {
+      "text": "But most people don't ask a\nmultiple-choice exam question",
+      "start": 1929.95,
+      "duration": 3.68
+    },
+    {
+      "text": "to their AI assistant\nunless they're",
+      "start": 1933.63,
+      "duration": 2.36
+    },
+    {
+      "text": "trying to use their AI system\nto do their exam for them,",
+      "start": 1935.99,
+      "duration": 3.54
+    },
+    {
+      "text": "which you would never.",
+      "start": 1939.53,
+      "duration": 1.74
+    },
+    {
+      "text": "One does that.",
+      "start": 1941.27,
+      "duration": 1.88
+    },
+    {
+      "text": "OK, so here's an example\nsemi-inspired by a real world",
+      "start": 1943.15,
+      "duration": 6.0
+    },
+    {
+      "text": "use case.",
+      "start": 1949.15,
+      "duration": 0.96
+    },
+    {
+      "text": "So I might say I want to make\na beet salad with cheese.",
+      "start": 1950.11,
+      "duration": 3.54
+    },
+    {
+      "text": "What herbs would work well\nand what wouldn't work well?",
+      "start": 1953.65,
+      "duration": 2.86
+    },
+    {
+      "text": "OK, so this is a very\nopen-ended question.",
+      "start": 1956.51,
+      "duration": 2.66
+    },
+    {
+      "text": "And then you get some\nresponse, which is, again,",
+      "start": 1959.17,
+      "duration": 3.64
+    },
+    {
+      "text": "an open-ended response.",
+      "start": 1962.81,
+      "duration": 2.54
+    },
+    {
+      "text": "And then the question is, how\ndo you evaluate this thing?",
+      "start": 1965.35,
+      "duration": 3.36
+    },
+    {
+      "text": "You can't just check\nexact match with equality.",
+      "start": 1968.71,
+      "duration": 2.66
+    },
+    {
+      "text": "There's no ground truth even.",
+      "start": 1971.37,
+      "duration": 2.94
+    },
+    {
+      "text": "So there's a few ideas here.",
+      "start": 1974.31,
+      "duration": 2.36
+    },
+    {
+      "text": "We can go through them.",
+      "start": 1976.67,
+      "duration": 1.72
+    },
+    {
+      "text": "So one of the ideas was\npioneered by this Chatbot Arena.",
+      "start": 1978.39,
+      "duration": 6.45
+    },
+    {
+      "text": "And the idea is, well,\nyou ask humans, OK.",
+      "start": 1984.84,
+      "duration": 4.8
+    },
+    {
+      "text": "But the way they ask humans,\nI think is a clever idea.",
+      "start": 1989.64,
+      "duration": 3.76
+    },
+    {
+      "text": "So they basically had\nthis set of this website",
+      "start": 1993.4,
+      "duration": 4.6
+    },
+    {
+      "text": "where any random person from\nthe internet can go in and chat.",
+      "start": 1998.0,
+      "duration": 5.68
+    },
+    {
+      "text": "And then instead of\na normal as assistant",
+      "start": 2003.68,
+      "duration": 3.4
+    },
+    {
+      "text": "in getting one\nresponse, you actually",
+      "start": 2007.08,
+      "duration": 2.36
+    },
+    {
+      "text": "get two responses from\ntwo different models",
+      "start": 2009.44,
+      "duration": 4.24
+    },
+    {
+      "text": "which are anonymized, and then\nthey rate which one is better.",
+      "start": 2013.68,
+      "duration": 4.44
+    },
+    {
+      "text": "So for example, you\nput in this response,",
+      "start": 2018.12,
+      "duration": 2.88
+    },
+    {
+      "text": "you get these two, assistant A,\nassistant B. And then you ask,",
+      "start": 2021.0,
+      "duration": 4.76
+    },
+    {
+      "text": "A is better, both are good,\nboth are bad, B is better?",
+      "start": 2025.76,
+      "duration": 4.16
+    },
+    {
+      "text": "So using this\nprocess, you can get",
+      "start": 2029.92,
+      "duration": 3.92
+    },
+    {
+      "text": "a bunch of pairwise comparison\ndata of model A, model B, which",
+      "start": 2033.84,
+      "duration": 5.09
+    },
+    {
+      "text": "one is better?",
+      "start": 2038.93,
+      "duration": 1.4
+    },
+    {
+      "text": "And then you can use this\nto compute ELO rankings",
+      "start": 2040.33,
+      "duration": 3.4
+    },
+    {
+      "text": "based on this.",
+      "start": 2043.73,
+      "duration": 1.2
+    },
+    {
+      "text": "So I don't know how many of\nyou are familiar with this",
+      "start": 2044.93,
+      "duration": 2.96
+    },
+    {
+      "text": "but just get everyone\non the same page.",
+      "start": 2047.89,
+      "duration": 3.8
+    },
+    {
+      "text": "In these ELO rankings, you\ndefine your rating model",
+      "start": 2051.69,
+      "duration": 5.799
+    },
+    {
+      "text": "as a probability of a\nparticular model being",
+      "start": 2057.489,
+      "duration": 3.121
+    },
+    {
+      "text": "another [INAUDIBLE] model\nas some function of the ELO",
+      "start": 2060.61,
+      "duration": 6.48
+    },
+    {
+      "text": "scores of model B and model A.\nSo the larger model ELO score",
+      "start": 2067.09,
+      "duration": 7.799
+    },
+    {
+      "text": "of A is the higher\nthe probability.",
+      "start": 2074.889,
+      "duration": 2.701
+    },
+    {
+      "text": "So it's a smooth mapping.",
+      "start": 2077.59,
+      "duration": 1.7
+    },
+    {
+      "text": "And then you fit this\nmodel with the parameters,",
+      "start": 2079.29,
+      "duration": 3.619
+    },
+    {
+      "text": "which are the ELO\nratings to maximize",
+      "start": 2082.909,
+      "duration": 1.941
+    },
+    {
+      "text": "the probability of the\npairwise comparisons, OK.",
+      "start": 2084.85,
+      "duration": 3.5
+    },
+    {
+      "text": "And then as a\nresult, you basically",
+      "start": 2088.35,
+      "duration": 1.579
+    },
+    {
+      "text": "get a rating for\neach of your models.",
+      "start": 2089.929,
+      "duration": 6.02
+    },
+    {
+      "text": "OK, so this is what Chatbot\nArena nowadays known",
+      "start": 2095.949,
+      "duration": 3.561
+    },
+    {
+      "text": "as Arena AI did.",
+      "start": 2099.51,
+      "duration": 2.72
+    },
+    {
+      "text": "And you can get\nthis nice ranking.",
+      "start": 2102.23,
+      "duration": 4.52
+    },
+    {
+      "text": "I guess Claude Opus is\ndoing pretty well here",
+      "start": 2106.75,
+      "duration": 4.2
+    },
+    {
+      "text": "but some other models\nare on the list as well.",
+      "start": 2110.95,
+      "duration": 3.76
+    },
+    {
+      "text": "OK.",
+      "start": 2114.71,
+      "duration": 1.24
+    },
+    {
+      "text": "So there's a few things that\nare nice about this setup.",
+      "start": 2115.95,
+      "duration": 4.06
+    },
+    {
+      "text": "One is that you have\nreal-world prompts.",
+      "start": 2120.01,
+      "duration": 4.3
+    },
+    {
+      "text": "So the idea is that anyone\ncan come to the site,",
+      "start": 2124.31,
+      "duration": 2.838
+    },
+    {
+      "text": "and the incentive for\nsomeone to come to the site",
+      "start": 2127.148,
+      "duration": 2.042
+    },
+    {
+      "text": "is that they get free\naccess to a language model.",
+      "start": 2129.19,
+      "duration": 3.24
+    },
+    {
+      "text": "And so there's this\nimplicit assumption",
+      "start": 2132.43,
+      "duration": 2.88
+    },
+    {
+      "text": "that they're actually trying to\nuse it to do something useful.",
+      "start": 2135.31,
+      "duration": 4.02
+    },
+    {
+      "text": "And therefore you get\na real-world prompt.",
+      "start": 2139.33,
+      "duration": 8.3
+    },
+    {
+      "text": "But one thing you should keep in\nmind is, who are these people?",
+      "start": 2147.63,
+      "duration": 4.48
+    },
+    {
+      "text": "Random person on\nthe internet is--",
+      "start": 2152.11,
+      "duration": 2.13
+    },
+    {
+      "text": "I don't know what\nthat distribution.",
+      "start": 2154.24,
+      "duration": 2.62
+    },
+    {
+      "text": "Random person on the internet\nwho comes to La Marina.",
+      "start": 2156.86,
+      "duration": 2.26
+    },
+    {
+      "text": "I don't know what that\ndistribution looks like.",
+      "start": 2159.12,
+      "duration": 2.34
+    },
+    {
+      "text": "I think in their paper,\nthey have some demographics,",
+      "start": 2161.46,
+      "duration": 2.44
+    },
+    {
+      "text": "but demographics don't\ntell the whole story.",
+      "start": 2163.9,
+      "duration": 3.42
+    },
+    {
+      "text": "You could worry about\ndifferent biases coming",
+      "start": 2167.32,
+      "duration": 2.24
+    },
+    {
+      "text": "from the different models.",
+      "start": 2169.56,
+      "duration": 3.26
+    },
+    {
+      "text": "Maybe spammers.",
+      "start": 2172.82,
+      "duration": 1.04
+    },
+    {
+      "text": "People are trying to game, who\nmaybe even submitted a model",
+      "start": 2173.86,
+      "duration": 5.66
+    },
+    {
+      "text": "and they want their\nmodel to look good.",
+      "start": 2179.52,
+      "duration": 4.52
+    },
+    {
+      "text": "You just don't know.",
+      "start": 2184.04,
+      "duration": 1.42
+    },
+    {
+      "text": "It's a little bit\nof a Wild West.",
+      "start": 2185.46,
+      "duration": 3.62
+    },
+    {
+      "text": "There's another issue which\nis that the binary preference,",
+      "start": 2189.08,
+      "duration": 3.68
+    },
+    {
+      "text": "which is better, A or B\nis very nice and simple",
+      "start": 2192.76,
+      "duration": 3.12
+    },
+    {
+      "text": "and feeds into this rating,\nbut does conflate style",
+      "start": 2195.88,
+      "duration": 5.28
+    },
+    {
+      "text": "and correctness.",
+      "start": 2201.16,
+      "duration": 2.0
+    },
+    {
+      "text": "So ELO ratings for chess\nmakes a lot of sense,",
+      "start": 2203.16,
+      "duration": 1.94
+    },
+    {
+      "text": "because the only thing that\nmatters is, did you win?",
+      "start": 2205.1,
+      "duration": 2.26
+    },
+    {
+      "text": "But which one is better\nis much less clear cut.",
+      "start": 2207.36,
+      "duration": 7.45
+    },
+    {
+      "text": "And there's questions of\nthe human is the judge here.",
+      "start": 2214.81,
+      "duration": 5.5
+    },
+    {
+      "text": "The person who\nputs in the prompt",
+      "start": 2220.31,
+      "duration": 1.74
+    },
+    {
+      "text": "is answering the question.",
+      "start": 2222.05,
+      "duration": 1.94
+    },
+    {
+      "text": "And this is good\nbecause in some level,",
+      "start": 2223.99,
+      "duration": 2.24
+    },
+    {
+      "text": "because the person\nhas some intent",
+      "start": 2226.23,
+      "duration": 4.58
+    },
+    {
+      "text": "and they can declare whether\ntheir intent was met.",
+      "start": 2230.81,
+      "duration": 4.52
+    },
+    {
+      "text": "To some extent,\nexcept for they're",
+      "start": 2235.33,
+      "duration": 1.608
+    },
+    {
+      "text": "presumably asking the\nquestion because they",
+      "start": 2236.938,
+      "duration": 1.792
+    },
+    {
+      "text": "don't know the answer.",
+      "start": 2238.73,
+      "duration": 0.94
+    },
+    {
+      "text": "So if I give you\ntwo answers, how",
+      "start": 2239.67,
+      "duration": 2.34
+    },
+    {
+      "text": "are they to judge\nwhich one is correct?",
+      "start": 2242.01,
+      "duration": 3.08
+    },
+    {
+      "text": "And then there's also the\nproblem of sycophancy,",
+      "start": 2245.09,
+      "duration": 2.54
+    },
+    {
+      "text": "where maybe more\npleasing answers",
+      "start": 2247.63,
+      "duration": 3.58
+    },
+    {
+      "text": "are going to be\nupweighted highly compared",
+      "start": 2251.21,
+      "duration": 3.36
+    },
+    {
+      "text": "to correct but honest answers.",
+      "start": 2254.57,
+      "duration": 3.2
+    },
+    {
+      "text": "So there's a lot of\npotential issues here.",
+      "start": 2257.77,
+      "duration": 5.04
+    },
+    {
+      "text": "But the nice thing\nabout this method, which",
+      "start": 2262.81,
+      "duration": 2.56
+    },
+    {
+      "text": "is that you don't\nneed to feed the same",
+      "start": 2265.37,
+      "duration": 2.32
+    },
+    {
+      "text": "prompts to all the models,\nand this is the beauty of ELO.",
+      "start": 2267.69,
+      "duration": 3.065
+    },
+    {
+      "text": "In chess, you\ndon't have to play.",
+      "start": 2270.755,
+      "duration": 1.375
+    },
+    {
+      "text": "Everyone plays everyone else.",
+      "start": 2272.13,
+      "duration": 2.3
+    },
+    {
+      "text": "It can just be some\nsparse sample of that.",
+      "start": 2274.43,
+      "duration": 2.62
+    },
+    {
+      "text": "And you can still\nderive rankings as long",
+      "start": 2277.05,
+      "duration": 2.18
+    },
+    {
+      "text": "as the graph is connected.",
+      "start": 2279.23,
+      "duration": 3.04
+    },
+    {
+      "text": "And this is important\nbecause human is rating",
+      "start": 2282.27,
+      "duration": 2.28
+    },
+    {
+      "text": "and you can't expect a\nhuman to rate all the models",
+      "start": 2284.55,
+      "duration": 2.4
+    },
+    {
+      "text": "or even more than two models.",
+      "start": 2286.95,
+      "duration": 3.36
+    },
+    {
+      "text": "And the nice thing\nas well is that",
+      "start": 2290.31,
+      "duration": 2.12
+    },
+    {
+      "text": "as new prompts and\nnew models come in,",
+      "start": 2292.43,
+      "duration": 2.02
+    },
+    {
+      "text": "there's a natural story for\nmaking this updating over time.",
+      "start": 2294.45,
+      "duration": 6.58
+    },
+    {
+      "text": "So let me talk about\na different approach.",
+      "start": 2301.03,
+      "duration": 5.76
+    },
+    {
+      "text": "So this is AlpacaEval from 2023.",
+      "start": 2306.79,
+      "duration": 3.92
+    },
+    {
+      "text": "There were some instructions\nderived from various sources.",
+      "start": 2310.71,
+      "duration": 6.56
+    },
+    {
+      "text": "And the metric here is the win\nrate against a baseline model.",
+      "start": 2317.27,
+      "duration": 6.86
+    },
+    {
+      "text": "So you have a model,\nAlpacaEval says,",
+      "start": 2324.13,
+      "duration": 2.9
+    },
+    {
+      "text": "I'm going to generate\nit for a prompt,",
+      "start": 2327.03,
+      "duration": 2.13
+    },
+    {
+      "text": "generate using let's\nsay baseline model GPT-4",
+      "start": 2329.16,
+      "duration": 3.08
+    },
+    {
+      "text": "preview at that time and then\njudge using GPT preview, which",
+      "start": 2332.24,
+      "duration": 5.4
+    },
+    {
+      "text": "one is better?",
+      "start": 2337.64,
+      "duration": 1.36
+    },
+    {
+      "text": "So immediately, this raises\na question of potential bias.",
+      "start": 2339.0,
+      "duration": 4.96
+    },
+    {
+      "text": "But let's put that\naside for now.",
+      "start": 2343.96,
+      "duration": 2.96
+    },
+    {
+      "text": "So this is basically\nan instantiation",
+      "start": 2346.92,
+      "duration": 2.24
+    },
+    {
+      "text": "of LLM as a judge, which\nis very popular these days",
+      "start": 2349.16,
+      "duration": 3.76
+    },
+    {
+      "text": "for evaluating language models.",
+      "start": 2352.92,
+      "duration": 3.28
+    },
+    {
+      "text": "And you can mitigate\nthis bias by having",
+      "start": 2356.2,
+      "duration": 1.92
+    },
+    {
+      "text": "multiple judges and ensembling\nand so on and so forth.",
+      "start": 2358.12,
+      "duration": 3.6
+    },
+    {
+      "text": "So one problem with\ninitial AlpacaEval",
+      "start": 2361.72,
+      "duration": 2.32
+    },
+    {
+      "text": "is that LLM judges\nfavor long responses.",
+      "start": 2364.04,
+      "duration": 5.0
+    },
+    {
+      "text": "And this led to a bunch\nof leaderboard gaming",
+      "start": 2369.04,
+      "duration": 2.36
+    },
+    {
+      "text": "where a bunch of models that\nwere fine tuned were submitted",
+      "start": 2371.4,
+      "duration": 3.4
+    },
+    {
+      "text": "and they got really\nhigh LLM AlpacaEval",
+      "start": 2374.8,
+      "duration": 3.72
+    },
+    {
+      "text": "performance just because\nthe responses were longer.",
+      "start": 2378.52,
+      "duration": 2.78
+    },
+    {
+      "text": "So this got fixed in a\nsubsequent paper where",
+      "start": 2381.3,
+      "duration": 4.26
+    },
+    {
+      "text": "the use a very simple regression\nmethod to de-bias the metric.",
+      "start": 2385.56,
+      "duration": 5.93
+    },
+    {
+      "text": "OK, but this raises a more\ngeneral question here,",
+      "start": 2391.49,
+      "duration": 5.88
+    },
+    {
+      "text": "which is not necessarily\nspecific to AlpacaEval which is,",
+      "start": 2397.37,
+      "duration": 3.24
+    },
+    {
+      "text": "how do you evaluate a metric?",
+      "start": 2400.61,
+      "duration": 2.28
+    },
+    {
+      "text": "So we've been talking\nabout evaluation of models.",
+      "start": 2402.89,
+      "duration": 3.74
+    },
+    {
+      "text": "And if I have a metric, how\nyou can evaluate a model.",
+      "start": 2406.63,
+      "duration": 2.76
+    },
+    {
+      "text": "But if I'm coming\nup with a metric,",
+      "start": 2409.39,
+      "duration": 2.06
+    },
+    {
+      "text": "how do this metric is any good?",
+      "start": 2411.45,
+      "duration": 2.92
+    },
+    {
+      "text": "So this is a hard problem.",
+      "start": 2414.37,
+      "duration": 2.66
+    },
+    {
+      "text": "And there's no answer here.",
+      "start": 2417.03,
+      "duration": 3.86
+    },
+    {
+      "text": "One thing you can do is\nmore of a sanity check",
+      "start": 2420.89,
+      "duration": 3.84
+    },
+    {
+      "text": "is you can look at\ncorrelation with other metrics",
+      "start": 2424.73,
+      "duration": 2.48
+    },
+    {
+      "text": "with the idea that higher isn't\nnecessarily better in all cases",
+      "start": 2427.21,
+      "duration": 6.6
+    },
+    {
+      "text": "unless you are trying to\nmimic this other metric.",
+      "start": 2433.81,
+      "duration": 2.38
+    },
+    {
+      "text": "So AlpacaEval correlation\nwith Chatbot Arena",
+      "start": 2436.19,
+      "duration": 5.42
+    },
+    {
+      "text": "is 0.98 which is quite high.",
+      "start": 2441.61,
+      "duration": 4.65
+    },
+    {
+      "text": "So which suggests\nthat you could--",
+      "start": 2446.26,
+      "duration": 4.56
+    },
+    {
+      "text": "let's say you wanted to\nevaluate on a Chatbot Arena,",
+      "start": 2450.82,
+      "duration": 5.98
+    },
+    {
+      "text": "but you're too shy\nto put your model",
+      "start": 2456.8,
+      "duration": 2.82
+    },
+    {
+      "text": "or you don't want to wait\nfor humans or whatever,",
+      "start": 2459.62,
+      "duration": 2.26
+    },
+    {
+      "text": "you can use AlpacaEval\nto evaluate instead.",
+      "start": 2461.88,
+      "duration": 6.1
+    },
+    {
+      "text": "Now, this correlation,\nof course,",
+      "start": 2467.98,
+      "duration": 1.54
+    },
+    {
+      "text": "is with respect to a\ncertain set of models.",
+      "start": 2469.52,
+      "duration": 4.18
+    },
+    {
+      "text": "And so this might\nnot hold for models",
+      "start": 2473.7,
+      "duration": 3.52
+    },
+    {
+      "text": "that let's say are stronger\nthan GPT-4 preview.",
+      "start": 2477.22,
+      "duration": 5.64
+    },
+    {
+      "text": "So at this point, this\nleaderboard I don't think",
+      "start": 2482.86,
+      "duration": 2.76
+    },
+    {
+      "text": "is really--",
+      "start": 2485.62,
+      "duration": 2.32
+    },
+    {
+      "text": "hasn't been maintained\nin over a year but this",
+      "start": 2487.94,
+      "duration": 3.28
+    },
+    {
+      "text": "is what it looked\nlike at that time.",
+      "start": 2491.22,
+      "duration": 3.72
+    },
+    {
+      "text": "So there's another\nbenchmark I'll talk about,",
+      "start": 2494.94,
+      "duration": 4.3
+    },
+    {
+      "text": "which is WildBench and this one\nwas sourced a bunch of examples",
+      "start": 2499.24,
+      "duration": 6.4
+    },
+    {
+      "text": "from human-chatbot\nconversations.",
+      "start": 2505.64,
+      "duration": 3.06
+    },
+    {
+      "text": "So like Chatbot Arena, they\nalso put up a free service",
+      "start": 2508.7,
+      "duration": 4.7
+    },
+    {
+      "text": "where people could\nchat with this bot",
+      "start": 2513.4,
+      "duration": 1.56
+    },
+    {
+      "text": "and they collected the queries.",
+      "start": 2514.96,
+      "duration": 5.08
+    },
+    {
+      "text": "And then like AlpacaEval,\nthey used LLM as a judge",
+      "start": 2520.04,
+      "duration": 9.36
+    },
+    {
+      "text": "to evaluate the model.",
+      "start": 2529.4,
+      "duration": 5.08
+    },
+    {
+      "text": "The main innovation\nhere is the use",
+      "start": 2534.48,
+      "duration": 3.28
+    },
+    {
+      "text": "of a checklist,\nwhich is generated",
+      "start": 2537.76,
+      "duration": 3.84
+    },
+    {
+      "text": "and specific to a\nparticular prompt or task.",
+      "start": 2541.6,
+      "duration": 5.08
+    },
+    {
+      "text": "And the idea here\nis that if you just",
+      "start": 2546.68,
+      "duration": 2.2
+    },
+    {
+      "text": "ask a language model to judge\nwhether this response is good",
+      "start": 2548.88,
+      "duration": 5.88
+    },
+    {
+      "text": "or not.",
+      "start": 2554.76,
+      "duration": 1.12
+    },
+    {
+      "text": "This is in some sense a\nvery ill-defined task.",
+      "start": 2555.88,
+      "duration": 3.52
+    },
+    {
+      "text": "I don't know what depends\non what you care about.",
+      "start": 2559.4,
+      "duration": 2.57
+    },
+    {
+      "text": "And so the idea here is that\nby having a checklist or some",
+      "start": 2561.97,
+      "duration": 2.88
+    },
+    {
+      "text": "of rubric, this greatly scopes\nand makes the task evaluation",
+      "start": 2564.85,
+      "duration": 5.4
+    },
+    {
+      "text": "task more well-defined.",
+      "start": 2570.25,
+      "duration": 3.28
+    },
+    {
+      "text": "So they did this, also,\nthey showed correlation",
+      "start": 2573.53,
+      "duration": 3.72
+    },
+    {
+      "text": "with Chatbot Arena\nwhich admittedly",
+      "start": 2577.25,
+      "duration": 3.16
+    },
+    {
+      "text": "is a little bit circular because\nthen you can ask why, well,",
+      "start": 2580.41,
+      "duration": 3.88
+    },
+    {
+      "text": "is Chatbot Arena really\nthe ground truth?",
+      "start": 2584.29,
+      "duration": 2.56
+    },
+    {
+      "text": "But at least we're all in\nthe same boat together.",
+      "start": 2586.85,
+      "duration": 4.56
+    },
+    {
+      "text": "OK, so to conclude this\nsection, how do you",
+      "start": 2591.41,
+      "duration": 4.64
+    },
+    {
+      "text": "evaluate open-ended responses?",
+      "start": 2596.05,
+      "duration": 4.52
+    },
+    {
+      "text": "There's no clear solution\nhere but there's some ideas.",
+      "start": 2600.57,
+      "duration": 4.16
+    },
+    {
+      "text": "Pairwise comparisons between a\nreference and a model response",
+      "start": 2604.73,
+      "duration": 7.2
+    },
+    {
+      "text": "is generally a good\nidea because especially",
+      "start": 2611.93,
+      "duration": 3.44
+    },
+    {
+      "text": "for very similar\nresponses, you can",
+      "start": 2615.37,
+      "duration": 2.0
+    },
+    {
+      "text": "give directional information.",
+      "start": 2617.37,
+      "duration": 1.518
+    },
+    {
+      "text": "Well, this one's slightly\nbetter than this.",
+      "start": 2618.888,
+      "duration": 1.792
+    },
+    {
+      "text": "But in terms of absolute ranking\nlike is this a 7 out of 10",
+      "start": 2620.68,
+      "duration": 3.22
+    },
+    {
+      "text": "or a 8 out of 10?",
+      "start": 2623.9,
+      "duration": 1.26
+    },
+    {
+      "text": "That tends to be a\nlot less high signal.",
+      "start": 2625.16,
+      "duration": 3.82
+    },
+    {
+      "text": "One should always\nbe aware of biases",
+      "start": 2628.98,
+      "duration": 2.32
+    },
+    {
+      "text": "both in terms of\nhumans or LLM judges.",
+      "start": 2631.3,
+      "duration": 4.28
+    },
+    {
+      "text": "They have different biases,\nbut nonetheless that's",
+      "start": 2635.58,
+      "duration": 3.28
+    },
+    {
+      "text": "something important\nto pay attention to.",
+      "start": 2638.86,
+      "duration": 4.32
+    },
+    {
+      "text": "Perhaps the only thing\nyou might be able to do",
+      "start": 2643.18,
+      "duration": 2.6
+    },
+    {
+      "text": "is you evaluate over\nmultiple judges, humans,",
+      "start": 2645.78,
+      "duration": 4.6
+    },
+    {
+      "text": "and judges of all\neverything is saying",
+      "start": 2650.38,
+      "duration": 2.8
+    },
+    {
+      "text": "your model is better than--",
+      "start": 2653.18,
+      "duration": 1.84
+    },
+    {
+      "text": "maybe your model is better.",
+      "start": 2655.02,
+      "duration": 2.2
+    },
+    {
+      "text": "And finally, the\nevaluation problem here",
+      "start": 2657.22,
+      "duration": 4.08
+    },
+    {
+      "text": "of open-ended response.",
+      "start": 2661.3,
+      "duration": 2.0
+    },
+    {
+      "text": "I would emphasize is\nnot really well-defined.",
+      "start": 2663.3,
+      "duration": 3.4
+    },
+    {
+      "text": "And so increasingly,\nI think it's",
+      "start": 2666.7,
+      "duration": 2.76
+    },
+    {
+      "text": "important to define rubrics\nor checklists to improve",
+      "start": 2669.46,
+      "duration": 5.52
+    },
+    {
+      "text": "the reliability or\nwell-definedness",
+      "start": 2674.98,
+      "duration": 5.66
+    },
+    {
+      "text": "of an actual evaluation.",
+      "start": 2680.64,
+      "duration": 1.82
+    },
+    {
+      "text": "And this is true regardless\nof a human and a judge.",
+      "start": 2682.46,
+      "duration": 2.52
+    },
+    {
+      "text": "So anyone who's\ndone crowdsourcing",
+      "start": 2684.98,
+      "duration": 1.7
+    },
+    {
+      "text": "knows that if you just\nask a human to rate",
+      "start": 2686.68,
+      "duration": 2.76
+    },
+    {
+      "text": "something without\ngiving some of rubric,",
+      "start": 2689.44,
+      "duration": 2.26
+    },
+    {
+      "text": "you're probably going to get\nvery nonsensical results.",
+      "start": 2691.7,
+      "duration": 3.64
+    },
+    {
+      "text": "OK, so let's move on\nto the agentic world.",
+      "start": 2698.4,
+      "duration": 6.4
+    },
+    {
+      "text": "So you can think\nabout what we've",
+      "start": 2704.8,
+      "duration": 1.68
+    },
+    {
+      "text": "been doing so far is evaluate\nwhat language models say,",
+      "start": 2706.48,
+      "duration": 5.04
+    },
+    {
+      "text": "and that's chat.",
+      "start": 2711.52,
+      "duration": 0.86
+    },
+    {
+      "text": "And now, we're going to evaluate\nwhat LLMs do, which is agents.",
+      "start": 2712.38,
+      "duration": 4.82
+    },
+    {
+      "text": "And so for anyone who's\nfollowing AI hype,",
+      "start": 2717.2,
+      "duration": 7.04
+    },
+    {
+      "text": "agents are everywhere.",
+      "start": 2724.24,
+      "duration": 2.1
+    },
+    {
+      "text": "And these are--\ndefinitely, I think",
+      "start": 2726.34,
+      "duration": 4.1
+    },
+    {
+      "text": "going to transform the way that\nwe think about language models.",
+      "start": 2730.44,
+      "duration": 4.52
+    },
+    {
+      "text": "So Agent is basically\na language model",
+      "start": 2734.96,
+      "duration": 2.33
+    },
+    {
+      "text": "plus some scaffold, which\nis a logic for deciding",
+      "start": 2737.29,
+      "duration": 3.76
+    },
+    {
+      "text": "how the language model\nis going to be called",
+      "start": 2741.05,
+      "duration": 4.6
+    },
+    {
+      "text": "and what tools it can has access\nto and so on and so forth.",
+      "start": 2745.65,
+      "duration": 6.32
+    },
+    {
+      "text": "So there's a few benchmarks\nI want to just point out",
+      "start": 2751.97,
+      "duration": 4.16
+    },
+    {
+      "text": "that are authentic.",
+      "start": 2756.13,
+      "duration": 1.76
+    },
+    {
+      "text": "So one is very popular.",
+      "start": 2757.89,
+      "duration": 3.98
+    },
+    {
+      "text": "It's just called SWE-bench.",
+      "start": 2761.87,
+      "duration": 1.48
+    },
+    {
+      "text": "Basically, the task\nis you're given",
+      "start": 2766.05,
+      "duration": 1.92
+    },
+    {
+      "text": "a code base and a description\nof a GitHub issue, submit a PR.",
+      "start": 2767.97,
+      "duration": 4.12
+    },
+    {
+      "text": "And the way you evaluate a PR is\nwhether it passes the unit test.",
+      "start": 2772.09,
+      "duration": 6.44
+    },
+    {
+      "text": "So these tests are designed so\nthat before you submit a PR,",
+      "start": 2778.53,
+      "duration": 4.24
+    },
+    {
+      "text": "certain unit tests don't pass.",
+      "start": 2782.77,
+      "duration": 1.94
+    },
+    {
+      "text": "And then your goal is to fix it.",
+      "start": 2784.71,
+      "duration": 1.52
+    },
+    {
+      "text": "So certain unit tests pass and\nyou don't break anything else.",
+      "start": 2786.23,
+      "duration": 3.18
+    },
+    {
+      "text": "So here's an example\nof some instructions.",
+      "start": 2789.41,
+      "duration": 4.59
+    },
+    {
+      "text": "Here's the issue.",
+      "start": 2794.0,
+      "duration": 2.26
+    },
+    {
+      "text": "And then some code that is\nprovided in the context.",
+      "start": 2796.26,
+      "duration": 3.62
+    },
+    {
+      "text": "And then your goal is\nto generate a patch.",
+      "start": 2799.88,
+      "duration": 3.34
+    },
+    {
+      "text": "And given a patch\nyou are evaluated on",
+      "start": 2803.22,
+      "duration": 3.6
+    },
+    {
+      "text": "whether you pass or not.",
+      "start": 2806.82,
+      "duration": 2.16
+    },
+    {
+      "text": "So the good thing about\nthis is that the evaluation",
+      "start": 2808.98,
+      "duration": 2.6
+    },
+    {
+      "text": "is very straightforward.",
+      "start": 2811.58,
+      "duration": 2.52
+    },
+    {
+      "text": "And let's see how we're\ndoing on SWE-bench.",
+      "start": 2814.1,
+      "duration": 6.52
+    },
+    {
+      "text": "Actually, this is going to\nbe SWE-bench Verified which",
+      "start": 2820.62,
+      "duration": 2.8
+    },
+    {
+      "text": "later I'll show you, tell\nyou why this happened.",
+      "start": 2823.42,
+      "duration": 5.08
+    },
+    {
+      "text": "So SWE-bench in--\nthis was only I",
+      "start": 2828.5,
+      "duration": 4.32
+    },
+    {
+      "text": "guess 2024 was still around\n16% and now it's up to 93.",
+      "start": 2832.82,
+      "duration": 10.04
+    },
+    {
+      "text": "Good job Mythos.",
+      "start": 2842.86,
+      "duration": 1.18
+    },
+    {
+      "text": "So this is a very canonical\ngeneric benchmark,",
+      "start": 2851.28,
+      "duration": 5.34
+    },
+    {
+      "text": "as a lot of the\nattention on agents",
+      "start": 2856.62,
+      "duration": 2.9
+    },
+    {
+      "text": "has been invested\nin coding abilities.",
+      "start": 2859.52,
+      "duration": 2.9
+    },
+    {
+      "text": "So SWE-bench really\npioneered this way",
+      "start": 2862.42,
+      "duration": 3.5
+    },
+    {
+      "text": "of thinking about how to\nassess an agent's ability",
+      "start": 2865.92,
+      "duration": 2.84
+    },
+    {
+      "text": "to write and code in a\nrealistic environment.",
+      "start": 2868.76,
+      "duration": 5.04
+    },
+    {
+      "text": "So here's another project\ncalled Terminal-Bench.",
+      "start": 2873.8,
+      "duration": 4.44
+    },
+    {
+      "text": "And here the idea is\nthat this is going",
+      "start": 2878.24,
+      "duration": 3.64
+    },
+    {
+      "text": "to be more general purpose.",
+      "start": 2881.88,
+      "duration": 1.66
+    },
+    {
+      "text": "And we're going to basically\nhave the environment be",
+      "start": 2883.54,
+      "duration": 3.34
+    },
+    {
+      "text": "a computer terminal.",
+      "start": 2886.88,
+      "duration": 1.72
+    },
+    {
+      "text": "And we're going to\ndefine a bunch of tasks",
+      "start": 2888.6,
+      "duration": 3.04
+    },
+    {
+      "text": "that can be done in\na computer terminal",
+      "start": 2891.64,
+      "duration": 2.0
+    },
+    {
+      "text": "by typing in a\nbunch of commands.",
+      "start": 2893.64,
+      "duration": 2.972
+    },
+    {
+      "text": "And the nice thing\nabout this environment",
+      "start": 2896.612,
+      "duration": 1.708
+    },
+    {
+      "text": "is a very simple and universal.",
+      "start": 2898.32,
+      "duration": 4.68
+    },
+    {
+      "text": "And these tasks were\ncrowdsourced from 93 people",
+      "start": 2903.0,
+      "duration": 7.97
+    },
+    {
+      "text": "from across the world.",
+      "start": 2910.97,
+      "duration": 4.24
+    },
+    {
+      "text": "89 of these tasks are\nconstitute Terminal-Bench 2.0.",
+      "start": 2915.21,
+      "duration": 5.72
+    },
+    {
+      "text": "These tasks generally\ntake ranging from one hour",
+      "start": 2920.93,
+      "duration": 6.24
+    },
+    {
+      "text": "to over a week, depending\non whether you're",
+      "start": 2927.17,
+      "duration": 2.16
+    },
+    {
+      "text": "an expert or a junior.",
+      "start": 2929.33,
+      "duration": 2.92
+    },
+    {
+      "text": "And then, here's\nwhat the leaderboard",
+      "start": 2932.25,
+      "duration": 1.68
+    },
+    {
+      "text": "looks like as of today.",
+      "start": 2933.93,
+      "duration": 3.88
+    },
+    {
+      "text": "So top models are\nthe frontier models.",
+      "start": 2937.81,
+      "duration": 3.56
+    },
+    {
+      "text": "One thing that's interesting is\nthat the agent is also important",
+      "start": 2941.37,
+      "duration": 6.28
+    },
+    {
+      "text": "here because you can have\ntwo agents but the same model",
+      "start": 2947.65,
+      "duration": 5.72
+    },
+    {
+      "text": "and they have\ndifferent accuracies.",
+      "start": 2953.37,
+      "duration": 4.32
+    },
+    {
+      "text": "So another benchmark I'll\ntalk about is Cybersecurity.",
+      "start": 2957.69,
+      "duration": 5.46
+    },
+    {
+      "text": "So this is 40 Capture\nThe Flag tasks.",
+      "start": 2963.15,
+      "duration": 4.22
+    },
+    {
+      "text": "And the setting here\nis that you have",
+      "start": 2967.37,
+      "duration": 3.05
+    },
+    {
+      "text": "an agent that is\ngiven an environment",
+      "start": 2970.42,
+      "duration": 5.44
+    },
+    {
+      "text": "and it can run various commands\nlike look at the source code.",
+      "start": 2975.86,
+      "duration": 5.36
+    },
+    {
+      "text": "It can access the web server.",
+      "start": 2981.22,
+      "duration": 6.74
+    },
+    {
+      "text": "And the goal is to essentially\nhack into this server",
+      "start": 2987.96,
+      "duration": 2.42
+    },
+    {
+      "text": "to extract some flag, which\nis a unique string that",
+      "start": 2990.38,
+      "duration": 2.84
+    },
+    {
+      "text": "proves that you've\nhacked into the server.",
+      "start": 2993.22,
+      "duration": 2.8
+    },
+    {
+      "text": "So these are competitions,\ncybersecurity exercises that",
+      "start": 2996.02,
+      "duration": 3.92
+    },
+    {
+      "text": "are done by humans normally.",
+      "start": 2999.94,
+      "duration": 2.12
+    },
+    {
+      "text": "And this is an example\nof what the agent",
+      "start": 3002.06,
+      "duration": 9.52
+    },
+    {
+      "text": "scaffold looks like here.",
+      "start": 3011.58,
+      "duration": 2.3
+    },
+    {
+      "text": "This is a very simplistic\nversion where basically you",
+      "start": 3013.88,
+      "duration": 3.18
+    },
+    {
+      "text": "have one continuous memory.",
+      "start": 3017.06,
+      "duration": 2.52
+    },
+    {
+      "text": "You produce some action, you\nget environment feedback,",
+      "start": 3019.58,
+      "duration": 5.6
+    },
+    {
+      "text": "and then you put the\nresults into this buffer",
+      "start": 3025.18,
+      "duration": 2.79
+    },
+    {
+      "text": "and this is concatenated.",
+      "start": 3027.97,
+      "duration": 1.58
+    },
+    {
+      "text": "As I'll show you\nlater, this history",
+      "start": 3029.55,
+      "duration": 4.04
+    },
+    {
+      "text": "obviously grows quite a bit.",
+      "start": 3033.59,
+      "duration": 1.5
+    },
+    {
+      "text": "And you'll need to have better\nways of managing context.",
+      "start": 3035.09,
+      "duration": 6.62
+    },
+    {
+      "text": "So this is what the leaderboard\nlooks like when it came out.",
+      "start": 3041.71,
+      "duration": 4.48
+    },
+    {
+      "text": "The best models were\naround 10% or so.",
+      "start": 3046.19,
+      "duration": 4.2
+    },
+    {
+      "text": "And over time now it's\ncompletely solved actually.",
+      "start": 3050.39,
+      "duration": 6.88
+    },
+    {
+      "text": "So that's CyBench.",
+      "start": 3057.27,
+      "duration": 2.4
+    },
+    {
+      "text": "There's another\nclass of problems",
+      "start": 3059.67,
+      "duration": 1.8
+    },
+    {
+      "text": "which are MLE engineering.",
+      "start": 3061.47,
+      "duration": 4.6
+    },
+    {
+      "text": "So this benchmark has a\nbunch of Kaggle competitions",
+      "start": 3066.07,
+      "duration": 5.84
+    },
+    {
+      "text": "which involve processing\ndata, training models,",
+      "start": 3071.91,
+      "duration": 2.64
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 3074.55,
+      "duration": 1.56
+    },
+    {
+      "text": "And the agent can look at the\ndata set, read the description,",
+      "start": 3076.11,
+      "duration": 4.66
+    },
+    {
+      "text": "write code, train models, and\nyou eventually submit something",
+      "start": 3080.77,
+      "duration": 5.84
+    },
+    {
+      "text": "and you get a grade.",
+      "start": 3086.61,
+      "duration": 2.08
+    },
+    {
+      "text": "So this is what the leaderboard\nlooks like right now.",
+      "start": 3088.69,
+      "duration": 4.0
+    },
+    {
+      "text": "And again, you can see that it's\nreally the same usual suspects",
+      "start": 3092.69,
+      "duration": 4.32
+    },
+    {
+      "text": "on the LLM side.",
+      "start": 3097.01,
+      "duration": 2.2
+    },
+    {
+      "text": "But there's quite\na bit of variation",
+      "start": 3099.21,
+      "duration": 1.84
+    },
+    {
+      "text": "in terms of the different\nagent scaffolds.",
+      "start": 3101.05,
+      "duration": 4.48
+    },
+    {
+      "text": "So one thing to note\nabout, I'll point out",
+      "start": 3105.53,
+      "duration": 2.16
+    },
+    {
+      "text": "about agent scaffolds is\nthat they matter a lot.",
+      "start": 3107.69,
+      "duration": 5.64
+    },
+    {
+      "text": "So when I said I talk about\nlanguage model evaluation,",
+      "start": 3113.33,
+      "duration": 5.24
+    },
+    {
+      "text": "this is a broader than\nlanguage model evaluation.",
+      "start": 3118.57,
+      "duration": 3.44
+    },
+    {
+      "text": "And the reason is that unlike\nwhat I mentioned before",
+      "start": 3122.01,
+      "duration": 5.68
+    },
+    {
+      "text": "with this earliest CyBench\nagent scaffold, now",
+      "start": 3127.69,
+      "duration": 3.68
+    },
+    {
+      "text": "you have to be a lot more\nsophisticated to solve",
+      "start": 3131.37,
+      "duration": 2.8
+    },
+    {
+      "text": "really complicated tasks.",
+      "start": 3134.17,
+      "duration": 2.6
+    },
+    {
+      "text": "One thing that people realize\nis that explicit planning",
+      "start": 3136.77,
+      "duration": 4.12
+    },
+    {
+      "text": "is helpful.",
+      "start": 3140.89,
+      "duration": 1.06
+    },
+    {
+      "text": "You can't just stream\nof consciousness,",
+      "start": 3141.95,
+      "duration": 1.99
+    },
+    {
+      "text": "chain of thought this.",
+      "start": 3143.94,
+      "duration": 1.02
+    },
+    {
+      "text": "And then you build\nup this context",
+      "start": 3144.96,
+      "duration": 2.38
+    },
+    {
+      "text": "and the agent can easily\nlose track of where it is.",
+      "start": 3147.34,
+      "duration": 3.88
+    },
+    {
+      "text": "So instead of keep a to-do\nlist, get it checked off.",
+      "start": 3151.22,
+      "duration": 4.36
+    },
+    {
+      "text": "Hierarchical delegation, agents\nshould call other sub-agents",
+      "start": 3155.58,
+      "duration": 5.12
+    },
+    {
+      "text": "with some clean context.",
+      "start": 3160.7,
+      "duration": 1.46
+    },
+    {
+      "text": "And that agent does some stuff\nand returns only the result.",
+      "start": 3162.16,
+      "duration": 4.1
+    },
+    {
+      "text": "The master agent doesn't need\nto see all the gory details,",
+      "start": 3166.26,
+      "duration": 4.38
+    },
+    {
+      "text": "and this can help encapsulate,\nprovide some encapsulation.",
+      "start": 3170.64,
+      "duration": 5.26
+    },
+    {
+      "text": "Memory, people have been\nexperimenting around",
+      "start": 3175.9,
+      "duration": 3.52
+    },
+    {
+      "text": "with explicitly reading\nand writing files,",
+      "start": 3179.42,
+      "duration": 2.14
+    },
+    {
+      "text": "especially as the context grows.",
+      "start": 3181.56,
+      "duration": 1.84
+    },
+    {
+      "text": "You can't just store it\nin your context window.",
+      "start": 3183.4,
+      "duration": 5.18
+    },
+    {
+      "text": "And then finally, there is more\ncontext engineering in the style",
+      "start": 3188.58,
+      "duration": 5.08
+    },
+    {
+      "text": "of managing the process.",
+      "start": 3193.66,
+      "duration": 2.6
+    },
+    {
+      "text": "When should you\ndelegate to sub-agents?",
+      "start": 3196.26,
+      "duration": 2.32
+    },
+    {
+      "text": "When to try this strategy\nversus this other strategy, what",
+      "start": 3198.58,
+      "duration": 4.89
+    },
+    {
+      "text": "to write persistent memory.",
+      "start": 3203.47,
+      "duration": 1.62
+    },
+    {
+      "text": "And these things are\ngenerally optimized",
+      "start": 3205.09,
+      "duration": 5.62
+    },
+    {
+      "text": "for the particular\nlanguage model.",
+      "start": 3210.71,
+      "duration": 5.76
+    },
+    {
+      "text": "So agents are exciting because\nthey enhance the capability",
+      "start": 3216.47,
+      "duration": 4.2
+    },
+    {
+      "text": "surface of language models.",
+      "start": 3220.67,
+      "duration": 1.82
+    },
+    {
+      "text": "Scaffolds are very important.",
+      "start": 3222.49,
+      "duration": 1.64
+    },
+    {
+      "text": "So really, when we talk\nabout evaluating agents,",
+      "start": 3224.13,
+      "duration": 3.34
+    },
+    {
+      "text": "it's evaluating both\nthe language model",
+      "start": 3227.47,
+      "duration": 2.48
+    },
+    {
+      "text": "and the agent scaffold.",
+      "start": 3229.95,
+      "duration": 2.3
+    },
+    {
+      "text": "Now, we're going to\nswitch gears a little bit",
+      "start": 3236.15,
+      "duration": 2.76
+    },
+    {
+      "text": "and talk about this other very\ndifferent style of benchmarks.",
+      "start": 3238.91,
+      "duration": 4.88
+    },
+    {
+      "text": "I call them pure reasoning\nfor lack of a better term.",
+      "start": 3243.79,
+      "duration": 4.6
+    },
+    {
+      "text": "And the motivation is that\nall the tasks so far require",
+      "start": 3248.39,
+      "duration": 3.2
+    },
+    {
+      "text": "some linguistic and\nworld knowledge.",
+      "start": 3251.59,
+      "duration": 3.04
+    },
+    {
+      "text": "And so the question\nis, can we just",
+      "start": 3254.63,
+      "duration": 2.44
+    },
+    {
+      "text": "isolate reasoning or\npure fluid intelligence",
+      "start": 3257.07,
+      "duration": 4.38
+    },
+    {
+      "text": "from a knowledge\nand knowing facts?",
+      "start": 3261.45,
+      "duration": 2.88
+    },
+    {
+      "text": "And you could argue\nthat this gives you",
+      "start": 3264.33,
+      "duration": 2.4
+    },
+    {
+      "text": "a form of more\npure intelligence.",
+      "start": 3266.73,
+      "duration": 4.68
+    },
+    {
+      "text": "So there was this\nproject, ARC-AGI,",
+      "start": 3271.41,
+      "duration": 4.92
+    },
+    {
+      "text": "which started back in 2019,\nwhere the goal was exactly this.",
+      "start": 3276.33,
+      "duration": 6.84
+    },
+    {
+      "text": "So the task was meant to\nbe 100% solvable by humans,",
+      "start": 3283.17,
+      "duration": 5.82
+    },
+    {
+      "text": "but challenging for AIs.",
+      "start": 3288.99,
+      "duration": 1.5
+    },
+    {
+      "text": "And every task is a special\nsnowflake or that's the intent.",
+      "start": 3290.49,
+      "duration": 4.56
+    },
+    {
+      "text": "And so memorizing\na bunch of facts",
+      "start": 3295.05,
+      "duration": 2.12
+    },
+    {
+      "text": "or solving previous\nproblems shouldn't really",
+      "start": 3297.17,
+      "duration": 3.72
+    },
+    {
+      "text": "help you that much.",
+      "start": 3300.89,
+      "duration": 2.08
+    },
+    {
+      "text": "So if you guys are\nremembering your LLM history,",
+      "start": 3302.97,
+      "duration": 3.14
+    },
+    {
+      "text": "2019 was pre-LLM.",
+      "start": 3306.11,
+      "duration": 3.2
+    },
+    {
+      "text": "I mean this was GPT-2 era.",
+      "start": 3309.31,
+      "duration": 2.58
+    },
+    {
+      "text": "So this was prescient\nin that regard.",
+      "start": 3311.89,
+      "duration": 3.25
+    },
+    {
+      "text": "So here's an example of the\nfirst iteration of that problem.",
+      "start": 3315.14,
+      "duration": 2.5
+    },
+    {
+      "text": "You're given these\npictures and you're",
+      "start": 3317.64,
+      "duration": 2.38
+    },
+    {
+      "text": "trying to guess what comes next.",
+      "start": 3320.02,
+      "duration": 2.68
+    },
+    {
+      "text": "And if you take 10 seconds, you\ncan probably solve this problem.",
+      "start": 3322.7,
+      "duration": 4.38
+    },
+    {
+      "text": "So you probably guess it's\nto just fill in the yellow",
+      "start": 3330.22,
+      "duration": 3.76
+    },
+    {
+      "text": "to form the rectangle.",
+      "start": 3333.98,
+      "duration": 2.56
+    },
+    {
+      "text": "So then last year, there\nwas an updated version",
+      "start": 3336.54,
+      "duration": 5.44
+    },
+    {
+      "text": "of this task, which was\na bit more complicated.",
+      "start": 3341.98,
+      "duration": 3.88
+    },
+    {
+      "text": "And you can take a look at this.",
+      "start": 3345.86,
+      "duration": 1.5
+    },
+    {
+      "text": "So here's the trajectory.",
+      "start": 3351.22,
+      "duration": 3.42
+    },
+    {
+      "text": "So when ARC-AGI-1 came out--",
+      "start": 3354.64,
+      "duration": 3.54
+    },
+    {
+      "text": "I think this is actually 0.",
+      "start": 3361.02,
+      "duration": 2.32
+    },
+    {
+      "text": "So basically models\ndidn't do anything.",
+      "start": 3363.34,
+      "duration": 2.9
+    },
+    {
+      "text": "So there's GPT-3--\npre-trained model didn't",
+      "start": 3366.24,
+      "duration": 1.86
+    },
+    {
+      "text": "move the needle at all, right.",
+      "start": 3368.1,
+      "duration": 2.48
+    },
+    {
+      "text": "And this was exactly as\nthe creators had intended.",
+      "start": 3370.58,
+      "duration": 3.52
+    },
+    {
+      "text": "Pre-trained models\njust learn what",
+      "start": 3374.1,
+      "duration": 3.89
+    },
+    {
+      "text": "the facts are on the\ninternet and maybe learn",
+      "start": 3377.99,
+      "duration": 1.92
+    },
+    {
+      "text": "linguistic patterns.",
+      "start": 3379.91,
+      "duration": 1.18
+    },
+    {
+      "text": "But none of that is\nactually helpful directly,",
+      "start": 3381.09,
+      "duration": 3.48
+    },
+    {
+      "text": "at least for these\nARC-AGI tasks.",
+      "start": 3384.57,
+      "duration": 4.1
+    },
+    {
+      "text": "And then something\nhappened in 2024.",
+      "start": 3388.67,
+      "duration": 4.4
+    },
+    {
+      "text": "And this is when OpenAI\nreleased their o1 and o3 models.",
+      "start": 3393.07,
+      "duration": 3.54
+    },
+    {
+      "text": "Then things started taking\noff pretty abruptly.",
+      "start": 3396.61,
+      "duration": 3.78
+    },
+    {
+      "text": "And now, ARC-AGI-1\nis basically solved.",
+      "start": 3400.39,
+      "duration": 6.04
+    },
+    {
+      "text": "And even around 2025\nwhen ARC-AGI-2 came out,",
+      "start": 3406.43,
+      "duration": 6.56
+    },
+    {
+      "text": "this has also-- it's\nnot quite solved,",
+      "start": 3412.99,
+      "duration": 2.98
+    },
+    {
+      "text": "but it looks like it's on\nits way to being solved.",
+      "start": 3415.97,
+      "duration": 5.58
+    },
+    {
+      "text": "So it was really the reasoning\ncapabilities that unlocked this.",
+      "start": 3421.55,
+      "duration": 7.12
+    },
+    {
+      "text": "And now one could wonder\nwhether all the knowledge",
+      "start": 3428.67,
+      "duration": 5.45
+    },
+    {
+      "text": "of actual pre-training was\nnecessary for this task.",
+      "start": 3434.12,
+      "duration": 5.66
+    },
+    {
+      "text": "And certainly,\nwithout pre-training",
+      "start": 3439.78,
+      "duration": 2.02
+    },
+    {
+      "text": "we wouldn't have this\nexplosion of reasoning models.",
+      "start": 3441.8,
+      "duration": 2.38
+    },
+    {
+      "text": "So arguably it was\nstill important,",
+      "start": 3444.18,
+      "duration": 3.0
+    },
+    {
+      "text": "but not maybe directly\nvisible for much",
+      "start": 3447.18,
+      "duration": 3.02
+    },
+    {
+      "text": "of the history of ARC-AGI.",
+      "start": 3450.2,
+      "duration": 2.6
+    },
+    {
+      "text": "So now, just last month,\nARC-AGI-3 comes out.",
+      "start": 3452.8,
+      "duration": 3.3
+    },
+    {
+      "text": "So you see this\nfamiliar pattern.",
+      "start": 3456.1,
+      "duration": 1.62
+    },
+    {
+      "text": "Our creators look at\nthis and it's like, oh,",
+      "start": 3457.72,
+      "duration": 2.14
+    },
+    {
+      "text": "time for a new benchmark.",
+      "start": 3459.86,
+      "duration": 2.1
+    },
+    {
+      "text": "So this is now an\ninteractive environment",
+      "start": 3461.96,
+      "duration": 3.92
+    },
+    {
+      "text": "where you can go online\nand you can play this game.",
+      "start": 3465.88,
+      "duration": 3.26
+    },
+    {
+      "text": "So again, no language.",
+      "start": 3469.14,
+      "duration": 1.04
+    },
+    {
+      "text": "You're just trying to figure\nout, based on patterns.",
+      "start": 3470.18,
+      "duration": 3.26
+    },
+    {
+      "text": "It's kind of fun.",
+      "start": 3473.44,
+      "duration": 1.88
+    },
+    {
+      "text": "And now the scores\nare extremely low.",
+      "start": 3475.32,
+      "duration": 2.44
+    },
+    {
+      "text": "So next year when\nI teach this class,",
+      "start": 3477.76,
+      "duration": 3.2
+    },
+    {
+      "text": "I'm sure I'll have\nto update this slide.",
+      "start": 3480.96,
+      "duration": 2.42
+    },
+    {
+      "text": "But we'll see.",
+      "start": 3483.38,
+      "duration": 2.02
+    },
+    {
+      "text": "So I think this ARC-AGI\nline is a really interesting",
+      "start": 3485.4,
+      "duration": 5.32
+    },
+    {
+      "text": "to think about.",
+      "start": 3490.72,
+      "duration": 1.78
+    },
+    {
+      "text": "The goal is to disentangle\nreasoning from knowledge.",
+      "start": 3492.5,
+      "duration": 3.88
+    },
+    {
+      "text": "This is really hard to do.",
+      "start": 3496.38,
+      "duration": 1.7
+    },
+    {
+      "text": "And it's not--",
+      "start": 3498.08,
+      "duration": 2.117
+    },
+    {
+      "text": "I think this is probably\nthe best attempt at this.",
+      "start": 3500.197,
+      "duration": 2.083
+    },
+    {
+      "text": "It's not clear whether you can\nreally fully decouple things.",
+      "start": 3502.28,
+      "duration": 5.54
+    },
+    {
+      "text": "And certainly, if people really\ncared about this benchmark,",
+      "start": 3507.82,
+      "duration": 4.18
+    },
+    {
+      "text": "I think people probably could--",
+      "start": 3512.0,
+      "duration": 2.12
+    },
+    {
+      "text": "people can benchmark I\nthink probably anything.",
+      "start": 3514.12,
+      "duration": 2.54
+    },
+    {
+      "text": "So you could design\nquestions like,",
+      "start": 3516.66,
+      "duration": 2.1
+    },
+    {
+      "text": "are these-- these still\ncome from some prior",
+      "start": 3518.76,
+      "duration": 3.02
+    },
+    {
+      "text": "and not sure there's anything as\nquote unquote pure as reasoning.",
+      "start": 3521.78,
+      "duration": 6.52
+    },
+    {
+      "text": "This is also constrained\nto human reasoning.",
+      "start": 3528.3,
+      "duration": 2.02
+    },
+    {
+      "text": "The explicit goal is to\nbe 100% human solvable",
+      "start": 3530.32,
+      "duration": 3.14
+    },
+    {
+      "text": "within some reasonable time.",
+      "start": 3533.46,
+      "duration": 2.32
+    },
+    {
+      "text": "So this doesn't really extend\nto superhuman reasoning,",
+      "start": 3535.78,
+      "duration": 3.9
+    },
+    {
+      "text": "for example [INAUDIBLE]\nwinning more gold medals",
+      "start": 3539.68,
+      "duration": 2.54
+    },
+    {
+      "text": "or solving open math problems,\nwhich arguably are still",
+      "start": 3542.22,
+      "duration": 3.6
+    },
+    {
+      "text": "very useful and important.",
+      "start": 3545.82,
+      "duration": 2.04
+    },
+    {
+      "text": "But clearly this exposes some\ngaps in the current models.",
+      "start": 3547.86,
+      "duration": 3.73
+    },
+    {
+      "text": "So there is work to do if\nyou think about the goal",
+      "start": 3551.59,
+      "duration": 3.72
+    },
+    {
+      "text": "as basically being able\nto solve all the tasks.",
+      "start": 3555.31,
+      "duration": 3.5
+    },
+    {
+      "text": "So this ARC-AGI-3 especially\nlooks quite graphic.",
+      "start": 3562.99,
+      "duration": 3.7
+    },
+    {
+      "text": "So is there some multimodal\ncontent involved or encoding",
+      "start": 3566.69,
+      "duration": 6.18
+    },
+    {
+      "text": "or as a textual\nrepresentation as well?",
+      "start": 3572.87,
+      "duration": 3.54
+    },
+    {
+      "text": "Yeah so the question is\nthis looks very graphical.",
+      "start": 3576.41,
+      "duration": 4.94
+    },
+    {
+      "text": "And so what is the input\nto a language model?",
+      "start": 3581.35,
+      "duration": 2.88
+    },
+    {
+      "text": "So this is essentially--",
+      "start": 3584.23,
+      "duration": 1.48
+    },
+    {
+      "text": "I don't know what the--",
+      "start": 3585.71,
+      "duration": 1.24
+    },
+    {
+      "text": "I think it's 64 by 64.",
+      "start": 3586.95,
+      "duration": 1.98
+    },
+    {
+      "text": "So you can provide\nthis image, or you",
+      "start": 3588.93,
+      "duration": 2.66
+    },
+    {
+      "text": "can provide it in Ascii Art or\nsome of textual representation.",
+      "start": 3591.59,
+      "duration": 6.8
+    },
+    {
+      "text": "Either way, there is\na spatial element here",
+      "start": 3598.39,
+      "duration": 3.36
+    },
+    {
+      "text": "that the model has to reason\nabout, which is really not",
+      "start": 3601.75,
+      "duration": 4.08
+    },
+    {
+      "text": "English or natural language.",
+      "start": 3605.83,
+      "duration": 1.74
+    },
+    {
+      "text": "So let's talk about\nshift gears and talk",
+      "start": 3612.92,
+      "duration": 2.88
+    },
+    {
+      "text": "about another\nclass of benchmarks",
+      "start": 3615.8,
+      "duration": 2.48
+    },
+    {
+      "text": "which is related to safety.",
+      "start": 3618.28,
+      "duration": 2.76
+    },
+    {
+      "text": "So people have been\ntalking about safety",
+      "start": 3621.04,
+      "duration": 2.6
+    },
+    {
+      "text": "in language models for a while.",
+      "start": 3623.64,
+      "duration": 2.32
+    },
+    {
+      "text": "And if you think about\nother areas such as cars,",
+      "start": 3625.96,
+      "duration": 3.56
+    },
+    {
+      "text": "it's pretty clear what\nsafety means here.",
+      "start": 3629.52,
+      "duration": 2.76
+    },
+    {
+      "text": "These ratings for\nsafety ratings for cars,",
+      "start": 3632.28,
+      "duration": 5.06
+    },
+    {
+      "text": "which involve testing\nbased on smashing cars",
+      "start": 3637.34,
+      "duration": 3.1
+    },
+    {
+      "text": "into a wall with an\nairbag and seeing",
+      "start": 3640.44,
+      "duration": 2.6
+    },
+    {
+      "text": "how well it does and protects\nthe dummies in the car.",
+      "start": 3643.04,
+      "duration": 6.48
+    },
+    {
+      "text": "And this is with decades of\nlobbying and figuring out",
+      "start": 3649.52,
+      "duration": 3.92
+    },
+    {
+      "text": "what safety means for vehicles.",
+      "start": 3653.44,
+      "duration": 2.36
+    },
+    {
+      "text": "So what does it mean for AI?",
+      "start": 3655.8,
+      "duration": 1.96
+    },
+    {
+      "text": "So I would say that there\nis not a great answer here,",
+      "start": 3657.76,
+      "duration": 3.763
+    },
+    {
+      "text": "but I'll give you some\nexamples of what people",
+      "start": 3661.523,
+      "duration": 1.917
+    },
+    {
+      "text": "have been thinking about.",
+      "start": 3663.44,
+      "duration": 1.64
+    },
+    {
+      "text": "So there's this benchmark\ncalled Harm-Bench.",
+      "start": 3665.08,
+      "duration": 3.68
+    },
+    {
+      "text": "And this is really about\nprompting a model with things",
+      "start": 3668.76,
+      "duration": 5.38
+    },
+    {
+      "text": "that are meant to be harmful\nand expecting the model",
+      "start": 3674.14,
+      "duration": 5.92
+    },
+    {
+      "text": "to essentially refuse.",
+      "start": 3680.06,
+      "duration": 2.88
+    },
+    {
+      "text": "So this is one type of safety.",
+      "start": 3682.94,
+      "duration": 2.46
+    },
+    {
+      "text": "And I think probably\nthe dominant thing",
+      "start": 3685.4,
+      "duration": 3.38
+    },
+    {
+      "text": "when people think\nabout safety is",
+      "start": 3688.78,
+      "duration": 1.96
+    },
+    {
+      "text": "that I want to prevent bad\nactors from doing things",
+      "start": 3690.74,
+      "duration": 3.28
+    },
+    {
+      "text": "with language models,\nbut it turns out",
+      "start": 3694.02,
+      "duration": 1.84
+    },
+    {
+      "text": "that's not the only\nthing that matters.",
+      "start": 3695.86,
+      "duration": 2.22
+    },
+    {
+      "text": "So there's this other\nwork, AIR-Bench,",
+      "start": 3698.08,
+      "duration": 1.78
+    },
+    {
+      "text": "which tries to think\nabout safety holistically",
+      "start": 3699.86,
+      "duration": 4.6
+    },
+    {
+      "text": "by looking at all the regulatory\nframeworks in the EU, China,",
+      "start": 3704.46,
+      "duration": 5.48
+    },
+    {
+      "text": "and the US company\npolicies and builds",
+      "start": 3709.94,
+      "duration": 5.2
+    },
+    {
+      "text": "a taxonomy of all the different\nthings that could go wrong.",
+      "start": 3715.14,
+      "duration": 5.84
+    },
+    {
+      "text": "And then using\nthis, constructing",
+      "start": 3720.98,
+      "duration": 2.24
+    },
+    {
+      "text": "a particular set of\nprompts and evaluating",
+      "start": 3723.22,
+      "duration": 5.25
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 3728.47,
+      "duration": 3.56
+    },
+    {
+      "text": "But one problem with\nsafety is, jailbreaking,",
+      "start": 3732.03,
+      "duration": 3.7
+    },
+    {
+      "text": "which is its own\nsub problem, which",
+      "start": 3735.73,
+      "duration": 2.74
+    },
+    {
+      "text": "is that language models\nare generally trained",
+      "start": 3738.47,
+      "duration": 2.52
+    },
+    {
+      "text": "to refuse harmful instructions.",
+      "start": 3740.99,
+      "duration": 2.8
+    },
+    {
+      "text": "But as we know you can get\naround this if you're clever.",
+      "start": 3743.79,
+      "duration": 4.8
+    },
+    {
+      "text": "And so there's some\nearly work that",
+      "start": 3748.59,
+      "duration": 2.32
+    },
+    {
+      "text": "uses automatic ways to optimize\nfor prompts to bypass safety",
+      "start": 3750.91,
+      "duration": 6.72
+    },
+    {
+      "text": "using GCG, which is\nbasically this coordinate",
+      "start": 3757.63,
+      "duration": 5.6
+    },
+    {
+      "text": "wise optimization algorithm.",
+      "start": 3763.23,
+      "duration": 2.12
+    },
+    {
+      "text": "And remarkably,\noptimizing on open models",
+      "start": 3765.35,
+      "duration": 4.64
+    },
+    {
+      "text": "allows us to transfer to models.",
+      "start": 3769.99,
+      "duration": 1.7
+    },
+    {
+      "text": "So I hope this doesn't these\nattacks don't work anymore.",
+      "start": 3771.69,
+      "duration": 3.8
+    },
+    {
+      "text": "But at the time, you can\ngenerate some basically",
+      "start": 3775.49,
+      "duration": 4.02
+    },
+    {
+      "text": "gibberish and step by step\nplan to destroy humanity",
+      "start": 3779.51,
+      "duration": 5.67
+    },
+    {
+      "text": "and OpenAI's model will comply.",
+      "start": 3785.18,
+      "duration": 5.06
+    },
+    {
+      "text": "Obviously, you\ncould argue, well,",
+      "start": 3790.24,
+      "duration": 1.62
+    },
+    {
+      "text": "is this actually harmful\nplan to destroy humanity?",
+      "start": 3791.86,
+      "duration": 5.1
+    },
+    {
+      "text": "At least it did not-- the\nexpected behavior is that it",
+      "start": 3796.96,
+      "duration": 2.88
+    },
+    {
+      "text": "should probably refuse that.",
+      "start": 3799.84,
+      "duration": 2.4
+    },
+    {
+      "text": "So this raises a bigger problem\nwhich is, what is safety?",
+      "start": 3802.24,
+      "duration": 6.44
+    },
+    {
+      "text": "And one thing that\nmakes this tricky",
+      "start": 3808.68,
+      "duration": 2.04
+    },
+    {
+      "text": "is that many aspects of\nsafety are very contextual.",
+      "start": 3810.72,
+      "duration": 4.52
+    },
+    {
+      "text": "So it involves politics,\nlaw, social norms.",
+      "start": 3815.24,
+      "duration": 4.7
+    },
+    {
+      "text": "This varies across\ndifferent countries.",
+      "start": 3819.94,
+      "duration": 3.18
+    },
+    {
+      "text": "And then also, if you\nthink about safety,",
+      "start": 3823.12,
+      "duration": 2.46
+    },
+    {
+      "text": "you have to think about\nwhat are the risks.",
+      "start": 3825.58,
+      "duration": 3.1
+    },
+    {
+      "text": "And the risks are actually\nquite varied as well",
+      "start": 3828.68,
+      "duration": 4.8
+    },
+    {
+      "text": "and demand probably\ndifferent attention.",
+      "start": 3833.48,
+      "duration": 2.34
+    },
+    {
+      "text": "So hallucinations is\na risk, especially",
+      "start": 3835.82,
+      "duration": 2.7
+    },
+    {
+      "text": "let's say a medical or\nlegal or financial settings.",
+      "start": 3838.52,
+      "duration": 4.66
+    },
+    {
+      "text": "But this is also correlated\nwith just capabilities.",
+      "start": 3843.18,
+      "duration": 3.54
+    },
+    {
+      "text": "If you make a model\nmore accurate,",
+      "start": 3846.72,
+      "duration": 2.62
+    },
+    {
+      "text": "it's correlated with not\nwho is seeing as much.",
+      "start": 3849.34,
+      "duration": 2.72
+    },
+    {
+      "text": "Sycophancy is a problem.",
+      "start": 3852.06,
+      "duration": 3.16
+    },
+    {
+      "text": "Abetting crimes is a problem.",
+      "start": 3855.22,
+      "duration": 1.7
+    },
+    {
+      "text": "But this might be counter\nto capabilities, inequality.",
+      "start": 3856.92,
+      "duration": 6.58
+    },
+    {
+      "text": "Losing critical thinking might\nbe a risk as well that correlate",
+      "start": 3863.5,
+      "duration": 5.64
+    },
+    {
+      "text": "with capability.",
+      "start": 3869.14,
+      "duration": 0.9
+    },
+    {
+      "text": "So if you think about the\nsocietal impact of language",
+      "start": 3870.04,
+      "duration": 5.02
+    },
+    {
+      "text": "models on the world\nand think about safety",
+      "start": 3875.06,
+      "duration": 4.12
+    },
+    {
+      "text": "as ensuring that AI\ngoes well for people,",
+      "start": 3879.18,
+      "duration": 3.5
+    },
+    {
+      "text": "this is actually a\nmuch more complex topic",
+      "start": 3882.68,
+      "duration": 3.9
+    },
+    {
+      "text": "than I'll have\ntime to talk about.",
+      "start": 3886.58,
+      "duration": 2.22
+    },
+    {
+      "text": "And finally, there is a dual\nuse aspect of language models.",
+      "start": 3888.8,
+      "duration": 4.44
+    },
+    {
+      "text": "So the cybersecurity agents can\nbe used to hack into a system",
+      "start": 3893.24,
+      "duration": 3.62
+    },
+    {
+      "text": "or to do penetration testing and\nmake systems more secure, which",
+      "start": 3896.86,
+      "duration": 3.77
+    },
+    {
+      "text": "makes talking about whether\nthese are safety risks",
+      "start": 3900.63,
+      "duration": 4.0
+    },
+    {
+      "text": "or actually beneficial\na double-edged sword.",
+      "start": 3904.63,
+      "duration": 5.12
+    },
+    {
+      "text": "OK, so let's move on now\nto talk about some broader",
+      "start": 3909.75,
+      "duration": 5.24
+    },
+    {
+      "text": "considerations of evaluation.",
+      "start": 3914.99,
+      "duration": 2.62
+    },
+    {
+      "text": "So one thing that I think is an\nimportant aspect of evaluation",
+      "start": 3917.61,
+      "duration": 6.18
+    },
+    {
+      "text": "is realism or\necological validity.",
+      "start": 3923.79,
+      "duration": 3.6
+    },
+    {
+      "text": "How well does evaluation\ncapture real-world use?",
+      "start": 3927.39,
+      "duration": 3.0
+    },
+    {
+      "text": "So in particular exams are very\nfar away from real-world use.",
+      "start": 3930.39,
+      "duration": 6.84
+    },
+    {
+      "text": "Chatbot Arena are\nfrom real people",
+      "start": 3937.23,
+      "duration": 3.2
+    },
+    {
+      "text": "but one could wonder\nwhether this distribution is",
+      "start": 3940.43,
+      "duration": 3.96
+    },
+    {
+      "text": "the right distribution of\npeople or use cases or not.",
+      "start": 3944.39,
+      "duration": 4.12
+    },
+    {
+      "text": "There's a few\nbenchmarks I'll mention",
+      "start": 3948.51,
+      "duration": 2.52
+    },
+    {
+      "text": "that try to get at\necological validity,",
+      "start": 3951.03,
+      "duration": 4.14
+    },
+    {
+      "text": "and in particular at\nthe use case level,",
+      "start": 3955.17,
+      "duration": 2.97
+    },
+    {
+      "text": "at least not the\nindividual query level.",
+      "start": 3958.14,
+      "duration": 2.26
+    },
+    {
+      "text": "So OpenAI created\nbenchmark called GDPVal.",
+      "start": 3960.4,
+      "duration": 5.24
+    },
+    {
+      "text": "They looked at all\nthe top nine sectors",
+      "start": 3965.64,
+      "duration": 3.0
+    },
+    {
+      "text": "according to US GDP, 44\ndifferent occupations,",
+      "start": 3968.64,
+      "duration": 4.44
+    },
+    {
+      "text": "got a bunch of professionals\nto create tasks.",
+      "start": 3973.08,
+      "duration": 4.0
+    },
+    {
+      "text": "These are professionals with\nabout 14 years of experience.",
+      "start": 3977.08,
+      "duration": 3.84
+    },
+    {
+      "text": "And you can see people who\nare nurses who work concierge,",
+      "start": 3980.92,
+      "duration": 4.92
+    },
+    {
+      "text": "real estate agents,\nfilm and video editors",
+      "start": 3985.84,
+      "duration": 3.12
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 3988.96,
+      "duration": 1.64
+    },
+    {
+      "text": "And they created\na bunch of tasks.",
+      "start": 3990.6,
+      "duration": 4.76
+    },
+    {
+      "text": "Here's another example.",
+      "start": 3995.36,
+      "duration": 2.16
+    },
+    {
+      "text": "In the medical domain\nwhere up until this point,",
+      "start": 3997.52,
+      "duration": 4.58
+    },
+    {
+      "text": "a lot of medical benchmarks were\nbased on standardized exams.",
+      "start": 4002.1,
+      "duration": 3.54
+    },
+    {
+      "text": "And in fact,\nactually for humans,",
+      "start": 4005.64,
+      "duration": 1.98
+    },
+    {
+      "text": "this is also what happens.",
+      "start": 4007.62,
+      "duration": 2.56
+    },
+    {
+      "text": "You take these\nstandardized exams",
+      "start": 4010.18,
+      "duration": 1.62
+    },
+    {
+      "text": "and you graduate from med school\nand then you go operate on.",
+      "start": 4011.8,
+      "duration": 4.442
+    },
+    {
+      "text": "Well, actually, there's\na longer process.",
+      "start": 4016.242,
+      "duration": 1.708
+    },
+    {
+      "text": "You don't operate on\npatients directly.",
+      "start": 4017.95,
+      "duration": 1.84
+    },
+    {
+      "text": "But the point is that\nfor a language model,",
+      "start": 4023.81,
+      "duration": 2.66
+    },
+    {
+      "text": "you should also not\njust pass medical exams",
+      "start": 4026.47,
+      "duration": 2.82
+    },
+    {
+      "text": "and deploy them directly.",
+      "start": 4029.29,
+      "duration": 2.54
+    },
+    {
+      "text": "So this was a project\nwhere 121 tasks were",
+      "start": 4031.83,
+      "duration": 6.66
+    },
+    {
+      "text": "sourced from 29 clinicians.",
+      "start": 4038.49,
+      "duration": 3.12
+    },
+    {
+      "text": "And this was meant to\nrepresent the type of things",
+      "start": 4041.61,
+      "duration": 3.8
+    },
+    {
+      "text": "that clinicians would actually\nask to a language model, which",
+      "start": 4045.41,
+      "duration": 3.04
+    },
+    {
+      "text": "are quite different\nthan the multiple choice",
+      "start": 4048.45,
+      "duration": 3.04
+    },
+    {
+      "text": "type of exam questions.",
+      "start": 4051.49,
+      "duration": 2.92
+    },
+    {
+      "text": "Here's another project\nwhich gets at real data.",
+      "start": 4054.41,
+      "duration": 5.46
+    },
+    {
+      "text": "So if you ask, who\nactually has the data",
+      "start": 4059.87,
+      "duration": 3.14
+    },
+    {
+      "text": "on what people are doing?",
+      "start": 4063.01,
+      "duration": 1.22
+    },
+    {
+      "text": "Well, it's the model developers.",
+      "start": 4064.23,
+      "duration": 2.58
+    },
+    {
+      "text": "And so this project\nis interesting",
+      "start": 4066.81,
+      "duration": 2.16
+    },
+    {
+      "text": "because it uses language models\nthemselves to analyze real data.",
+      "start": 4068.97,
+      "duration": 6.78
+    },
+    {
+      "text": "So in particular,\nyou do to privacy.",
+      "start": 4075.75,
+      "duration": 2.74
+    },
+    {
+      "text": "You can't literally go\nand look at people's data,",
+      "start": 4078.49,
+      "duration": 3.88
+    },
+    {
+      "text": "but you can have language\nmodels look at the data",
+      "start": 4082.37,
+      "duration": 2.62
+    },
+    {
+      "text": "and analyze and summarize\ngeneral patterns.",
+      "start": 4084.99,
+      "duration": 3.04
+    },
+    {
+      "text": "So then the language\nmodels could tell you",
+      "start": 4088.03,
+      "duration": 2.72
+    },
+    {
+      "text": "about what are the\ntypes of people--",
+      "start": 4090.75,
+      "duration": 3.24
+    },
+    {
+      "text": "what are the types of things\nthat people use Claude for?",
+      "start": 4093.99,
+      "duration": 3.46
+    },
+    {
+      "text": "And sometimes\nrealism and privacy",
+      "start": 4100.47,
+      "duration": 3.88
+    },
+    {
+      "text": "are at odds with each\nother because ideally you",
+      "start": 4104.35,
+      "duration": 2.759
+    },
+    {
+      "text": "would want actually a sample\nfrom the actual query stream.",
+      "start": 4107.109,
+      "duration": 4.5
+    },
+    {
+      "text": "And that would be very\nvaluable to assess",
+      "start": 4111.609,
+      "duration": 2.381
+    },
+    {
+      "text": "how well a model is working\nand understand deeply",
+      "start": 4113.99,
+      "duration": 2.36
+    },
+    {
+      "text": "what the errors are.",
+      "start": 4116.35,
+      "duration": 1.16
+    },
+    {
+      "text": "But then that runs into\nprivacy considerations.",
+      "start": 4117.51,
+      "duration": 6.32
+    },
+    {
+      "text": "OK, so another\nconsideration, which",
+      "start": 4123.83,
+      "duration": 2.84
+    },
+    {
+      "text": "is another type of validity\nis just in general,",
+      "start": 4126.67,
+      "duration": 5.229
+    },
+    {
+      "text": "how do that the evaluations\nare scientifically valid?",
+      "start": 4131.899,
+      "duration": 3.981
+    },
+    {
+      "text": "And this was brought up fairly\nearly, train-test overlap",
+      "start": 4135.88,
+      "duration": 4.04
+    },
+    {
+      "text": "or contamination.",
+      "start": 4139.92,
+      "duration": 1.76
+    },
+    {
+      "text": "So in a machine\nlearning 101, you",
+      "start": 4141.68,
+      "duration": 2.639
+    },
+    {
+      "text": "learn don't train on\nyour test set hopefully.",
+      "start": 4144.319,
+      "duration": 4.641
+    },
+    {
+      "text": "And before foundation\nmodels this",
+      "start": 4148.96,
+      "duration": 2.319
+    },
+    {
+      "text": "was actually pretty clear right.",
+      "start": 4151.279,
+      "duration": 3.781
+    },
+    {
+      "text": "So with ImageNet and\nSQuAD and many benchmarks",
+      "start": 4155.06,
+      "duration": 4.02
+    },
+    {
+      "text": "sorry, data sets, there\nwas always a train split",
+      "start": 4159.08,
+      "duration": 2.48
+    },
+    {
+      "text": "and a test split and everyone\nplayed the same game.",
+      "start": 4161.56,
+      "duration": 2.82
+    },
+    {
+      "text": "You train on your training data,\nyou test on your test data.",
+      "start": 4164.38,
+      "duration": 4.3
+    },
+    {
+      "text": "Life was simple.",
+      "start": 4168.68,
+      "duration": 1.48
+    },
+    {
+      "text": "And now, you have\nthese models that",
+      "start": 4170.16,
+      "duration": 2.08
+    },
+    {
+      "text": "are trained on the internet.",
+      "start": 4172.24,
+      "duration": 2.06
+    },
+    {
+      "text": "And much more than that.",
+      "start": 4174.3,
+      "duration": 2.58
+    },
+    {
+      "text": "And furthermore, you\ndon't what's in the data.",
+      "start": 4176.88,
+      "duration": 2.82
+    },
+    {
+      "text": "So this makes evaluation\nquite different I think.",
+      "start": 4179.7,
+      "duration": 4.82
+    },
+    {
+      "text": "So what can you do in this?",
+      "start": 4184.52,
+      "duration": 2.44
+    },
+    {
+      "text": "So first thing you\ncan do is you can",
+      "start": 4186.96,
+      "duration": 3.85
+    },
+    {
+      "text": "try to infer whether a model\nhas actually seen the test data.",
+      "start": 4190.81,
+      "duration": 6.16
+    },
+    {
+      "text": "So this is a neat idea\nfrom Tatsu's group",
+      "start": 4196.97,
+      "duration": 6.44
+    },
+    {
+      "text": "where you leverage the\nfact that the order",
+      "start": 4203.41,
+      "duration": 4.48
+    },
+    {
+      "text": "in which the questions\nin the benchmark occurs",
+      "start": 4207.89,
+      "duration": 3.76
+    },
+    {
+      "text": "should be random.",
+      "start": 4211.65,
+      "duration": 2.48
+    },
+    {
+      "text": "But if the model prefers\nsome particular order that's",
+      "start": 4214.13,
+      "duration": 5.08
+    },
+    {
+      "text": "consistent with the\nbenchmark, that is probably--",
+      "start": 4219.21,
+      "duration": 2.8
+    },
+    {
+      "text": "it's just trained\non that benchmark.",
+      "start": 4222.01,
+      "duration": 4.96
+    },
+    {
+      "text": "Another route is that you can\nencourage people to report",
+      "start": 4226.97,
+      "duration": 8.8
+    },
+    {
+      "text": "actual train-test overlap.",
+      "start": 4235.77,
+      "duration": 2.6
+    },
+    {
+      "text": "So this has to do with norms.",
+      "start": 4238.37,
+      "duration": 2.72
+    },
+    {
+      "text": "I think in general, especially\nmaybe less in machine learning,",
+      "start": 4241.09,
+      "duration": 3.7
+    },
+    {
+      "text": "but more in\nstatistics you always",
+      "start": 4244.79,
+      "duration": 2.76
+    },
+    {
+      "text": "report confidence intervals.",
+      "start": 4247.55,
+      "duration": 2.52
+    },
+    {
+      "text": "You have an estimate.",
+      "start": 4250.07,
+      "duration": 0.94
+    },
+    {
+      "text": "And I always want to know,\nhow reliable is that estimate?",
+      "start": 4251.01,
+      "duration": 2.88
+    },
+    {
+      "text": "This is just standard practice.",
+      "start": 4253.89,
+      "duration": 1.74
+    },
+    {
+      "text": "And so the idea of\nthis position paper",
+      "start": 4255.63,
+      "duration": 3.56
+    },
+    {
+      "text": "is that you should\nmodel providers.",
+      "start": 4259.19,
+      "duration": 2.82
+    },
+    {
+      "text": "If you're going to\nclaim some GPQA score,",
+      "start": 4262.01,
+      "duration": 4.02
+    },
+    {
+      "text": "you should always provide\nsome justification",
+      "start": 4266.03,
+      "duration": 3.84
+    },
+    {
+      "text": "that you didn't train\non the test set.",
+      "start": 4269.87,
+      "duration": 3.62
+    },
+    {
+      "text": "So another route is that\nwhere you can just give up.",
+      "start": 4276.75,
+      "duration": 3.22
+    },
+    {
+      "text": "It's like OK, all these\nevaluations there--",
+      "start": 4279.97,
+      "duration": 3.893
+    },
+    {
+      "text": "let's just assume that\npeople trained on them, let's",
+      "start": 4283.863,
+      "duration": 2.167
+    },
+    {
+      "text": "assume the worst case.",
+      "start": 4286.03,
+      "duration": 2.96
+    },
+    {
+      "text": "So the thing that\nwe have on our side",
+      "start": 4288.99,
+      "duration": 2.28
+    },
+    {
+      "text": "is that you can always\ndefine fresh evals.",
+      "start": 4291.27,
+      "duration": 2.3
+    },
+    {
+      "text": "So there's a bunch of ideas,\nLiveCodeBench, UncheeatableEval,",
+      "start": 4293.57,
+      "duration": 4.5
+    },
+    {
+      "text": "which basically scrape\nnew web pages or archive",
+      "start": 4298.07,
+      "duration": 2.84
+    },
+    {
+      "text": "papers or GitHub and defines\nevaluations populations that",
+      "start": 4300.91,
+      "duration": 5.61
+    },
+    {
+      "text": "are past the cutoff date\nof the language models.",
+      "start": 4306.52,
+      "duration": 4.24
+    },
+    {
+      "text": "So this seems pretty\nrobust and good.",
+      "start": 4310.76,
+      "duration": 4.08
+    },
+    {
+      "text": "But one thing to keep in\nmind is that time stamps",
+      "start": 4314.84,
+      "duration": 2.52
+    },
+    {
+      "text": "aren't always safe\neither, because I might",
+      "start": 4317.36,
+      "duration": 3.52
+    },
+    {
+      "text": "post with code for example.",
+      "start": 4320.88,
+      "duration": 4.34
+    },
+    {
+      "text": "I might put something on\nGitHub which is actually",
+      "start": 4325.22,
+      "duration": 3.06
+    },
+    {
+      "text": "derived from some other repo.",
+      "start": 4328.28,
+      "duration": 3.04
+    },
+    {
+      "text": "And so how do that's\nactually generally fresh?",
+      "start": 4331.32,
+      "duration": 2.86
+    },
+    {
+      "text": "Route 4 is to use\nprivate evaluations.",
+      "start": 4337.36,
+      "duration": 3.78
+    },
+    {
+      "text": "So companies' model\ndevelopers do this right.",
+      "start": 4341.14,
+      "duration": 2.72
+    },
+    {
+      "text": "So if you're Google or OpenAI\nyou have your internal code",
+      "start": 4343.86,
+      "duration": 2.66
+    },
+    {
+      "text": "base, which you assume\nis not on the internet,",
+      "start": 4346.52,
+      "duration": 2.82
+    },
+    {
+      "text": "and you obviously wouldn't\ntrain on this data,",
+      "start": 4349.34,
+      "duration": 5.5
+    },
+    {
+      "text": "so you can use it\nfor evaluation.",
+      "start": 4354.84,
+      "duration": 2.16
+    },
+    {
+      "text": "So this generally\nis pretty reliable.",
+      "start": 4357.0,
+      "duration": 3.4
+    },
+    {
+      "text": "And if you're not a company, you\ncan use your personal writings.",
+      "start": 4360.4,
+      "duration": 4.21
+    },
+    {
+      "text": "I have a bunch of\nrejected papers from when",
+      "start": 4364.61,
+      "duration": 2.8
+    },
+    {
+      "text": "I was in grad school that\nI never put on online,",
+      "start": 4367.41,
+      "duration": 2.54
+    },
+    {
+      "text": "so I can use those.",
+      "start": 4369.95,
+      "duration": 2.54
+    },
+    {
+      "text": "And this type of\nevaluation, I think,",
+      "start": 4372.49,
+      "duration": 4.1
+    },
+    {
+      "text": "is very favorable\nfor perplexity evals,",
+      "start": 4376.59,
+      "duration": 3.54
+    },
+    {
+      "text": "because all you\nneed in perplexity",
+      "start": 4380.13,
+      "duration": 1.64
+    },
+    {
+      "text": "is just you need a\ngood data set and you",
+      "start": 4381.77,
+      "duration": 3.2
+    },
+    {
+      "text": "can evaluate log probabilities.",
+      "start": 4384.97,
+      "duration": 4.16
+    },
+    {
+      "text": "So another concern that I'll\nmention is data set quality.",
+      "start": 4389.13,
+      "duration": 7.84
+    },
+    {
+      "text": "So remember I showed\nthe leaderboard",
+      "start": 4396.97,
+      "duration": 2.68
+    },
+    {
+      "text": "for SWE-Bench Verified.",
+      "start": 4399.65,
+      "duration": 2.96
+    },
+    {
+      "text": "This is because,\nwell, SWE-Bench had",
+      "start": 4402.61,
+      "duration": 3.4
+    },
+    {
+      "text": "a bunch of problems of\ntasks, unit tests that",
+      "start": 4406.01,
+      "duration": 4.96
+    },
+    {
+      "text": "weren't quite rigorous enough\nand other things that got fixed.",
+      "start": 4410.97,
+      "duration": 5.8
+    },
+    {
+      "text": "And there are many other\nbenchmarks that have gone",
+      "start": 4416.77,
+      "duration": 7.38
+    },
+    {
+      "text": "through this process\nlike GSM8K or MMLU,",
+      "start": 4424.15,
+      "duration": 4.92
+    },
+    {
+      "text": "where people have gone and done\na more careful audit and realize",
+      "start": 4429.07,
+      "duration": 5.6
+    },
+    {
+      "text": "that, wait a minute, this\nquestion actually doesn't--",
+      "start": 4434.67,
+      "duration": 4.56
+    },
+    {
+      "text": "something's broken\naround this question.",
+      "start": 4439.23,
+      "duration": 3.28
+    },
+    {
+      "text": "So like this one.",
+      "start": 4442.51,
+      "duration": 1.58
+    },
+    {
+      "text": "There's no curve\ngiven in this text",
+      "start": 4444.09,
+      "duration": 3.32
+    },
+    {
+      "text": "so you can't answer\nthis question.",
+      "start": 4447.41,
+      "duration": 1.8
+    },
+    {
+      "text": "Does the baby have socks on?",
+      "start": 4452.19,
+      "duration": 2.12
+    },
+    {
+      "text": "No, there's no way to tell.",
+      "start": 4454.31,
+      "duration": 1.92
+    },
+    {
+      "text": "And there's also this paper\nthat showed that there's",
+      "start": 4456.23,
+      "duration": 5.393
+    },
+    {
+      "text": "a lot of problems with the\nagentic benchmarks, which",
+      "start": 4461.623,
+      "duration": 2.167
+    },
+    {
+      "text": "arguably are even harder to\nassess because it's not just",
+      "start": 4463.79,
+      "duration": 3.0
+    },
+    {
+      "text": "you can look at the question\nand the possible answers",
+      "start": 4466.79,
+      "duration": 3.4
+    },
+    {
+      "text": "and you can look at it but\nthere's a whole environment.",
+      "start": 4470.19,
+      "duration": 3.92
+    },
+    {
+      "text": "And there are cases\nwhere with coding you can",
+      "start": 4474.11,
+      "duration": 5.08
+    },
+    {
+      "text": "it's great to have test cases\nthat either pass or not passed.",
+      "start": 4479.19,
+      "duration": 4.15
+    },
+    {
+      "text": "But as we all test\ncases can be incomplete.",
+      "start": 4483.34,
+      "duration": 3.22
+    },
+    {
+      "text": "So you might pass\nall the test cases",
+      "start": 4486.56,
+      "duration": 1.56
+    },
+    {
+      "text": "but still not have\na working solution.",
+      "start": 4488.12,
+      "duration": 2.84
+    },
+    {
+      "text": "There's another case of\nthis TorchBench benchmark",
+      "start": 4490.96,
+      "duration": 2.56
+    },
+    {
+      "text": "where they show that if an agent\njust outputs the empty response,",
+      "start": 4493.52,
+      "duration": 4.26
+    },
+    {
+      "text": "they can get a 38%.",
+      "start": 4497.78,
+      "duration": 2.5
+    },
+    {
+      "text": "So there are some trivialities\nwith these benchmarks",
+      "start": 4500.28,
+      "duration": 3.32
+    },
+    {
+      "text": "that you want have to be\nvery careful to avoid.",
+      "start": 4503.6,
+      "duration": 3.495
+    },
+    {
+      "text": "One thing I'll call\nout is that there's",
+      "start": 4507.095,
+      "duration": 1.625
+    },
+    {
+      "text": "this tool called\nDocent that uses",
+      "start": 4508.72,
+      "duration": 4.16
+    },
+    {
+      "text": "language models to inspect\nagent traces to detect problems.",
+      "start": 4512.88,
+      "duration": 4.6
+    },
+    {
+      "text": "So this is a\nqualitative response",
+      "start": 4517.48,
+      "duration": 2.12
+    },
+    {
+      "text": "to our very quantitative\nheavy way of benchmarking.",
+      "start": 4519.6,
+      "duration": 4.2
+    },
+    {
+      "text": "And I would always\nrecommend that whenever",
+      "start": 4523.8,
+      "duration": 2.16
+    },
+    {
+      "text": "you do a benchmark,\neither develop a benchmark",
+      "start": 4525.96,
+      "duration": 3.24
+    },
+    {
+      "text": "or run a model on the\nbenchmark that you always",
+      "start": 4529.2,
+      "duration": 4.48
+    },
+    {
+      "text": "look at the output and try\nto audit it to make sure",
+      "start": 4533.68,
+      "duration": 3.175
+    },
+    {
+      "text": "that you actually think\nyou're measuring what",
+      "start": 4536.855,
+      "duration": 1.875
+    },
+    {
+      "text": "you think you're measuring.",
+      "start": 4538.73,
+      "duration": 2.92
+    },
+    {
+      "text": "OK, so maybe getting a\nbit more philosophical.",
+      "start": 4541.65,
+      "duration": 4.02
+    },
+    {
+      "text": "So what's the point\nof evaluation?",
+      "start": 4545.67,
+      "duration": 1.94
+    },
+    {
+      "text": "OK.",
+      "start": 4547.61,
+      "duration": 0.5
+    },
+    {
+      "text": "So I've talked a lot about\ndifferent types of evaluation.",
+      "start": 4548.11,
+      "duration": 3.54
+    },
+    {
+      "text": "And really, there's no one\nevaluation to rule them all.",
+      "start": 4551.65,
+      "duration": 4.02
+    },
+    {
+      "text": "And I think it's-- when you're\nthinking about evaluation,",
+      "start": 4555.67,
+      "duration": 2.62
+    },
+    {
+      "text": "you have to be very clear\nabout what the purpose is.",
+      "start": 4558.29,
+      "duration": 3.54
+    },
+    {
+      "text": "And I think often this is\nnot really stated clearly.",
+      "start": 4561.83,
+      "duration": 3.58
+    },
+    {
+      "text": "So for example, you\ncould be a user,",
+      "start": 4565.41,
+      "duration": 3.18
+    },
+    {
+      "text": "or a company that's trying\nto make a purchase decision.",
+      "start": 4568.59,
+      "duration": 2.52
+    },
+    {
+      "text": "Are you going to go with A or\nB for a particular use case?",
+      "start": 4571.11,
+      "duration": 3.74
+    },
+    {
+      "text": "Or you're just a\nresearcher and you",
+      "start": 4574.85,
+      "duration": 2.16
+    },
+    {
+      "text": "have this intuitive\nnotion of intelligence",
+      "start": 4577.01,
+      "duration": 2.72
+    },
+    {
+      "text": "and you want to\nmeasure it somehow.",
+      "start": 4579.73,
+      "duration": 2.6
+    },
+    {
+      "text": "Or you want to understand the\nbenefits and harms for business",
+      "start": 4582.33,
+      "duration": 2.88
+    },
+    {
+      "text": "or policy reasons.",
+      "start": 4585.21,
+      "duration": 1.44
+    },
+    {
+      "text": "Or you're a developer and\nyou want to get feedback",
+      "start": 4586.65,
+      "duration": 2.24
+    },
+    {
+      "text": "to improve the model.",
+      "start": 4588.89,
+      "duration": 2.04
+    },
+    {
+      "text": "So each of these\ngoals will lead you",
+      "start": 4590.93,
+      "duration": 2.12
+    },
+    {
+      "text": "to potentially different\nbenchmarks or some combination",
+      "start": 4593.05,
+      "duration": 5.25
+    },
+    {
+      "text": "of evaluation strategies.",
+      "start": 4598.3,
+      "duration": 2.76
+    },
+    {
+      "text": "And finally, one\nthing to address,",
+      "start": 4601.06,
+      "duration": 2.5
+    },
+    {
+      "text": "which I hinted at\nbriefly, is that",
+      "start": 4603.56,
+      "duration": 1.82
+    },
+    {
+      "text": "what are we even evaluating?",
+      "start": 4605.38,
+      "duration": 1.7
+    },
+    {
+      "text": "So before foundation models,\nresearchers evaluated methods",
+      "start": 4607.08,
+      "duration": 4.74
+    },
+    {
+      "text": "because we have these\ntrained test splits.",
+      "start": 4611.82,
+      "duration": 2.14
+    },
+    {
+      "text": "And the only thing that was\nvarying is the actual algorithm.",
+      "start": 4613.96,
+      "duration": 3.82
+    },
+    {
+      "text": "And today, we're mostly\nevaluating models and systems",
+      "start": 4617.78,
+      "duration": 3.24
+    },
+    {
+      "text": "where anything goes.",
+      "start": 4621.02,
+      "duration": 2.28
+    },
+    {
+      "text": "There are some exceptions.",
+      "start": 4623.3,
+      "duration": 1.5
+    },
+    {
+      "text": "So the NanoGPT speedrun\nis deliberately",
+      "start": 4624.8,
+      "duration": 3.38
+    },
+    {
+      "text": "a way to evaluate an algorithm,\nin particular, how well fast you",
+      "start": 4628.18,
+      "duration": 4.12
+    },
+    {
+      "text": "can train a model.",
+      "start": 4632.3,
+      "duration": 1.7
+    },
+    {
+      "text": "But most of language\nmodel evaluation",
+      "start": 4634.0,
+      "duration": 3.82
+    },
+    {
+      "text": "is about evaluating the actual\nend model, which is useful",
+      "start": 4637.82,
+      "duration": 4.36
+    },
+    {
+      "text": "because that is the thing that\nis actually going to get shipped",
+      "start": 4642.18,
+      "duration": 2.92
+    },
+    {
+      "text": "and people are going to use.",
+      "start": 4645.1,
+      "duration": 1.58
+    },
+    {
+      "text": "But I think the punchline\nis that you should always",
+      "start": 4646.68,
+      "duration": 3.06
+    },
+    {
+      "text": "be very deliberate about\ndeclaring what your goals are.",
+      "start": 4649.74,
+      "duration": 7.74
+    },
+    {
+      "text": "OK, so there's no\none true evaluation.",
+      "start": 4657.48,
+      "duration": 3.22
+    },
+    {
+      "text": "Choose what you're\ntrying to measure.",
+      "start": 4660.7,
+      "duration": 3.78
+    },
+    {
+      "text": "And we talked about a bunch\nof different benchmarks",
+      "start": 4664.48,
+      "duration": 4.2
+    },
+    {
+      "text": "starting with perplexity, exam\nbased, chat, agentic, reasoning,",
+      "start": 4668.68,
+      "duration": 4.88
+    },
+    {
+      "text": "and safety.",
+      "start": 4673.56,
+      "duration": 1.88
+    },
+    {
+      "text": "They vary in terms of\ndifficulty, realism,",
+      "start": 4675.44,
+      "duration": 4.64
+    },
+    {
+      "text": "how valid they are.",
+      "start": 4680.08,
+      "duration": 1.2
+    },
+    {
+      "text": "And there's often trade offs.",
+      "start": 4681.28,
+      "duration": 1.3
+    },
+    {
+      "text": "It's hard to have really real\nand difficult and ecologically",
+      "start": 4682.58,
+      "duration": 5.02
+    },
+    {
+      "text": "valid.",
+      "start": 4687.6,
+      "duration": 0.54
+    },
+    {
+      "text": "And no trade tests\ncontamination.",
+      "start": 4688.14,
+      "duration": 1.92
+    },
+    {
+      "text": "So often you have to compromise\non one of these factors,",
+      "start": 4690.06,
+      "duration": 3.24
+    },
+    {
+      "text": "and depending on\nyour goals, you will",
+      "start": 4693.3,
+      "duration": 1.78
+    },
+    {
+      "text": "have to choose which one you're\nwilling to compromise on.",
+      "start": 4695.08,
+      "duration": 4.12
+    },
+    {
+      "text": "So that is the end\nof this lecture.",
+      "start": 4699.2,
+      "duration": 3.1
+    },
+    {
+      "text": "So next week, we're\ngoing to start",
+      "start": 4702.3,
+      "duration": 1.46
+    },
+    {
+      "text": "talking about training data.",
+      "start": 4703.76,
+      "duration": 2.76
+    },
+    {
+      "text": "OK, see you next time.",
+      "start": 4706.52,
+      "duration": 1.14
+    },
+    {
+      "text": "[AUDIO LOGO]",
+      "start": 4707.66,
+      "duration": 3.05
+    }
+  ]
+}

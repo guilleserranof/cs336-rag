@@ -1,0 +1,7103 @@
+{
+  "video_id": "-qm0ln33G24",
+  "title": "Stanford CS336 Language Modeling from Scratch | Spring 2026 | Lecture 13: Data (Sources, Datasets)",
+  "position": 13,
+  "source": "youtube",
+  "segments": [
+    {
+      "text": "So today we're going\nto talk about data.",
+      "start": 4.64,
+      "duration": 2.76
+    },
+    {
+      "text": "And where we are is\nthat you know how",
+      "start": 7.4,
+      "duration": 3.48
+    },
+    {
+      "text": "to train a model, given data.",
+      "start": 10.88,
+      "duration": 2.84
+    },
+    {
+      "text": "Last time we saw evaluations,\nso we know what a good model is.",
+      "start": 13.72,
+      "duration": 4.16
+    },
+    {
+      "text": "And for the next two\nlectures, this week",
+      "start": 17.88,
+      "duration": 2.46
+    },
+    {
+      "text": "we're going to focus on what\ndata should we train on.",
+      "start": 20.34,
+      "duration": 4.42
+    },
+    {
+      "text": "And I want to argue that data\nis the most important thing",
+      "start": 24.76,
+      "duration": 2.72
+    },
+    {
+      "text": "to get right in language models.",
+      "start": 27.48,
+      "duration": 2.4
+    },
+    {
+      "text": "And one justification\nfor this is",
+      "start": 29.88,
+      "duration": 1.84
+    },
+    {
+      "text": "if you look at what\ncompanies actually disclose--",
+      "start": 31.72,
+      "duration": 3.3
+    },
+    {
+      "text": "so here is the Llama 3 paper.",
+      "start": 35.02,
+      "duration": 3.1
+    },
+    {
+      "text": "They have full transparency\ninto the architecture--",
+      "start": 38.12,
+      "duration": 3.42
+    },
+    {
+      "text": "well of course, because\nit's open-weight model--",
+      "start": 41.54,
+      "duration": 2.9
+    },
+    {
+      "text": "they even tell you about\ntheir training procedures,",
+      "start": 44.44,
+      "duration": 3.16
+    },
+    {
+      "text": "but they don't say\nanything about their data.",
+      "start": 47.6,
+      "duration": 3.52
+    },
+    {
+      "text": "So they just say, we train\nfor a variety of data sources",
+      "start": 51.12,
+      "duration": 5.28
+    },
+    {
+      "text": "and do some stuff.",
+      "start": 56.4,
+      "duration": 2.16
+    },
+    {
+      "text": "And there's good reasons\nfor this secrecy.",
+      "start": 58.56,
+      "duration": 3.64
+    },
+    {
+      "text": "One is that data is your\ncompetitive secret sauce.",
+      "start": 62.2,
+      "duration": 5.16
+    },
+    {
+      "text": "Competitive dynamics.",
+      "start": 67.36,
+      "duration": 0.9
+    },
+    {
+      "text": "You don't want your competitors\nto know what you're doing.",
+      "start": 68.26,
+      "duration": 2.9
+    },
+    {
+      "text": "And the second\nthing, which we'll",
+      "start": 71.16,
+      "duration": 1.88
+    },
+    {
+      "text": "talk a little bit more about,\nis copyright liability.",
+      "start": 73.04,
+      "duration": 3.218
+    },
+    {
+      "text": "You don't want to get sued if\nyou tell people you're training",
+      "start": 76.258,
+      "duration": 2.542
+    },
+    {
+      "text": "on certain types of data.",
+      "start": 78.8,
+      "duration": 2.8
+    },
+    {
+      "text": "So data is a long topic\nin machine learning.",
+      "start": 81.6,
+      "duration": 3.88
+    },
+    {
+      "text": "And before foundation\nmodels, data work",
+      "start": 85.48,
+      "duration": 3.04
+    },
+    {
+      "text": "meant you annotate-- label\ndata for supervised learning.",
+      "start": 88.52,
+      "duration": 5.36
+    },
+    {
+      "text": "Nowadays there's less\nmanual annotation--",
+      "start": 93.88,
+      "duration": 3.5
+    },
+    {
+      "text": "at least in pre-training--\nbut there's still",
+      "start": 97.38,
+      "duration": 2.18
+    },
+    {
+      "text": "a lot of curation and cleaning\nwork that needs to be done.",
+      "start": 99.56,
+      "duration": 4.04
+    },
+    {
+      "text": "And so fundamentally, this\nhasn't really changed.",
+      "start": 103.6,
+      "duration": 2.9
+    },
+    {
+      "text": "Data has always\nbeen a bottleneck,",
+      "start": 106.5,
+      "duration": 2.46
+    },
+    {
+      "text": "and always will be a\nbottleneck because it's",
+      "start": 108.96,
+      "duration": 2.16
+    },
+    {
+      "text": "in some sense a\nlong-tail problem,",
+      "start": 111.12,
+      "duration": 2.84
+    },
+    {
+      "text": "and that scales\nwith human effort.",
+      "start": 113.96,
+      "duration": 1.66
+    },
+    {
+      "text": "So if you have a lot of people\ntrying to work on the problem,",
+      "start": 115.62,
+      "duration": 3.75
+    },
+    {
+      "text": "well, there's only\nso many people",
+      "start": 119.37,
+      "duration": 1.8
+    },
+    {
+      "text": "that can work on\narchitectures and systems.",
+      "start": 121.17,
+      "duration": 2.5
+    },
+    {
+      "text": "But data, well, that's--\nespecially if you're training",
+      "start": 123.67,
+      "duration": 3.006
+    },
+    {
+      "text": "a foundation model that's\ntrying to do all these things,",
+      "start": 126.676,
+      "duration": 2.333
+    },
+    {
+      "text": "you can [? paralyze ?]\nthat effort easily.",
+      "start": 129.009,
+      "duration": 1.901
+    },
+    {
+      "text": "So that's why these data teams\nand these model developers",
+      "start": 130.91,
+      "duration": 4.22
+    },
+    {
+      "text": "are actually quite big.",
+      "start": 135.13,
+      "duration": 3.28
+    },
+    {
+      "text": "So data comes in at different\nstages of the pipeline.",
+      "start": 138.41,
+      "duration": 5.44
+    },
+    {
+      "text": "Today we're focusing\nmostly on pre-training.",
+      "start": 143.85,
+      "duration": 2.68
+    },
+    {
+      "text": "So pre-training,\nyou take raw data--",
+      "start": 146.53,
+      "duration": 1.82
+    },
+    {
+      "text": "these are documents\nfrom the web.",
+      "start": 148.35,
+      "duration": 2.02
+    },
+    {
+      "text": "Then you move into\nmid-training where",
+      "start": 150.37,
+      "duration": 2.2
+    },
+    {
+      "text": "you train on more\nhigh quality data",
+      "start": 152.57,
+      "duration": 2.08
+    },
+    {
+      "text": "to enhance certain capabilities,\nand give long context, things",
+      "start": 154.65,
+      "duration": 3.36
+    },
+    {
+      "text": "like that.",
+      "start": 158.01,
+      "duration": 0.578
+    },
+    {
+      "text": "And then finally\npost training, where",
+      "start": 158.588,
+      "duration": 1.542
+    },
+    {
+      "text": "you're training on things\nlike chat transcripts,",
+      "start": 160.13,
+      "duration": 3.28
+    },
+    {
+      "text": "or if you're doing\nreinforcement learning,",
+      "start": 163.41,
+      "duration": 2.5
+    },
+    {
+      "text": "you get some environments\nthat you're training on.",
+      "start": 165.91,
+      "duration": 2.3
+    },
+    {
+      "text": "This becomes more task specific.",
+      "start": 168.21,
+      "duration": 2.76
+    },
+    {
+      "text": "In practice the lines\nare a bit blurry,",
+      "start": 170.97,
+      "duration": 4.76
+    },
+    {
+      "text": "and there could be\nmore than three stages.",
+      "start": 175.73,
+      "duration": 4.04
+    },
+    {
+      "text": "But this is a basic template.",
+      "start": 179.77,
+      "duration": 3.04
+    },
+    {
+      "text": "The trend is that\nwe go from training",
+      "start": 182.81,
+      "duration": 2.46
+    },
+    {
+      "text": "on large amounts\nof low quality data",
+      "start": 185.27,
+      "duration": 1.5
+    },
+    {
+      "text": "to smaller amounts\nof high quality data.",
+      "start": 186.77,
+      "duration": 4.0
+    },
+    {
+      "text": "So as a result of this process--",
+      "start": 190.77,
+      "duration": 2.84
+    },
+    {
+      "text": "you'll see in the literature\nwhen we talk about the base",
+      "start": 193.61,
+      "duration": 2.44
+    },
+    {
+      "text": "model, This usually means after\npre-training and mid training,",
+      "start": 196.05,
+      "duration": 3.44
+    },
+    {
+      "text": "instruct models or chat\nmodels, or post-training.",
+      "start": 199.49,
+      "duration": 4.84
+    },
+    {
+      "text": "But of course, the\nlines are becoming",
+      "start": 204.33,
+      "duration": 2.16
+    },
+    {
+      "text": "blurry enough that what\nis the base model anymore",
+      "start": 206.49,
+      "duration": 2.28
+    },
+    {
+      "text": "is really unclear.",
+      "start": 208.77,
+      "duration": 2.02
+    },
+    {
+      "text": "And more recently, the largest\nmodels, there's no base model.",
+      "start": 210.79,
+      "duration": 5.28
+    },
+    {
+      "text": "There's just Qwen3.5-397B-A17B,\nand that's it.",
+      "start": 216.07,
+      "duration": 3.44
+    },
+    {
+      "text": "You don't see the\nintermediate checkpoints.",
+      "start": 219.51,
+      "duration": 4.5
+    },
+    {
+      "text": "So for models that are open\nsource like OLMo from AI2,",
+      "start": 224.01,
+      "duration": 4.54
+    },
+    {
+      "text": "you can see everything\nthat's happening.",
+      "start": 228.55,
+      "duration": 3.04
+    },
+    {
+      "text": "And so, we'll study\nsome of these models.",
+      "start": 231.59,
+      "duration": 3.1
+    },
+    {
+      "text": "So for example, in pre-training,\nthere's a bunch of sources which",
+      "start": 234.69,
+      "duration": 3.88
+    },
+    {
+      "text": "we'll talk about what\nthese mean, but--",
+      "start": 238.57,
+      "duration": 2.48
+    },
+    {
+      "text": "web pages, academic papers,\nmath pages, proofs, and so on.",
+      "start": 241.05,
+      "duration": 5.0
+    },
+    {
+      "text": "There's mid-training--\nhigher quality web data,",
+      "start": 246.05,
+      "duration": 3.46
+    },
+    {
+      "text": "instruction data, bunch of\nsynthetic data often goes here.",
+      "start": 249.51,
+      "duration": 4.9
+    },
+    {
+      "text": "And then finally post-training,\nthere is a bunch of chat logs.",
+      "start": 254.41,
+      "duration": 5.58
+    },
+    {
+      "text": "There are more\nmath and reasoning,",
+      "start": 259.99,
+      "duration": 1.42
+    },
+    {
+      "text": "and coding, you do safety\nat this point as well.",
+      "start": 261.41,
+      "duration": 5.76
+    },
+    {
+      "text": "So what are all these datasets?",
+      "start": 267.17,
+      "duration": 2.84
+    },
+    {
+      "text": "How do you choose them, and\nhow do you process them?",
+      "start": 270.01,
+      "duration": 3.08
+    },
+    {
+      "text": "So that's the main question.",
+      "start": 273.09,
+      "duration": 3.64
+    },
+    {
+      "text": "So in the spirit of the class,\nwe're going to talk about data.",
+      "start": 276.73,
+      "duration": 3.78
+    },
+    {
+      "text": "I'm going to go\nstart from scratch.",
+      "start": 280.51,
+      "duration": 2.0
+    },
+    {
+      "text": "So where does data come from?",
+      "start": 282.51,
+      "duration": 2.9
+    },
+    {
+      "text": "So one might hear\nin the hallway,",
+      "start": 285.41,
+      "duration": 4.8
+    },
+    {
+      "text": "oh, language models are\ntrained on the entire internet.",
+      "start": 290.21,
+      "duration": 3.09
+    },
+    {
+      "text": "So first of all, this doesn't\nreally quite type-check.",
+      "start": 293.3,
+      "duration": 3.24
+    },
+    {
+      "text": "Because for that to\nbe true, it would",
+      "start": 296.54,
+      "duration": 1.84
+    },
+    {
+      "text": "have to be an agent that--\nlike an RL agent that goes",
+      "start": 298.38,
+      "duration": 2.92
+    },
+    {
+      "text": "on the internet and does stuff.",
+      "start": 301.3,
+      "duration": 1.62
+    },
+    {
+      "text": "But that's not actually\nhow pre-training works.",
+      "start": 302.92,
+      "duration": 2.7
+    },
+    {
+      "text": "Slightly more accurately, it's\ntrained on the public world",
+      "start": 305.62,
+      "duration": 4.08
+    },
+    {
+      "text": "wide web, but this is not\nquite accurate for reasons",
+      "start": 309.7,
+      "duration": 4.48
+    },
+    {
+      "text": "I'll explain.",
+      "start": 314.18,
+      "duration": 1.88
+    },
+    {
+      "text": "OK, so first of all, the web is\nactually a bunch of live servers",
+      "start": 316.06,
+      "duration": 5.36
+    },
+    {
+      "text": "that just exist in the world,\nand you can connect to.",
+      "start": 321.42,
+      "duration": 2.62
+    },
+    {
+      "text": "So take any website-- you\ncan go and download the page.",
+      "start": 324.04,
+      "duration": 3.7
+    },
+    {
+      "text": "Or, you can basically send a\nrequest and get back a response.",
+      "start": 327.74,
+      "duration": 3.68
+    },
+    {
+      "text": "So you can't actually\ntrain on these live servers",
+      "start": 331.42,
+      "duration": 2.68
+    },
+    {
+      "text": "unless you're\ntraining an RL agent.",
+      "start": 334.1,
+      "duration": 2.52
+    },
+    {
+      "text": "So typically what you do\nis you have a crawler,",
+      "start": 336.62,
+      "duration": 3.44
+    },
+    {
+      "text": "or someone builds a crawler,\nnot necessarily you.",
+      "start": 340.06,
+      "duration": 3.56
+    },
+    {
+      "text": "The crawler needs to discover\nwhat web pages are out there,",
+      "start": 343.62,
+      "duration": 3.66
+    },
+    {
+      "text": "starting with the seed set, and\nit downloads the discovered web",
+      "start": 347.28,
+      "duration": 3.42
+    },
+    {
+      "text": "pages as it is crawling.",
+      "start": 350.7,
+      "duration": 1.78
+    },
+    {
+      "text": "But still, can't\njust run a crawl",
+      "start": 355.32,
+      "duration": 4.34
+    },
+    {
+      "text": "and download all the web\npages on the internet,",
+      "start": 359.66,
+      "duration": 2.32
+    },
+    {
+      "text": "and there's a few\nreasons for this.",
+      "start": 361.98,
+      "duration": 3.28
+    },
+    {
+      "text": "One is that a lot of the web\ncontent is actually dynamic.",
+      "start": 365.26,
+      "duration": 4.22
+    },
+    {
+      "text": "So especially these days,\na lot of sites are apps.",
+      "start": 369.48,
+      "duration": 2.98
+    },
+    {
+      "text": "The URL isn't even as full\n[? of ?] specification",
+      "start": 372.46,
+      "duration": 2.76
+    },
+    {
+      "text": "of the content, it's just an\napp that you interact with,",
+      "start": 375.22,
+      "duration": 4.96
+    },
+    {
+      "text": "and you need to often click\nbuttons or submit forms",
+      "start": 380.18,
+      "duration": 2.88
+    },
+    {
+      "text": "to access content.",
+      "start": 383.06,
+      "duration": 2.08
+    },
+    {
+      "text": "For example, if you're\non Discord or something,",
+      "start": 385.14,
+      "duration": 2.38
+    },
+    {
+      "text": "it's not like you can just crawl\nDiscord and get all the content",
+      "start": 387.52,
+      "duration": 5.38
+    },
+    {
+      "text": "on Discord.",
+      "start": 392.9,
+      "duration": 1.96
+    },
+    {
+      "text": "So that's one kind of\nthing, and a lot of content",
+      "start": 394.86,
+      "duration": 3.2
+    },
+    {
+      "text": "is actually known as in the\ndeep web, which is not just",
+      "start": 398.06,
+      "duration": 4.52
+    },
+    {
+      "text": "doing web page\ncrawling and following",
+      "start": 402.58,
+      "duration": 4.28
+    },
+    {
+      "text": "hyperlinks, which is a very\nof traditional model of web",
+      "start": 406.86,
+      "duration": 4.13
+    },
+    {
+      "text": "crawling.",
+      "start": 410.99,
+      "duration": 1.56
+    },
+    {
+      "text": "The second thing is\nthat authentication.",
+      "start": 412.55,
+      "duration": 3.9
+    },
+    {
+      "text": "So some pages need a login,\nan account, and generally",
+      "start": 416.45,
+      "duration": 4.06
+    },
+    {
+      "text": "you have to pay.",
+      "start": 420.51,
+      "duration": 3.04
+    },
+    {
+      "text": "For example, there's Facebook,\nX, LinkedIn, New York Times.",
+      "start": 423.55,
+      "duration": 4.6
+    },
+    {
+      "text": "There's actually huge\namounts of content",
+      "start": 428.15,
+      "duration": 1.88
+    },
+    {
+      "text": "that are actually locked up\nbehind these walled gardens.",
+      "start": 430.03,
+      "duration": 2.66
+    },
+    {
+      "text": "So these are technically on\nthe internet or on the web,",
+      "start": 432.69,
+      "duration": 3.26
+    },
+    {
+      "text": "but you can't just build a\ncrawler and go crawl Facebook.",
+      "start": 435.95,
+      "duration": 5.4
+    },
+    {
+      "text": "I guess if you're\nFacebook, you can crawl--",
+      "start": 441.35,
+      "duration": 2.033
+    },
+    {
+      "text": "you don't need to crawl\nFacebook, you have the data,",
+      "start": 443.383,
+      "duration": 2.167
+    },
+    {
+      "text": "and you can train a model.",
+      "start": 445.55,
+      "duration": 1.083
+    },
+    {
+      "text": "Or if you're X AI, you can train\non X. But if you're anyone else,",
+      "start": 446.633,
+      "duration": 4.057
+    },
+    {
+      "text": "you can't actually\naccess this content.",
+      "start": 450.69,
+      "duration": 4.14
+    },
+    {
+      "text": "OK, suppose you don't have\nthe authentication issue.",
+      "start": 454.83,
+      "duration": 3.78
+    },
+    {
+      "text": "There's still potential\nrestrictions here.",
+      "start": 458.61,
+      "duration": 4.6
+    },
+    {
+      "text": "So there's something\ncalled robots.txt,",
+      "start": 463.21,
+      "duration": 3.14
+    },
+    {
+      "text": "and this is a file\nthat is usually",
+      "start": 466.35,
+      "duration": 2.72
+    },
+    {
+      "text": "placed at the root level of a\ndirectory, such as nytimes.com,",
+      "start": 469.07,
+      "duration": 5.22
+    },
+    {
+      "text": "and it basically\ntells you what you're",
+      "start": 474.29,
+      "duration": 1.62
+    },
+    {
+      "text": "allowed to crawl and whatnot.",
+      "start": 475.91,
+      "duration": 1.76
+    },
+    {
+      "text": "So these things are-- a lot\nof things are disallowed,",
+      "start": 477.67,
+      "duration": 2.58
+    },
+    {
+      "text": "such as OAI-SearchBot, or\nPerplexityBot, QuoraBot.",
+      "start": 480.25,
+      "duration": 5.78
+    },
+    {
+      "text": "I think basically, ChatGPT-User,\nClaudeBot, and all these things.",
+      "start": 486.03,
+      "duration": 6.0
+    },
+    {
+      "text": "OK, so this is not a tech--",
+      "start": 492.03,
+      "duration": 5.32
+    },
+    {
+      "text": "this is not a legal\nrestriction, this",
+      "start": 497.35,
+      "duration": 2.117
+    },
+    {
+      "text": "is just like, you're\nsupposed to be a good citizen",
+      "start": 499.467,
+      "duration": 2.083
+    },
+    {
+      "text": "and look at robots.txt.",
+      "start": 501.55,
+      "duration": 1.94
+    },
+    {
+      "text": "And if your name\nis on that list,",
+      "start": 503.49,
+      "duration": 2.06
+    },
+    {
+      "text": "then you should not crawl it.",
+      "start": 505.55,
+      "duration": 1.42
+    },
+    {
+      "text": "That's basically the--\nnot even a contract,",
+      "start": 506.97,
+      "duration": 4.18
+    },
+    {
+      "text": "that is the thing\nyou're supposed to do.",
+      "start": 511.15,
+      "duration": 5.32
+    },
+    {
+      "text": "A lot of websites now use\nsomething like Cloudflare",
+      "start": 516.47,
+      "duration": 4.16
+    },
+    {
+      "text": "to detect and\nblock bot activity.",
+      "start": 520.63,
+      "duration": 2.84
+    },
+    {
+      "text": "So sometimes you've\ngone to a website,",
+      "start": 523.47,
+      "duration": 1.82
+    },
+    {
+      "text": "and it gives you a CAPTCHA.",
+      "start": 525.29,
+      "duration": 1.64
+    },
+    {
+      "text": "That's because\nsomehow, some algorithm",
+      "start": 526.93,
+      "duration": 2.3
+    },
+    {
+      "text": "has detected that\nyou might be a bot,",
+      "start": 529.23,
+      "duration": 1.92
+    },
+    {
+      "text": "and then it's making\nsure you're human.",
+      "start": 531.15,
+      "duration": 1.96
+    },
+    {
+      "text": "And if you're actually a\nbot, then, well, you can't--",
+      "start": 533.11,
+      "duration": 3.832
+    },
+    {
+      "text": "I mean, you could try\nto get around this,",
+      "start": 536.942,
+      "duration": 1.708
+    },
+    {
+      "text": "but generally this is\nan obstacle in your way.",
+      "start": 538.65,
+      "duration": 3.3
+    },
+    {
+      "text": "A website might block certain\nIP addresses or countries,",
+      "start": 541.95,
+      "duration": 4.64
+    },
+    {
+      "text": "and they might have rate limits.",
+      "start": 546.59,
+      "duration": 1.78
+    },
+    {
+      "text": "So there's technical\nrestrictions",
+      "start": 548.37,
+      "duration": 1.38
+    },
+    {
+      "text": "on what you can actually\ncrawl, and then there's",
+      "start": 549.75,
+      "duration": 5.28
+    },
+    {
+      "text": "also legal restrictions.",
+      "start": 555.03,
+      "duration": 2.32
+    },
+    {
+      "text": "So websites have\nterms of service",
+      "start": 557.35,
+      "duration": 4.72
+    },
+    {
+      "text": "that say, if you\ngo to a website,",
+      "start": 562.07,
+      "duration": 1.44
+    },
+    {
+      "text": "you have to obey this\ncontract to use the website.",
+      "start": 563.51,
+      "duration": 3.32
+    },
+    {
+      "text": "And the terms of service often\nwill say, if you're a bot,",
+      "start": 566.83,
+      "duration": 3.26
+    },
+    {
+      "text": "go away.",
+      "start": 570.09,
+      "duration": 0.82
+    },
+    {
+      "text": "You cannot use this, the content\nof the site for AI training,",
+      "start": 570.91,
+      "duration": 3.32
+    },
+    {
+      "text": "or whatever it might be.",
+      "start": 574.23,
+      "duration": 2.8
+    },
+    {
+      "text": "And also, even if terms of\nservice don't say anything,",
+      "start": 577.03,
+      "duration": 5.84
+    },
+    {
+      "text": "the content of the website\nmight have a license,",
+      "start": 582.87,
+      "duration": 4.89
+    },
+    {
+      "text": "or you might not have\na license to train.",
+      "start": 587.76,
+      "duration": 2.7
+    },
+    {
+      "text": "And we'll talk more\nabout this in a bit.",
+      "start": 590.46,
+      "duration": 2.3
+    },
+    {
+      "text": "So there's legal\nrestrictions on what",
+      "start": 592.76,
+      "duration": 1.64
+    },
+    {
+      "text": "you are allowed to train on.",
+      "start": 594.4,
+      "duration": 2.76
+    },
+    {
+      "text": "These things are also\nevolving over time.",
+      "start": 597.16,
+      "duration": 3.2
+    },
+    {
+      "text": "So there's a nice\npaper by Shane Longpre",
+      "start": 600.36,
+      "duration": 3.04
+    },
+    {
+      "text": "called Consent in\nCrisis, and what",
+      "start": 603.4,
+      "duration": 3.72
+    },
+    {
+      "text": "they did is they examined\nthe restrictions--",
+      "start": 607.12,
+      "duration": 2.26
+    },
+    {
+      "text": "both the technical\nrestrictions, robots.txt,",
+      "start": 609.38,
+      "duration": 2.38
+    },
+    {
+      "text": "and the legal restrictions,\nthe term of service,",
+      "start": 611.76,
+      "duration": 3.04
+    },
+    {
+      "text": "for various URLs\nin common datasets,",
+      "start": 614.8,
+      "duration": 2.3
+    },
+    {
+      "text": "which we'll talk about later.",
+      "start": 617.1,
+      "duration": 2.14
+    },
+    {
+      "text": "And the conclusion was\nthat the restrictions",
+      "start": 619.24,
+      "duration": 2.36
+    },
+    {
+      "text": "have increased over time.",
+      "start": 621.6,
+      "duration": 1.3
+    },
+    {
+      "text": "So here's a graphic that shows--\nthe top one shows robots.txt.",
+      "start": 622.9,
+      "duration": 5.26
+    },
+    {
+      "text": "And if you just\nlook at this red,",
+      "start": 628.16,
+      "duration": 1.76
+    },
+    {
+      "text": "that's the full restrictions.",
+      "start": 629.92,
+      "duration": 2.92
+    },
+    {
+      "text": "And up until 2023, everything\nwas fairly constant.",
+      "start": 632.84,
+      "duration": 6.64
+    },
+    {
+      "text": "And then up until mid\n2023, all of a sudden",
+      "start": 639.48,
+      "duration": 4.2
+    },
+    {
+      "text": "you see the amount of\nthe fraction of websites",
+      "start": 643.68,
+      "duration": 2.88
+    },
+    {
+      "text": "that have full restrictions on\nit has grown to almost 50% here.",
+      "start": 646.56,
+      "duration": 5.36
+    },
+    {
+      "text": "And for terms, there's a similar\ntrend where I guess in 2016,",
+      "start": 651.92,
+      "duration": 8.08
+    },
+    {
+      "text": "no one really put any\nterms on their pages.",
+      "start": 660.0,
+      "duration": 2.46
+    },
+    {
+      "text": "And now most pages put some\nterms, and most of the terms",
+      "start": 662.46,
+      "duration": 5.46
+    },
+    {
+      "text": "say you can't use this for AI.",
+      "start": 667.92,
+      "duration": 4.88
+    },
+    {
+      "text": "So even though it was possible\nto crawl the internet back in,",
+      "start": 672.8,
+      "duration": 5.76
+    },
+    {
+      "text": "let's say 2020, the\ninternet actually,",
+      "start": 678.56,
+      "duration": 3.44
+    },
+    {
+      "text": "at least what you can legally\ncrawl, is actually much smaller.",
+      "start": 682.0,
+      "duration": 4.26
+    },
+    {
+      "text": "So of course, these\nare guidelines.",
+      "start": 689.08,
+      "duration": 4.98
+    },
+    {
+      "text": "And sometimes,\neither intentionally",
+      "start": 694.06,
+      "duration": 2.3
+    },
+    {
+      "text": "or not intentionally, you\ncould violate these things.",
+      "start": 696.36,
+      "duration": 3.78
+    },
+    {
+      "text": "So this is-- sometimes you get\ninto these situations where",
+      "start": 700.14,
+      "duration": 4.5
+    },
+    {
+      "text": "there's this guy who--",
+      "start": 704.64,
+      "duration": 3.18
+    },
+    {
+      "text": "what was this?",
+      "start": 707.82,
+      "duration": 1.14
+    },
+    {
+      "text": "I forget the name of this site--",
+      "start": 708.96,
+      "duration": 2.36
+    },
+    {
+      "text": "was complaining about\nAnthropic crawling them,",
+      "start": 711.32,
+      "duration": 3.16
+    },
+    {
+      "text": "hitting their servers\na million times",
+      "start": 714.48,
+      "duration": 1.6
+    },
+    {
+      "text": "in 24 hours, which was not good.",
+      "start": 716.08,
+      "duration": 3.88
+    },
+    {
+      "text": "And then Read the Docs\nwas also getting hammered.",
+      "start": 719.96,
+      "duration": 2.14
+    },
+    {
+      "text": "So there was a period where,\nwhich I think probably",
+      "start": 722.1,
+      "duration": 2.18
+    },
+    {
+      "text": "has hopefully been corrected\nby now, that crawlers",
+      "start": 724.28,
+      "duration": 3.28
+    },
+    {
+      "text": "were hammering websites.",
+      "start": 727.56,
+      "duration": 4.86
+    },
+    {
+      "text": "And there the-- here,\nthis is interesting,",
+      "start": 732.42,
+      "duration": 4.42
+    },
+    {
+      "text": "is like even before talking\nabout copyright issues,",
+      "start": 736.84,
+      "duration": 2.72
+    },
+    {
+      "text": "there's, I think, problems\nwith crawling either violating",
+      "start": 739.56,
+      "duration": 4.56
+    },
+    {
+      "text": "terms of service, or\nrobots.txt, or just low up-down,",
+      "start": 744.12,
+      "duration": 7.48
+    },
+    {
+      "text": "generating a lot of server\nload, which this costs money",
+      "start": 751.6,
+      "duration": 2.68
+    },
+    {
+      "text": "for the person hosting it\nand also degrades service",
+      "start": 754.28,
+      "duration": 2.8
+    },
+    {
+      "text": "for everyone else\ntrying to use it.",
+      "start": 757.08,
+      "duration": 2.44
+    },
+    {
+      "text": "So there are issues\nwith crawling.",
+      "start": 759.52,
+      "duration": 3.365
+    },
+    {
+      "text": "And then, of course,\nthere's copyright,",
+      "start": 762.885,
+      "duration": 1.625
+    },
+    {
+      "text": "which we'll talk about soon.",
+      "start": 764.51,
+      "duration": 2.32
+    },
+    {
+      "text": "That's a whole other\ncomplex can of worms.",
+      "start": 766.83,
+      "duration": 4.14
+    },
+    {
+      "text": "And then finally, there's these\nthings called shadow libraries,",
+      "start": 770.97,
+      "duration": 4.12
+    },
+    {
+      "text": "which are also part of the web.",
+      "start": 775.09,
+      "duration": 2.92
+    },
+    {
+      "text": "So examples are LibGen,\nor Anna's Archive.",
+      "start": 778.01,
+      "duration": 5.0
+    },
+    {
+      "text": "And these completely disregard\ncopyright and bypass paywalls.",
+      "start": 783.01,
+      "duration": 4.14
+    },
+    {
+      "text": "So someone has collected\na ton of data-- usually",
+      "start": 787.15,
+      "duration": 4.54
+    },
+    {
+      "text": "books and articles that\nare all copyrighted,",
+      "start": 791.69,
+      "duration": 2.5
+    },
+    {
+      "text": "and people have\nto pay for these--",
+      "start": 794.19,
+      "duration": 1.94
+    },
+    {
+      "text": "and have made them\navailable for free.",
+      "start": 796.13,
+      "duration": 4.4
+    },
+    {
+      "text": "And there have been a lot of\ntakedown orders, lawsuits,",
+      "start": 800.53,
+      "duration": 3.38
+    },
+    {
+      "text": "and these are blocked,\nbut usually these",
+      "start": 803.91,
+      "duration": 2.5
+    },
+    {
+      "text": "are circumvented\nbecause they just make",
+      "start": 806.41,
+      "duration": 3.68
+    },
+    {
+      "text": "servers in other countries.",
+      "start": 810.09,
+      "duration": 2.4
+    },
+    {
+      "text": "And the people doing this\nargue that this is making free",
+      "start": 812.49,
+      "duration": 4.52
+    },
+    {
+      "text": "what's freely available,\nwhat should have been freed,",
+      "start": 817.01,
+      "duration": 2.84
+    },
+    {
+      "text": "but generally from\na legal perspective,",
+      "start": 819.85,
+      "duration": 2.44
+    },
+    {
+      "text": "this is piracy and\ncopyright infringement.",
+      "start": 822.29,
+      "duration": 2.98
+    },
+    {
+      "text": "And we'll come back\nto this point later.",
+      "start": 825.27,
+      "duration": 2.12
+    },
+    {
+      "text": "So there are a lot of books\nand papers on these shadow",
+      "start": 827.39,
+      "duration": 5.14
+    },
+    {
+      "text": "libraries.",
+      "start": 832.53,
+      "duration": 2.32
+    },
+    {
+      "text": "So the summary so\nfar, the internet",
+      "start": 834.85,
+      "duration": 3.0
+    },
+    {
+      "text": "is a huge and messy\nand scary place,",
+      "start": 837.85,
+      "duration": 5.16
+    },
+    {
+      "text": "and you can't actually\nget all of it.",
+      "start": 843.01,
+      "duration": 3.84
+    },
+    {
+      "text": "There are technical\nrestrictions,",
+      "start": 846.85,
+      "duration": 1.66
+    },
+    {
+      "text": "there's legal restrictions\non what data one can access.",
+      "start": 848.51,
+      "duration": 4.22
+    },
+    {
+      "text": "So now next time someone says,\nI trained on the internet,",
+      "start": 852.73,
+      "duration": 3.34
+    },
+    {
+      "text": "you can tell them all\nthese things you learned.",
+      "start": 856.07,
+      "duration": 4.02
+    },
+    {
+      "text": "So now let's go to the second\npart of what data can we use,",
+      "start": 860.09,
+      "duration": 8.36
+    },
+    {
+      "text": "and this has to\ndo with copyright.",
+      "start": 868.45,
+      "duration": 2.92
+    },
+    {
+      "text": "So suppose you were able to\nobey the terms of service,",
+      "start": 871.37,
+      "duration": 4.24
+    },
+    {
+      "text": "and you are really\na good citizen,",
+      "start": 875.61,
+      "duration": 3.0
+    },
+    {
+      "text": "and you obey the rate limits.",
+      "start": 878.61,
+      "duration": 3.01
+    },
+    {
+      "text": "Now, there's still a\nquestion of are you",
+      "start": 881.62,
+      "duration": 1.76
+    },
+    {
+      "text": "allowed to train on this data?",
+      "start": 883.38,
+      "duration": 3.12
+    },
+    {
+      "text": "And this is a\nongoing question that",
+      "start": 886.5,
+      "duration": 4.08
+    },
+    {
+      "text": "has not been fully\nresolved, but there",
+      "start": 890.58,
+      "duration": 2.68
+    },
+    {
+      "text": "has been a bunch of\ndevelopments in the last year.",
+      "start": 893.26,
+      "duration": 3.76
+    },
+    {
+      "text": "So the legal context for\nthinking about this question",
+      "start": 897.02,
+      "duration": 3.24
+    },
+    {
+      "text": "falls into intellectual\nproperty law,",
+      "start": 900.26,
+      "duration": 3.0
+    },
+    {
+      "text": "and this is a system\nthat is trying",
+      "start": 903.26,
+      "duration": 5.24
+    },
+    {
+      "text": "to incentivize the creation\nof intellectual goods.",
+      "start": 908.5,
+      "duration": 2.86
+    },
+    {
+      "text": "So I think it's--",
+      "start": 911.36,
+      "duration": 2.06
+    },
+    {
+      "text": "remember, the\nspirit of the law is",
+      "start": 913.42,
+      "duration": 2.36
+    },
+    {
+      "text": "to not just technically\nsay no to everything,",
+      "start": 915.78,
+      "duration": 5.02
+    },
+    {
+      "text": "but to incentivize the\ncreation of intellectual goods.",
+      "start": 920.8,
+      "duration": 4.06
+    },
+    {
+      "text": "And there's many forms\nof intellectual property",
+      "start": 924.86,
+      "duration": 2.76
+    },
+    {
+      "text": "that are covered.",
+      "start": 927.62,
+      "duration": 1.56
+    },
+    {
+      "text": "There's copyrights, patents,\ntrademarks and secrets-- sorry,",
+      "start": 929.18,
+      "duration": 4.48
+    },
+    {
+      "text": "trademarks, and trade secrets.",
+      "start": 933.66,
+      "duration": 2.96
+    },
+    {
+      "text": "The thing that is most relevant\nfor language model data",
+      "start": 936.62,
+      "duration": 4.52
+    },
+    {
+      "text": "is copyright law.",
+      "start": 941.14,
+      "duration": 2.08
+    },
+    {
+      "text": "So copyright law has a fairly\nlong history going back",
+      "start": 943.22,
+      "duration": 3.76
+    },
+    {
+      "text": "to the 1700s in England.",
+      "start": 946.98,
+      "duration": 2.84
+    },
+    {
+      "text": "And so 1709 was the first time\nthat governments and courts",
+      "start": 949.82,
+      "duration": 3.64
+    },
+    {
+      "text": "started actually\nregulating copyright",
+      "start": 953.46,
+      "duration": 2.88
+    },
+    {
+      "text": "for this goal of incentivizing\ninnovation and creation.",
+      "start": 956.34,
+      "duration": 5.4
+    },
+    {
+      "text": "And in the US, more recently,\nthe Copyright Act of 1976",
+      "start": 961.74,
+      "duration": 3.84
+    },
+    {
+      "text": "is what I think defines a\nlot of modern copyright.",
+      "start": 965.58,
+      "duration": 4.44
+    },
+    {
+      "text": "So copyright protection\napplies to original works",
+      "start": 970.02,
+      "duration": 3.6
+    },
+    {
+      "text": "of authorship fixed in any\ntangible medium of expression,",
+      "start": 973.62,
+      "duration": 4.96
+    },
+    {
+      "text": "yada, yada, yada.",
+      "start": 978.58,
+      "duration": 1.32
+    },
+    {
+      "text": "So a few notes.",
+      "start": 979.9,
+      "duration": 4.02
+    },
+    {
+      "text": "So not everything\nis copyrightable.",
+      "start": 983.92,
+      "duration": 2.9
+    },
+    {
+      "text": "In particular, collections\nare not copyrightable.",
+      "start": 986.82,
+      "duration": 4.4
+    },
+    {
+      "text": "So for example, if you\nhave a telephone directory,",
+      "start": 991.22,
+      "duration": 5.68
+    },
+    {
+      "text": "unless there is some creativity\nin how you arrange things,",
+      "start": 996.9,
+      "duration": 4.64
+    },
+    {
+      "text": "this is not really\ncopyrightable.",
+      "start": 1001.54,
+      "duration": 3.68
+    },
+    {
+      "text": "And furthermore, copyright\napplies to the expression, not",
+      "start": 1005.22,
+      "duration": 3.24
+    },
+    {
+      "text": "the idea.",
+      "start": 1008.46,
+      "duration": 1.4
+    },
+    {
+      "text": "So you can't copyright an\nidea, like you can't copyright",
+      "start": 1009.86,
+      "duration": 3.32
+    },
+    {
+      "text": "the quick-sort algorithm.",
+      "start": 1013.18,
+      "duration": 2.18
+    },
+    {
+      "text": "You can copyright\nthe implementation",
+      "start": 1015.36,
+      "duration": 2.02
+    },
+    {
+      "text": "of a quick-sort algorithm, but\nnot the quicksort algorithm.",
+      "start": 1017.38,
+      "duration": 4.36
+    },
+    {
+      "text": "So one thing that\nhappened in 1976",
+      "start": 1021.74,
+      "duration": 2.599
+    },
+    {
+      "text": "is that the barrier to getting\na copyright was relaxed a lot.",
+      "start": 1024.339,
+      "duration": 6.02
+    },
+    {
+      "text": "So more things are copyright.",
+      "start": 1030.359,
+      "duration": 1.281
+    },
+    {
+      "text": "So it used to be that you\nhad to publish something",
+      "start": 1031.64,
+      "duration": 2.66
+    },
+    {
+      "text": "to have something copyright.",
+      "start": 1034.3,
+      "duration": 1.46
+    },
+    {
+      "text": "Now things just\nhave to be fixed.",
+      "start": 1035.76,
+      "duration": 3.5
+    },
+    {
+      "text": "And what that means is that\nregistration of any sort",
+      "start": 1039.26,
+      "duration": 3.52
+    },
+    {
+      "text": "is not required for\ncopyright protection.",
+      "start": 1042.78,
+      "duration": 3.608
+    },
+    {
+      "text": "This is in contrast to patents.",
+      "start": 1046.388,
+      "duration": 1.292
+    },
+    {
+      "text": "Patents you have to go pay a\nlot of money to get a patent,",
+      "start": 1047.68,
+      "duration": 3.38
+    },
+    {
+      "text": "and you have to file a patent.",
+      "start": 1051.06,
+      "duration": 1.92
+    },
+    {
+      "text": "But the threshold for\ncopyright is very low.",
+      "start": 1052.98,
+      "duration": 3.21
+    },
+    {
+      "text": "For example, you put\nsomething on your website,",
+      "start": 1056.19,
+      "duration": 2.28
+    },
+    {
+      "text": "it's copyrighted.",
+      "start": 1058.47,
+      "duration": 2.08
+    },
+    {
+      "text": "That's it.",
+      "start": 1060.55,
+      "duration": 2.12
+    },
+    {
+      "text": "Now if you want to\nsue someone, you",
+      "start": 1062.67,
+      "duration": 3.32
+    },
+    {
+      "text": "have to go get it registered,\nbut it only costs $65.",
+      "start": 1065.99,
+      "duration": 4.68
+    },
+    {
+      "text": "Which is much smaller\nthan the lawyer fees",
+      "start": 1070.67,
+      "duration": 2.64
+    },
+    {
+      "text": "that you'll probably\npay, so it's really",
+      "start": 1073.31,
+      "duration": 2.88
+    },
+    {
+      "text": "still a very low bar.",
+      "start": 1076.19,
+      "duration": 3.48
+    },
+    {
+      "text": "So one thing to\nknow about copyright",
+      "start": 1079.67,
+      "duration": 1.68
+    },
+    {
+      "text": "is that it lasts 75 years, and\nthen the copyright expires.",
+      "start": 1081.35,
+      "duration": 5.98
+    },
+    {
+      "text": "And whatever that content gets\nreleased into the public domain,",
+      "start": 1087.33,
+      "duration": 3.9
+    },
+    {
+      "text": "and this is now--",
+      "start": 1091.23,
+      "duration": 2.52
+    },
+    {
+      "text": "everyone can use it freely.",
+      "start": 1093.75,
+      "duration": 1.8
+    },
+    {
+      "text": "So a lot of people who\nhave lived in the past,",
+      "start": 1095.55,
+      "duration": 5.52
+    },
+    {
+      "text": "all their great works\nare in the public domain,",
+      "start": 1101.07,
+      "duration": 2.18
+    },
+    {
+      "text": "which is great for everyone.",
+      "start": 1103.25,
+      "duration": 1.74
+    },
+    {
+      "text": "So the rationale here is that\nyou're incentivizing innovation.",
+      "start": 1104.99,
+      "duration": 3.96
+    },
+    {
+      "text": "So when an artist or a\ncreator creates something,",
+      "start": 1108.95,
+      "duration": 4.92
+    },
+    {
+      "text": "you want to protect their--",
+      "start": 1113.87,
+      "duration": 2.6
+    },
+    {
+      "text": "you don't want someone\nelse to just take it,",
+      "start": 1116.47,
+      "duration": 2.12
+    },
+    {
+      "text": "so you protect them for a while.",
+      "start": 1118.59,
+      "duration": 1.42
+    },
+    {
+      "text": "But after 75 years, presumably,\nit's not worth protecting,",
+      "start": 1120.01,
+      "duration": 3.78
+    },
+    {
+      "text": "or they're passed\naway, or something.",
+      "start": 1123.79,
+      "duration": 1.86
+    },
+    {
+      "text": "So it doesn't make sense to\nkeep things copyright anymore.",
+      "start": 1125.65,
+      "duration": 5.18
+    },
+    {
+      "text": "So basically, everything on\nthe internet is copyrighted.",
+      "start": 1130.83,
+      "duration": 6.84
+    },
+    {
+      "text": "So you're saying, wait a minute.",
+      "start": 1137.67,
+      "duration": 2.48
+    },
+    {
+      "text": "So that means is everything--\nif I train on anything,",
+      "start": 1140.15,
+      "duration": 3.02
+    },
+    {
+      "text": "that's a copyright violation?",
+      "start": 1143.17,
+      "duration": 1.56
+    },
+    {
+      "text": "Well, not necessarily.",
+      "start": 1144.73,
+      "duration": 2.3
+    },
+    {
+      "text": "So everything is\ncopyrighted, but you",
+      "start": 1147.03,
+      "duration": 2.32
+    },
+    {
+      "text": "can use copyrighted works.",
+      "start": 1149.35,
+      "duration": 1.5
+    },
+    {
+      "text": "And the way you do it is A, you\neither get a license for it,",
+      "start": 1150.85,
+      "duration": 5.34
+    },
+    {
+      "text": "or B, you appeal to\nthe fair use clause.",
+      "start": 1156.19,
+      "duration": 4.56
+    },
+    {
+      "text": "So a license from\ncontract law is something",
+      "start": 1160.75,
+      "duration": 4.72
+    },
+    {
+      "text": "that a licensor\ngrants to a licensee.",
+      "start": 1165.47,
+      "duration": 2.58
+    },
+    {
+      "text": "It basically says, don't sue me.",
+      "start": 1168.05,
+      "duration": 2.18
+    },
+    {
+      "text": "You can use this work in the\nways that the license permits.",
+      "start": 1173.31,
+      "duration": 5.48
+    },
+    {
+      "text": "So there's a really nice\nlicense called Creative Commons,",
+      "start": 1178.79,
+      "duration": 6.0
+    },
+    {
+      "text": "which allows something\nto act like it",
+      "start": 1184.79,
+      "duration": 3.36
+    },
+    {
+      "text": "was in the public domain.",
+      "start": 1188.15,
+      "duration": 2.0
+    },
+    {
+      "text": "It enables free distribution\nof copyrighted work.",
+      "start": 1190.15,
+      "duration": 2.42
+    },
+    {
+      "text": "So examples include Wikipedia,\nOpen CourseWare, Khan Academy,",
+      "start": 1192.57,
+      "duration": 6.12
+    },
+    {
+      "text": "all these things.",
+      "start": 1198.69,
+      "duration": 1.7
+    },
+    {
+      "text": "It was created in 2001\nto essentially bridge",
+      "start": 1200.39,
+      "duration": 4.12
+    },
+    {
+      "text": "public domain and\nexisting copyright,",
+      "start": 1204.51,
+      "duration": 1.82
+    },
+    {
+      "text": "because otherwise you\nhave to wait 75 years.",
+      "start": 1206.33,
+      "duration": 3.46
+    },
+    {
+      "text": "But what if the creator says, I\nactually want people to use it.",
+      "start": 1209.79,
+      "duration": 4.14
+    },
+    {
+      "text": "They can now have a means,\na legal means of saying,",
+      "start": 1213.93,
+      "duration": 2.88
+    },
+    {
+      "text": "I put a Creative\nCommons license on it.",
+      "start": 1216.81,
+      "duration": 2.44
+    },
+    {
+      "text": "It's going to act like\nit's in the public domain,",
+      "start": 1219.25,
+      "duration": 3.18
+    },
+    {
+      "text": "and everyone can use it.",
+      "start": 1222.43,
+      "duration": 5.0
+    },
+    {
+      "text": "So, so far, things\nin the public domain",
+      "start": 1227.43,
+      "duration": 2.16
+    },
+    {
+      "text": "and things that have Creative\nCommons licenses are permissive.",
+      "start": 1229.59,
+      "duration": 4.65
+    },
+    {
+      "text": "You can use it.",
+      "start": 1234.24,
+      "duration": 2.8
+    },
+    {
+      "text": "But there are many\nother times where",
+      "start": 1237.04,
+      "duration": 4.96
+    },
+    {
+      "text": "you don't have-- it's not\na Creative Commons license,",
+      "start": 1242.0,
+      "duration": 2.86
+    },
+    {
+      "text": "it's not in the public domain,\nyou have to get a license.",
+      "start": 1244.86,
+      "duration": 2.68
+    },
+    {
+      "text": "So if you have money,\nyou can pay someone",
+      "start": 1247.54,
+      "duration": 4.42
+    },
+    {
+      "text": "to give you a license.",
+      "start": 1251.96,
+      "duration": 1.18
+    },
+    {
+      "text": "So there's a bunch of deals\nbetween model developers",
+      "start": 1253.14,
+      "duration": 2.78
+    },
+    {
+      "text": "and content, I guess,\nplatforms, that",
+      "start": 1255.92,
+      "duration": 5.12
+    },
+    {
+      "text": "allow the model developers to\nlicense the data for training",
+      "start": 1261.04,
+      "duration": 3.56
+    },
+    {
+      "text": "foundation models.",
+      "start": 1264.6,
+      "duration": 1.76
+    },
+    {
+      "text": "OK, so that's the first thing.",
+      "start": 1266.36,
+      "duration": 1.5
+    },
+    {
+      "text": "You can get a license--\neither Creative Commons,",
+      "start": 1267.86,
+      "duration": 2.1
+    },
+    {
+      "text": "or you can pay\nsomeone for a license.",
+      "start": 1269.96,
+      "duration": 2.84
+    },
+    {
+      "text": "Now if you don't\nwant to pay, you",
+      "start": 1272.8,
+      "duration": 2.02
+    },
+    {
+      "text": "can appeal to fair use, which\nis a more complicated matter.",
+      "start": 1274.82,
+      "duration": 6.5
+    },
+    {
+      "text": "So this is section 107\nof the Copyright Act.",
+      "start": 1281.32,
+      "duration": 3.28
+    },
+    {
+      "text": "And there are-- basically fair\nuse says, I can use this anyway,",
+      "start": 1284.6,
+      "duration": 5.48
+    },
+    {
+      "text": "even if I don't have a license,\nand these four factors determine",
+      "start": 1290.08,
+      "duration": 3.4
+    },
+    {
+      "text": "whether fair use applies.",
+      "start": 1293.48,
+      "duration": 2.76
+    },
+    {
+      "text": "So the first one is the purpose\nor character of the use.",
+      "start": 1296.24,
+      "duration": 4.06
+    },
+    {
+      "text": "What are you trying\nto do with it?",
+      "start": 1300.3,
+      "duration": 1.82
+    },
+    {
+      "text": "And none of these\nare hard rules.",
+      "start": 1302.12,
+      "duration": 3.86
+    },
+    {
+      "text": "They're just\ntendencies which have",
+      "start": 1305.98,
+      "duration": 2.22
+    },
+    {
+      "text": "to be weighed in court\nif it comes to that.",
+      "start": 1308.2,
+      "duration": 2.84
+    },
+    {
+      "text": "So, for example, if you're\ntrying to do something",
+      "start": 1311.04,
+      "duration": 2.08
+    },
+    {
+      "text": "for education, it\nis more likely to be",
+      "start": 1313.12,
+      "duration": 2.162
+    },
+    {
+      "text": "fair use than if you're\ntrying to sell and make",
+      "start": 1315.282,
+      "duration": 1.958
+    },
+    {
+      "text": "money off of it.",
+      "start": 1317.24,
+      "duration": 1.74
+    },
+    {
+      "text": "If you're trying to-- if\nyou transform something,",
+      "start": 1318.98,
+      "duration": 2.82
+    },
+    {
+      "text": "then that's going\nto be more favored",
+      "start": 1321.8,
+      "duration": 1.72
+    },
+    {
+      "text": "than if you just literally\nhost the identical copy.",
+      "start": 1323.52,
+      "duration": 4.28
+    },
+    {
+      "text": "The nature of the\nactual copyrighted work",
+      "start": 1327.8,
+      "duration": 2.6
+    },
+    {
+      "text": "is also important.",
+      "start": 1330.4,
+      "duration": 1.68
+    },
+    {
+      "text": "So things that are\nmore factual are",
+      "start": 1332.08,
+      "duration": 2.16
+    },
+    {
+      "text": "more likely to be fair\nuse than fictional works.",
+      "start": 1334.24,
+      "duration": 3.4
+    },
+    {
+      "text": "Because if you write a\nsummary of World War--",
+      "start": 1337.64,
+      "duration": 4.2
+    },
+    {
+      "text": "a page about facts\nabout World War II,",
+      "start": 1341.84,
+      "duration": 3.84
+    },
+    {
+      "text": "there's less protection over\nmy really creative poem.",
+      "start": 1345.68,
+      "duration": 9.44
+    },
+    {
+      "text": "And then the amount of\nportion of the original work.",
+      "start": 1355.12,
+      "duration": 4.7
+    },
+    {
+      "text": "So using a snippet is\nfavored over the whole work.",
+      "start": 1359.82,
+      "duration": 3.725
+    },
+    {
+      "text": "So if you just\ntake a little bit,",
+      "start": 1363.545,
+      "duration": 1.375
+    },
+    {
+      "text": "that's not as bad as\ntaking everything.",
+      "start": 1364.92,
+      "duration": 1.82
+    },
+    {
+      "text": "So that's fairly\nstraightforward.",
+      "start": 1366.74,
+      "duration": 1.74
+    },
+    {
+      "text": "And the final thing is related\nto original motivation.",
+      "start": 1368.48,
+      "duration": 5.28
+    },
+    {
+      "text": "It was like, why are you--",
+      "start": 1373.76,
+      "duration": 1.2
+    },
+    {
+      "text": "why copyright at all\nis to protect and align",
+      "start": 1374.96,
+      "duration": 3.48
+    },
+    {
+      "text": "the economic incentives.",
+      "start": 1378.44,
+      "duration": 1.64
+    },
+    {
+      "text": "So the effect that\nwhat the use has",
+      "start": 1380.08,
+      "duration": 3.64
+    },
+    {
+      "text": "on the market for\nthe original work.",
+      "start": 1383.72,
+      "duration": 2.72
+    },
+    {
+      "text": "So if you take an author's work\nand you provide an alternative,",
+      "start": 1386.44,
+      "duration": 5.96
+    },
+    {
+      "text": "and that decreases the amount\nthat the original author could",
+      "start": 1392.4,
+      "duration": 4.32
+    },
+    {
+      "text": "monetize their work, that\nis seen as potentially bad.",
+      "start": 1396.72,
+      "duration": 3.54
+    },
+    {
+      "text": "But if you're transforming it in\na way and going to a new market,",
+      "start": 1400.26,
+      "duration": 4.22
+    },
+    {
+      "text": "or doing something else\nwith it, then that's",
+      "start": 1404.48,
+      "duration": 2.01
+    },
+    {
+      "text": "going to be treated\nmore favorably.",
+      "start": 1406.49,
+      "duration": 3.76
+    },
+    {
+      "text": "So here are some\nexamples of fair use.",
+      "start": 1410.25,
+      "duration": 2.46
+    },
+    {
+      "text": "You can watch a movie and\nwrite a summary of it.",
+      "start": 1412.71,
+      "duration": 2.64
+    },
+    {
+      "text": "You can re-implement an\nidea, like an algorithm--",
+      "start": 1415.35,
+      "duration": 4.94
+    },
+    {
+      "text": "not copy the code.",
+      "start": 1420.29,
+      "duration": 2.12
+    },
+    {
+      "text": "And then there was this famous\nlawsuit between Authors Guild",
+      "start": 1422.41,
+      "duration": 6.4
+    },
+    {
+      "text": "and Google.",
+      "start": 1428.81,
+      "duration": 1.84
+    },
+    {
+      "text": "So if you go to\nGoogle Books, you",
+      "start": 1430.65,
+      "duration": 1.96
+    },
+    {
+      "text": "can see snippets of various\nbooks which are copyrighted.",
+      "start": 1432.61,
+      "duration": 4.88
+    },
+    {
+      "text": "So there was a huge\ndeal about whether this",
+      "start": 1437.49,
+      "duration": 7.12
+    },
+    {
+      "text": "was deemed fair use, because\nyou are redistributing",
+      "start": 1444.61,
+      "duration": 3.96
+    },
+    {
+      "text": "other copyrighted\nwork, and eventually--",
+      "start": 1448.57,
+      "duration": 6.32
+    },
+    {
+      "text": "eventually meaning\nafter 11 years--",
+      "start": 1454.89,
+      "duration": 1.98
+    },
+    {
+      "text": "this lawsuit was settled\nin favor of Google,",
+      "start": 1456.87,
+      "duration": 3.02
+    },
+    {
+      "text": "which is why this thing exists.",
+      "start": 1459.89,
+      "duration": 3.12
+    },
+    {
+      "text": "And this has set some\nprecedent for thinking about",
+      "start": 1463.01,
+      "duration": 3.52
+    },
+    {
+      "text": "whether language model\ntraining is fair use.",
+      "start": 1466.53,
+      "duration": 6.76
+    },
+    {
+      "text": "One thing to note is\nthat copyright is not",
+      "start": 1473.29,
+      "duration": 2.88
+    },
+    {
+      "text": "about verbatim memorization.",
+      "start": 1476.17,
+      "duration": 2.88
+    },
+    {
+      "text": "So this might be, I\nthink, for an ML audience,",
+      "start": 1479.05,
+      "duration": 2.82
+    },
+    {
+      "text": "this might be a little bit\nnew because a lot of papers",
+      "start": 1481.87,
+      "duration": 3.02
+    },
+    {
+      "text": "are focused on\nverbatim memorization.",
+      "start": 1484.89,
+      "duration": 2.48
+    },
+    {
+      "text": "That's one way you can violate\ncopyright, but not the only one.",
+      "start": 1487.37,
+      "duration": 3.84
+    },
+    {
+      "text": "So for example, plots and\ncharacters can be copyrightable.",
+      "start": 1491.21,
+      "duration": 4.28
+    },
+    {
+      "text": "So you can copyright\nHarry Potter",
+      "start": 1495.49,
+      "duration": 1.6
+    },
+    {
+      "text": "the character, not any\nparticular book, or anything.",
+      "start": 1497.09,
+      "duration": 5.68
+    },
+    {
+      "text": "But there are some exceptions.",
+      "start": 1502.77,
+      "duration": 2.1
+    },
+    {
+      "text": "For example, if you're\nparodying something--",
+      "start": 1504.87,
+      "duration": 3.22
+    },
+    {
+      "text": "and so you're creating something\nthat looks like a derivative,",
+      "start": 1508.09,
+      "duration": 3.3
+    },
+    {
+      "text": "but as long as you're\nmaking fun of it,",
+      "start": 1511.39,
+      "duration": 1.88
+    },
+    {
+      "text": "it's actually more\nlikely to be fair use.",
+      "start": 1513.27,
+      "duration": 3.3
+    },
+    {
+      "text": "So, yeah.",
+      "start": 1516.57,
+      "duration": 1.88
+    },
+    {
+      "text": "So a lot of copyright\nis about semantics.",
+      "start": 1518.45,
+      "duration": 2.26
+    },
+    {
+      "text": "It's definitely not\nabout N-gram overlap,",
+      "start": 1520.71,
+      "duration": 2.46
+    },
+    {
+      "text": "and also about the economics.",
+      "start": 1523.17,
+      "duration": 4.17
+    },
+    {
+      "text": "So what is the implication\nfor language models?",
+      "start": 1527.34,
+      "duration": 3.32
+    },
+    {
+      "text": "So first off, copying data.",
+      "start": 1530.66,
+      "duration": 5.68
+    },
+    {
+      "text": "Even if you're not training,\neven the mere fact of copying--",
+      "start": 1536.34,
+      "duration": 4.32
+    },
+    {
+      "text": "which is in the word copyright--",
+      "start": 1540.66,
+      "duration": 2.52
+    },
+    {
+      "text": "is potentially a\nviolation already,",
+      "start": 1543.18,
+      "duration": 2.66
+    },
+    {
+      "text": "even if you don't\ndo anything with it.",
+      "start": 1545.84,
+      "duration": 1.88
+    },
+    {
+      "text": "Training a model--",
+      "start": 1550.5,
+      "duration": 2.84
+    },
+    {
+      "text": "I guess this is not really a--\nlet's see, how do I take that?",
+      "start": 1553.34,
+      "duration": 5.3
+    },
+    {
+      "text": "This is not necessarily\na fact, but intuitively",
+      "start": 1558.64,
+      "duration": 4.9
+    },
+    {
+      "text": "has a transformative flavor.",
+      "start": 1563.54,
+      "duration": 2.38
+    },
+    {
+      "text": "Because it's certainly not--",
+      "start": 1565.92,
+      "duration": 1.54
+    },
+    {
+      "text": "it certainly seems\ndifferent than just",
+      "start": 1567.46,
+      "duration": 2.44
+    },
+    {
+      "text": "rehosting another work.",
+      "start": 1569.9,
+      "duration": 2.68
+    },
+    {
+      "text": "It's doing something\ntransformative.",
+      "start": 1572.58,
+      "duration": 4.84
+    },
+    {
+      "text": "And in some sense,\nthe models are really",
+      "start": 1577.42,
+      "duration": 4.32
+    },
+    {
+      "text": "trained on this data\nas a means to an end.",
+      "start": 1581.74,
+      "duration": 3.34
+    },
+    {
+      "text": "You are trying to\nextract the general idea,",
+      "start": 1585.08,
+      "duration": 1.88
+    },
+    {
+      "text": "learn about the world\nand how it works,",
+      "start": 1586.96,
+      "duration": 2.6
+    },
+    {
+      "text": "rather than only just\nthe concrete expression.",
+      "start": 1589.56,
+      "duration": 5.38
+    },
+    {
+      "text": "And the other thing is that\nregardless of copyright,",
+      "start": 1594.94,
+      "duration": 4.26
+    },
+    {
+      "text": "language models can\ndefinitely affect the market.",
+      "start": 1599.2,
+      "duration": 4.2
+    },
+    {
+      "text": "So I think this is\nalso-- remember, that's",
+      "start": 1603.4,
+      "duration": 2.78
+    },
+    {
+      "text": "the fourth item for fair use.",
+      "start": 1606.18,
+      "duration": 3.32
+    },
+    {
+      "text": "So by negatively\naffecting the market,",
+      "start": 1609.5,
+      "duration": 1.76
+    },
+    {
+      "text": "you are more likely to\nbe ruled not fair use.",
+      "start": 1611.26,
+      "duration": 3.6
+    },
+    {
+      "text": "So fair use is a\nlittle bit slippery.",
+      "start": 1618.16,
+      "duration": 5.38
+    },
+    {
+      "text": "Suppose you have fair use,\nor you have a license.",
+      "start": 1623.54,
+      "duration": 3.8
+    },
+    {
+      "text": "Remember that there's still\nterms of service that allow",
+      "start": 1627.34,
+      "duration": 3.92
+    },
+    {
+      "text": "or prevent you from actually\njust getting a piece of work.",
+      "start": 1631.26,
+      "duration": 3.94
+    },
+    {
+      "text": "For example, YouTube has all\nthese videos which are licensed,",
+      "start": 1635.2,
+      "duration": 5.26
+    },
+    {
+      "text": "but the terms of\nservice prohibits",
+      "start": 1640.46,
+      "duration": 4.0
+    },
+    {
+      "text": "just downloading the videos\nusing a bot, like scraping,",
+      "start": 1644.46,
+      "duration": 5.64
+    },
+    {
+      "text": "which is another layer.",
+      "start": 1650.1,
+      "duration": 1.18
+    },
+    {
+      "text": "So there's multiple layers\nof restrictions here.",
+      "start": 1651.28,
+      "duration": 4.62
+    },
+    {
+      "text": "So let me talk a little\nbit about where things",
+      "start": 1655.9,
+      "duration": 2.48
+    },
+    {
+      "text": "are on the legal landscape.",
+      "start": 1658.38,
+      "duration": 2.02
+    },
+    {
+      "text": "So back in 2023, New York Times\nfiled suit against OpenAI,",
+      "start": 1660.4,
+      "duration": 3.68
+    },
+    {
+      "text": "saying you train on our\nnews articles, and look,",
+      "start": 1664.08,
+      "duration": 3.44
+    },
+    {
+      "text": "here's evidence.",
+      "start": 1667.52,
+      "duration": 0.72
+    },
+    {
+      "text": "We were able to actually prompt\nChatGPT to generate a news",
+      "start": 1668.24,
+      "duration": 4.3
+    },
+    {
+      "text": "article almost verbatim.",
+      "start": 1672.54,
+      "duration": 2.48
+    },
+    {
+      "text": "I don't think this\nis still pending.",
+      "start": 1675.02,
+      "duration": 2.76
+    },
+    {
+      "text": "There's a case against Anthropic\nwhere the allegation was",
+      "start": 1677.78,
+      "duration": 5.0
+    },
+    {
+      "text": "you pirated millions of books,\nand you trained on these books",
+      "start": 1682.78,
+      "duration": 3.32
+    },
+    {
+      "text": "to make Claude.",
+      "start": 1686.1,
+      "duration": 2.6
+    },
+    {
+      "text": "Just last year, this\nwas a landmark ruling",
+      "start": 1688.7,
+      "duration": 5.52
+    },
+    {
+      "text": "that said, actually, this\nparticular instance of training",
+      "start": 1694.22,
+      "duration": 3.68
+    },
+    {
+      "text": "is fair use.",
+      "start": 1697.9,
+      "duration": 2.77
+    },
+    {
+      "text": "However, Anthropic,\nyou're still in trouble",
+      "start": 1700.67,
+      "duration": 2.68
+    },
+    {
+      "text": "because you pirated all these\nbooks, and that is a no-no.",
+      "start": 1703.35,
+      "duration": 5.96
+    },
+    {
+      "text": "So notice that this has nothing\nto do with training, just",
+      "start": 1709.31,
+      "duration": 3.92
+    },
+    {
+      "text": "the mere fact of pirating--",
+      "start": 1713.23,
+      "duration": 2.42
+    },
+    {
+      "text": "I mean, which is\nnot a new thing--",
+      "start": 1715.65,
+      "duration": 3.3
+    },
+    {
+      "text": "is illegal.",
+      "start": 1718.95,
+      "duration": 4.16
+    },
+    {
+      "text": "Anthropic actually,\ninterestingly,",
+      "start": 1723.11,
+      "duration": 2.14
+    },
+    {
+      "text": "had bought and\nscanned all the books,",
+      "start": 1725.25,
+      "duration": 3.54
+    },
+    {
+      "text": "which is actually fair use.",
+      "start": 1728.79,
+      "duration": 1.38
+    },
+    {
+      "text": "The Court said you're\nallowed to scan.",
+      "start": 1730.17,
+      "duration": 2.26
+    },
+    {
+      "text": "You buy a bunch of books,\nrip off the bindings,",
+      "start": 1732.43,
+      "duration": 2.26
+    },
+    {
+      "text": "scan it, and digitize\nit for your own use.",
+      "start": 1734.69,
+      "duration": 2.04
+    },
+    {
+      "text": "That's fair use.",
+      "start": 1736.73,
+      "duration": 1.3
+    },
+    {
+      "text": "But that doesn't absolve\nyou of your sin of pirating.",
+      "start": 1738.03,
+      "duration": 4.58
+    },
+    {
+      "text": "So you can't pirate and then\nbuy it and say, actually, never",
+      "start": 1742.61,
+      "duration": 3.66
+    },
+    {
+      "text": "mind what I just did first.",
+      "start": 1746.27,
+      "duration": 3.76
+    },
+    {
+      "text": "So the outcome is that\nAnthropic paid 1.5 billion",
+      "start": 1750.03,
+      "duration": 2.72
+    },
+    {
+      "text": "to settle the authors.",
+      "start": 1752.75,
+      "duration": 1.58
+    },
+    {
+      "text": "So this is about $3,000 a book.",
+      "start": 1754.33,
+      "duration": 4.18
+    },
+    {
+      "text": "So there's also a\nlawsuit against Meta.",
+      "start": 1758.51,
+      "duration": 4.24
+    },
+    {
+      "text": "The allegation was that\nyou trained on our books--",
+      "start": 1762.75,
+      "duration": 3.08
+    },
+    {
+      "text": "sorry-- and this was,\nas we'll see later,",
+      "start": 1765.83,
+      "duration": 3.34
+    },
+    {
+      "text": "actually revealed\nin the Llama paper.",
+      "start": 1769.17,
+      "duration": 2.54
+    },
+    {
+      "text": "And the judgment which came\nright after Anthropic was, yes,",
+      "start": 1771.71,
+      "duration": 4.54
+    },
+    {
+      "text": "training is fair use.",
+      "start": 1776.25,
+      "duration": 3.02
+    },
+    {
+      "text": "And then they also\ntorrented some books,",
+      "start": 1779.27,
+      "duration": 2.38
+    },
+    {
+      "text": "so that's still pending.",
+      "start": 1781.65,
+      "duration": 1.24
+    },
+    {
+      "text": "So that's probably--\nif precedent holds,",
+      "start": 1782.89,
+      "duration": 4.16
+    },
+    {
+      "text": "this is also not going\nto be good for Meta.",
+      "start": 1787.05,
+      "duration": 5.3
+    },
+    {
+      "text": "So the summary so far is\ntraining, so to speak,",
+      "start": 1792.35,
+      "duration": 8.08
+    },
+    {
+      "text": "has been deemed of\nfair use, or at least",
+      "start": 1800.43,
+      "duration": 2.96
+    },
+    {
+      "text": "has been not deemed\nnot fair use.",
+      "start": 1803.39,
+      "duration": 4.56
+    },
+    {
+      "text": "The rulings have\nso far been narrow.",
+      "start": 1807.95,
+      "duration": 2.66
+    },
+    {
+      "text": "It's not to say that any\ntraining on any copyrighted",
+      "start": 1810.61,
+      "duration": 2.94
+    },
+    {
+      "text": "content is fair use, but\nin these cases, it's fine.",
+      "start": 1813.55,
+      "duration": 5.48
+    },
+    {
+      "text": "Pirating books is\nclearly illegal.",
+      "start": 1819.03,
+      "duration": 2.56
+    },
+    {
+      "text": "I guess we already knew that.",
+      "start": 1821.59,
+      "duration": 1.6
+    },
+    {
+      "text": "But this is still a very\nactive and evolving area.",
+      "start": 1823.19,
+      "duration": 5.06
+    },
+    {
+      "text": "Any questions about\nthe sources of data?",
+      "start": 1831.07,
+      "duration": 5.44
+    },
+    {
+      "text": "I think, before we get\ninto the actual datasets,",
+      "start": 1836.51,
+      "duration": 2.06
+    },
+    {
+      "text": "I just want to set the\nstage with this more",
+      "start": 1838.57,
+      "duration": 5.26
+    },
+    {
+      "text": "general social context.",
+      "start": 1843.83,
+      "duration": 2.7
+    },
+    {
+      "text": "Yeah?",
+      "start": 1851.69,
+      "duration": 0.5
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 1852.19,
+      "duration": 3.34
+    },
+    {
+      "text": "The question is, what do I think\nof voice data and ElevenLabs?",
+      "start": 1856.03,
+      "duration": 3.4
+    },
+    {
+      "text": "I don't know too much about\nthat, so we can talk offline.",
+      "start": 1859.43,
+      "duration": 5.38
+    },
+    {
+      "text": "Yeah?",
+      "start": 1864.81,
+      "duration": 0.5
+    },
+    {
+      "text": "[INAUDIBLE]",
+      "start": 1865.31,
+      "duration": 2.2
+    },
+    {
+      "text": "--because I guess if I own some\nasset, it's reasonable for me",
+      "start": 1867.51,
+      "duration": 4.28
+    },
+    {
+      "text": "to be like [INAUDIBLE].",
+      "start": 1871.79,
+      "duration": 2.4
+    },
+    {
+      "text": "Am I allowed to-- usually\nit's Creative Commons,",
+      "start": 1874.19,
+      "duration": 2.99
+    },
+    {
+      "text": "but can I update my license\nlater on to block certain usage?",
+      "start": 1877.18,
+      "duration": 4.78
+    },
+    {
+      "text": "And so, what is the\nrole of time playing",
+      "start": 1881.96,
+      "duration": 2.36
+    },
+    {
+      "text": "in this, like I then train on\nthe older version with more",
+      "start": 1884.32,
+      "duration": 4.96
+    },
+    {
+      "text": "a more permissive license\nif the creator copied it",
+      "start": 1889.28,
+      "duration": 2.72
+    },
+    {
+      "text": "to a more restrictive?",
+      "start": 1892.0,
+      "duration": 1.918
+    },
+    {
+      "text": "Yeah, so the question is,\nwhat happens with time?",
+      "start": 1893.918,
+      "duration": 2.042
+    },
+    {
+      "text": "If you have one license and then\nit gets changed, what happens?",
+      "start": 1895.96,
+      "duration": 4.26
+    },
+    {
+      "text": "So first, I'm not a lawyer.",
+      "start": 1900.22,
+      "duration": 2.62
+    },
+    {
+      "text": "But second, so this--",
+      "start": 1902.84,
+      "duration": 4.0
+    },
+    {
+      "text": "so the first license\nI believe you're still",
+      "start": 1906.84,
+      "duration": 3.04
+    },
+    {
+      "text": "allowed to train on it.",
+      "start": 1909.88,
+      "duration": 1.94
+    },
+    {
+      "text": "But what happens is\nthat the license usually",
+      "start": 1911.82,
+      "duration": 3.02
+    },
+    {
+      "text": "applies to not just, let's\nsay, a fixed set of documents--",
+      "start": 1914.84,
+      "duration": 3.387
+    },
+    {
+      "text": "for example, Reddit.",
+      "start": 1918.227,
+      "duration": 0.833
+    },
+    {
+      "text": "There's constantly new\ncontent being created,",
+      "start": 1919.06,
+      "duration": 2.74
+    },
+    {
+      "text": "and the license\nbeing changed means",
+      "start": 1921.8,
+      "duration": 1.88
+    },
+    {
+      "text": "that you wouldn't be able to\ntrain on the later things.",
+      "start": 1923.68,
+      "duration": 3.48
+    },
+    {
+      "text": "OK, so let's look at\nvarious sources of data.",
+      "start": 1932.24,
+      "duration": 5.52
+    },
+    {
+      "text": "So let's go back to crawling.",
+      "start": 1937.76,
+      "duration": 3.12
+    },
+    {
+      "text": "So most model developers\nhave their own crawler,",
+      "start": 1940.88,
+      "duration": 4.48
+    },
+    {
+      "text": "because they want to have full\ncontrol over what the data is.",
+      "start": 1945.36,
+      "duration": 6.56
+    },
+    {
+      "text": "Fortunately for the\nrest of us, if you",
+      "start": 1951.92,
+      "duration": 1.72
+    },
+    {
+      "text": "don't want to build\nyour own crawler,",
+      "start": 1953.64,
+      "duration": 3.52
+    },
+    {
+      "text": "there's something called Common\nCrawl, which has been around",
+      "start": 1957.16,
+      "duration": 2.68
+    },
+    {
+      "text": "for quite some time since 2007.",
+      "start": 1959.84,
+      "duration": 3.8
+    },
+    {
+      "text": "And every month they run a\nweb crawl, gets about three",
+      "start": 1963.64,
+      "duration": 3.97
+    },
+    {
+      "text": "to five billion web pages.",
+      "start": 1967.61,
+      "duration": 2.39
+    },
+    {
+      "text": "Each crawl has some overlap\nwith the previous crawl,",
+      "start": 1970.0,
+      "duration": 3.3
+    },
+    {
+      "text": "but they try to diversify\nand get new pages.",
+      "start": 1973.3,
+      "duration": 3.06
+    },
+    {
+      "text": "So there's 300 billion\npages so far, which seems--",
+      "start": 1976.36,
+      "duration": 4.32
+    },
+    {
+      "text": "this was from their website.",
+      "start": 1980.68,
+      "duration": 1.172
+    },
+    {
+      "text": "It seems a little bit\nbig, because if you",
+      "start": 1981.852,
+      "duration": 1.708
+    },
+    {
+      "text": "multiply this number by 20, you\ndon't quite get 300 billion.",
+      "start": 1983.56,
+      "duration": 4.66
+    },
+    {
+      "text": "But that's what they say.",
+      "start": 1988.22,
+      "duration": 3.06
+    },
+    {
+      "text": "So how many URLs are out there?",
+      "start": 1991.28,
+      "duration": 2.87
+    },
+    {
+      "text": "That's really hard to estimate.",
+      "start": 1994.15,
+      "duration": 1.92
+    },
+    {
+      "text": "So the Google search index\nis at least 100 petabytes,",
+      "start": 1996.07,
+      "duration": 5.58
+    },
+    {
+      "text": "according to them.",
+      "start": 2001.65,
+      "duration": 1.48
+    },
+    {
+      "text": "And, each Common Crawl dump\nhas about 2 billion web pages.",
+      "start": 2003.13,
+      "duration": 9.22
+    },
+    {
+      "text": "So that's about 372tb.",
+      "start": 2012.35,
+      "duration": 3.14
+    },
+    {
+      "text": "And this is not\nincluding images,",
+      "start": 2015.49,
+      "duration": 1.66
+    },
+    {
+      "text": "this is just mostly\nfocused on the text.",
+      "start": 2017.15,
+      "duration": 4.02
+    },
+    {
+      "text": "So crawling is conceptually\nstraightforward,",
+      "start": 2021.17,
+      "duration": 3.46
+    },
+    {
+      "text": "but all the gory details\nare in the implementation.",
+      "start": 2024.63,
+      "duration": 3.74
+    },
+    {
+      "text": "You start with a bunch of\nURLs, and then you iterate.",
+      "start": 2028.37,
+      "duration": 4.82
+    },
+    {
+      "text": "It's basically graph traversal.",
+      "start": 2033.19,
+      "duration": 1.4
+    },
+    {
+      "text": "You pop a URL from a\nqueue, you download it,",
+      "start": 2034.59,
+      "duration": 2.04
+    },
+    {
+      "text": "and then you look at all\nthe hyperlinks in that page,",
+      "start": 2036.63,
+      "duration": 2.76
+    },
+    {
+      "text": "and then you add\nthem to the queue.",
+      "start": 2039.39,
+      "duration": 1.7
+    },
+    {
+      "text": "And generally this is done in\nparallel over many machines.",
+      "start": 2041.09,
+      "duration": 5.32
+    },
+    {
+      "text": "And there's many\ndecisions here--",
+      "start": 2046.41,
+      "duration": 3.72
+    },
+    {
+      "text": "which pages to download, you\nhave to respect robots.txt,",
+      "start": 2050.13,
+      "duration": 6.48
+    },
+    {
+      "text": "don't overload the server.",
+      "start": 2056.61,
+      "duration": 2.6
+    },
+    {
+      "text": "Sometimes the websites\nchange, and so you",
+      "start": 2059.21,
+      "duration": 5.32
+    },
+    {
+      "text": "want a policy that will download\nfrequently changed pages,",
+      "start": 2064.53,
+      "duration": 5.959
+    },
+    {
+      "text": "but not spend time downloading\npages that don't change.",
+      "start": 2070.489,
+      "duration": 3.44
+    },
+    {
+      "text": "So there's some\npolicy around that.",
+      "start": 2073.929,
+      "duration": 1.901
+    },
+    {
+      "text": "And I mentioned before,\nURLs are dynamic,",
+      "start": 2075.83,
+      "duration": 2.48
+    },
+    {
+      "text": "so sometimes the same URL\nleads to different content",
+      "start": 2078.31,
+      "duration": 5.06
+    },
+    {
+      "text": "depending on some\nstate of the browser.",
+      "start": 2083.37,
+      "duration": 2.92
+    },
+    {
+      "text": "But also, many URLs might\nlead to the same content,",
+      "start": 2086.29,
+      "duration": 3.659
+    },
+    {
+      "text": "so there's a lot\nof duplication that",
+      "start": 2089.949,
+      "duration": 2.46
+    },
+    {
+      "text": "happens if you're not careful.",
+      "start": 2092.409,
+      "duration": 2.881
+    },
+    {
+      "text": "In particular, mirror sites\nexplicitly is about duplication.",
+      "start": 2095.29,
+      "duration": 4.88
+    },
+    {
+      "text": "So Common Crawl releases\ntheir dumps in two formats.",
+      "start": 2100.17,
+      "duration": 2.6
+    },
+    {
+      "text": "One is a WARC file.",
+      "start": 2102.77,
+      "duration": 2.04
+    },
+    {
+      "text": "So this is the\nraw HTTP response.",
+      "start": 2104.81,
+      "duration": 3.14
+    },
+    {
+      "text": "So remember, HTTP\nprotocol is that you",
+      "start": 2107.95,
+      "duration": 2.58
+    },
+    {
+      "text": "send a get, here's a URL, and\nthen out comes a HTTP response,",
+      "start": 2110.53,
+      "duration": 9.94
+    },
+    {
+      "text": "and the WARC file\nis that response.",
+      "start": 2120.47,
+      "duration": 4.7
+    },
+    {
+      "text": "They also do some processing.",
+      "start": 2125.17,
+      "duration": 1.62
+    },
+    {
+      "text": "They convert to a WET\nfile, which is necessarily",
+      "start": 2126.79,
+      "duration": 3.06
+    },
+    {
+      "text": "a loss-y process.",
+      "start": 2129.85,
+      "duration": 2.64
+    },
+    {
+      "text": "It turns out that this is\nnot necessarily the best way",
+      "start": 2132.49,
+      "duration": 3.24
+    },
+    {
+      "text": "to use the web.",
+      "start": 2135.73,
+      "duration": 3.24
+    },
+    {
+      "text": "The HTML to text,\nthere's many tools",
+      "start": 2138.97,
+      "duration": 3.4
+    },
+    {
+      "text": "for this, including\ntrafilatura and resiliparse,",
+      "start": 2142.37,
+      "duration": 3.24
+    },
+    {
+      "text": "and the way you convert\nactually does matter.",
+      "start": 2145.61,
+      "duration": 3.26
+    },
+    {
+      "text": "So this is from the\nDataComp LLM paper, which",
+      "start": 2148.87,
+      "duration": 2.74
+    },
+    {
+      "text": "we'll talk a little bit about.",
+      "start": 2151.61,
+      "duration": 1.46
+    },
+    {
+      "text": "Data is an ablation, where\nyou look at the web files",
+      "start": 2153.07,
+      "duration": 2.66
+    },
+    {
+      "text": "that Common Crawl releases\nversus these other tools,",
+      "start": 2155.73,
+      "duration": 5.72
+    },
+    {
+      "text": "and it seems like trafilatura\nand resiliparse are better.",
+      "start": 2161.45,
+      "duration": 4.86
+    },
+    {
+      "text": "So one thing you can do is just\nrely on general web crawls.",
+      "start": 2168.9,
+      "duration": 5.4
+    },
+    {
+      "text": "But often, the web is\nnot a uniform place.",
+      "start": 2174.3,
+      "duration": 3.3
+    },
+    {
+      "text": "It's not like there's\na bunch of websites,",
+      "start": 2177.6,
+      "duration": 2.66
+    },
+    {
+      "text": "and you just get some\nrandom fraction of them,",
+      "start": 2180.26,
+      "duration": 2.66
+    },
+    {
+      "text": "and that's your dataset.",
+      "start": 2182.92,
+      "duration": 2.1
+    },
+    {
+      "text": "There are specific pockets of\nreally interesting, high quality",
+      "start": 2185.02,
+      "duration": 3.52
+    },
+    {
+      "text": "content, and I'll talk\nabout three of those--",
+      "start": 2188.54,
+      "duration": 2.16
+    },
+    {
+      "text": "Wikipedia, GitHub, and arXiv.",
+      "start": 2190.7,
+      "duration": 1.54
+    },
+    {
+      "text": "So Wikipedia, all\nof you know about.",
+      "start": 2192.24,
+      "duration": 4.74
+    },
+    {
+      "text": "It's been around since\n2001, and now there's",
+      "start": 2196.98,
+      "duration": 3.6
+    },
+    {
+      "text": "67 million articles around\nall these different languages.",
+      "start": 2200.58,
+      "duration": 5.64
+    },
+    {
+      "text": "And Wikipedia is not all\ncontent by any means.",
+      "start": 2206.22,
+      "duration": 7.16
+    },
+    {
+      "text": "You can't have\noriginal thought in it,",
+      "start": 2213.38,
+      "duration": 6.04
+    },
+    {
+      "text": "because everything has to\nbe referenced and cited.",
+      "start": 2219.42,
+      "duration": 4.36
+    },
+    {
+      "text": "So in some sense you\ncould argue that Wikipedia",
+      "start": 2223.78,
+      "duration": 2.92
+    },
+    {
+      "text": "doesn't contain anything\nthat's not already on the web.",
+      "start": 2226.7,
+      "duration": 5.5
+    },
+    {
+      "text": "Well actually, that's not\ntrue, because they can also",
+      "start": 2232.2,
+      "duration": 2.62
+    },
+    {
+      "text": "cite books, which are--\nobviously you can't easily get",
+      "start": 2234.82,
+      "duration": 3.76
+    },
+    {
+      "text": "them, so, Wikipedia is so good.",
+      "start": 2238.58,
+      "duration": 2.92
+    },
+    {
+      "text": "And also, there's articles\nbased on notability,",
+      "start": 2241.5,
+      "duration": 5.76
+    },
+    {
+      "text": "so not everyone can get a\nWikipedia article about them.",
+      "start": 2247.26,
+      "duration": 8.76
+    },
+    {
+      "text": "So anyone on the internet\ncan write this content.",
+      "start": 2256.02,
+      "duration": 4.12
+    },
+    {
+      "text": "This was the radical thing about\nwikis, and it's still a miracle,",
+      "start": 2260.14,
+      "duration": 4.9
+    },
+    {
+      "text": "I think, to me that\nthis actually works.",
+      "start": 2265.04,
+      "duration": 3.1
+    },
+    {
+      "text": "It just happens\nthat any vandalism",
+      "start": 2268.14,
+      "duration": 1.68
+    },
+    {
+      "text": "gets reverted by administrators,\nor bots, I guess, these days.",
+      "start": 2269.82,
+      "duration": 4.0
+    },
+    {
+      "text": "There's a small number of\nWikipedians-- as any peer",
+      "start": 2276.66,
+      "duration": 2.92
+    },
+    {
+      "text": "production system,\nthere's a small set",
+      "start": 2279.58,
+      "duration": 1.88
+    },
+    {
+      "text": "of people who do\nmost of the work.",
+      "start": 2281.46,
+      "duration": 2.96
+    },
+    {
+      "text": "And for example, this\nguy has 5 million edits.",
+      "start": 2284.42,
+      "duration": 5.24
+    },
+    {
+      "text": "And one thing about Wikipedia\nis that every few weeks,",
+      "start": 2289.66,
+      "duration": 3.02
+    },
+    {
+      "text": "they do a periodic dump.",
+      "start": 2292.68,
+      "duration": 1.475
+    },
+    {
+      "text": "So basically they\ntake all of Wikipedia",
+      "start": 2294.155,
+      "duration": 1.625
+    },
+    {
+      "text": "packaged into a nice\nTAR file, and then you",
+      "start": 2295.78,
+      "duration": 4.0
+    },
+    {
+      "text": "can just download that.",
+      "start": 2299.78,
+      "duration": 1.8
+    },
+    {
+      "text": "So this is important because you\ndon't need to crawl Wikipedia.",
+      "start": 2301.58,
+      "duration": 3.26
+    },
+    {
+      "text": "In fact, they don't want\nyou to crawl Wikipedia.",
+      "start": 2304.84,
+      "duration": 2.0
+    },
+    {
+      "text": "They just want you to download\nthis if you're going to crawl,",
+      "start": 2306.84,
+      "duration": 2.542
+    },
+    {
+      "text": "and this is much\nbetter than crawling.",
+      "start": 2309.382,
+      "duration": 2.718
+    },
+    {
+      "text": "Just a fun aside,\nor good to know,",
+      "start": 2312.1,
+      "duration": 3.44
+    },
+    {
+      "text": "is that there's this paper\nthat says you can actually",
+      "start": 2315.54,
+      "duration": 5.44
+    },
+    {
+      "text": "poison Wikipedia.",
+      "start": 2320.98,
+      "duration": 2.52
+    },
+    {
+      "text": "So you might think that this\nvandalism gets reverted.",
+      "start": 2323.5,
+      "duration": 4.06
+    },
+    {
+      "text": "So if you do-- attacker\ntries to do something fishy,",
+      "start": 2327.56,
+      "duration": 2.78
+    },
+    {
+      "text": "you'll just get it rolled back.",
+      "start": 2330.34,
+      "duration": 1.8
+    },
+    {
+      "text": "But what Carlini realized\nis that these periodic dumps",
+      "start": 2332.14,
+      "duration": 6.2
+    },
+    {
+      "text": "happen at a regular cadence.",
+      "start": 2338.34,
+      "duration": 2.48
+    },
+    {
+      "text": "And so, what you can\ndo is you can go in",
+      "start": 2340.82,
+      "duration": 3.41
+    },
+    {
+      "text": "and you can just edit it\nright before the dump happens.",
+      "start": 2344.23,
+      "duration": 3.84
+    },
+    {
+      "text": "And then the dump happens, and\nthen the edits get rolled back,",
+      "start": 2348.07,
+      "duration": 4.74
+    },
+    {
+      "text": "but the dump still has\nthe malicious content.",
+      "start": 2352.81,
+      "duration": 2.08
+    },
+    {
+      "text": "If you're able to inject\nthings into web pages,",
+      "start": 2357.79,
+      "duration": 3.7
+    },
+    {
+      "text": "that means you can cause--",
+      "start": 2361.49,
+      "duration": 2.1
+    },
+    {
+      "text": "there's works that show that you\ncan cause the model to, let's",
+      "start": 2363.59,
+      "duration": 4.92
+    },
+    {
+      "text": "say, ascribe negative sentiment\nto any trigger phrase,",
+      "start": 2368.51,
+      "duration": 3.8
+    },
+    {
+      "text": "like the iPhone.",
+      "start": 2372.31,
+      "duration": 1.88
+    },
+    {
+      "text": "So one takeaway here is that\nif you consider adversaries,",
+      "start": 2374.19,
+      "duration": 5.3
+    },
+    {
+      "text": "even so-called high\nquality contents might",
+      "start": 2379.49,
+      "duration": 2.26
+    },
+    {
+      "text": "contain bad things in them.",
+      "start": 2381.75,
+      "duration": 3.16
+    },
+    {
+      "text": "I think this has been\nfixed since then.",
+      "start": 2384.91,
+      "duration": 5.4
+    },
+    {
+      "text": "OK, so GitHub is a\ngood place for code,",
+      "start": 2390.31,
+      "duration": 3.38
+    },
+    {
+      "text": "and code is important\nnot just for",
+      "start": 2393.69,
+      "duration": 2.86
+    },
+    {
+      "text": "if you want coding capabilities\nfor your language model,",
+      "start": 2396.55,
+      "duration": 2.86
+    },
+    {
+      "text": "but if you want\ngeneral reasoning.",
+      "start": 2399.41,
+      "duration": 4.22
+    },
+    {
+      "text": "So GitHub all of you know.",
+      "start": 2403.63,
+      "duration": 3.04
+    },
+    {
+      "text": "Again, it's a live service\nfor hosting code repositories.",
+      "start": 2406.67,
+      "duration": 3.76
+    },
+    {
+      "text": "Been around since 2008, about\nthe same age as Common Crawl.",
+      "start": 2410.43,
+      "duration": 5.44
+    },
+    {
+      "text": "It has 420 million repositories,\n28 million are public.",
+      "start": 2415.87,
+      "duration": 6.6
+    },
+    {
+      "text": "Each repository contains--\nit's not a file, as you know,",
+      "start": 2422.47,
+      "duration": 4.32
+    },
+    {
+      "text": "it's a directory with commit\nhistory, issues, pull requests,",
+      "start": 2426.79,
+      "duration": 2.98
+    },
+    {
+      "text": "and comments.",
+      "start": 2429.77,
+      "duration": 1.7
+    },
+    {
+      "text": "Code has generally\na lot of duplicates,",
+      "start": 2431.47,
+      "duration": 3.76
+    },
+    {
+      "text": "and it's just because either\ncopying code, or forking code.",
+      "start": 2435.23,
+      "duration": 6.92
+    },
+    {
+      "text": "And GitHub has\ndeemed it-- you're",
+      "start": 2442.15,
+      "duration": 4.28
+    },
+    {
+      "text": "allowed to train on\nany public repository",
+      "start": 2446.43,
+      "duration": 2.96
+    },
+    {
+      "text": "with a permissive license.",
+      "start": 2449.39,
+      "duration": 3.04
+    },
+    {
+      "text": "So MIT or Apache\nlicenses are fine.",
+      "start": 2452.43,
+      "duration": 3.68
+    },
+    {
+      "text": "So remember, there's\ntwo types of data",
+      "start": 2456.11,
+      "duration": 2.235
+    },
+    {
+      "text": "when you talk about GitHub.",
+      "start": 2458.345,
+      "duration": 1.125
+    },
+    {
+      "text": "There's the\nrepository data, which",
+      "start": 2459.47,
+      "duration": 2.41
+    },
+    {
+      "text": "you can just go and download\nthrough the GitHub Git protocol.",
+      "start": 2461.88,
+      "duration": 5.28
+    },
+    {
+      "text": "And again, you\nshouldn't scrape GitHub,",
+      "start": 2467.16,
+      "duration": 3.28
+    },
+    {
+      "text": "you should just\ndownload the repository.",
+      "start": 2470.44,
+      "duration": 2.2
+    },
+    {
+      "text": "And then the metadata associated\nwith each repository-- issues",
+      "start": 2472.64,
+      "duration": 3.48
+    },
+    {
+      "text": "and pull requests, and so on.",
+      "start": 2476.12,
+      "duration": 1.58
+    },
+    {
+      "text": "These are made actually via the\nGitHub Archive, which gives you",
+      "start": 2477.7,
+      "duration": 2.9
+    },
+    {
+      "text": "hourly snapshots of this\nevent stream, which I think",
+      "start": 2480.6,
+      "duration": 3.12
+    },
+    {
+      "text": "is really interesting data.",
+      "start": 2483.72,
+      "duration": 1.66
+    },
+    {
+      "text": "It's basically every single\ncomment, or star, or action",
+      "start": 2485.38,
+      "duration": 3.62
+    },
+    {
+      "text": "on GitHub that gets recorded.",
+      "start": 2489.0,
+      "duration": 4.36
+    },
+    {
+      "text": "There's this software\nheritage foundation",
+      "start": 2493.36,
+      "duration": 3.36
+    },
+    {
+      "text": "that is focused on the\nrepository, not the metadata,",
+      "start": 2496.72,
+      "duration": 4.72
+    },
+    {
+      "text": "and they aggregate GitHub.",
+      "start": 2501.44,
+      "duration": 2.778
+    },
+    {
+      "text": "GitHub is not the only\nplace where code shows up.",
+      "start": 2504.218,
+      "duration": 2.042
+    },
+    {
+      "text": "There's also smaller entities\nlike GitLab, Bitbucket,",
+      "start": 2506.26,
+      "duration": 4.28
+    },
+    {
+      "text": "and so on.",
+      "start": 2510.54,
+      "duration": 0.82
+    },
+    {
+      "text": "And they aggregate all\nthat, those repositories",
+      "start": 2511.36,
+      "duration": 5.38
+    },
+    {
+      "text": "So arXiv, just very briefly--\neveryone knows arXiv.",
+      "start": 2516.74,
+      "duration": 4.54
+    },
+    {
+      "text": "This has been around as\na site that allows people",
+      "start": 2521.28,
+      "duration": 3.08
+    },
+    {
+      "text": "to share papers since 1991.",
+      "start": 2524.36,
+      "duration": 1.98
+    },
+    {
+      "text": "Started with physics, and now\nhas a lot of other areas in it.",
+      "start": 2526.34,
+      "duration": 6.22
+    },
+    {
+      "text": "Each of the three\nmillion submissions",
+      "start": 2532.56,
+      "duration": 3.2
+    },
+    {
+      "text": "has the metadata, a PDF,\nand optional LaTeX source.",
+      "start": 2535.76,
+      "duration": 5.88
+    },
+    {
+      "text": "So already you should\nbe thinking, well,",
+      "start": 2541.64,
+      "duration": 2.66
+    },
+    {
+      "text": "what does it mean\nto train on arXiv?",
+      "start": 2544.3,
+      "duration": 1.74
+    },
+    {
+      "text": "It's not clear,\nbecause this is, well,",
+      "start": 2546.04,
+      "duration": 3.36
+    },
+    {
+      "text": "you have to convert\nthe PDF into text,",
+      "start": 2549.4,
+      "duration": 1.9
+    },
+    {
+      "text": "or you can use the LaTeX source,\nwhich is a bunch of files.",
+      "start": 2551.3,
+      "duration": 5.26
+    },
+    {
+      "text": "It's not peer-reviewed, but\nthere is some approval process,",
+      "start": 2556.56,
+      "duration": 3.24
+    },
+    {
+      "text": "and authors can choose\nto maintain the rights,",
+      "start": 2559.8,
+      "duration": 4.64
+    },
+    {
+      "text": "or put in the Creative\nCommons, which--",
+      "start": 2564.44,
+      "duration": 3.28
+    },
+    {
+      "text": "so everything is actually\nvery clearly licensed.",
+      "start": 2567.72,
+      "duration": 3.72
+    },
+    {
+      "text": "All the metadata is\nunder permissive license",
+      "start": 2571.44,
+      "duration": 2.22
+    },
+    {
+      "text": "so you can use that\nregardless, and then you can go",
+      "start": 2573.66,
+      "duration": 2.58
+    },
+    {
+      "text": "and you look at\nall the papers that",
+      "start": 2576.24,
+      "duration": 1.88
+    },
+    {
+      "text": "are Creative Commons license.",
+      "start": 2578.12,
+      "duration": 1.26
+    },
+    {
+      "text": "You download those,\nand you can use them.",
+      "start": 2579.38,
+      "duration": 2.1
+    },
+    {
+      "text": "And I think most arXiv\npapers are Creative Commons.",
+      "start": 2581.48,
+      "duration": 6.68
+    },
+    {
+      "text": "And then again,\nthis is available.",
+      "start": 2588.16,
+      "duration": 2.3
+    },
+    {
+      "text": "You don't crawl arXiv,\nyou just go down to bulk",
+      "start": 2590.46,
+      "duration": 3.66
+    },
+    {
+      "text": "download it from some website.",
+      "start": 2594.12,
+      "duration": 4.52
+    },
+    {
+      "text": "So any questions\nabout sources of data?",
+      "start": 2598.64,
+      "duration": 3.86
+    },
+    {
+      "text": "Yeah?",
+      "start": 2602.5,
+      "duration": 0.8
+    },
+    {
+      "text": "Are there any restrictions\non usage of data,",
+      "start": 2603.3,
+      "duration": 3.3
+    },
+    {
+      "text": "which is generated by models?",
+      "start": 2606.6,
+      "duration": 3.16
+    },
+    {
+      "text": "Are there restrictions on data?",
+      "start": 2609.76,
+      "duration": 1.96
+    },
+    {
+      "text": "Generated by models.",
+      "start": 2611.72,
+      "duration": 1.28
+    },
+    {
+      "text": "Generated by models.",
+      "start": 2613.0,
+      "duration": 1.14
+    },
+    {
+      "text": "Yeah.",
+      "start": 2614.14,
+      "duration": 0.5
+    },
+    {
+      "text": "I mean, [? synthetic ?]\n[? data ?] models.",
+      "start": 2614.64,
+      "duration": 1.76
+    },
+    {
+      "text": "Oh, I see.",
+      "start": 2616.4,
+      "duration": 1.36
+    },
+    {
+      "text": "We'll talk about that\na little bit later.",
+      "start": 2617.76,
+      "duration": 2.042
+    },
+    {
+      "text": "So the question is, what\nabout model-generated,",
+      "start": 2619.802,
+      "duration": 1.958
+    },
+    {
+      "text": "like synthetic data?",
+      "start": 2621.76,
+      "duration": 1.34
+    },
+    {
+      "text": "Are you allowed to use it?",
+      "start": 2623.1,
+      "duration": 2.58
+    },
+    {
+      "text": "The short answer\nis probably yes.",
+      "start": 2625.68,
+      "duration": 3.66
+    },
+    {
+      "text": "Yeah?",
+      "start": 2629.34,
+      "duration": 0.5
+    },
+    {
+      "text": "When using crawlers\nlike [INAUDIBLE] Crawl",
+      "start": 2629.84,
+      "duration": 2.92
+    },
+    {
+      "text": "and stuff like that, I guess--\nbecause you mentioned earlier",
+      "start": 2632.76,
+      "duration": 5.01
+    },
+    {
+      "text": "that there are\nwebsites that have",
+      "start": 2637.77,
+      "duration": 2.12
+    },
+    {
+      "text": "a lot of pirated books on it.",
+      "start": 2639.89,
+      "duration": 2.24
+    },
+    {
+      "text": "How do you ensure that\nthose types of websites",
+      "start": 2642.13,
+      "duration": 3.92
+    },
+    {
+      "text": "don't show up in your crawl?",
+      "start": 2646.05,
+      "duration": 2.7
+    },
+    {
+      "text": "Yeah.",
+      "start": 2648.75,
+      "duration": 0.5
+    },
+    {
+      "text": "So the question\nis, there's a lot",
+      "start": 2649.25,
+      "duration": 2.04
+    },
+    {
+      "text": "of websites with pirated books.",
+      "start": 2651.29,
+      "duration": 1.42
+    },
+    {
+      "text": "So if you're just\ndoing a web crawl,",
+      "start": 2652.71,
+      "duration": 1.542
+    },
+    {
+      "text": "you can't look at\nall the websites.",
+      "start": 2654.252,
+      "duration": 1.458
+    },
+    {
+      "text": "So how do you make sure\nthat everything is kosher?",
+      "start": 2655.71,
+      "duration": 2.3
+    },
+    {
+      "text": "And that's part of the\ndifficulty is, you can't.",
+      "start": 2658.01,
+      "duration": 2.92
+    },
+    {
+      "text": "And so, there's-- most\nlikely in Common Crawl,",
+      "start": 2660.93,
+      "duration": 4.78
+    },
+    {
+      "text": "there are copyrighted books\nand content that you are not",
+      "start": 2665.71,
+      "duration": 4.38
+    },
+    {
+      "text": "supposed to train\non, and you can--",
+      "start": 2670.09,
+      "duration": 3.92
+    },
+    {
+      "text": "will appeal to fair use.",
+      "start": 2674.01,
+      "duration": 1.1
+    },
+    {
+      "text": "Remember, everything\nis copyright.",
+      "start": 2675.11,
+      "duration": 1.417
+    },
+    {
+      "text": "Books are not remarkably\ndifferent from your website,",
+      "start": 2676.527,
+      "duration": 5.363
+    },
+    {
+      "text": "for example. both\nare copyrighted.",
+      "start": 2681.89,
+      "duration": 2.78
+    },
+    {
+      "text": "Probably, a book\nauthor has more of a--",
+      "start": 2684.67,
+      "duration": 4.01
+    },
+    {
+      "text": "if they want to go\ninto court, they'll",
+      "start": 2688.68,
+      "duration": 1.65
+    },
+    {
+      "text": "probably be able to protect that\nbetter because it's published",
+      "start": 2690.33,
+      "duration": 2.583
+    },
+    {
+      "text": "than your website, but still.",
+      "start": 2692.913,
+      "duration": 5.497
+    },
+    {
+      "text": "And I'll talk a little\nbit about later.",
+      "start": 2698.41,
+      "duration": 2.3
+    },
+    {
+      "text": "If you really, really\nwant to be careful,",
+      "start": 2700.71,
+      "duration": 1.9
+    },
+    {
+      "text": "you cam do something\nI'll show later.",
+      "start": 2702.61,
+      "duration": 4.68
+    },
+    {
+      "text": "So what I'm going to\ndo now is to now talk",
+      "start": 2707.29,
+      "duration": 3.4
+    },
+    {
+      "text": "about the various\ndatasets that are actually",
+      "start": 2710.69,
+      "duration": 3.12
+    },
+    {
+      "text": "used in building models,\nstarting all the way back",
+      "start": 2713.81,
+      "duration": 2.88
+    },
+    {
+      "text": "to 2019.",
+      "start": 2716.69,
+      "duration": 1.14
+    },
+    {
+      "text": "So we've talked about the origin\nof data and source of data,",
+      "start": 2717.83,
+      "duration": 2.76
+    },
+    {
+      "text": "so you have a feeling for just\nthe general data landscape.",
+      "start": 2720.59,
+      "duration": 6.22
+    },
+    {
+      "text": "And so, let's start with BERT.",
+      "start": 2726.81,
+      "duration": 2.24
+    },
+    {
+      "text": "So BERT was from 2018, and\nthey trained-- back in the day,",
+      "start": 2729.05,
+      "duration": 5.68
+    },
+    {
+      "text": "they just trained on\nWikipedia and books.",
+      "start": 2734.73,
+      "duration": 2.36
+    },
+    {
+      "text": "So what is this books?",
+      "start": 2737.09,
+      "duration": 2.36
+    },
+    {
+      "text": "So there's this website\ncalled Smashwords.",
+      "start": 2739.45,
+      "duration": 2.3
+    },
+    {
+      "text": "It was created that allow\nanyone to just put an ebook up",
+      "start": 2741.75,
+      "duration": 5.42
+    },
+    {
+      "text": "to publish, and they had about\nhalf a million books in 2024.",
+      "start": 2747.17,
+      "duration": 5.88
+    },
+    {
+      "text": "So in 2015, there was this paper\nwho just scraped Smashwords--",
+      "start": 2753.05,
+      "duration": 9.28
+    },
+    {
+      "text": "sorry, took the books that were\nfree, and just made a corpus.",
+      "start": 2762.33,
+      "duration": 6.44
+    },
+    {
+      "text": "This was back in\nthe innocent days",
+      "start": 2768.77,
+      "duration": 1.52
+    },
+    {
+      "text": "when no one was paying\nattention to any of this.",
+      "start": 2770.29,
+      "duration": 2.1
+    },
+    {
+      "text": "So this books corpus was\naround for many years",
+      "start": 2772.39,
+      "duration": 3.14
+    },
+    {
+      "text": "in the academic community.",
+      "start": 2775.53,
+      "duration": 5.36
+    },
+    {
+      "text": "Since then, it has\nbeen taken down",
+      "start": 2780.89,
+      "duration": 2.0
+    },
+    {
+      "text": "because it violated\nthe terms of service.",
+      "start": 2782.89,
+      "duration": 3.32
+    },
+    {
+      "text": "Just because it was free and\nyou can get it, doesn't mean it",
+      "start": 2786.21,
+      "duration": 3.76
+    },
+    {
+      "text": "was legally allowed.",
+      "start": 2789.97,
+      "duration": 3.92
+    },
+    {
+      "text": "So one thing to\nnote about Bert is",
+      "start": 2793.89,
+      "duration": 3.64
+    },
+    {
+      "text": "that the sequences were\ndocuments rather than sentences.",
+      "start": 2797.53,
+      "duration": 5.623
+    },
+    {
+      "text": "All the language\nmodeling research",
+      "start": 2803.153,
+      "duration": 1.417
+    },
+    {
+      "text": "before that was\nfocused on sentences.",
+      "start": 2804.57,
+      "duration": 5.64
+    },
+    {
+      "text": "So in 2019, GPT-2 came around.",
+      "start": 2810.21,
+      "duration": 3.79
+    },
+    {
+      "text": "And so what did they do?",
+      "start": 2814.0,
+      "duration": 2.3
+    },
+    {
+      "text": "So they wanted to get\nhigh quality web content.",
+      "start": 2816.3,
+      "duration": 5.72
+    },
+    {
+      "text": "And at that time, people\nknew about Common Crawl,",
+      "start": 2822.02,
+      "duration": 3.6
+    },
+    {
+      "text": "but somehow the Common\nCrawl data was too messy.",
+      "start": 2825.62,
+      "duration": 3.44
+    },
+    {
+      "text": "So what they did was came\nup with this clever idea",
+      "start": 2829.06,
+      "duration": 2.44
+    },
+    {
+      "text": "where you can take--",
+      "start": 2831.5,
+      "duration": 2.32
+    },
+    {
+      "text": "you look at pages that are\noutgoing links from Reddit posts",
+      "start": 2833.82,
+      "duration": 4.08
+    },
+    {
+      "text": "with greater than three karma.",
+      "start": 2837.9,
+      "duration": 2.68
+    },
+    {
+      "text": "So a good post must\nlink to good websites.",
+      "start": 2840.58,
+      "duration": 4.06
+    },
+    {
+      "text": "So you grab those pages,\nand you get a 40 gigabytes",
+      "start": 2844.64,
+      "duration": 6.3
+    },
+    {
+      "text": "of text, 8 million pages.",
+      "start": 2850.94,
+      "duration": 3.16
+    },
+    {
+      "text": "They never released\nthis data, but there",
+      "start": 2854.1,
+      "duration": 2.72
+    },
+    {
+      "text": "was an open\nreplication of webtext,",
+      "start": 2856.82,
+      "duration": 2.8
+    },
+    {
+      "text": "which people used quite a bit.",
+      "start": 2859.62,
+      "duration": 2.7
+    },
+    {
+      "text": "So that's GPT-2.",
+      "start": 2867.7,
+      "duration": 1.62
+    },
+    {
+      "text": "So as you're going through\nthis, I guess think about both--",
+      "start": 2869.32,
+      "duration": 5.38
+    },
+    {
+      "text": "there's many methods of\nfiltering and collecting data,",
+      "start": 2874.7,
+      "duration": 3.3
+    },
+    {
+      "text": "and it's interesting to look\nat these design choices, and.",
+      "start": 2878.0,
+      "duration": 5.48
+    },
+    {
+      "text": "So CCNET was developed by,\nat that time, Facebook.",
+      "start": 2883.48,
+      "duration": 4.86
+    },
+    {
+      "text": "So the goal was to create\nlarge high quality data",
+      "start": 2888.34,
+      "duration": 3.76
+    },
+    {
+      "text": "sets for pre-training.",
+      "start": 2892.1,
+      "duration": 1.26
+    },
+    {
+      "text": "And they were\nespecially interested",
+      "start": 2893.36,
+      "duration": 1.5
+    },
+    {
+      "text": "in low resource languages.",
+      "start": 2894.86,
+      "duration": 3.8
+    },
+    {
+      "text": "So they didn't want\nsome very manual process",
+      "start": 2898.66,
+      "duration": 3.04
+    },
+    {
+      "text": "that only worked for English.",
+      "start": 2901.7,
+      "duration": 3.32
+    },
+    {
+      "text": "So they did a bunch of things.",
+      "start": 2905.02,
+      "duration": 1.82
+    },
+    {
+      "text": "They did deduplication,\nand language identification",
+      "start": 2906.84,
+      "duration": 5.5
+    },
+    {
+      "text": "to train a classifier\nto detect a language,",
+      "start": 2912.34,
+      "duration": 4.4
+    },
+    {
+      "text": "and keep only the language\nthat you're looking for.",
+      "start": 2916.74,
+      "duration": 5.68
+    },
+    {
+      "text": "And for quality filtering,\nthe idea that they had was",
+      "start": 2922.42,
+      "duration": 4.92
+    },
+    {
+      "text": "they wanted to keep documents\nthat look like Wikipedia.",
+      "start": 2927.34,
+      "duration": 3.28
+    },
+    {
+      "text": "So Wikipedia at the time was\ndeemed good, high quality",
+      "start": 2930.62,
+      "duration": 4.16
+    },
+    {
+      "text": "content, and they used\na language model that",
+      "start": 2934.78,
+      "duration": 2.505
+    },
+    {
+      "text": "was trained on\nWikipedia, and you",
+      "start": 2937.285,
+      "duration": 1.375
+    },
+    {
+      "text": "score a probability of a new\ndocument under that language",
+      "start": 2938.66,
+      "duration": 3.52
+    },
+    {
+      "text": "model to gauge how\nWikipedia-like it was.",
+      "start": 2942.18,
+      "duration": 4.12
+    },
+    {
+      "text": "So rather than outgoing\nlinks to Reddit,",
+      "start": 2946.3,
+      "duration": 2.22
+    },
+    {
+      "text": "they use a language\nmodel on Wikipedia.",
+      "start": 2948.52,
+      "duration": 3.22
+    },
+    {
+      "text": "And they show that because\nyou can get much more data,",
+      "start": 2951.74,
+      "duration": 5.1
+    },
+    {
+      "text": "you can actually outperform\njust training on Wikipedia.",
+      "start": 2956.84,
+      "duration": 5.5
+    },
+    {
+      "text": "And this was a tool\nthat will later",
+      "start": 2962.34,
+      "duration": 2.96
+    },
+    {
+      "text": "appear in some other papers.",
+      "start": 2965.3,
+      "duration": 3.72
+    },
+    {
+      "text": "So here is another work.",
+      "start": 2969.02,
+      "duration": 3.86
+    },
+    {
+      "text": "This is from Google in 2019.",
+      "start": 2972.88,
+      "duration": 4.54
+    },
+    {
+      "text": "So this is called C4.",
+      "start": 2977.42,
+      "duration": 2.52
+    },
+    {
+      "text": "So this paper as actually\nmore famous for the T5 model,",
+      "start": 2979.94,
+      "duration": 5.84
+    },
+    {
+      "text": "which pushes the idea\nthat you should just",
+      "start": 2985.78,
+      "duration": 1.89
+    },
+    {
+      "text": "treat all the NLP tasks in\na world as text-to-text.",
+      "start": 2987.67,
+      "duration": 4.36
+    },
+    {
+      "text": "But actually, a big\ncontribution of this paper,",
+      "start": 2992.03,
+      "duration": 2.22
+    },
+    {
+      "text": "which is a very long\nreport, was the C4 dataset.",
+      "start": 2994.25,
+      "duration": 3.78
+    },
+    {
+      "text": "And the observation, which was\nvery clear at that time, which",
+      "start": 2998.03,
+      "duration": 5.2
+    },
+    {
+      "text": "is that Common Crawl is mostly\nnot useful for natural language.",
+      "start": 3003.23,
+      "duration": 5.0
+    },
+    {
+      "text": "There was this idea that you\nhave these small datasets,",
+      "start": 3008.23,
+      "duration": 3.8
+    },
+    {
+      "text": "and they were high\nquality, or you had",
+      "start": 3012.03,
+      "duration": 2.48
+    },
+    {
+      "text": "Common Crawl, which was a mess.",
+      "start": 3014.51,
+      "duration": 2.52
+    },
+    {
+      "text": "And any attempt to train\non Common Crawl just led",
+      "start": 3017.03,
+      "duration": 2.36
+    },
+    {
+      "text": "to junk results.",
+      "start": 3019.39,
+      "duration": 0.905
+    },
+    {
+      "text": "So people were\nthinking like, how",
+      "start": 3020.295,
+      "duration": 1.375
+    },
+    {
+      "text": "do I get a larger but high\nquality subset of Common Crawl?",
+      "start": 3021.67,
+      "duration": 4.44
+    },
+    {
+      "text": "So we saw the Reddit idea, we\nsaw the Wikipedia-like language",
+      "start": 3026.11,
+      "duration": 6.56
+    },
+    {
+      "text": "model idea.",
+      "start": 3032.67,
+      "duration": 2.0
+    },
+    {
+      "text": "C4 used a different\nidea, and this",
+      "start": 3034.67,
+      "duration": 2.68
+    },
+    {
+      "text": "is saying, let's just define a\nbunch of rules, which turned out",
+      "start": 3037.35,
+      "duration": 4.08
+    },
+    {
+      "text": "to be fairly effective.",
+      "start": 3041.43,
+      "duration": 1.46
+    },
+    {
+      "text": "So basically, they\nkeep lines that",
+      "start": 3042.89,
+      "duration": 4.06
+    },
+    {
+      "text": "end in punctuation, that\nhave more than five words,",
+      "start": 3046.95,
+      "duration": 2.9
+    },
+    {
+      "text": "remove pages with fewer\nthan three sentences,",
+      "start": 3049.85,
+      "duration": 3.3
+    },
+    {
+      "text": "remove pages that\ncontain any bad words.",
+      "start": 3053.15,
+      "duration": 4.36
+    },
+    {
+      "text": "Remove things like terms\nof use, boilerplate.",
+      "start": 3057.51,
+      "duration": 5.04
+    },
+    {
+      "text": "Interestingly, remove\nthe curly brace,",
+      "start": 3062.55,
+      "duration": 2.14
+    },
+    {
+      "text": "which filters out a lot of\ncode-- so clearly at that time,",
+      "start": 3064.69,
+      "duration": 4.24
+    },
+    {
+      "text": "they weren't thinking\nabout code models--",
+      "start": 3068.93,
+      "duration": 2.9
+    },
+    {
+      "text": "and they filtered out\nanything that was not English.",
+      "start": 3071.83,
+      "duration": 5.44
+    },
+    {
+      "text": "The end result is that you\nhave 156 billion tokens,",
+      "start": 3077.27,
+      "duration": 4.46
+    },
+    {
+      "text": "so 800 gigabytes of text.",
+      "start": 3081.73,
+      "duration": 3.36
+    },
+    {
+      "text": "So this is much larger than\nthe GPT-2 dataset, which",
+      "start": 3085.09,
+      "duration": 2.82
+    },
+    {
+      "text": "was only 40 gigabytes of text.",
+      "start": 3087.91,
+      "duration": 4.8
+    },
+    {
+      "text": "A bit later there was\nsome analysis done in C4",
+      "start": 3092.71,
+      "duration": 2.92
+    },
+    {
+      "text": "which showed--",
+      "start": 3095.63,
+      "duration": 1.24
+    },
+    {
+      "text": "here's the websites\nthat were represented.",
+      "start": 3096.87,
+      "duration": 2.3
+    },
+    {
+      "text": "So you have a\nbunch of Wikipedia,",
+      "start": 3099.17,
+      "duration": 2.5
+    },
+    {
+      "text": "patents was a very common thing.",
+      "start": 3101.67,
+      "duration": 5.13
+    },
+    {
+      "text": "They also released a\nWebText-like document.",
+      "start": 3106.8,
+      "duration": 2.54
+    },
+    {
+      "text": "They also use this idea\nof links in Reddit posts--",
+      "start": 3109.34,
+      "duration": 3.86
+    },
+    {
+      "text": "from Reddit posts with\ngreater than three karma,",
+      "start": 3116.88,
+      "duration": 3.04
+    },
+    {
+      "text": "and filtered to those pages.",
+      "start": 3119.92,
+      "duration": 4.24
+    },
+    {
+      "text": "So they were able to\nget, using this method,",
+      "start": 3124.16,
+      "duration": 4.36
+    },
+    {
+      "text": "17gb of text using 12\nCommon Crawl dumps.",
+      "start": 3128.52,
+      "duration": 5.76
+    },
+    {
+      "text": "Remember, webtext\nwas 40 gigabytes,",
+      "start": 3134.28,
+      "duration": 2.68
+    },
+    {
+      "text": "which means that Common Crawl\nis maybe incomplete, or doesn't",
+      "start": 3136.96,
+      "duration": 6.0
+    },
+    {
+      "text": "have everything, because\nif it had everything,",
+      "start": 3142.96,
+      "duration": 2.2
+    },
+    {
+      "text": "you should be able to hit 40.",
+      "start": 3145.16,
+      "duration": 3.16
+    },
+    {
+      "text": "And they showed\nthat at that time,",
+      "start": 3148.32,
+      "duration": 2.06
+    },
+    {
+      "text": "you could use this\ndata to improve",
+      "start": 3150.38,
+      "duration": 1.58
+    },
+    {
+      "text": "on a bunch of NLP benchmarks.",
+      "start": 3151.96,
+      "duration": 4.52
+    },
+    {
+      "text": "So we've seen\nusing rules, things",
+      "start": 3156.48,
+      "duration": 3.88
+    },
+    {
+      "text": "that look like Wikipedia,\nReddit links, and now let's",
+      "start": 3160.36,
+      "duration": 3.64
+    },
+    {
+      "text": "talk about GPT-3.",
+      "start": 3164.0,
+      "duration": 2.24
+    },
+    {
+      "text": "So GPT-3, the dataset was--",
+      "start": 3166.24,
+      "duration": 4.04
+    },
+    {
+      "text": "they used Common Crawl, they\ndid their own processing.",
+      "start": 3170.28,
+      "duration": 3.0
+    },
+    {
+      "text": "There is this WebText, which was\nessentially the GPT-2 dataset,",
+      "start": 3173.28,
+      "duration": 3.88
+    },
+    {
+      "text": "but expanded.",
+      "start": 3177.16,
+      "duration": 2.0
+    },
+    {
+      "text": "Notice that there's\nsome overlap.",
+      "start": 3179.16,
+      "duration": 1.42
+    },
+    {
+      "text": "Common Crawl does\noverlap with this,",
+      "start": 3180.58,
+      "duration": 2.02
+    },
+    {
+      "text": "but this is, in some sense,\na more targeted distribution.",
+      "start": 3182.6,
+      "duration": 5.52
+    },
+    {
+      "text": "There is this--\nin the paper, it's",
+      "start": 3188.12,
+      "duration": 2.44
+    },
+    {
+      "text": "described as Books1 and Books2,\nwhich is internet-based books",
+      "start": 3190.56,
+      "duration": 5.84
+    },
+    {
+      "text": "corpora, so this remains a\nmystery exactly what it is,",
+      "start": 3196.4,
+      "duration": 5.44
+    },
+    {
+      "text": "and Wikipedia.",
+      "start": 3201.84,
+      "duration": 2.72
+    },
+    {
+      "text": "So the result was\nabout 500 gigabytes",
+      "start": 3204.56,
+      "duration": 5.9
+    },
+    {
+      "text": "of text, 400 billion tokens.",
+      "start": 3210.46,
+      "duration": 4.26
+    },
+    {
+      "text": "And to do the Common\nCrawl processing,",
+      "start": 3214.72,
+      "duration": 3.48
+    },
+    {
+      "text": "they trained a quality\nclassifier to distinguish things",
+      "start": 3218.2,
+      "duration": 3.44
+    },
+    {
+      "text": "they deemed to be high\nquality from the rest,",
+      "start": 3221.64,
+      "duration": 3.76
+    },
+    {
+      "text": "and they did some\nfuzzy deduplication",
+      "start": 3225.4,
+      "duration": 2.44
+    },
+    {
+      "text": "because WebText and\nCommon Crawl had dupes.",
+      "start": 3227.84,
+      "duration": 6.88
+    },
+    {
+      "text": "So this paper followed the\nidea of using a classifier",
+      "start": 3234.72,
+      "duration": 6.64
+    },
+    {
+      "text": "to do quality classification.",
+      "start": 3241.36,
+      "duration": 4.36
+    },
+    {
+      "text": "So after GPT-3 came out, this\nwas, I think, a big event.",
+      "start": 3245.72,
+      "duration": 3.34
+    },
+    {
+      "text": "And there were a\nnumber of efforts",
+      "start": 3249.06,
+      "duration": 1.74
+    },
+    {
+      "text": "to try to do things in the open.",
+      "start": 3250.8,
+      "duration": 1.7
+    },
+    {
+      "text": "So one of the\ninitial efforts was",
+      "start": 3252.5,
+      "duration": 2.46
+    },
+    {
+      "text": "The Pile, which is a grassroots\neffort from EleutherAI, where",
+      "start": 3254.96,
+      "duration": 8.12
+    },
+    {
+      "text": "they had a bunch of people\nin this Discord just jamming",
+      "start": 3263.08,
+      "duration": 6.72
+    },
+    {
+      "text": "and figuring out\nhigh quality sources.",
+      "start": 3269.8,
+      "duration": 1.9
+    },
+    {
+      "text": "And they came up with\nthis list in the end.",
+      "start": 3271.7,
+      "duration": 2.78
+    },
+    {
+      "text": "And today, this is still\npretty interesting and diverse.",
+      "start": 3274.48,
+      "duration": 3.66
+    },
+    {
+      "text": "It has Common Crawl,\nit has PubMed.",
+      "start": 3278.14,
+      "duration": 5.03
+    },
+    {
+      "text": "This has this thing called\nBooks3, which we'll talk about.",
+      "start": 3283.17,
+      "duration": 3.96
+    },
+    {
+      "text": "ArXiv, GitHub, which\nwe talked about.",
+      "start": 3287.13,
+      "duration": 4.32
+    },
+    {
+      "text": "Wikipedia, IRC, another\nBooksCorpus, Philosophy Papers,",
+      "start": 3291.45,
+      "duration": 5.32
+    },
+    {
+      "text": "and so on.",
+      "start": 3296.77,
+      "duration": 0.9
+    },
+    {
+      "text": "They included this\nEnron Emails dataset.",
+      "start": 3304.09,
+      "duration": 2.9
+    },
+    {
+      "text": "So Enron went bust in 2002 and\nall the emails were released,",
+      "start": 3306.99,
+      "duration": 6.7
+    },
+    {
+      "text": "and this is one of the few\nemail datasets we have,",
+      "start": 3313.69,
+      "duration": 3.16
+    },
+    {
+      "text": "which is a weird distribution,\nI think, for email.",
+      "start": 3316.85,
+      "duration": 3.22
+    },
+    {
+      "text": "But that's what you get.",
+      "start": 3320.07,
+      "duration": 2.98
+    },
+    {
+      "text": "So Project Gutenberg was--",
+      "start": 3323.05,
+      "duration": 2.12
+    },
+    {
+      "text": "so let's talk about\nbooks a little bit.",
+      "start": 3325.17,
+      "duration": 3.32
+    },
+    {
+      "text": "So project Gutenberg\nwas started in 1971,",
+      "start": 3328.49,
+      "duration": 6.24
+    },
+    {
+      "text": "and it only includes books that\nreceived copyright clearance.",
+      "start": 3334.73,
+      "duration": 5.16
+    },
+    {
+      "text": "So mostly books in\nthe public domain.",
+      "start": 3339.89,
+      "duration": 2.14
+    },
+    {
+      "text": "There's this packaging\nof Gutenberg into PG-19,",
+      "start": 3345.21,
+      "duration": 3.1
+    },
+    {
+      "text": "which is Gutenberg before 2019.",
+      "start": 3348.31,
+      "duration": 5.98
+    },
+    {
+      "text": "Which is, I guess most\nof them, because for them",
+      "start": 3354.29,
+      "duration": 2.96
+    },
+    {
+      "text": "to be in public domain,\nyou have to wait 75 years.",
+      "start": 3357.25,
+      "duration": 4.36
+    },
+    {
+      "text": "So Books3, which is this\ninteresting dataset that",
+      "start": 3361.61,
+      "duration": 7.36
+    },
+    {
+      "text": "appeared in The Pile.",
+      "start": 3368.97,
+      "duration": 2.12
+    },
+    {
+      "text": "So this is described actually as\n200k books from a shadow library",
+      "start": 3371.09,
+      "duration": 7.52
+    },
+    {
+      "text": "called Bibliotik that concludes\nall books from your favorite",
+      "start": 3378.61,
+      "duration": 5.12
+    },
+    {
+      "text": "authors.",
+      "start": 3383.73,
+      "duration": 1.8
+    },
+    {
+      "text": "And at that time-- again, 2020,\nno one was paying attention.",
+      "start": 3385.53,
+      "duration": 3.64
+    },
+    {
+      "text": "People used it to train\nmodels, and since then, it",
+      "start": 3389.17,
+      "duration": 6.76
+    },
+    {
+      "text": "has been taken down.",
+      "start": 3395.93,
+      "duration": 1.3
+    },
+    {
+      "text": "So you cannot use, or should\nnot use Books3 anymore.",
+      "start": 3397.23,
+      "duration": 5.74
+    },
+    {
+      "text": "We'll come back to Books3 again.",
+      "start": 3402.97,
+      "duration": 2.4
+    },
+    {
+      "text": "So Stack Exchange you've\nprobably used quite a bit,",
+      "start": 3405.37,
+      "duration": 7.78
+    },
+    {
+      "text": "although I guess these days\nmaybe less so because of AI.",
+      "start": 3413.15,
+      "duration": 5.975
+    },
+    {
+      "text": "There's a bunch of\nuser-contributed questions",
+      "start": 3419.125,
+      "duration": 1.875
+    },
+    {
+      "text": "and answers, started in 2008.",
+      "start": 3421.0,
+      "duration": 2.57
+    },
+    {
+      "text": "And one thing that is\ninteresting about this dataset",
+      "start": 3423.57,
+      "duration": 4.2
+    },
+    {
+      "text": "is that it's a Q&A\nformat, and this is quite",
+      "start": 3427.77,
+      "duration": 4.84
+    },
+    {
+      "text": "close to a real application.",
+      "start": 3432.61,
+      "duration": 4.24
+    },
+    {
+      "text": "So normally, you think about\npre-training data as here's",
+      "start": 3436.85,
+      "duration": 3.24
+    },
+    {
+      "text": "Wikipedia articles,\njust like raw text.",
+      "start": 3440.09,
+      "duration": 3.16
+    },
+    {
+      "text": "But some parts of the\nweb are actually--",
+      "start": 3443.25,
+      "duration": 3.0
+    },
+    {
+      "text": "look supervised, like\nwhat you would want",
+      "start": 3446.25,
+      "duration": 3.4
+    },
+    {
+      "text": "to ask your language model.",
+      "start": 3449.65,
+      "duration": 1.96
+    },
+    {
+      "text": "Which I think, maybe,\nhelps the model",
+      "start": 3451.61,
+      "duration": 5.53
+    },
+    {
+      "text": "learn certain types of\nquestion answering behaviors.",
+      "start": 3457.14,
+      "duration": 3.6
+    },
+    {
+      "text": "So not everything is\nsuper magically emergent.",
+      "start": 3460.74,
+      "duration": 2.58
+    },
+    {
+      "text": "It's like, well, this type of\ndata does exist on the web.",
+      "start": 3463.32,
+      "duration": 2.8
+    },
+    {
+      "text": "So there's also-- this\ndata has metadata,",
+      "start": 3468.86,
+      "duration": 4.02
+    },
+    {
+      "text": "which is like the\nnumber of votes",
+      "start": 3472.88,
+      "duration": 1.46
+    },
+    {
+      "text": "which are useful for filtering.",
+      "start": 3474.34,
+      "duration": 2.04
+    },
+    {
+      "text": "And again, this data is\nreleased in data dumps",
+      "start": 3476.38,
+      "duration": 5.74
+    },
+    {
+      "text": "that allows you to just\ndownload without crawling it.",
+      "start": 3482.12,
+      "duration": 3.78
+    },
+    {
+      "text": "So now we're in 2021.",
+      "start": 3485.9,
+      "duration": 2.96
+    },
+    {
+      "text": "There was another\npaper from DeepMind.",
+      "start": 3488.86,
+      "duration": 2.84
+    },
+    {
+      "text": "They trained a\nmodel called Gopher,",
+      "start": 3491.7,
+      "duration": 1.54
+    },
+    {
+      "text": "which was never\nreleased, and actually",
+      "start": 3493.24,
+      "duration": 3.86
+    },
+    {
+      "text": "was subsumed by Chinchilla.",
+      "start": 3497.1,
+      "duration": 3.832
+    },
+    {
+      "text": "But the description\nof the data, I think,",
+      "start": 3500.932,
+      "duration": 1.708
+    },
+    {
+      "text": "is actually really good.",
+      "start": 3502.64,
+      "duration": 0.92
+    },
+    {
+      "text": "You should read this\npaper, because I",
+      "start": 3503.56,
+      "duration": 1.06
+    },
+    {
+      "text": "think it's very\nthorough in the way",
+      "start": 3504.62,
+      "duration": 1.88
+    },
+    {
+      "text": "that they describe\nthe data processing.",
+      "start": 3506.5,
+      "duration": 3.16
+    },
+    {
+      "text": "Well, except for the parts\nwhere they don't tell you",
+      "start": 3509.66,
+      "duration": 2.24
+    },
+    {
+      "text": "what's in the data.",
+      "start": 3511.9,
+      "duration": 1.96
+    },
+    {
+      "text": "So they created\nthis massive web,",
+      "start": 3513.86,
+      "duration": 4.8
+    },
+    {
+      "text": "and they had C4, which\nremember, was the dataset",
+      "start": 3518.66,
+      "duration": 3.6
+    },
+    {
+      "text": "that we looked at\nbefore from Google.",
+      "start": 3522.26,
+      "duration": 2.44
+    },
+    {
+      "text": "They train on books, news,\nGitHub, and Wikipedia.",
+      "start": 3524.7,
+      "duration": 2.14
+    },
+    {
+      "text": "They don't say anything\nabout how they got that.",
+      "start": 3526.84,
+      "duration": 4.02
+    },
+    {
+      "text": "So for the MassiveWeb,\nthey kept English, deduped,",
+      "start": 3530.86,
+      "duration": 7.08
+    },
+    {
+      "text": "and their quality filtering\nwas also based on manual rules.",
+      "start": 3537.94,
+      "duration": 5.32
+    },
+    {
+      "text": "And part of the reason\nfor this is that they",
+      "start": 3543.26,
+      "duration": 4.0
+    },
+    {
+      "text": "had more control over that.",
+      "start": 3547.26,
+      "duration": 1.5
+    },
+    {
+      "text": "So I think, as\nyou can see, there",
+      "start": 3548.76,
+      "duration": 3.7
+    },
+    {
+      "text": "is this division between\npeople who wanted to use rules,",
+      "start": 3552.46,
+      "duration": 8.4
+    },
+    {
+      "text": "and people who wanted\nto use classifiers.",
+      "start": 3560.86,
+      "duration": 4.72
+    },
+    {
+      "text": "So they got, as\nthe name suggests,",
+      "start": 3565.58,
+      "duration": 3.54
+    },
+    {
+      "text": "a massive amount of\ntext, but their model",
+      "start": 3569.12,
+      "duration": 4.06
+    },
+    {
+      "text": "was only trained on a very\nsmall fraction of this dataset.",
+      "start": 3573.18,
+      "duration": 4.45
+    },
+    {
+      "text": "So in 2022 Llama 1 came out,\nand the dataset here-- this",
+      "start": 3580.63,
+      "duration": 8.24
+    },
+    {
+      "text": "was actually a very nice paper\nin that it detailed their data",
+      "start": 3588.87,
+      "duration": 5.28
+    },
+    {
+      "text": "processing.",
+      "start": 3594.15,
+      "duration": 0.82
+    },
+    {
+      "text": "So this is probably one\nof the last non-open,",
+      "start": 3594.97,
+      "duration": 4.1
+    },
+    {
+      "text": "fully open models that\nactually talk about their data",
+      "start": 3599.07,
+      "duration": 2.68
+    },
+    {
+      "text": "processing.",
+      "start": 3601.75,
+      "duration": 1.12
+    },
+    {
+      "text": "So they have Common Crawl\nprocessed with CCNET,",
+      "start": 3602.87,
+      "duration": 3.1
+    },
+    {
+      "text": "which you know about.",
+      "start": 3605.97,
+      "duration": 3.94
+    },
+    {
+      "text": "The classification, though,\nwas whether the page",
+      "start": 3609.91,
+      "duration": 4.32
+    },
+    {
+      "text": "was a reference of Wikipedia,\nnot whether it is actually",
+      "start": 3614.23,
+      "duration": 2.76
+    },
+    {
+      "text": "a Wikipedia article.",
+      "start": 3616.99,
+      "duration": 2.84
+    },
+    {
+      "text": "So the idea is that well,\nmaybe Wikipedia articles",
+      "start": 3619.83,
+      "duration": 2.72
+    },
+    {
+      "text": "are too stylized.",
+      "start": 3622.55,
+      "duration": 2.4
+    },
+    {
+      "text": "And we know that Wikipedia\narticles references",
+      "start": 3624.95,
+      "duration": 2.04
+    },
+    {
+      "text": "a bunch of other articles\nwhich are presumably good,",
+      "start": 3626.99,
+      "duration": 2.26
+    },
+    {
+      "text": "so let's call those\nthe good websites.",
+      "start": 3629.25,
+      "duration": 3.74
+    },
+    {
+      "text": "They had C4, they did\na bunch of processing",
+      "start": 3632.99,
+      "duration": 4.88
+    },
+    {
+      "text": "on GitHub to keep permissive\nlicenses, Wikipedia.",
+      "start": 3637.87,
+      "duration": 4.8
+    },
+    {
+      "text": "They trained on Books3\nand project Gutenberg.",
+      "start": 3642.67,
+      "duration": 5.24
+    },
+    {
+      "text": "So Books3 really got\nthem in a lot of trouble",
+      "start": 3647.91,
+      "duration": 3.04
+    },
+    {
+      "text": "because they're just\nannouncing to the world that",
+      "start": 3650.95,
+      "duration": 2.08
+    },
+    {
+      "text": "hey, I trained on this dataset.",
+      "start": 3653.03,
+      "duration": 1.42
+    },
+    {
+      "text": "And if you look\nback, oh, this came",
+      "start": 3654.45,
+      "duration": 1.458
+    },
+    {
+      "text": "from-- where did it come from?",
+      "start": 3655.908,
+      "duration": 1.25
+    },
+    {
+      "text": "It came from The Pile.",
+      "start": 3657.158,
+      "duration": 0.972
+    },
+    {
+      "text": "Oh, it came from\na shadow library.",
+      "start": 3658.13,
+      "duration": 1.88
+    },
+    {
+      "text": "So that's why people don't\nwant to talk about their data",
+      "start": 3660.01,
+      "duration": 4.42
+    },
+    {
+      "text": "anymore.",
+      "start": 3664.43,
+      "duration": 2.08
+    },
+    {
+      "text": "So they looked at\narXiv, and actually used",
+      "start": 3666.51,
+      "duration": 5.24
+    },
+    {
+      "text": "the LaTeX to do the\nprocessing, Stack Exchange,",
+      "start": 3671.75,
+      "duration": 3.74
+    },
+    {
+      "text": "and they got 1.2\ntrillion tokens.",
+      "start": 3675.49,
+      "duration": 2.25
+    },
+    {
+      "text": "They didn't actually\nrelease this dataset,",
+      "start": 3677.74,
+      "duration": 1.75
+    },
+    {
+      "text": "but they had enough of a\ndescription in their processing",
+      "start": 3679.49,
+      "duration": 3.38
+    },
+    {
+      "text": "that this was reproduced\nby Together's RedPajama V1",
+      "start": 3682.87,
+      "duration": 5.04
+    },
+    {
+      "text": "dataset, which was then\nused in other sources.",
+      "start": 3687.91,
+      "duration": 5.12
+    },
+    {
+      "text": "So as you can see\nhere, RedPajama V1",
+      "start": 3693.03,
+      "duration": 3.2
+    },
+    {
+      "text": "initially also contained Books3,\nwhich has now been stripped out.",
+      "start": 3696.23,
+      "duration": 7.56
+    },
+    {
+      "text": "So various decisions made early\non about copyright actually",
+      "start": 3703.79,
+      "duration": 4.32
+    },
+    {
+      "text": "influence-- have a\nfairly big watershed.",
+      "start": 3708.11,
+      "duration": 5.24
+    },
+    {
+      "text": "So let's talk about RefinedWeb.",
+      "start": 3713.35,
+      "duration": 2.54
+    },
+    {
+      "text": "So this is a paper that tried\nto make a point that web data is",
+      "start": 3715.89,
+      "duration": 7.74
+    },
+    {
+      "text": "all you need.",
+      "start": 3723.63,
+      "duration": 1.5
+    },
+    {
+      "text": "So the web, in some\nsense, is everything.",
+      "start": 3725.13,
+      "duration": 2.463
+    },
+    {
+      "text": "And then we talked about\nall these specialized",
+      "start": 3727.593,
+      "duration": 1.917
+    },
+    {
+      "text": "sources, like there's GitHub\nand arXiv, and Stack Exchange.",
+      "start": 3729.51,
+      "duration": 4.72
+    },
+    {
+      "text": "And they said,\nwell, what happens",
+      "start": 3734.23,
+      "duration": 1.8
+    },
+    {
+      "text": "if we just stick with the web?",
+      "start": 3736.03,
+      "duration": 3.68
+    },
+    {
+      "text": "So they did a good job of doing\nthe transformation from HTML",
+      "start": 3739.71,
+      "duration": 3.92
+    },
+    {
+      "text": "to text.",
+      "start": 3743.63,
+      "duration": 1.12
+    },
+    {
+      "text": "They filtered using the Gopher\nrules, which is basically keep",
+      "start": 3744.75,
+      "duration": 5.57
+    },
+    {
+      "text": "things that look like English.",
+      "start": 3750.32,
+      "duration": 2.28
+    },
+    {
+      "text": "They explicitly,\nat that time, still",
+      "start": 3752.6,
+      "duration": 1.88
+    },
+    {
+      "text": "said avoid ML-based\nfiltering to avoid biases.",
+      "start": 3754.48,
+      "duration": 4.12
+    },
+    {
+      "text": "I don't want to find an overly\nnarrow subset of the web.",
+      "start": 3758.6,
+      "duration": 5.04
+    },
+    {
+      "text": "They did some deduplication, and\nthey had five trillion tokens.",
+      "start": 3763.64,
+      "duration": 4.06
+    },
+    {
+      "text": "They released about\n600 billion of them.",
+      "start": 3767.7,
+      "duration": 4.26
+    },
+    {
+      "text": "So FineWeb from Hugging Face\nwas a replication of RefinedWeb,",
+      "start": 3771.96,
+      "duration": 6.94
+    },
+    {
+      "text": "but improved it.",
+      "start": 3778.9,
+      "duration": 1.28
+    },
+    {
+      "text": "So they took all the Common\nCrawl dumps at that time,",
+      "start": 3780.18,
+      "duration": 2.9
+    },
+    {
+      "text": "did some filtering--",
+      "start": 3783.08,
+      "duration": 2.16
+    },
+    {
+      "text": "again, using manual rules\nto not inject biases--",
+      "start": 3785.24,
+      "duration": 4.72
+    },
+    {
+      "text": "deduped, did PII removal,\nand got 15 trillion tokens.",
+      "start": 3789.96,
+      "duration": 6.1
+    },
+    {
+      "text": "So you can see that the\nsize of these datasets",
+      "start": 3796.06,
+      "duration": 3.46
+    },
+    {
+      "text": "is growing quite a bit.",
+      "start": 3799.52,
+      "duration": 2.5
+    },
+    {
+      "text": "So then there is this\nDolma dataset from AI2,",
+      "start": 3806.84,
+      "duration": 4.48
+    },
+    {
+      "text": "and this is a dataset that\nincludes their own processing",
+      "start": 3811.32,
+      "duration": 5.24
+    },
+    {
+      "text": "of Common Crawl, The Stack,\nwhich we'll talk about,",
+      "start": 3816.56,
+      "duration": 3.0
+    },
+    {
+      "text": "before C4, which you know about,\nand a bunch of other things.",
+      "start": 3819.56,
+      "duration": 5.08
+    },
+    {
+      "text": "And the Reddit dataset was from\nthis project called PushShift.",
+      "start": 3824.64,
+      "duration": 8.56
+    },
+    {
+      "text": "And at that time, you\ncould still get this data,",
+      "start": 3833.2,
+      "duration": 2.56
+    },
+    {
+      "text": "and you can train on it\nbefore things got locked down.",
+      "start": 3835.76,
+      "duration": 5.6
+    },
+    {
+      "text": "AI2 has their own crawl\nof academic papers called",
+      "start": 3841.36,
+      "duration": 5.12
+    },
+    {
+      "text": "Semantic Scholar, so they\nderived a dataset based on that.",
+      "start": 3846.48,
+      "duration": 3.92
+    },
+    {
+      "text": "So let's look at their\nCommon Crawl processing.",
+      "start": 3850.4,
+      "duration": 3.56
+    },
+    {
+      "text": "So they use language\nidentification.",
+      "start": 3853.96,
+      "duration": 5.22
+    },
+    {
+      "text": "So this was model-based,\nbut quality filtering still",
+      "start": 3859.18,
+      "duration": 4.18
+    },
+    {
+      "text": "avoid model-based filtering.",
+      "start": 3863.36,
+      "duration": 3.84
+    },
+    {
+      "text": "And then they removed toxicity\nusing rules and a classifier.",
+      "start": 3867.2,
+      "duration": 7.08
+    },
+    {
+      "text": "And they got three trillion\ntokens out of that.",
+      "start": 3874.28,
+      "duration": 3.44
+    },
+    {
+      "text": "So DCLM, I think,\nwas maybe a point",
+      "start": 3877.72,
+      "duration": 2.64
+    },
+    {
+      "text": "where this idea of\nmodel-based quality filtering",
+      "start": 3880.36,
+      "duration": 4.8
+    },
+    {
+      "text": "started to really\nbecome the norm here.",
+      "start": 3885.16,
+      "duration": 5.88
+    },
+    {
+      "text": "So DataComp, the\ninitial motivation",
+      "start": 3891.04,
+      "duration": 3.24
+    },
+    {
+      "text": "was to define some\nsort of pipeline",
+      "start": 3894.28,
+      "duration": 2.52
+    },
+    {
+      "text": "so that people can try different\ndata methods in a standard way,",
+      "start": 3896.8,
+      "duration": 5.8
+    },
+    {
+      "text": "and show results.",
+      "start": 3902.6,
+      "duration": 1.64
+    },
+    {
+      "text": "But I think the main\nway that I think",
+      "start": 3904.24,
+      "duration": 2.36
+    },
+    {
+      "text": "people use this is just using\ntheir dataset that they released",
+      "start": 3906.6,
+      "duration": 3.68
+    },
+    {
+      "text": "to train models and\ndo other things.",
+      "start": 3910.28,
+      "duration": 3.92
+    },
+    {
+      "text": "So they processed Common\nCrawl to produce DCLM-pool.",
+      "start": 3914.2,
+      "duration": 5.46
+    },
+    {
+      "text": "So this is completely\nunfiltered.",
+      "start": 3919.66,
+      "duration": 1.578
+    },
+    {
+      "text": "And if you look at this\ndataset, this is massive.",
+      "start": 3921.238,
+      "duration": 2.042
+    },
+    {
+      "text": "240 trillion tokens.",
+      "start": 3923.28,
+      "duration": 3.93
+    },
+    {
+      "text": "This is probably more\nthan the number of tokens",
+      "start": 3927.21,
+      "duration": 2.08
+    },
+    {
+      "text": "that anyone really trains on.",
+      "start": 3929.29,
+      "duration": 1.9
+    },
+    {
+      "text": "But a lot of this is\nfairly low quality,",
+      "start": 3931.19,
+      "duration": 3.0
+    },
+    {
+      "text": "so then they had a pipeline\nwhere all that gets filtered.",
+      "start": 3934.19,
+      "duration": 5.0
+    },
+    {
+      "text": "If you only keep\nEnglish, you have",
+      "start": 3939.19,
+      "duration": 3.14
+    },
+    {
+      "text": "some of rules to\nreally narrow it down.",
+      "start": 3942.33,
+      "duration": 2.7
+    },
+    {
+      "text": "You do dedupe, and then you\ndo this model-based filtering,",
+      "start": 3945.03,
+      "duration": 4.1
+    },
+    {
+      "text": "and you end up with\nsomething that's 1.4%.",
+      "start": 3949.13,
+      "duration": 3.5
+    },
+    {
+      "text": "And this is the data set\nthat we'll see actually works",
+      "start": 3952.63,
+      "duration": 4.66
+    },
+    {
+      "text": "pretty well.",
+      "start": 3957.29,
+      "duration": 1.28
+    },
+    {
+      "text": "So the model-based filtering--\nand this was strangely good.",
+      "start": 3958.57,
+      "duration": 5.92
+    },
+    {
+      "text": "So to train a classifier,\nthey took OpenHermes,",
+      "start": 3964.49,
+      "duration": 7.48
+    },
+    {
+      "text": "which is essentially\ninstruction data that",
+      "start": 3971.97,
+      "duration": 3.2
+    },
+    {
+      "text": "was generated by\nGPT-4, and ELI5,",
+      "start": 3975.17,
+      "duration": 4.3
+    },
+    {
+      "text": "which is a subreddit with\nvarious questions and answers.",
+      "start": 3979.47,
+      "duration": 4.32
+    },
+    {
+      "text": "So this is-- let's see.",
+      "start": 3983.79,
+      "duration": 4.58
+    },
+    {
+      "text": "These are the type of\nquestions that are in ELI5.",
+      "start": 3988.37,
+      "duration": 3.74
+    },
+    {
+      "text": "So anyway, you get the idea.",
+      "start": 3995.57,
+      "duration": 3.76
+    },
+    {
+      "text": "So it's kind of weird,\nbut somehow this works.",
+      "start": 3999.33,
+      "duration": 5.58
+    },
+    {
+      "text": "So the negative examples are\nanything from RefinedWeb, which",
+      "start": 4004.91,
+      "duration": 2.5
+    },
+    {
+      "text": "is, remember, it's just a\nvery loosely filtered version",
+      "start": 4007.41,
+      "duration": 4.6
+    },
+    {
+      "text": "of the web.",
+      "start": 4012.01,
+      "duration": 0.5
+    },
+    {
+      "text": "It's basically the web, and\nit got 3.8 trillion tokens.",
+      "start": 4012.51,
+      "duration": 4.06
+    },
+    {
+      "text": "They train a fastText\nclassifier-- think about it just",
+      "start": 4016.57,
+      "duration": 2.48
+    },
+    {
+      "text": "as a linear classifier.",
+      "start": 4019.05,
+      "duration": 2.32
+    },
+    {
+      "text": "And then they show that this\nmagical classifier, quality",
+      "start": 4021.37,
+      "duration": 4.72
+    },
+    {
+      "text": "classifier, outperforms a bunch\nof other things that they tried.",
+      "start": 4026.09,
+      "duration": 8.32
+    },
+    {
+      "text": "So, DCLM.",
+      "start": 4034.41,
+      "duration": 1.8
+    },
+    {
+      "text": "This became, for a while, at\nleast in the open community,",
+      "start": 4036.21,
+      "duration": 4.02
+    },
+    {
+      "text": "a bit of a gold standard\nfor quality filtering.",
+      "start": 4040.23,
+      "duration": 5.9
+    },
+    {
+      "text": "Let's move on to Nemotron.",
+      "start": 4046.13,
+      "duration": 2.14
+    },
+    {
+      "text": "So Nemotron-- this\nis from NVIDIA--",
+      "start": 4048.27,
+      "duration": 3.42
+    },
+    {
+      "text": "they said that well, DCLM\nfilters too aggressively.",
+      "start": 4051.69,
+      "duration": 3.82
+    },
+    {
+      "text": "It's removing most of the data.",
+      "start": 4055.51,
+      "duration": 3.74
+    },
+    {
+      "text": "And remember, they only got--",
+      "start": 4059.25,
+      "duration": 4.16
+    },
+    {
+      "text": "how many-- 3.8 trillion tokens.",
+      "start": 4063.41,
+      "duration": 4.68
+    },
+    {
+      "text": "So we need more tokens.",
+      "start": 4068.09,
+      "duration": 2.08
+    },
+    {
+      "text": "So what do we do?",
+      "start": 4070.17,
+      "duration": 1.24
+    },
+    {
+      "text": "We are going to do something\nmore, I guess, elaborate.",
+      "start": 4071.41,
+      "duration": 7.88
+    },
+    {
+      "text": "We're going to\nprompt our existing",
+      "start": 4079.29,
+      "duration": 1.84
+    },
+    {
+      "text": "model to score FineWeb documents\nbased on educational value.",
+      "start": 4081.13,
+      "duration": 6.157
+    },
+    {
+      "text": "So we're going to prompt\na language model and say,",
+      "start": 4087.287,
+      "duration": 2.083
+    },
+    {
+      "text": "is this educational or not?",
+      "start": 4089.37,
+      "duration": 1.8
+    },
+    {
+      "text": "Go add a bunch of labels,\ntrain a fastText model.",
+      "start": 4091.17,
+      "duration": 3.24
+    },
+    {
+      "text": "So that's one classifier.",
+      "start": 4094.41,
+      "duration": 2.42
+    },
+    {
+      "text": "Another classifier is just\nusing the DCLM classifier.",
+      "start": 4096.83,
+      "duration": 3.55
+    },
+    {
+      "text": "So we're going to use\nthose classifiers.",
+      "start": 4100.38,
+      "duration": 3.16
+    },
+    {
+      "text": "We're also going to\nuse synthetic data.",
+      "start": 4103.54,
+      "duration": 2.939
+    },
+    {
+      "text": "So this is probably one of the--",
+      "start": 4106.479,
+      "duration": 4.704
+    },
+    {
+      "text": "I don't know if-- it's\nprobably not the first,",
+      "start": 4111.183,
+      "duration": 1.917
+    },
+    {
+      "text": "but, one of the main\ndatasets that really",
+      "start": 4113.1,
+      "duration": 3.679
+    },
+    {
+      "text": "lean into synthetic\ndata for pre-training.",
+      "start": 4116.779,
+      "duration": 4.601
+    },
+    {
+      "text": "So they had, for\nlow quality data,",
+      "start": 4121.38,
+      "duration": 2.2
+    },
+    {
+      "text": "as deemed by these\nclassifiers, you",
+      "start": 4123.58,
+      "duration": 2.239
+    },
+    {
+      "text": "use a language model to\nrephrase it to make it more--",
+      "start": 4125.819,
+      "duration": 3.481
+    },
+    {
+      "text": "look like Wikipedia.",
+      "start": 4129.3,
+      "duration": 2.16
+    },
+    {
+      "text": "For high quality data,\nwe use a language model",
+      "start": 4131.46,
+      "duration": 2.96
+    },
+    {
+      "text": "to generate various tasks.",
+      "start": 4134.42,
+      "duration": 2.019
+    },
+    {
+      "text": "For example, given\na Wikipedia article,",
+      "start": 4136.439,
+      "duration": 2.079
+    },
+    {
+      "text": "I can generate\nquestion answers, or I",
+      "start": 4138.518,
+      "duration": 1.542
+    },
+    {
+      "text": "can generate like, please\nsummarize this document,",
+      "start": 4140.06,
+      "duration": 4.68
+    },
+    {
+      "text": "extract key information\nfrom it, and so on.",
+      "start": 4144.74,
+      "duration": 3.32
+    },
+    {
+      "text": "So they resulted in a dataset\nthat was 6 trillion tokens.",
+      "start": 4148.06,
+      "duration": 6.08
+    },
+    {
+      "text": "So this is substantially\nlarger than DCLM.",
+      "start": 4154.14,
+      "duration": 6.2
+    },
+    {
+      "text": "And just for reference,\nthis is still kind of",
+      "start": 4160.34,
+      "duration": 5.559
+    },
+    {
+      "text": "small by some consideration.",
+      "start": 4165.899,
+      "duration": 4.101
+    },
+    {
+      "text": "So Llama 3 was trained\non 15 trillion tokens,",
+      "start": 4170.0,
+      "duration": 2.899
+    },
+    {
+      "text": "Qwen3 was trained\non 36 trillion.",
+      "start": 4172.899,
+      "duration": 2.441
+    },
+    {
+      "text": "Although there is this--",
+      "start": 4175.34,
+      "duration": 3.32
+    },
+    {
+      "text": "it's not clear how big\nthese unique tokens are,",
+      "start": 4178.66,
+      "duration": 2.52
+    },
+    {
+      "text": "because when you look at\n[INAUDIBLE] counts in language",
+      "start": 4181.18,
+      "duration": 3.44
+    },
+    {
+      "text": "modeling papers, some\nof it is repeated.",
+      "start": 4184.62,
+      "duration": 2.58
+    },
+    {
+      "text": "Like if you do\ntwo epochs, that's",
+      "start": 4187.2,
+      "duration": 2.22
+    },
+    {
+      "text": "twice the number of tokens,\nso you have to be careful",
+      "start": 4189.42,
+      "duration": 3.92
+    },
+    {
+      "text": "when you look at those numbers.",
+      "start": 4193.34,
+      "duration": 2.4
+    },
+    {
+      "text": "And they show that\nthe dataset is better.",
+      "start": 4195.74,
+      "duration": 4.64
+    },
+    {
+      "text": "Their high quality subset\nbeats the previous datasets",
+      "start": 4200.38,
+      "duration": 7.38
+    },
+    {
+      "text": "So up until now, we've seen\na bunch of different methods",
+      "start": 4207.76,
+      "duration": 6.14
+    },
+    {
+      "text": "for filtering.",
+      "start": 4213.9,
+      "duration": 2.02
+    },
+    {
+      "text": "I think all of these look\nvery similar at some level.",
+      "start": 4215.92,
+      "duration": 4.89
+    },
+    {
+      "text": "You take a web crawl,\nyou either decide",
+      "start": 4220.81,
+      "duration": 2.38
+    },
+    {
+      "text": "I'm going to use\nrules to filter,",
+      "start": 4223.19,
+      "duration": 1.42
+    },
+    {
+      "text": "or I'm going to use a model.",
+      "start": 4224.61,
+      "duration": 1.08
+    },
+    {
+      "text": "If I'm going to\nuse a model, then I",
+      "start": 4225.69,
+      "duration": 1.458
+    },
+    {
+      "text": "have to decide what\nlooks like good data,",
+      "start": 4227.148,
+      "duration": 2.242
+    },
+    {
+      "text": "and then try to\ntrain a classifier,",
+      "start": 4229.39,
+      "duration": 2.52
+    },
+    {
+      "text": "and classify all my\ndocuments, and select.",
+      "start": 4231.91,
+      "duration": 3.22
+    },
+    {
+      "text": "And there seems\nto be a trade-off",
+      "start": 4235.13,
+      "duration": 1.58
+    },
+    {
+      "text": "between you can take a\nlot of Common Crawl--",
+      "start": 4236.71,
+      "duration": 2.46
+    },
+    {
+      "text": "you can get 240 trillion\ntokens if you want,",
+      "start": 4239.17,
+      "duration": 5.48
+    },
+    {
+      "text": "but that's probably going\nto be really low quality.",
+      "start": 4244.65,
+      "duration": 2.66
+    },
+    {
+      "text": "Or you can get one\ntrillion tokens,",
+      "start": 4247.31,
+      "duration": 2.34
+    },
+    {
+      "text": "and there's some\nsweet spot in-between.",
+      "start": 4249.65,
+      "duration": 5.58
+    },
+    {
+      "text": "Let me talk about\ntwo final things.",
+      "start": 4255.23,
+      "duration": 5.76
+    },
+    {
+      "text": "So code, and going back to\nthis question of licensing.",
+      "start": 4260.99,
+      "duration": 5.0
+    },
+    {
+      "text": "So The Stack is a\nvery nice project",
+      "start": 4265.99,
+      "duration": 3.28
+    },
+    {
+      "text": "that was trying to make a really\ngood coding data set, since it",
+      "start": 4269.27,
+      "duration": 4.88
+    },
+    {
+      "text": "was clear by 2022\nthat coding was",
+      "start": 4274.15,
+      "duration": 3.0
+    },
+    {
+      "text": "going to be really important.",
+      "start": 4277.15,
+      "duration": 2.4
+    },
+    {
+      "text": "So what they did in\nthe initial version",
+      "start": 4279.55,
+      "duration": 2.36
+    },
+    {
+      "text": "is that they clone 137 repos.",
+      "start": 4281.91,
+      "duration": 5.4
+    },
+    {
+      "text": "They kept the ones that\nwere permissively licensed,",
+      "start": 4287.31,
+      "duration": 2.96
+    },
+    {
+      "text": "remove near-duplicates, and\nresulted in one-- sorry,",
+      "start": 4290.27,
+      "duration": 6.26
+    },
+    {
+      "text": "three terabytes of code.",
+      "start": 4296.53,
+      "duration": 2.1
+    },
+    {
+      "text": "And then in 2024,\nthey had an update.",
+      "start": 4298.63,
+      "duration": 3.76
+    },
+    {
+      "text": "And here they took\nmore the metadata,",
+      "start": 4302.39,
+      "duration": 4.1
+    },
+    {
+      "text": "like the issues, comments,\nand PRs from GitHub,",
+      "start": 4306.49,
+      "duration": 3.88
+    },
+    {
+      "text": "the repositories from\nthe Software Heritage,",
+      "start": 4310.37,
+      "duration": 2.26
+    },
+    {
+      "text": "which we talked about.",
+      "start": 4312.63,
+      "duration": 1.6
+    },
+    {
+      "text": "They also scraped documentation\nfrom various websites",
+      "start": 4314.23,
+      "duration": 3.52
+    },
+    {
+      "text": "by crawling them.",
+      "start": 4317.75,
+      "duration": 2.2
+    },
+    {
+      "text": "They did a bunch of processing.",
+      "start": 4319.95,
+      "duration": 1.74
+    },
+    {
+      "text": "So in GitHub repos, you have\nbinary files which you probably",
+      "start": 4321.69,
+      "duration": 4.042
+    },
+    {
+      "text": "don't want to train on.",
+      "start": 4325.732,
+      "duration": 0.958
+    },
+    {
+      "text": "They have malware,\nyou get rid of that.",
+      "start": 4326.69,
+      "duration": 2.66
+    },
+    {
+      "text": "A lot of GitHub, especially\nthese PRs, are bots,",
+      "start": 4329.35,
+      "duration": 3.42
+    },
+    {
+      "text": "so you have to filter that.",
+      "start": 4332.77,
+      "duration": 1.5
+    },
+    {
+      "text": "Dedupe, do PII redaction.",
+      "start": 4334.27,
+      "duration": 3.4
+    },
+    {
+      "text": "There's a lot pull\nrequests and stuff,",
+      "start": 4337.67,
+      "duration": 3.14
+    },
+    {
+      "text": "and they basically subsample\nto keep it representative",
+      "start": 4340.81,
+      "duration": 3.78
+    },
+    {
+      "text": "and the dataset manageable.",
+      "start": 4344.59,
+      "duration": 2.52
+    },
+    {
+      "text": "They also did this thing,\nwhich was I thought was nice,",
+      "start": 4347.11,
+      "duration": 3.62
+    },
+    {
+      "text": "which is that there's many\nprogramming languages out there.",
+      "start": 4350.73,
+      "duration": 4.38
+    },
+    {
+      "text": "There's a lot of\nPython, a lot of C,",
+      "start": 4355.11,
+      "duration": 3.24
+    },
+    {
+      "text": "but low resource languages like\nNim-- which I hadn't even heard",
+      "start": 4358.35,
+      "duration": 4.34
+    },
+    {
+      "text": "of-- they're not that common.",
+      "start": 4362.69,
+      "duration": 4.0
+    },
+    {
+      "text": "So what they do is\nthey compile this code",
+      "start": 4366.69,
+      "duration": 3.5
+    },
+    {
+      "text": "into a low-level\nintermediate language,",
+      "start": 4370.19,
+      "duration": 2.22
+    },
+    {
+      "text": "LLVM, which everything, like C\nCompiler, can compile into this,",
+      "start": 4372.41,
+      "duration": 4.32
+    },
+    {
+      "text": "and they have juxtaposed\nthe low resource",
+      "start": 4376.73,
+      "duration": 2.78
+    },
+    {
+      "text": "language and the\nintermediate representation.",
+      "start": 4379.51,
+      "duration": 2.4
+    },
+    {
+      "text": "So then the language\nmodel can actually",
+      "start": 4381.91,
+      "duration": 3.48
+    },
+    {
+      "text": "learn the mapping between the\nshared low level representation,",
+      "start": 4385.39,
+      "duration": 4.9
+    },
+    {
+      "text": "which has a lot of data on,\nand the thing that it does",
+      "start": 4390.29,
+      "duration": 3.11
+    },
+    {
+      "text": "has less data on.",
+      "start": 4393.4,
+      "duration": 2.76
+    },
+    {
+      "text": "And just for fun, you add\nin all the other good stuff",
+      "start": 4396.16,
+      "duration": 5.72
+    },
+    {
+      "text": "that you can.",
+      "start": 4401.88,
+      "duration": 0.86
+    },
+    {
+      "text": "So Stack V2 is\nmostly code, and then",
+      "start": 4402.74,
+      "duration": 3.46
+    },
+    {
+      "text": "plus other things that were used\nto train their coding models.",
+      "start": 4406.2,
+      "duration": 6.76
+    },
+    {
+      "text": "And one thing\nabout pull requests",
+      "start": 4412.96,
+      "duration": 3.28
+    },
+    {
+      "text": "is that pull requests and\nall the metadata is not,",
+      "start": 4416.24,
+      "duration": 5.86
+    },
+    {
+      "text": "by its nature, a\nlinearized sequence.",
+      "start": 4422.1,
+      "duration": 2.56
+    },
+    {
+      "text": "So there has to be some\nsteps taken to linearize it.",
+      "start": 4424.66,
+      "duration": 3.86
+    },
+    {
+      "text": "So one important thing\nyou have to decide",
+      "start": 4428.52,
+      "duration": 1.92
+    },
+    {
+      "text": "is how much context to provide.",
+      "start": 4430.44,
+      "duration": 2.22
+    },
+    {
+      "text": "So for example, an\nevent might just be,",
+      "start": 4432.66,
+      "duration": 2.58
+    },
+    {
+      "text": "I change one line of code.",
+      "start": 4435.24,
+      "duration": 1.72
+    },
+    {
+      "text": "And that could just be\none line, but presumably",
+      "start": 4436.96,
+      "duration": 2.48
+    },
+    {
+      "text": "to learn that, you want to\nprovide some context, maybe",
+      "start": 4439.44,
+      "duration": 4.08
+    },
+    {
+      "text": "a few lines around it, or maybe\nthe entire file surrounding",
+      "start": 4443.52,
+      "duration": 2.84
+    },
+    {
+      "text": "that diff.",
+      "start": 4446.36,
+      "duration": 0.76
+    },
+    {
+      "text": "And these are some\ndesign decisions",
+      "start": 4447.12,
+      "duration": 1.48
+    },
+    {
+      "text": "that you have to make\nfor linearization.",
+      "start": 4448.6,
+      "duration": 4.36
+    },
+    {
+      "text": "And so at the end of the day,\nthe tokens that they train on",
+      "start": 4452.96,
+      "duration": 3.28
+    },
+    {
+      "text": "look something like\nthis, where it's",
+      "start": 4456.24,
+      "duration": 2.08
+    },
+    {
+      "text": "this XML-like structured\ndata, where you have the PR,",
+      "start": 4458.32,
+      "duration": 5.6
+    },
+    {
+      "text": "and then you have\na bunch of diffs.",
+      "start": 4463.92,
+      "duration": 2.44
+    },
+    {
+      "text": "And then for comments, you\nhave basically the events",
+      "start": 4466.36,
+      "duration": 3.04
+    },
+    {
+      "text": "of a comment was posted, what\nthe review state of that PR was",
+      "start": 4469.4,
+      "duration": 6.2
+    },
+    {
+      "text": "and so on and so forth.",
+      "start": 4475.6,
+      "duration": 1.6
+    },
+    {
+      "text": "So it's not just\nlearning how to generate",
+      "start": 4477.2,
+      "duration": 2.44
+    },
+    {
+      "text": "code, but also the software\ndevelopment process around code.",
+      "start": 4479.64,
+      "duration": 5.16
+    },
+    {
+      "text": "So finally, I'll talk\nabout the common pile.",
+      "start": 4484.8,
+      "duration": 4.96
+    },
+    {
+      "text": "So recall that almost all\nthe data on the internet",
+      "start": 4489.76,
+      "duration": 2.88
+    },
+    {
+      "text": "is copyrighted.",
+      "start": 4492.64,
+      "duration": 2.52
+    },
+    {
+      "text": "Some of it is permissively\nlicensed, some of it",
+      "start": 4495.16,
+      "duration": 2.0
+    },
+    {
+      "text": "is even in the public domain.",
+      "start": 4497.16,
+      "duration": 2.76
+    },
+    {
+      "text": "And while you can appeal\nto fair use and say,",
+      "start": 4499.92,
+      "duration": 3.82
+    },
+    {
+      "text": "I'm going to train on it anyway,\nthis is not quite settled.",
+      "start": 4503.74,
+      "duration": 5.18
+    },
+    {
+      "text": "So if you're very,\nvery risk-averse,",
+      "start": 4508.92,
+      "duration": 2.28
+    },
+    {
+      "text": "then you say, well, if I\ndon't know whether it is OK,",
+      "start": 4511.2,
+      "duration": 6.94
+    },
+    {
+      "text": "that's a no.",
+      "start": 4518.14,
+      "duration": 1.06
+    },
+    {
+      "text": "If you take that attitude, then\nthat's what common pile did.",
+      "start": 4519.2,
+      "duration": 4.04
+    },
+    {
+      "text": "So can you train a good model\nwith only permissively licensed",
+      "start": 4523.24,
+      "duration": 4.52
+    },
+    {
+      "text": "data?",
+      "start": 4527.76,
+      "duration": 0.62
+    },
+    {
+      "text": "Or rather, how far can you get?",
+      "start": 4530.96,
+      "duration": 2.68
+    },
+    {
+      "text": "So this was a project that\nwent and scoured the internet",
+      "start": 4533.64,
+      "duration": 7.96
+    },
+    {
+      "text": "for all the different\ntypes of data",
+      "start": 4541.6,
+      "duration": 2.56
+    },
+    {
+      "text": "that they could possibly find\nthat was worth training on,",
+      "start": 4544.16,
+      "duration": 3.58
+    },
+    {
+      "text": "that was permissively licensed.",
+      "start": 4547.74,
+      "duration": 1.78
+    },
+    {
+      "text": "It includes Stack V2 in code.",
+      "start": 4549.52,
+      "duration": 4.84
+    },
+    {
+      "text": "It turns out that a lot\nof government proceedings",
+      "start": 4554.36,
+      "duration": 2.2
+    },
+    {
+      "text": "are actually\npermissively licensed,",
+      "start": 4556.56,
+      "duration": 4.48
+    },
+    {
+      "text": "wikis, some things on the web--\nsome new sites are actually",
+      "start": 4561.04,
+      "duration": 7.65
+    },
+    {
+      "text": "permissively licensed,\nacademic papers, online forums,",
+      "start": 4568.69,
+      "duration": 6.0
+    },
+    {
+      "text": "things that are in the public\ndomain, educational resources,",
+      "start": 4574.69,
+      "duration": 3.98
+    },
+    {
+      "text": "and so on.",
+      "start": 4578.67,
+      "duration": 1.34
+    },
+    {
+      "text": "So in the end, there\nwere 8 terabytes",
+      "start": 4580.01,
+      "duration": 2.2
+    },
+    {
+      "text": "of data, which is\nactually pretty",
+      "start": 4582.21,
+      "duration": 2.6
+    },
+    {
+      "text": "good for permissively\nlicensed data.",
+      "start": 4584.81,
+      "duration": 4.64
+    },
+    {
+      "text": "Doing this project is\nactually much harder",
+      "start": 4589.45,
+      "duration": 3.52
+    },
+    {
+      "text": "than maybe it sounds\nat first glance.",
+      "start": 4592.97,
+      "duration": 2.595
+    },
+    {
+      "text": "It's not just as simple\noh, you look at the license",
+      "start": 4595.565,
+      "duration": 2.125
+    },
+    {
+      "text": "and it's like, oh yep,\nApache, or CC, good.",
+      "start": 4597.69,
+      "duration": 4.8
+    },
+    {
+      "text": "There's some subtleties,\nversus license laundering.",
+      "start": 4602.49,
+      "duration": 5.56
+    },
+    {
+      "text": "So people are sloppy\nwith licenses.",
+      "start": 4608.05,
+      "duration": 3.3
+    },
+    {
+      "text": "So people might take\nsome copyright work",
+      "start": 4611.35,
+      "duration": 2.14
+    },
+    {
+      "text": "and just slap a CC BY on it.",
+      "start": 4613.49,
+      "duration": 3.24
+    },
+    {
+      "text": "Anyone can write\nthis on the internet,",
+      "start": 4616.73,
+      "duration": 1.7
+    },
+    {
+      "text": "and it's hard to tell\nwhether this is real or not.",
+      "start": 4618.43,
+      "duration": 7.94
+    },
+    {
+      "text": "There's also this common\npractice where, for example,",
+      "start": 4626.37,
+      "duration": 3.78
+    },
+    {
+      "text": "Dolma is permissively licensed.",
+      "start": 4630.15,
+      "duration": 4.36
+    },
+    {
+      "text": "Remember, Dolma is\nthe AI2 collection.",
+      "start": 4634.51,
+      "duration": 3.22
+    },
+    {
+      "text": "But collection licenses don't\nextend to the individual works.",
+      "start": 4637.73,
+      "duration": 4.52
+    },
+    {
+      "text": "So the collection is--",
+      "start": 4642.25,
+      "duration": 3.853
+    },
+    {
+      "text": "I mean, first of all,\nthere's a question",
+      "start": 4646.103,
+      "duration": 1.667
+    },
+    {
+      "text": "of whether collections--",
+      "start": 4647.77,
+      "duration": 1.115
+    },
+    {
+      "text": "I think collections\ncan be copyrighted,",
+      "start": 4648.885,
+      "duration": 1.625
+    },
+    {
+      "text": "but I guess you can put\na license on anything.",
+      "start": 4650.51,
+      "duration": 4.14
+    },
+    {
+      "text": "But the individual works\nare not necessarily good.",
+      "start": 4654.65,
+      "duration": 6.62
+    },
+    {
+      "text": "So you can't just look at\ndata sets on Hugging Face,",
+      "start": 4661.27,
+      "duration": 2.54
+    },
+    {
+      "text": "and you-- many data sets\non Hugging Face you see,",
+      "start": 4663.81,
+      "duration": 2.208
+    },
+    {
+      "text": "they have a permissive license.",
+      "start": 4666.018,
+      "duration": 1.292
+    },
+    {
+      "text": "But if you dig\ndeeper, it's actually",
+      "start": 4667.31,
+      "duration": 1.86
+    },
+    {
+      "text": "not permissively licensed\nat the individual level.",
+      "start": 4669.17,
+      "duration": 3.68
+    },
+    {
+      "text": "And they also made a\ndecision to forego training",
+      "start": 4672.85,
+      "duration": 3.36
+    },
+    {
+      "text": "on any synthetic data, because\ntraining language models",
+      "start": 4676.21,
+      "duration": 4.36
+    },
+    {
+      "text": "on unlicensed data is unclear.",
+      "start": 4680.57,
+      "duration": 4.12
+    },
+    {
+      "text": "So probably it's fine\nbecause technically, these",
+      "start": 4684.69,
+      "duration": 8.05
+    },
+    {
+      "text": "are open weight models\nwith MIT license.",
+      "start": 4692.74,
+      "duration": 2.72
+    },
+    {
+      "text": "You can do whatever.",
+      "start": 4695.46,
+      "duration": 3.88
+    },
+    {
+      "text": "You can use them\nhowever you want,",
+      "start": 4699.34,
+      "duration": 1.7
+    },
+    {
+      "text": "but these language models\nwere presumably also trained",
+      "start": 4701.04,
+      "duration": 4.86
+    },
+    {
+      "text": "on unlicensed data.",
+      "start": 4705.9,
+      "duration": 1.22
+    },
+    {
+      "text": "So it's a little bit\nof data laundering",
+      "start": 4707.12,
+      "duration": 2.78
+    },
+    {
+      "text": "if you are really honest here.",
+      "start": 4709.9,
+      "duration": 3.14
+    },
+    {
+      "text": "So with this data,\nthey compare it",
+      "start": 4716.1,
+      "duration": 3.68
+    },
+    {
+      "text": "with a bunch of other models\nlike the first Llama, MPT,",
+      "start": 4719.78,
+      "duration": 7.2
+    },
+    {
+      "text": "and Qwen.",
+      "start": 4726.98,
+      "duration": 1.2
+    },
+    {
+      "text": "And on a bunch of benchmarks,\nthey show that this is not bad.",
+      "start": 4728.18,
+      "duration": 4.62
+    },
+    {
+      "text": "I would say it's not as good\nas the Qwen models for sure,",
+      "start": 4732.8,
+      "duration": 5.56
+    },
+    {
+      "text": "but it's certainly\noutperforming the very old--",
+      "start": 4738.36,
+      "duration": 6.31
+    },
+    {
+      "text": "this is from 2023, I guess.",
+      "start": 4744.67,
+      "duration": 4.43
+    },
+    {
+      "text": "So quite old models.",
+      "start": 4749.1,
+      "duration": 2.36
+    },
+    {
+      "text": "So I would say,\nthe conclusion here",
+      "start": 4751.46,
+      "duration": 2.24
+    },
+    {
+      "text": "is that you can do\nreasonably, but I",
+      "start": 4753.7,
+      "duration": 3.04
+    },
+    {
+      "text": "think it's still\npretty tough to compete",
+      "start": 4756.74,
+      "duration": 2.32
+    },
+    {
+      "text": "without doing more tokens.",
+      "start": 4759.06,
+      "duration": 2.34
+    },
+    {
+      "text": "But I don't think this\nis the final word on it,",
+      "start": 4761.4,
+      "duration": 2.2
+    },
+    {
+      "text": "and I think you can probably\neke more out of publicly",
+      "start": 4763.6,
+      "duration": 2.62
+    },
+    {
+      "text": "permissive licenses if you try.",
+      "start": 4766.22,
+      "duration": 3.68
+    },
+    {
+      "text": "OK, so to summarize\nthis lecture here.",
+      "start": 4769.9,
+      "duration": 4.2
+    },
+    {
+      "text": "So maybe hopefully now I've\ngiven you some appreciation",
+      "start": 4774.1,
+      "duration": 4.54
+    },
+    {
+      "text": "that data is a very rich topic.",
+      "start": 4778.64,
+      "duration": 2.16
+    },
+    {
+      "text": "It's not that data just\nfalls from the sky,",
+      "start": 4780.8,
+      "duration": 2.18
+    },
+    {
+      "text": "or you just go on Hugging Face\nand you download a dataset.",
+      "start": 4782.98,
+      "duration": 4.76
+    },
+    {
+      "text": "Data has to come from somewhere.",
+      "start": 4787.74,
+      "duration": 2.18
+    },
+    {
+      "text": "And there's also a technical\nbut also social context",
+      "start": 4789.92,
+      "duration": 3.54
+    },
+    {
+      "text": "in which data comes,\nbecause at the top,",
+      "start": 4793.46,
+      "duration": 6.08
+    },
+    {
+      "text": "the internet is a\nbunch of live services.",
+      "start": 4799.54,
+      "duration": 3.88
+    },
+    {
+      "text": "Someone has to do the work\nof producing raw data,",
+      "start": 4803.42,
+      "duration": 2.722
+    },
+    {
+      "text": "whether it be the website\nthat gives you dumps,",
+      "start": 4806.142,
+      "duration": 1.958
+    },
+    {
+      "text": "or someone has to build\na crawler, or something.",
+      "start": 4808.1,
+      "duration": 3.48
+    },
+    {
+      "text": "And then, someone has to make\nthe decision of how to process",
+      "start": 4811.58,
+      "duration": 3.28
+    },
+    {
+      "text": "it into usable form--",
+      "start": 4814.86,
+      "duration": 2.72
+    },
+    {
+      "text": "filtering, transformation,\ndeduplication, all these things",
+      "start": 4817.58,
+      "duration": 3.52
+    },
+    {
+      "text": "have an impact on the quality\nof your final language model.",
+      "start": 4821.1,
+      "duration": 5.32
+    },
+    {
+      "text": "And notice that\nfiltering is probably one",
+      "start": 4826.42,
+      "duration": 2.16
+    },
+    {
+      "text": "of the most important things.",
+      "start": 4828.58,
+      "duration": 2.42
+    },
+    {
+      "text": "How do you go from\n200 trillion tokens",
+      "start": 4831.0,
+      "duration": 2.94
+    },
+    {
+      "text": "to less than three\ntrillion tokens?",
+      "start": 4833.94,
+      "duration": 4.14
+    },
+    {
+      "text": "I think that obviously is a\nhuge reduction, which I think",
+      "start": 4838.08,
+      "duration": 4.26
+    },
+    {
+      "text": "merits a lot of attention.",
+      "start": 4842.34,
+      "duration": 3.08
+    },
+    {
+      "text": "Data is, in some sense,\na key ingredient that",
+      "start": 4845.42,
+      "duration": 3.08
+    },
+    {
+      "text": "differentiates language models.",
+      "start": 4848.5,
+      "duration": 1.78
+    },
+    {
+      "text": "A lot of language models\nare roughly the same kind",
+      "start": 4850.28,
+      "duration": 3.42
+    },
+    {
+      "text": "of transformer architecture,\nbut data is depending",
+      "start": 4853.7,
+      "duration": 4.72
+    },
+    {
+      "text": "on how you process it.",
+      "start": 4858.42,
+      "duration": 2.18
+    },
+    {
+      "text": "It can make a pretty\nbig difference.",
+      "start": 4860.6,
+      "duration": 2.87
+    },
+    {
+      "text": "There's plenty of legal\nand ethical issues",
+      "start": 4863.47,
+      "duration": 1.84
+    },
+    {
+      "text": "around data, more than I\ncan get into this lecture.",
+      "start": 4865.31,
+      "duration": 4.76
+    },
+    {
+      "text": "And also, this\nprocess is very messy.",
+      "start": 4870.07,
+      "duration": 5.2
+    },
+    {
+      "text": "Unlike some of the other parts\nof this class where things",
+      "start": 4875.27,
+      "duration": 3.84
+    },
+    {
+      "text": "are maybe more based\non first principles,",
+      "start": 4879.11,
+      "duration": 5.2
+    },
+    {
+      "text": "data processing is, right\nnow at least, a lot just",
+      "start": 4884.31,
+      "duration": 3.8
+    },
+    {
+      "text": "based on vibes you set up.",
+      "start": 4888.11,
+      "duration": 2.04
+    },
+    {
+      "text": "You define this classifier,\nyou define this rule,",
+      "start": 4890.15,
+      "duration": 2.38
+    },
+    {
+      "text": "you set some threshold.",
+      "start": 4892.53,
+      "duration": 1.86
+    },
+    {
+      "text": "So there are many\nopportunities to improve.",
+      "start": 4894.39,
+      "duration": 1.86
+    },
+    {
+      "text": "So as you do your\nassignment four,",
+      "start": 4896.25,
+      "duration": 2.26
+    },
+    {
+      "text": "maybe think about whether\nthere's better ways to do this,",
+      "start": 4898.51,
+      "duration": 2.94
+    },
+    {
+      "text": "and this could be maybe\na research direction.",
+      "start": 4901.45,
+      "duration": 3.7
+    },
+    {
+      "text": "OK, so that's it for today.",
+      "start": 4905.15,
+      "duration": 1.94
+    },
+    {
+      "text": "So next time I'll continue\ntalking about data.",
+      "start": 4907.09,
+      "duration": 2.2
+    },
+    {
+      "text": "I'll talk a bit about\npost-training data,",
+      "start": 4909.29,
+      "duration": 2.74
+    },
+    {
+      "text": "and a bit more about filtering.",
+      "start": 4912.03,
+      "duration": 4.05
+    }
+  ]
+}
