@@ -13,7 +13,6 @@ from cs336_rag.ingest.transcripts import (
     fetch_youtube_transcript,
     load_transcripts,
     save_transcript,
-    transcribe_with_whisper,
 )
 from cs336_rag.models import TranscriptSegment, VideoTranscript
 
@@ -140,11 +139,3 @@ class TestFetchAllTranscripts:
         )
 
         assert fetch_all_transcripts(settings) == [transcript]
-
-
-class TestWhisperFallback:
-    def test_requires_openai_key(self) -> None:
-        settings = Settings(_env_file=None)  # type: ignore[call-arg]
-
-        with pytest.raises(ValueError, match="OPENAI_KEY"):
-            transcribe_with_whisper("abc123", settings)

@@ -23,7 +23,12 @@ def test_defaults() -> None:
     assert settings.data_dir == Path("data")
 
 
-def test_openai_key_is_optional() -> None:
+def test_openai_key_is_optional(monkeypatch: object) -> None:
+    import pytest
+
+    mp = monkeypatch
+    assert isinstance(mp, pytest.MonkeyPatch)
+    mp.delenv("OPENAI_KEY", raising=False)
     settings = Settings(_env_file=None)  # type: ignore[call-arg]
     assert settings.openai_key is None
 
