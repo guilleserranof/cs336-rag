@@ -28,7 +28,9 @@ class FakeEmbedder:
 
 @pytest.fixture
 def transcripts_on_disk(db_settings: Settings, tmp_path: Path) -> Settings:
-    settings = db_settings.model_copy(update={"data_dir": tmp_path})
+    settings = db_settings.model_copy(
+        update={"data_dir": tmp_path, "chunk_max_chars": 300, "chunk_overlap_chars": 60}
+    )
     for position in (1, 2):
         transcript = VideoTranscript(
             video_id=f"vid{position}",
@@ -62,9 +64,7 @@ def test_pipeline_ingests_all_transcripts(
         assert videos == [("vid1",), ("vid2",)]
 
 
-def test_pipeline_is_idempotent(
-    transcripts_on_disk: Settings, db_conn: psycopg.Connection
-) -> None:
+def test_pipeline_is_idempotent(transcripts_on_disk: Settings, db_conn: psycopg.Connection) -> None:
     settings = transcripts_on_disk
     embedder = FakeEmbedder(settings.embedding_dim)
 

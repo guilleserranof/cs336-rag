@@ -71,7 +71,7 @@ def test_embedding_roundtrip(db_conn: psycopg.Connection) -> None:
 
     row = db_conn.execute("SELECT embedding FROM chunks").fetchone()
     assert row is not None
-    stored = list(row[0])
+    stored = row[0].to_list()
     assert stored == pytest.approx(vector)
 
 

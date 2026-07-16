@@ -29,3 +29,25 @@ class VideoTranscript(BaseModel):
     @property
     def full_text(self) -> str:
         return " ".join(segment.text for segment in self.segments)
+
+
+class Chunk(BaseModel):
+    """A retrievable slice of a lecture, deep-linkable via the YouTube URL schema."""
+
+    video_id: str
+    title: str
+    position: int
+    chunk_index: int
+    start: float
+    end: float
+    content: str
+    base_url: str = "https://www.youtube.com/watch?v="
+
+    @property
+    def id(self) -> str:
+        return f"{self.video_id}:{self.chunk_index}"
+
+    @property
+    def url(self) -> str:
+        """Deep link that opens the video at the chunk's first second."""
+        return f"{self.base_url}{self.video_id}&t={int(self.start)}s"

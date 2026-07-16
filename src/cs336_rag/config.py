@@ -32,6 +32,11 @@ class Settings(BaseSettings):
     data_dir: Path = Path("data")
     playlist_id: str = CS336_PLAYLIST_ID
 
+    # Chunking / embedding batches
+    chunk_max_chars: int = 1800
+    chunk_overlap_chars: int = 300
+    embed_batch_size: int = 64
+
     @property
     def db_dsn(self) -> str:
         return (
