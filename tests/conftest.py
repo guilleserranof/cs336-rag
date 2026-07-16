@@ -5,6 +5,7 @@ provided by the workflow. Without a reachable server the integration tests
 are skipped.
 """
 
+import os
 from collections.abc import Iterator
 
 import psycopg
@@ -37,8 +38,11 @@ def db_settings() -> Settings:
             ).fetchone()
             if not exists:
                 conn.execute(f'CREATE DATABASE "{TEST_DB}"')
-    except psycopg.OperationalError:
-        pytest.skip("Postgres is not reachable; run 'docker compose up -d postgres'")
+    except psycopg.OperationalError as error:
+        message = "Postgres is not reachable; run 'docker compose up -d postgres'"
+        if os.getenv("CI") == "true":
+            pytest.fail(f"{message}. CI must run integration tests: {error}", pytrace=False)
+        pytest.skip(message)
     return settings
 
 
