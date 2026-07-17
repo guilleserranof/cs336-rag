@@ -78,3 +78,30 @@ def test_embedding_roundtrip(db_conn: psycopg.Connection) -> None:
 def test_mismatched_lengths_raise(db_conn: psycopg.Connection) -> None:
     with pytest.raises(ValueError, match="length"):
         db.replace_chunks(db_conn, [make_chunk(0)], [])
+
+
+def test_empty_chunks_never_wipe_the_knowledge_base(db_conn: psycopg.Connection) -> None:
+    db.replace_chunks(db_conn, [make_chunk(0)], [[0.1] * 8])
+
+    with pytest.raises(ValueError, match="zero chunks"):
+        db.replace_chunks(db_conn, [], [])
+
+    assert db.count_chunks(db_conn) == 1  # previous content untouched
+
+
+def test_init_schema_recreates_table_on_dimension_change(
+    db_conn: psycopg.Connection, db_settings: "Settings"
+) -> None:
+    db.replace_chunks(db_conn, [make_chunk(0)], [[0.1] * 8])
+
+    db.init_schema(db_conn, embedding_dim=4)
+
+    row = db_conn.execute(
+        "SELECT format_type(atttypid, atttypmod) FROM pg_attribute "
+        "WHERE attrelid = 'chunks'::regclass AND attname = 'embedding'"
+    ).fetchone()
+    assert row == ("vector(4)",)
+    assert db.count_chunks(db_conn) == 0  # rebuilt empty, ready for re-ingest
+
+    # restore the fixture's dimension for subsequent tests
+    db.init_schema(db_conn, db_settings.embedding_dim)

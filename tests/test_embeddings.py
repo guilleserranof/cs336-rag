@@ -71,3 +71,14 @@ def test_embed_empty_list_returns_empty() -> None:
 def test_missing_key_raises_clear_error() -> None:
     with pytest.raises(ValueError, match="OPENAI_KEY"):
         EmbeddingClient(make_settings(openai_key=None))
+
+
+def test_non_retryable_errors_fail_fast() -> None:
+    stub = MagicMock()
+    stub.embeddings.create.side_effect = ValueError("invalid request")
+    client = EmbeddingClient(make_settings(), client=stub)
+
+    with pytest.raises(ValueError, match="invalid request"):
+        client.embed(["a"])
+
+    assert stub.embeddings.create.call_count == 1  # no pointless retries

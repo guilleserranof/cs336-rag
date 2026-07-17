@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
+
 
 class TranscriptSegment(BaseModel):
     """One caption snippet as returned by YouTube or Whisper."""
@@ -24,7 +26,7 @@ class VideoTranscript(BaseModel):
 
     @property
     def url(self) -> str:
-        return f"https://www.youtube.com/watch?v={self.video_id}"
+        return f"{YOUTUBE_WATCH_URL}{self.video_id}"
 
     @property
     def full_text(self) -> str:
@@ -41,7 +43,6 @@ class Chunk(BaseModel):
     start: float
     end: float
     content: str
-    base_url: str = "https://www.youtube.com/watch?v="
 
     @property
     def id(self) -> str:
@@ -50,4 +51,4 @@ class Chunk(BaseModel):
     @property
     def url(self) -> str:
         """Deep link that opens the video at the chunk's first second."""
-        return f"{self.base_url}{self.video_id}&t={int(self.start)}s"
+        return f"{YOUTUBE_WATCH_URL}{self.video_id}&t={int(self.start)}s"

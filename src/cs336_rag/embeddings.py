@@ -1,29 +1,36 @@
 """Thin wrapper around the OpenAI-compatible embeddings endpoint.
 
 Adds batching (the API rejects oversized requests), retry with exponential
-backoff, and the ``dimensions`` parameter (qwen3-embedding supports
-matryoshka truncation; 1024 dims keeps pgvector's HNSW index applicable
-and returns unit-norm vectors).
+backoff on transient failures, and the ``dimensions`` parameter
+(qwen3-embedding supports matryoshka truncation; 1024 dims keeps
+pgvector's HNSW index applicable and returns unit-norm vectors).
 """
 
-from openai import OpenAI
-from tenacity import retry, stop_after_attempt, wait_exponential
+from openai import (
+    APIConnectionError,
+    APITimeoutError,
+    InternalServerError,
+    OpenAI,
+    RateLimitError,
+)
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from cs336_rag.config import Settings
+from cs336_rag.llm import build_openai_client
+
+# transient failures worth retrying; auth/validation errors fail fast
+RETRYABLE_ERRORS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
 
 
 class EmbeddingClient:
     def __init__(self, settings: Settings, client: OpenAI | None = None) -> None:
-        if client is None:
-            if settings.openai_key is None:
-                raise ValueError("OPENAI_KEY is required to compute embeddings")
-            client = OpenAI(api_key=settings.openai_key, base_url=settings.llm_base_url)
-        self._client = client
+        self._client = client or build_openai_client(settings, purpose="compute embeddings")
         self._model = settings.embedding_model
         self._dimensions = settings.embedding_dim
         self._batch_size = settings.embed_batch_size
 
     @retry(
+        retry=retry_if_exception_type(RETRYABLE_ERRORS),
         stop=stop_after_attempt(5),
         wait=wait_exponential(multiplier=1, max=30),
         reraise=True,

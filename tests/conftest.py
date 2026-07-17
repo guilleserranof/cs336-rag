@@ -12,7 +12,6 @@ import psycopg
 import pytest
 
 from cs336_rag.config import Settings
-from tests.test_config import make_settings
 
 TEST_DB = "cs336_rag_test"
 EMBEDDING_DIM = 8  # keep test vectors tiny
@@ -22,14 +21,7 @@ EMBEDDING_DIM = 8  # keep test vectors tiny
 def db_settings() -> Settings:
     """Settings pointing at a dedicated test database (created on demand)."""
     base = Settings(_env_file=None, openai_key=None)  # type: ignore[call-arg]
-    settings = make_settings(
-        db_host=base.db_host,
-        db_port=base.db_port,
-        db_user=base.db_user,
-        db_password=base.db_password,
-        db_name=TEST_DB,
-        embedding_dim=EMBEDDING_DIM,
-    )
+    settings = base.model_copy(update={"db_name": TEST_DB, "embedding_dim": EMBEDDING_DIM})
     admin_dsn = base.db_dsn.rsplit("/", 1)[0] + "/postgres"
     try:
         with psycopg.connect(admin_dsn, autocommit=True, connect_timeout=3) as conn:

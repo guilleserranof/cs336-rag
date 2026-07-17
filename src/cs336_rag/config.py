@@ -3,6 +3,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 CS336_PLAYLIST_ID = "PLoROMvodv4rMqXOcazWaTUHhq-yembLCV"
@@ -33,9 +34,9 @@ class Settings(BaseSettings):
     playlist_id: str = CS336_PLAYLIST_ID
 
     # Chunking / embedding batches
-    chunk_max_chars: int = 1800
-    chunk_overlap_chars: int = 300
-    embed_batch_size: int = 64
+    chunk_max_chars: int = Field(default=1800, gt=0)
+    chunk_overlap_chars: int = Field(default=300, ge=0)
+    embed_batch_size: int = Field(default=64, gt=0)
 
     @property
     def db_dsn(self) -> str:

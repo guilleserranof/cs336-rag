@@ -15,7 +15,6 @@ import tempfile
 from pathlib import Path
 from typing import Literal, Protocol
 
-from openai import OpenAI
 from youtube_transcript_api import (
     NoTranscriptFound,
     TranscriptsDisabled,
@@ -23,6 +22,7 @@ from youtube_transcript_api import (
 )
 
 from cs336_rag.config import Settings
+from cs336_rag.llm import build_openai_client
 from cs336_rag.models import TranscriptSegment, VideoTranscript
 
 logger = logging.getLogger(__name__)
@@ -82,10 +82,7 @@ def transcribe_with_whisper(video_id: str, settings: Settings) -> list[Transcrip
     """Fallback: download the audio track and transcribe it with Whisper."""
     import yt_dlp
 
-    if settings.openai_key is None:
-        raise ValueError("OPENAI_KEY is required to transcribe videos with Whisper")
-
-    client = OpenAI(api_key=settings.openai_key, base_url=settings.llm_base_url)
+    client = build_openai_client(settings, purpose="transcribe videos with Whisper")
     with tempfile.TemporaryDirectory() as tmp_dir:
         options = {
             "format": "bestaudio[ext=m4a]/bestaudio",
