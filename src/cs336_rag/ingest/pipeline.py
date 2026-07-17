@@ -6,22 +6,16 @@ transcript refresh or a chunking change always yields a consistent state.
 """
 
 import logging
-from typing import Protocol
 
 from pydantic import BaseModel
 
 from cs336_rag import db
 from cs336_rag.config import Settings
+from cs336_rag.embeddings import Embedder
 from cs336_rag.ingest.chunking import chunk_transcripts
 from cs336_rag.ingest.transcripts import load_transcripts
 
 logger = logging.getLogger(__name__)
-
-
-class Embedder(Protocol):
-    """Anything that turns texts into vectors (real API client or test fake)."""
-
-    def embed(self, texts: list[str]) -> list[list[float]]: ...
 
 
 class IngestStats(BaseModel):

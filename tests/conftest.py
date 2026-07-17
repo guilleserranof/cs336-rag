@@ -12,9 +12,23 @@ import psycopg
 import pytest
 
 from cs336_rag.config import Settings
+from cs336_rag.models import Chunk
 
 TEST_DB = "cs336_rag_test"
 EMBEDDING_DIM = 8  # keep test vectors tiny
+
+
+def make_chunk(index: int = 0, content: str = "attention is all you need") -> Chunk:
+    """Shared Chunk factory for db/retrieval tests."""
+    return Chunk(
+        video_id="vid1",
+        title="Lecture 1",
+        position=1,
+        chunk_index=index,
+        start=float(index * 10),
+        end=float(index * 10 + 10),
+        content=content,
+    )
 
 
 @pytest.fixture(scope="session")
