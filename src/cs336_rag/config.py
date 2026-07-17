@@ -6,6 +6,8 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from cs336_rag.models import SearchMethod
+
 CS336_PLAYLIST_ID = "PLoROMvodv4rMqXOcazWaTUHhq-yembLCV"
 
 
@@ -37,6 +39,10 @@ class Settings(BaseSettings):
     chunk_max_chars: int = Field(default=1800, gt=0)
     chunk_overlap_chars: int = Field(default=300, ge=0)
     embed_batch_size: int = Field(default=64, gt=0)
+
+    # Retrieval method served by default (winner of the retrieval evaluation;
+    # see docs/evaluation.md). Override via RETRIEVAL_METHOD.
+    retrieval_method: SearchMethod = "vector"
 
     @property
     def db_dsn(self) -> str:

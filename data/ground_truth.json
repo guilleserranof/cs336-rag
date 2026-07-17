@@ -1,0 +1,1202 @@
+[
+  {
+    "question": "How does the constraint of time pressure during annotation workloads, such as the requirement to verify long chat responses in under a minute, impact the quality and correctness of the data collected for model training?",
+    "chunk_id": "2oH6PWPrYFo:33"
+  },
+  {
+    "question": "In what ways do annotator demographics and potential biases influence the final shaping of a language model during the post-training phase, particularly regarding ideological alignment?",
+    "chunk_id": "2oH6PWPrYFo:33"
+  },
+  {
+    "question": "How does the completeness of modern subword tokenizers affect the validity of comparing bits per byte across different models?",
+    "chunk_id": "lVynu4bo1rY:35"
+  },
+  {
+    "question": "Why is comparing bits per byte considered a valid metric for language models despite differences in vocabulary sizes and tokenization schemes?",
+    "chunk_id": "lVynu4bo1rY:35"
+  },
+  {
+    "question": "How does fitting a scaling law using small-scale experiments enable the optimization of a scaling recipe for larger models, and what role does this play in justifying resource allocation?",
+    "chunk_id": "JuoVZkPBiKk:25"
+  },
+  {
+    "question": "Why is hyperparameter transfer critical for achieving predictable scaling laws, and how must a scaling recipe be constructed to ensure hyperparameters extrapolate effectively across different model scales?",
+    "chunk_id": "JuoVZkPBiKk:25"
+  },
+  {
+    "question": "How do the input and output token distributions differ between a coding workload, such as using an agent with access to a codebase, and a narrative summarization workload involving pasting entire books into a chat window?",
+    "chunk_id": "9EEm4iMAF5s:6"
+  },
+  {
+    "question": "What characterizes the turn-based agentic workflows typical in current language model usage, particularly regarding how coding agents iterate through multiple turns using tools like grep or internet search?",
+    "chunk_id": "9EEm4iMAF5s:6"
+  },
+  {
+    "question": "Why are collective operations preferred over point-to-point communication for managing data transfer across multiple GPUs during LLM training?",
+    "chunk_id": "SzpOcwdIL0Y:3"
+  },
+  {
+    "question": "Which specific collective operations are identified as the primary drivers for training, as opposed to the 'warm-up' operations like broadcast, scatter, gather, and reduce?",
+    "chunk_id": "SzpOcwdIL0Y:3"
+  },
+  {
+    "question": "Why is it necessary to synchronize with a CUDA barrier after recording end events when benchmarking GPU operations, and how does this relate to the asynchronous nature of GPU execution?",
+    "chunk_id": "xnDHaNUvHBg:12"
+  },
+  {
+    "question": "What specific limitation does the hardware architecture of GPUs impose on small matrix multiplications, and how does this affect the observed scaling behavior of execution time as matrix dimensions increase?",
+    "chunk_id": "xnDHaNUvHBg:12"
+  },
+  {
+    "question": "Why did increasing the vocabulary size in nanoGPT from 50,257 to 50,304 result in a 25% speedup?",
+    "chunk_id": "izZba4UA7iY:41"
+  },
+  {
+    "question": "What technique is required to align burst section boundaries with tile sizes to ensure efficient memory coalescing?",
+    "chunk_id": "izZba4UA7iY:41"
+  },
+  {
+    "question": "How does Nemotron-3 utilize Mamba-2 to balance inference cost and expressiveness, and what impact does this have on throughput at large context lengths?",
+    "chunk_id": "cKSwj_qZ8Jg:8"
+  },
+  {
+    "question": "What is the key distinction between Mamba-2 and Gated Delta Net regarding the use of gating mechanisms in linear recurrences?",
+    "chunk_id": "cKSwj_qZ8Jg:8"
+  },
+  {
+    "question": "How does the scaling of model parameters from the hundreds of millions in 2018 to the trillions today relate to the emergence of new capabilities like code generation and complex text analysis?",
+    "chunk_id": "9EEm4iMAF5s:1"
+  },
+  {
+    "question": "What historical analogy is used to illustrate the rapid pace of technological transition in language modeling, specifically comparing the 2018 era of large models to the manure crisis caused by horses in Manhattan in 1902?",
+    "chunk_id": "9EEm4iMAF5s:1"
+  },
+  {
+    "question": "How does the performance impact of parallel layers compare to serial layers in modern language models, and what evidence suggests that parallel layers may have hidden accuracy costs despite initial claims of no performance drop?",
+    "chunk_id": "lVynu4bo1rY:25"
+  },
+  {
+    "question": "What is the primary difference between P-RoPE and RoPE, and why is P-RoPE considered an optimization specifically for extremely small models with limited hidden space?",
+    "chunk_id": "lVynu4bo1rY:25"
+  },
+  {
+    "question": "What motivated the inclusion of a language consistency reward during the RLVR training of the R1 production model, and what specific issue in the Chain of Thought did it aim to resolve?",
+    "chunk_id": "dIFAi87Ws4E:20"
+  },
+  {
+    "question": "How does the training pipeline for R1 differ from R1 zero regarding the use of Supervised Fine-Tuning (SFT) and the collection of long Chain of Thought data?",
+    "chunk_id": "dIFAi87Ws4E:20"
+  },
+  {
+    "question": "What is the purpose of checking the KV Cache before executing core machine learning code during the prefill and decode stages?",
+    "chunk_id": "9EEm4iMAF5s:5"
+  },
+  {
+    "question": "How does the distribution of input and output tokens in production serving traffic differ from that observed during model training?",
+    "chunk_id": "9EEm4iMAF5s:5"
+  },
+  {
+    "question": "Does the legal precedent regarding fair use for training data apply retroactively if a content creator changes their license from permissive to restrictive after their content has already been crawled?",
+    "chunk_id": "-qm0ln33G24:15"
+  },
+  {
+    "question": "Why do most model developers prefer to build their own web crawlers rather than relying on existing datasets?",
+    "chunk_id": "-qm0ln33G24:15"
+  },
+  {
+    "question": "Why do statistical normalization operations like LayerNorm contribute disproportionately to the total runtime of a language model despite representing such a small percentage of the total floating point operations, and what role does data movement play in this discrepancy?",
+    "chunk_id": "lVynu4bo1rY:10"
+  },
+  {
+    "question": "How does the arithmetic intensity of statistical normalization differ from that of tensor contraction, and why does the low arithmetic intensity of normalization layers make data movement the primary bottleneck rather than the arithmetic operations themselves?",
+    "chunk_id": "lVynu4bo1rY:10"
+  },
+  {
+    "question": "Why is MinHash specifically recommended over other hash functions for deduplication in language model processing?",
+    "chunk_id": "5sxHosTLPF8:22"
+  },
+  {
+    "question": "How does the data mixture distribution work when combining multiple heterogeneous sources like Nemotron, FinePDFs, and code for training a language model?",
+    "chunk_id": "5sxHosTLPF8:22"
+  },
+  {
+    "question": "How do I calculate the total memory footprint for an inference batch by accounting for both the model parameters and the KV cache, and what is the exact formula for the KV cache size given the sequence length, number of heads, head dimension, layers, and bf16 precision?",
+    "chunk_id": "EfM546A79aM:17"
+  },
+  {
+    "question": "Given that inference is memory-bound, how does memory I/O between HBM and SRAM dictate latency, and how should I compute the effective throughput in tokens per second when processing a batch of size B?",
+    "chunk_id": "EfM546A79aM:17"
+  },
+  {
+    "question": "What is the basic template for using weak supervision to improve a language model, and what are the primary methods for updating the model based on scored responses?",
+    "chunk_id": "JuoVZkPBiKk:32"
+  },
+  {
+    "question": "What are the main systems challenges and stability issues associated with scaling Reinforcement Learning (RL) algorithms like PPO or GRPO for language model training?",
+    "chunk_id": "JuoVZkPBiKk:32"
+  },
+  {
+    "question": "Why is it recommended to maintain a diverse set of evaluations for language models rather than relying on a single averaged metric?",
+    "chunk_id": "JuoVZkPBiKk:30"
+  },
+  {
+    "question": "What are the key steps involved in data processing when preparing non-text sources like HTML or PDFs for language model training?",
+    "chunk_id": "JuoVZkPBiKk:30"
+  },
+  {
+    "question": "How does Noam Shazeer's parameter-matched comparison methodology demonstrate that GLU variants provide a consistent performance advantage over non-GLU variants?",
+    "chunk_id": "lVynu4bo1rY:16"
+  },
+  {
+    "question": "What empirical evidence from Google's large-scale architecture comparisons, such as those by Narang et al. (2020), supports the use of SwiGLU and GeGLU over standard nonlinearities?",
+    "chunk_id": "lVynu4bo1rY:16"
+  },
+  {
+    "question": "Why are memory accesses for reading columns in a row-major matrix inefficient on GPUs, and how does this relate to memory coalescing and burst windows?",
+    "chunk_id": "izZba4UA7iY:36"
+  },
+  {
+    "question": "How does the spatial ordering of threads relative to a row-major matrix affect memory coalescing, and what structural change allows threads to retrieve data in a single contiguous read?",
+    "chunk_id": "izZba4UA7iY:36"
+  },
+  {
+    "question": "How does the memory hierarchy of an NVIDIA GPU, specifically the relationship between registers, L1 cache, shared memory, and HBM, influence bandwidth and access speed?",
+    "chunk_id": "xnDHaNUvHBg:0"
+  },
+  {
+    "question": "What are the key architectural components within a Streaming Multiprocessor (SM) of an NVIDIA GPU, and how do their sizes compare across generations like the A100, H100, and B200?",
+    "chunk_id": "xnDHaNUvHBg:0"
+  },
+  {
+    "question": "What criteria must be met for a question to be classified as part of the DIAMOND set?",
+    "chunk_id": "JpAxdTWQJxM:12"
+  },
+  {
+    "question": "Why is it difficult to verify the absence of training contamination, and how does this impact trust in benchmark results?",
+    "chunk_id": "JpAxdTWQJxM:12"
+  },
+  {
+    "question": "How does the OpenThoughts project approach the creation of post-training datasets for reasoning tasks, and what specific teacher model strategy and data sources were utilized to generate the 1.2 million examples?",
+    "chunk_id": "5sxHosTLPF8:34"
+  },
+  {
+    "question": "What were the key findings from the OpenThoughts analysis regarding data generation strategies, specifically concerning the benefits of using multiple data sources and sampling multiple generations during the creation of reasoning data?",
+    "chunk_id": "5sxHosTLPF8:34"
+  },
+  {
+    "question": "What is the common rule of thumb for determining the number of data points required to train a language model based on its parameter count, and how does this apply to a 70B parameter model?",
+    "chunk_id": "JuoVZkPBiKk:27"
+  },
+  {
+    "question": "How does the Marin project utilize pre-registered scaling laws to predict model performance at high compute budgets, and what is the purpose of the training API defined in Assignment 3?",
+    "chunk_id": "JuoVZkPBiKk:27"
+  },
+  {
+    "question": "How does the DCLM filtering pipeline utilize a FastText classifier to perform model-based quality filtering, and what specific datasets serve as the positive and negative examples for training this classifier?",
+    "chunk_id": "-qm0ln33G24:31"
+  },
+  {
+    "question": "According to NVIDIA's Nemotron project, what is the main drawback of the DCLM filtering approach, and how does this criticism relate to the final data retention rate of the DCLM-pool?",
+    "chunk_id": "-qm0ln33G24:31"
+  },
+  {
+    "question": "Why are matrix multiplications preferred over other floating-point operations for achieving high compute throughput in modern machine learning architectures?",
+    "chunk_id": "izZba4UA7iY:16"
+  },
+  {
+    "question": "How does the divergent scaling rate between GPU compute throughput, memory bandwidth, and inter-device parallelism impact the necessity for memory optimization in contemporary GPU programming?",
+    "chunk_id": "izZba4UA7iY:16"
+  },
+  {
+    "question": "In the two-stage training process for aligning multimodal inputs with a language model, what specific components are frozen and which are trained during the initial alignment phase versus the subsequent fine-tuning stage?",
+    "chunk_id": "26FtD08ZpOU:14"
+  },
+  {
+    "question": "How does the system utilize the linear projection matrix W to bridge the embedding space discrepancy between the CLIP vision encoder and the pre-trained language model?",
+    "chunk_id": "26FtD08ZpOU:14"
+  },
+  {
+    "question": "Why does simple supervised fine-tuning (SFT) with preference labels, such as prepending 'good' or 'bad' tokens, fail to effectively replace Proximal Policy Optimization (PPO) for alignment?",
+    "chunk_id": "2oH6PWPrYFo:44"
+  },
+  {
+    "question": "What are the primary components of the PPO algorithm that Direct Preference Optimization (DPO) eliminates to simplify the alignment process while maintaining performance?",
+    "chunk_id": "2oH6PWPrYFo:44"
+  },
+  {
+    "question": "How are reasoning and non-reasoning problems distributed across the RLVR training stages, specifically regarding Stage II and Stage IV?",
+    "chunk_id": "dIFAi87Ws4E:46"
+  },
+  {
+    "question": "Why are tasks involving chattiness and non-reasoning capabilities scheduled for the final RLHF phase (Stage IV) rather than the earlier reasoning-focused stage?",
+    "chunk_id": "dIFAi87Ws4E:46"
+  },
+  {
+    "question": "How does the spectral radius of the A matrix determine the magnitude of activations as the system evolves, and what specific training instability is caused by a spectral radius that exceeds one?",
+    "chunk_id": "9EEm4iMAF5s:30"
+  },
+  {
+    "question": "To prevent the system from exploding, what structural constraint does the Parcae approach apply to the A matrix, and how does this choice ensure that the powered term decays rather than growing unbounded?",
+    "chunk_id": "9EEm4iMAF5s:30"
+  },
+  {
+    "question": "Why is the arithmetic intensity for the generation phase of attention significantly lower than that of the prefill phase, and how does the KV cache dependency on batch size contribute to this bottleneck?",
+    "chunk_id": "EfM546A79aM:14"
+  },
+  {
+    "question": "How does the arithmetic intensity formula for attention differ between the prefill and generation stages, and why does this make attention the computational bottleneck for H100 saturation during generation?",
+    "chunk_id": "EfM546A79aM:14"
+  },
+  {
+    "question": "How does tiling mitigate the high cost of global memory accesses during matrix multiplication, and what is the mathematical relationship between tile size T and the reduction in global memory reads?",
+    "chunk_id": "izZba4UA7iY:38"
+  },
+  {
+    "question": "Why is it beneficial to load submatrices (tiles) into shared memory before performing operations, and how does this strategy change the memory access pattern compared to a nontiled approach?",
+    "chunk_id": "izZba4UA7iY:38"
+  },
+  {
+    "question": "How does MuP (muP) initialization help stabilize the hyperparameter search process when scaling up language models, particularly regarding the optimal learning rate across different model sizes?",
+    "chunk_id": "vTfEyOyzV9E:4"
+  },
+  {
+    "question": "What is the primary objective of the scaling ladder strategy described in the MiniCPM study, specifically concerning the gap between the largest trained model and the target release size?",
+    "chunk_id": "vTfEyOyzV9E:4"
+  },
+  {
+    "question": "How do the parameters b (number of bands) and r (number of rows per band) influence the sharpness and position of the phase transition in MinHash LSH, and what is the mathematical formula for the similarity threshold where this transition occurs?",
+    "chunk_id": "5sxHosTLPF8:21"
+  },
+  {
+    "question": "What is the approximate probability of collision at the center of the phase transition in LSH, and why is MinHash specifically chosen over other hash functions for deduplication in language model processing?",
+    "chunk_id": "5sxHosTLPF8:21"
+  },
+  {
+    "question": "How does the all gather operation differ from the standard gather operation in the context of collective communication across ranks?",
+    "chunk_id": "SzpOcwdIL0Y:6"
+  },
+  {
+    "question": "What is the specific mechanism of reduce scatter, and how does it distribute reduced tensor components across different ranks?",
+    "chunk_id": "SzpOcwdIL0Y:6"
+  },
+  {
+    "question": "In the context of pre-training, how is the model selection problem framed with respect to data and compute budgets, and what empirical evidence demonstrates the significance of algorithmic efficiency improvements over hardware advancements?",
+    "chunk_id": "JuoVZkPBiKk:6"
+  },
+  {
+    "question": "Trace the lineage of language models from Shannon's early work on English entropy to modern neural architectures, detailing the role of N-gram models in generating fluent text and identifying the researcher credited with the first neural language model using LSTMs.",
+    "chunk_id": "JuoVZkPBiKk:6"
+  },
+  {
+    "question": "What are the three primary axes of variation when designing a Mixture of Experts (MoE) architecture?",
+    "chunk_id": "cKSwj_qZ8Jg:29"
+  },
+  {
+    "question": "According to the OlMoE paper, how does token choice compare to expert choice in terms of validation loss and downstream benchmark scores?",
+    "chunk_id": "cKSwj_qZ8Jg:29"
+  },
+  {
+    "question": "Why is it important to distinguish between task-specific performance and generalization to broader domains when evaluating models trained with RL, and how does the goal of 'unhackable' rewards in RLVR address this compared to RLHF?",
+    "chunk_id": "dIFAi87Ws4E:42"
+  },
+  {
+    "question": "How does the implementation of GRPO facilitate the RLVR process, and what are the key differences in the reward structure and compute scaling between RLVR and RLHF?",
+    "chunk_id": "dIFAi87Ws4E:42"
+  },
+  {
+    "question": "On which specific benchmarks do loop models such as Parcae show promising results compared to transformers, and what do these findings suggest about the potential of recurrent architectures?",
+    "chunk_id": "9EEm4iMAF5s:27"
+  },
+  {
+    "question": "What training instabilities typically arise when scaling loop models, particularly regarding learning rate sensitivity, and what indicators suggest that the training process has failed?",
+    "chunk_id": "9EEm4iMAF5s:27"
+  },
+  {
+    "question": "Why is expert parallelism generally preferred over tensor parallelism for Mixture of Experts (MoE) architectures, particularly regarding matrix size and token routing efficiency?",
+    "chunk_id": "6-cXp-aOmdg:35"
+  },
+  {
+    "question": "What are the specific drawbacks of using tensor parallelism for MoE layers compared to expert parallelism, especially concerning GPU utilization and the handling of sparse versus dense activations?",
+    "chunk_id": "6-cXp-aOmdg:35"
+  },
+  {
+    "question": "How does the prefill phase of inference relate to the training loop in terms of computational operations, and what are the key differences between prefill and decode regarding input-output token ratios and computational bounds?",
+    "chunk_id": "9EEm4iMAF5s:8"
+  },
+  {
+    "question": "How does the system optimize the scheduling of an inference request by evaluating previously seen tokens and utilizing cached activations?",
+    "chunk_id": "9EEm4iMAF5s:8"
+  },
+  {
+    "question": "What performance advantage did the early Qwen 1.5 MoE models demonstrate regarding active parameters relative to dense models, and how did this impact the open source community's adoption of Mixture of Experts?",
+    "chunk_id": "cKSwj_qZ8Jg:25"
+  },
+  {
+    "question": "Why does the sparsity of active experts during training create a significant challenge for learning routing mechanisms in Mixture of Experts models?",
+    "chunk_id": "cKSwj_qZ8Jg:25"
+  },
+  {
+    "question": "How does recomputing activations on the fly during the backward pass reduce memory overhead compared to the standard checkpointing strategy that stores all intermediate activations?",
+    "chunk_id": "izZba4UA7iY:33"
+  },
+  {
+    "question": "In a scenario where computation is abundant but memory access is expensive, why might a systems-oriented engineer prefer a computation graph that trades additional arithmetic operations for fewer total memory reads and writes?",
+    "chunk_id": "izZba4UA7iY:33"
+  },
+  {
+    "question": "How does tensor parallelism reduce activation memory for specific components like attention heads and MLPs, and why does it fail to reduce the memory required for layer norms and residual connections?",
+    "chunk_id": "6-cXp-aOmdg:31"
+  },
+  {
+    "question": "What is the origin of the $5as/h$ term in activation memory accounting, and how does Flash Attention allow us to mitigate the memory cost associated with quadratic attention and dropout terms?",
+    "chunk_id": "6-cXp-aOmdg:31"
+  },
+  {
+    "question": "Based on the scaling laws where the loss curve slopes down and to the right, how should one balance the scaling of model parameters versus training data to achieve optimal performance?",
+    "chunk_id": "9EEm4iMAF5s:33"
+  },
+  {
+    "question": "In the context of initial scaling laws for recurrence, what does the observation that ISO-param and ISO-FLOP curves are isometric suggest about the relationship between model size and computational budget?",
+    "chunk_id": "9EEm4iMAF5s:33"
+  },
+  {
+    "question": "What is the difference in activation functions between GeGLU and SwiGLU, and which gated unit architecture is predominantly used in Llama descendant models compared to Gemma and T5?",
+    "chunk_id": "lVynu4bo1rY:15"
+  },
+  {
+    "question": "When converting a standard MLP to a gated architecture like GLU, how should the feedforward dimension be adjusted to maintain the same total parameter count, and what is the empirical evidence supporting the use of gated units over non-gated ones?",
+    "chunk_id": "lVynu4bo1rY:15"
+  },
+  {
+    "question": "Why is it critical to distinguish between non-embedding and total parameters when analyzing scaling laws, and how does this choice impact the validity of observed trends?",
+    "chunk_id": "Q15rhEWZPQ4:25"
+  },
+  {
+    "question": "How does the decoupling of total parameters and active parameters in Mixture of Experts models influence the sparsity of the architecture as compute increases?",
+    "chunk_id": "Q15rhEWZPQ4:25"
+  },
+  {
+    "question": "How does RoPE differ from absolute and relative position embeddings in terms of how positional information is incorporated into the attention mechanism?",
+    "chunk_id": "lVynu4bo1rY:20"
+  },
+  {
+    "question": "What is the primary motivation for using RoPE regarding the relationship between word identity and absolute position, and how does it mathematically ensure that the inner product depends only on relative differences?",
+    "chunk_id": "lVynu4bo1rY:20"
+  },
+  {
+    "question": "How do classical generalization bounds relate to the concept of scaling laws in machine learning, particularly regarding the dependence on sample size?",
+    "chunk_id": "Q15rhEWZPQ4:3"
+  },
+  {
+    "question": "What is the historical origin of scaling laws in machine learning, and which researchers at Bell Labs first investigated the relationship between training set size and classifier error rates?",
+    "chunk_id": "Q15rhEWZPQ4:3"
+  },
+  {
+    "question": "How does the decoupling of tensor parallelism in MLPs and attention layers improve the effectiveness of combining EP, tensor parallel, and data parallel?",
+    "chunk_id": "6-cXp-aOmdg:39"
+  },
+  {
+    "question": "What is context parallel (or ring attention), and in which scenarios is it typically applied within large language model training and serving?",
+    "chunk_id": "6-cXp-aOmdg:39"
+  },
+  {
+    "question": "How does the SWE-Zero approach from NVIDIA address the dependency and execution challenges found in real GitHub repositories, and what performance gap exists between allowing and disallowing code execution?",
+    "chunk_id": "5sxHosTLPF8:36"
+  },
+  {
+    "question": "What specific constraints did the SWE-Zero pipeline impose on the agent's actions to prevent it from executing Python code, and how did they handle instances where the base Qwen model ignored these instructions?",
+    "chunk_id": "5sxHosTLPF8:36"
+  },
+  {
+    "question": "In a Triton program, how is the location of the accumulator determined when block sizes are large enough to exceed register capacity?",
+    "chunk_id": "xnDHaNUvHBg:32"
+  },
+  {
+    "question": "What is the distinction between blocks and tiles in the context of processing GeLU activations, and how does this relate to shared memory constraints?",
+    "chunk_id": "xnDHaNUvHBg:32"
+  },
+  {
+    "question": "In the context of resource accounting for model storage, what is the bit-level composition of a float32 (fp32) tensor, and how do the sign, exponent, and mantissa fields contribute to its precision and dynamic range?",
+    "chunk_id": "kuYAsz7zspQ:2"
+  },
+  {
+    "question": "Why are tensors considered the fundamental building blocks for storing model parameters, gradients, and optimizer states, and how does the concept of 'single precision' relate to the historical baseline of scientific computing?",
+    "chunk_id": "kuYAsz7zspQ:2"
+  },
+  {
+    "question": "How do open-source model releases like Kimi K2 use scaling laws to determine the optimal sparsity level for Mixture-of-Experts (MoE) architectures?",
+    "chunk_id": "vTfEyOyzV9E:15"
+  },
+  {
+    "question": "What is the quantitative relationship between network sparsity and validation loss in MoE scaling, and how does it inform architectural decisions regarding diminishing returns?",
+    "chunk_id": "vTfEyOyzV9E:15"
+  },
+  {
+    "question": "What are the operational and legal risks associated with aggressive web crawling, particularly regarding server load and terms of service?",
+    "chunk_id": "-qm0ln33G24:6"
+  },
+  {
+    "question": "How are shadow libraries like LibGen and Anna's Archive characterized in terms of copyright infringement and their circumvention of takedown orders?",
+    "chunk_id": "-qm0ln33G24:6"
+  },
+  {
+    "question": "How does the incremental computation of attention using a KV cache negatively impact arithmetic intensity, and what specific memory access pattern causes the term n*d^2 to dominate?",
+    "chunk_id": "lVynu4bo1rY:48"
+  },
+  {
+    "question": "Given the poor arithmetic intensity of standard Multi-Head Attention during incremental decoding, what architectural modification is proposed to reduce memory bandwidth requirements by sharing parameters across heads?",
+    "chunk_id": "lVynu4bo1rY:48"
+  },
+  {
+    "question": "Why do scaling laws remain consistent even when switching optimization algorithms from SGD to Adam, and what does this imply about the role of the optimizer in scaling trends?",
+    "chunk_id": "Q15rhEWZPQ4:23"
+  },
+  {
+    "question": "What is a scale-invariant quantity in the context of model architecture scaling, and how does analyzing the aspect ratio (depth-to-width trade-off) help identify the optimal configuration across different model sizes?",
+    "chunk_id": "Q15rhEWZPQ4:23"
+  },
+  {
+    "question": "What specific architectural modifications differentiate the transformer implementation in Assignment 1 from the vanilla Vaswani et al. transformer, particularly regarding LayerNorm placement, positional encoding, and activation functions?",
+    "chunk_id": "lVynu4bo1rY:1"
+  },
+  {
+    "question": "Why does the course curriculum adopt RoPE, SwiGLU, and pre-normalization instead of the traditional sinusoidal position embeddings, ReLU, and post-normalization found in the original transformer paper?",
+    "chunk_id": "lVynu4bo1rY:1"
+  },
+  {
+    "question": "What was the source of the 'books' corpus used to train BERT, and why was it eventually removed from the academic community?",
+    "chunk_id": "-qm0ln33G24:22"
+  },
+  {
+    "question": "Why did the creators of GPT-2 decide against using Common Crawl for their training data despite its availability?",
+    "chunk_id": "-qm0ln33G24:22"
+  },
+  {
+    "question": "How does the effective bandwidth formula for all-reduce simplify as the world size increases, and what does this behavior indicate about the independence of bandwidth from the number of GPUs?",
+    "chunk_id": "SzpOcwdIL0Y:22"
+  },
+  {
+    "question": "Given that an all-reduce operation consists of both reduce-scatter and all-gather steps, why does the measured effective bandwidth remain comparable to that of a standalone reduce-scatter despite the operation moving twice the amount of data?",
+    "chunk_id": "SzpOcwdIL0Y:22"
+  },
+  {
+    "question": "How do the feedback mechanisms in supervised fine-tuning and reinforcement learning fundamentally differ, and does the dense feature supervision from SFT actually overwrite the representations that policy optimization later tries to enhance?",
+    "chunk_id": "2oH6PWPrYFo:22"
+  },
+  {
+    "question": "Why has the training pipeline shifted toward integrating instruction tuning data directly into the pre-training phase rather than maintaining it as a strictly separate post-training step?",
+    "chunk_id": "2oH6PWPrYFo:22"
+  },
+  {
+    "question": "How do stylistic factors such as response length and the use of bullet points introduce explicit distortions into human preference evaluation data during the post-training phase?",
+    "chunk_id": "2oH6PWPrYFo:12"
+  },
+  {
+    "question": "What are the key considerations regarding format, knowledge depth, data volume, and safety when collecting human annotation data for Supervised Fine-Tuning (SFT)?",
+    "chunk_id": "2oH6PWPrYFo:12"
+  },
+  {
+    "question": "How does system optimization and computational speed relate to model accuracy in the context of scaling laws?",
+    "chunk_id": "Q15rhEWZPQ4:6"
+  },
+  {
+    "question": "Are the functional forms used in scaling laws derived from physical theory and error rate decay analysis, or are they purely empirical curve-fitting exercises?",
+    "chunk_id": "Q15rhEWZPQ4:6"
+  },
+  {
+    "question": "How does the relative performance of high-quality data versus low-quality data change as the number of training epochs increases, and why might a model trained on low-quality data eventually outperform one trained on high-quality data in the long run?",
+    "chunk_id": "5sxHosTLPF8:9"
+  },
+  {
+    "question": "Why do empirical papers often report single training run results without confidence intervals for data processing comparisons, despite the fact that multiple runs would provide better statistical rigor?",
+    "chunk_id": "5sxHosTLPF8:9"
+  },
+  {
+    "question": "In GPU architecture, why must all threads within a warp execute the exact same instruction, and how does the fixed 32-thread group size reduce scheduler overhead?",
+    "chunk_id": "izZba4UA7iY:9"
+  },
+  {
+    "question": "What makes a thread block a critical abstraction for GPU programming, and how does its guaranteed execution on a single SM enable efficient shared memory usage for techniques like tiling?",
+    "chunk_id": "izZba4UA7iY:9"
+  },
+  {
+    "question": "What motivated the development of CLIP, and how did it leverage noisy internet data to advance vision-language models beyond traditional datasets like ImageNet?",
+    "chunk_id": "26FtD08ZpOU:2"
+  },
+  {
+    "question": "How does the CLIP architecture process paired image-text data to create aligned vector representations for contrastive learning?",
+    "chunk_id": "26FtD08ZpOU:2"
+  },
+  {
+    "question": "How does using einsum notation clarify the application of the chain rule for backpropagation compared to traditional calculus notation, particularly regarding matrix transposes and dimension indexing?",
+    "chunk_id": "kuYAsz7zspQ:29"
+  },
+  {
+    "question": "Why is the computational cost (FLOPs) of the backward pass essentially the same as the forward pass, regardless of which dimensions are treated as batch dimensions during aggregation?",
+    "chunk_id": "kuYAsz7zspQ:29"
+  },
+  {
+    "question": "Why does training with float16 often lead to numerical instability, and how does bfloat16 address the limitations of float16 regarding dynamic range?",
+    "chunk_id": "kuYAsz7zspQ:4"
+  },
+  {
+    "question": "What is the fundamental trade-off between float16 and bfloat16 in terms of exponent bits and mantissa resolution, and why is bfloat16 preferred for deep learning applications?",
+    "chunk_id": "kuYAsz7zspQ:4"
+  },
+  {
+    "question": "Why is post-training RLVR considered a multi-step RL problem rather than a simple bandit problem, and how does the KL term's token-by-token operation factor into this complexity?",
+    "chunk_id": "dIFAi87Ws4E:5"
+  },
+  {
+    "question": "What specific implementation challenges arise when applying PPO to RLHF, particularly regarding the handling of KL penalties and the necessity of clipping them at zero?",
+    "chunk_id": "dIFAi87Ws4E:5"
+  },
+  {
+    "question": "What are the two primary techniques applied in Flash Attention to achieve subquadratic memory access complexity relative to the sequence length?",
+    "chunk_id": "izZba4UA7iY:46"
+  },
+  {
+    "question": "Why does the presence of a global softmax operation in attention computation prevent the naive application of tiled matrix multiplication?",
+    "chunk_id": "izZba4UA7iY:46"
+  },
+  {
+    "question": "In the context of distributed training using PyTorch, what is the specific behavior of the `all_reduce` operation when the reduction function is set to sum, and how does it modify the tensors across different ranks?",
+    "chunk_id": "SzpOcwdIL0Y:18"
+  },
+  {
+    "question": "How does the concept of 'rank' map to hardware resources in this course, and what are the implications of setting `async=False` in an `all_reduce` call regarding the execution order of print statements?",
+    "chunk_id": "SzpOcwdIL0Y:18"
+  },
+  {
+    "question": "What observation regarding the proliferation of new dense LLM releases per year led to the decision to defer the discussion of Mixture of Experts (MoE) architectures to the subsequent lecture?",
+    "chunk_id": "lVynu4bo1rY:2"
+  },
+  {
+    "question": "How does the sheer diversity of available model architectures, including recent releases like Qwen3, Gemma 4, and AP, inform the pedagogical approach to selecting architectural components?",
+    "chunk_id": "lVynu4bo1rY:2"
+  },
+  {
+    "question": "How does the Megakernel approach address GPU downtime caused by kernel launch overhead and tail effects in attention operations?",
+    "chunk_id": "9EEm4iMAF5s:22"
+  },
+  {
+    "question": "Why does processing a batch of inputs with varying sequence lengths lead to significant gaps between kernels, and how does fusing multiple operations into a single kernel mitigate this?",
+    "chunk_id": "9EEm4iMAF5s:22"
+  },
+  {
+    "question": "How does RoPE apply position embeddings to queries and keys, and why is this applied at the attention level rather than at the bottom of the model?",
+    "chunk_id": "lVynu4bo1rY:24"
+  },
+  {
+    "question": "What is the recommended strategy for distilling knowledge from dense language model technical reports, and why is reading a single paper in isolation insufficient?",
+    "chunk_id": "lVynu4bo1rY:24"
+  },
+  {
+    "question": "How does the VQ-VAE architecture map continuous image patches into discrete tokens for omni-models, and what is the role of the codebook in this process?",
+    "chunk_id": "26FtD08ZpOU:30"
+  },
+  {
+    "question": "Once images are converted into discrete tokens using a VQ-VAE, how is the resulting multimodal data trained, and why is this approach considered more appealing than using separate adapters?",
+    "chunk_id": "26FtD08ZpOU:30"
+  },
+  {
+    "question": "What historical analogy does Dan Fu use to describe the rapid transition from traditional horse-drawn carriages to automobiles in Manhattan, and how does he relate this to the current adoption of language models in software development?",
+    "chunk_id": "9EEm4iMAF5s:2"
+  },
+  {
+    "question": "How does Dan Fu characterize the role of GPUs and inference engines in the context of language model scaling, specifically regarding the conversion of electricity into intelligence?",
+    "chunk_id": "9EEm4iMAF5s:2"
+  },
+  {
+    "question": "How does the described WSD SGD style learning rate schedule facilitate Chinchilla-style scaling law analysis across model and data dimensions?",
+    "chunk_id": "vTfEyOyzV9E:9"
+  },
+  {
+    "question": "What discrepancies did the MiniCPM authors observe in their Chinchilla scaling fits compared to the original Chinchilla paper, and what implication did they draw regarding training data volume?",
+    "chunk_id": "vTfEyOyzV9E:9"
+  },
+  {
+    "question": "Why is self-verification particularly advantageous in domains like mathematics compared to generation?",
+    "chunk_id": "2oH6PWPrYFo:29"
+  },
+  {
+    "question": "What is the high-level workflow for collecting data and training a model in RLHF after the SFT phase?",
+    "chunk_id": "2oH6PWPrYFo:29"
+  },
+  {
+    "question": "What does observing a linear relationship between dataset size and test loss on a log-log plot imply about the functional form of error decay and the model's proximity to its asymptote?",
+    "chunk_id": "Q15rhEWZPQ4:9"
+  },
+  {
+    "question": "When using a model much larger than the dataset, what scaling behavior is typically observed between dataset size and test loss, and how is this behavior mathematically described?",
+    "chunk_id": "Q15rhEWZPQ4:9"
+  },
+  {
+    "question": "In a Mixture of Experts feed-forward block, what is the exact sequence of operations for implementing TopK routing, and how are the gating weights parameterized and trained?",
+    "chunk_id": "cKSwj_qZ8Jg:32"
+  },
+  {
+    "question": "Despite being able to solve for the optimal expert-to-token assignment via linear assignment, why is this routing strategy rarely used at scale in modern architectures, and what alternative routing pattern has emerged as the standard consensus mechanism?",
+    "chunk_id": "cKSwj_qZ8Jg:32"
+  },
+  {
+    "question": "How can researchers determine the optimal data mixture ratio between different sources, such as news and Wikipedia, for pre-training large language models without performing a full-scale training run?",
+    "chunk_id": "Q15rhEWZPQ4:15"
+  },
+  {
+    "question": "What is the theoretical approach for using data scaling laws to optimize data diversity and find the minimum loss in data mixtures, and how does it compare to the practical reality of selecting the best mix from small model experiments?",
+    "chunk_id": "Q15rhEWZPQ4:15"
+  },
+  {
+    "question": "What are the general rules of thumb for combining data parallelism, tensor parallelism, and expert parallelism to achieve full utilization of compute hardware in multi-node training setups?",
+    "chunk_id": "6-cXp-aOmdg:50"
+  },
+  {
+    "question": "How do the typical scale constraints of tensor parallelism compare to the recent trends in expert parallelism, particularly in the context of large-scale infrastructure like that used by DeepSeek V3?",
+    "chunk_id": "6-cXp-aOmdg:50"
+  },
+  {
+    "question": "Why does quantization not result in a 2x speedup, and what is the typical range of savings achieved for matrix multiplies?",
+    "chunk_id": "izZba4UA7iY:27"
+  },
+  {
+    "question": "Why is the last layer particularly challenging to quantize, and what are the consequences of quantizing it regarding loss and stability?",
+    "chunk_id": "izZba4UA7iY:27"
+  },
+  {
+    "question": "How does the GRPO algorithm deviate from a strict first-principles derivation based on policy gradient and baseline theorems, and which specific normalization terms are responsible for this discrepancy?",
+    "chunk_id": "dIFAi87Ws4E:14"
+  },
+  {
+    "question": "What is the impact of the standard deviation normalization term on the baseline contract in GRPO, and how does the length normalization factor influence the model's generation behavior?",
+    "chunk_id": "dIFAi87Ws4E:14"
+  },
+  {
+    "question": "How does tiling a matrix multiplication kernel improve arithmetic intensity compared to the naive element-wise approach, and what is the limiting factor for this improvement?",
+    "chunk_id": "xnDHaNUvHBg:35"
+  },
+  {
+    "question": "What are the specific steps a Triton thread block must perform to compute an output tile, including data movement to shared memory, computation, and final storage to HBM?",
+    "chunk_id": "xnDHaNUvHBg:35"
+  },
+  {
+    "question": "What is the theoretical justification for applying a squared loss to match the policy ratio derived from the DPO-style maximization, despite it being a heuristic rather than an analytically derived objective?",
+    "chunk_id": "dIFAi87Ws4E:27"
+  },
+  {
+    "question": "How does the RLVR approach utilize medium-range difficulty filtering to ensure stable policy optimization, and what insight does the convergence of Kimi's method to GRPO provide for designing new reinforcement learning algorithms?",
+    "chunk_id": "dIFAi87Ws4E:27"
+  },
+  {
+    "question": "In the context of InstructGPT and similar post-training approaches, how is the reward maximization objective regularized to prevent the policy from becoming degenerate, and what is the specific mathematical form of this constraint?",
+    "chunk_id": "2oH6PWPrYFo:42"
+  },
+  {
+    "question": "What is the basic optimization strategy used to perform hill climbing on the reward model in post-training, and how does the policy gradient identity facilitate this process?",
+    "chunk_id": "2oH6PWPrYFo:42"
+  },
+  {
+    "question": "How does the AdaGrad optimizer compare to SGD and Adam in terms of the gradient moments it computes, and how is it positioned relative to these methods?",
+    "chunk_id": "kuYAsz7zspQ:31"
+  },
+  {
+    "question": "What is the parameter update rule for the AdaGrad optimizer, and how does it maintain the sum of squared gradients in the optimizer state?",
+    "chunk_id": "kuYAsz7zspQ:31"
+  },
+  {
+    "question": "Given that post-training data and alignment processes are largely treated as trade secrets by modern vendors, what older research papers or publicly available materials contain the most detailed annotation guidelines and human feedback protocols for understanding RLHF-style alignment?",
+    "chunk_id": "2oH6PWPrYFo:2"
+  },
+  {
+    "question": "How does the data collection methodology for frontier post-training fundamentally differ from standard open-source alignment recipes that rely on distillation, and why is the frontier approach to human data collection described as particularly messy and difficult to document?",
+    "chunk_id": "2oH6PWPrYFo:2"
+  },
+  {
+    "question": "How does a failure in the tool call processing pipeline manifest in the model's output, specifically regarding completion length and token loops?",
+    "chunk_id": "9EEm4iMAF5s:14"
+  },
+  {
+    "question": "What is the distinction between the speculation that a model has been fine-tuned on Chinese data and the actual cause of random Chinese character generation due to off-by-one bugs?",
+    "chunk_id": "9EEm4iMAF5s:14"
+  },
+  {
+    "question": "Why is it necessary to include auxiliary load balancing losses in MoE models like DeepSeek v3, even when employing online learning tricks to balance experts?",
+    "chunk_id": "cKSwj_qZ8Jg:41"
+  },
+  {
+    "question": "What are the catastrophic effects on expert utilization and training loss observed in ablation studies, such as those in the OlMoE paper, when the load balancing loss is removed?",
+    "chunk_id": "cKSwj_qZ8Jg:41"
+  },
+  {
+    "question": "Why is traditional hyperlink-based web crawling insufficient for capturing content from modern dynamic web applications like Discord?",
+    "chunk_id": "-qm0ln33G24:3"
+  },
+  {
+    "question": "What are the primary technical and access-related barriers that prevent external entities from crawling walled garden platforms such as Facebook or the New York Times?",
+    "chunk_id": "-qm0ln33G24:3"
+  },
+  {
+    "question": "How do loop-based or recurrent language models improve inference efficiency, particularly in terms of GPU memory constraints, KV cache capacity, and inter-GPU communication overhead?",
+    "chunk_id": "9EEm4iMAF5s:37"
+  },
+  {
+    "question": "How does the deployment of loop models on specialized inference accelerators like Grok chips or LPUs leverage on-chip memory constraints to enable faster execution through custom megakernels and resident weight management?",
+    "chunk_id": "9EEm4iMAF5s:37"
+  },
+  {
+    "question": "How does the Shared Experts mechanism introduced in DeepSeekMoE differ from the classic TopK routing approach in terms of expert selection and processing?",
+    "chunk_id": "cKSwj_qZ8Jg:33"
+  },
+  {
+    "question": "What is the primary motivation for introducing shared experts in Mixture-of-Experts models, and how does this design choice allow conditional experts to specialize more effectively?",
+    "chunk_id": "cKSwj_qZ8Jg:33"
+  },
+  {
+    "question": "How have industry scaling law recipes evolved with the adoption of Chinchilla-style learning rate scaling and muP-style invariances, and why are recent model releases featuring fewer detailed scaling experiments despite ongoing work in MoE scaling and IsoFLOPs analysis?",
+    "chunk_id": "vTfEyOyzV9E:18"
+  },
+  {
+    "question": "When post-training becomes a standardized stage in model development, how does it impact pre-training scaling strategies, and what pre-training design principles like coverage or diversity are being explored to account for post-training effects?",
+    "chunk_id": "vTfEyOyzV9E:18"
+  },
+  {
+    "question": "How does the optimal aspect ratio for model layers shift as model depth increases, and how can plotting this relationship validate a fixed-as-ratio scaling strategy?",
+    "chunk_id": "Q15rhEWZPQ4:24"
+  },
+  {
+    "question": "Why did the Kaplan et al. paper exclude embedding parameters when deriving scaling laws for model depth, and what are the implications of this definition on the validity of the resulting scaling laws?",
+    "chunk_id": "Q15rhEWZPQ4:24"
+  },
+  {
+    "question": "What are the primary alternatives to Triton for writing GPU kernels, and how does the inductive bias of each language affect ease of use for transformer training?",
+    "chunk_id": "xnDHaNUvHBg:38"
+  },
+  {
+    "question": "Why is it considered easier to reason about thread blocks rather than individual threads in Triton, and what specific hardware management tasks does this abstraction eliminate?",
+    "chunk_id": "xnDHaNUvHBg:38"
+  },
+  {
+    "question": "How does post-training with instruction tuning alter a language model\u2019s ideological alignment relative to base models, and how does the demographic composition of the human annotators explain the shift toward Buddhist, Hindu, or atheist-leaning responses?",
+    "chunk_id": "2oH6PWPrYFo:34"
+  },
+  {
+    "question": "What is emergent misalignment in the context of training data pipelines, and how do subtle biases or innocuous preferences silently transmit through the dataset to cause subliminal transfer effects in downstream models?",
+    "chunk_id": "2oH6PWPrYFo:34"
+  },
+  {
+    "question": "What are the specific legal and practical reasons why the Books3 dataset from The Pile is no longer recommended for training language models?",
+    "chunk_id": "-qm0ln33G24:27"
+  },
+  {
+    "question": "How does the structure and metadata of the Stack Exchange dataset differ from raw text sources like Wikipedia, and why is this format beneficial for training language models?",
+    "chunk_id": "-qm0ln33G24:27"
+  },
+  {
+    "question": "How does the tiling optimization technique leverage shared memory to minimize redundant global memory accesses during a standard matrix multiplication?",
+    "chunk_id": "izZba4UA7iY:37"
+  },
+  {
+    "question": "Why is partitioning large matrices into submatrices and loading them into shared memory more efficient than repeatedly reading from global memory in GPU kernels?",
+    "chunk_id": "izZba4UA7iY:37"
+  },
+  {
+    "question": "What is the critical batch size, and why does increasing the batch size beyond this threshold result in diminishing returns compared to taking additional SGD steps on individual elements?",
+    "chunk_id": "6-cXp-aOmdg:19"
+  },
+  {
+    "question": "Why do ZeRO stages 1 and 2 fail to fully address memory scaling issues, and what specific memory components remain unpartitioned that necessitate finer-grained model partitioning?",
+    "chunk_id": "6-cXp-aOmdg:19"
+  },
+  {
+    "question": "Why are elementwise operations considered negligible compared to matrix multiplication when analyzing the computational complexity of large models?",
+    "chunk_id": "kuYAsz7zspQ:15"
+  },
+  {
+    "question": "How is the FLOP count for a matrix multiplication operation derived in terms of the batch size (B) and the number of parameters (D and K)?",
+    "chunk_id": "kuYAsz7zspQ:15"
+  },
+  {
+    "question": "Why does the global nature of the softmax operation prevent naive tiling of the attention matrix, and how does the online softmax formulation enable computing the softmax for a specific tile independently of the other tiles?",
+    "chunk_id": "izZba4UA7iY:47"
+  },
+  {
+    "question": "In the context of flash attention, how is the online softmax computed incrementally across tiles, specifically regarding the logic for swapping the maximum value and correcting the exponential accumulator?",
+    "chunk_id": "izZba4UA7iY:47"
+  },
+  {
+    "question": "Why might scaling the recurrence of recurrent models be advantageous when increasing dataset size, particularly regarding parameter efficiency?",
+    "chunk_id": "9EEm4iMAF5s:26"
+  },
+  {
+    "question": "How does incorporating recurrent blocks into a model architecture allow for increased computational complexity (FLOPs) without a proportional increase in parameter count?",
+    "chunk_id": "9EEm4iMAF5s:26"
+  },
+  {
+    "question": "In large-scale distributed training, why does naive data parallelism cause memory consumption to scale linearly with the number of accelerators, and how does partitioning the optimizer states across GPUs mitigate this inefficiency?",
+    "chunk_id": "6-cXp-aOmdg:10"
+  },
+  {
+    "question": "What is the primary trade-off when transitioning from standard data parallelism to ZeRO stage 1, and why is the communication overhead often surprisingly low despite the added synchronization requirements?",
+    "chunk_id": "6-cXp-aOmdg:10"
+  },
+  {
+    "question": "What explanation do Pearce and Song provide for the discrepancy between Kaplan and Chinchilla scaling laws based on their analysis of implied training curves, specifically regarding the impact of compute scale sensitivity and non-embedding parameter non-linearities?",
+    "chunk_id": "Q15rhEWZPQ4:46"
+  },
+  {
+    "question": "Why is it critical to keep the training recipe consistent with the full run when performing scaling experiments, and what is the consequence of scaling up a model with hyperparameters like warmup or batch sizes that deviate significantly from the target configuration?",
+    "chunk_id": "Q15rhEWZPQ4:46"
+  },
+  {
+    "question": "How are strides defined in the context of tensor memory layout, and how do they determine the mapping from multidimensional indices (like row and column) to the linearized memory address?",
+    "chunk_id": "xnDHaNUvHBg:36"
+  },
+  {
+    "question": "In the context of kernel fusion for matrix multiplication, what is the role of shared memory when handling accumulator matrices and loading small tiles of matrices A and B?",
+    "chunk_id": "xnDHaNUvHBg:36"
+  },
+  {
+    "question": "How does arithmetic intensity influence whether a model is memory-bound or compute-bound, and why might a system have low MFU despite high theoretical FLOPs?",
+    "chunk_id": "kuYAsz7zspQ:25"
+  },
+  {
+    "question": "In the context of arithmetic intensity roofline plots, how does the relationship between algorithmic slices and accelerator throughput explain the discrepancy between theoretical peak performance and actual execution time?",
+    "chunk_id": "kuYAsz7zspQ:25"
+  },
+  {
+    "question": "How do the quantization and dequantization overheads impact the theoretical linear compute improvements gained from multiplying quantized numbers?",
+    "chunk_id": "izZba4UA7iY:29"
+  },
+  {
+    "question": "What is the empirical consensus on the trade-off between compute benefits and representation losses regarding structured sparsity techniques like MOVs?",
+    "chunk_id": "izZba4UA7iY:29"
+  },
+  {
+    "question": "What are the licensing implications of using open-weight models like those licensed under the MIT license, given that they were trained on unlicensed internet data?",
+    "chunk_id": "-qm0ln33G24:37"
+  },
+  {
+    "question": "Beyond downloading datasets from Hugging Face, what is the technical and social process required to produce usable training data for language models?",
+    "chunk_id": "-qm0ln33G24:37"
+  },
+  {
+    "question": "In the context of parameter accounting for deep learning models, why does the memory footprint required for training often exceed the size of the model parameters themselves, and what specific components contribute to this overhead?",
+    "chunk_id": "6-cXp-aOmdg:9"
+  },
+  {
+    "question": "Why is optimizer state considered the dominant factor in memory consumption during SGD updates, particularly when using optimizers like Adam that track first and second moments?",
+    "chunk_id": "6-cXp-aOmdg:9"
+  },
+  {
+    "question": "How does operator fusion mitigate the memory bandwidth bottleneck in GPU architectures by reducing data movement between the memory warehouse and the compute factory?",
+    "chunk_id": "izZba4UA7iY:30"
+  },
+  {
+    "question": "What is the current state-of-the-art approach for model quantization, and how does it combine quantization-aware training with post-training quantization?",
+    "chunk_id": "izZba4UA7iY:30"
+  },
+  {
+    "question": "What challenges regarding model calibration persist after RLHF, and what argument has Anthropic made about the natural state of this uncalibration?",
+    "chunk_id": "2oH6PWPrYFo:50"
+  },
+  {
+    "question": "Why is RLVR considered impactful for post-training, particularly in relation to over-optimization and the ability to scale performance monotonically by increasing compute?",
+    "chunk_id": "2oH6PWPrYFo:50"
+  },
+  {
+    "question": "How does conditional perplexity address the limitation of standard perplexity in filtering out incidental tokens?",
+    "chunk_id": "JpAxdTWQJxM:6"
+  },
+  {
+    "question": "Why is the LAMBADA benchmark considered a disguised perplexity measure, and what specific linguistic challenge does it target?",
+    "chunk_id": "JpAxdTWQJxM:6"
+  },
+  {
+    "question": "How does the lower envelope method estimate the optimal trade-off between FLOPs and parameter count, and what specific model size did this approach suggest for the compute budget analyzed by Kaplan et al.?",
+    "chunk_id": "Q15rhEWZPQ4:41"
+  },
+  {
+    "question": "What is the IsoFLOP method for determining scaling laws, and why is it considered a robust alternative to the lower envelope approach?",
+    "chunk_id": "Q15rhEWZPQ4:41"
+  },
+  {
+    "question": "Why are companies increasingly recruiting experts or well-trained annotators for tasks like Blue Book verification, rather than relying solely on general annotators?",
+    "chunk_id": "2oH6PWPrYFo:37"
+  },
+  {
+    "question": "Under what conditions is model-based data annotation considered highly effective for aligning with frontier capabilities?",
+    "chunk_id": "2oH6PWPrYFo:37"
+  },
+  {
+    "question": "What is the alternative approach to handling sensitive hyperparameters in large language model training, as exemplified by DeepSeek and Qwen 2.5, beyond attempting to stabilize them?",
+    "chunk_id": "vTfEyOyzV9E:14"
+  },
+  {
+    "question": "How has the methodology for determining optimal hyperparameters, such as batch sizes and learning rates, evolved from Qwen 2.5 to Qwen 3, and what role do scaling laws play in this standard recipe?",
+    "chunk_id": "vTfEyOyzV9E:14"
+  },
+  {
+    "question": "Why does performance degrade in full RNN formulations compared to full softmax attention, even though the linear form and recurrent form are mathematically equivalent?",
+    "chunk_id": "cKSwj_qZ8Jg:12"
+  },
+  {
+    "question": "How does the linear attention mechanism accumulate key-value pairs with queries, and why might the output need to include values from the current time step?",
+    "chunk_id": "cKSwj_qZ8Jg:12"
+  },
+  {
+    "question": "When implementing a naive matmul kernel with a triple loop over the M, N, and K dimensions, why does the arithmetic intensity remain constant, and how does the ratio of total operations to HBM memory transfers explain the resulting performance bottleneck?",
+    "chunk_id": "xnDHaNUvHBg:33"
+  },
+  {
+    "question": "What causes the redundant reads from HBM when computing adjacent elements of the output matrix C, and how does loading shared operands like rows of A and columns of B just once improve the kernel's overall efficiency?",
+    "chunk_id": "xnDHaNUvHBg:33"
+  },
+  {
+    "question": "When comparing a fixed-depth transformer to a looping model under an identical FLOP budget and model size, how does incorporating recurrence affect validation loss relative to simply increasing data volume?",
+    "chunk_id": "9EEm4iMAF5s:35"
+  },
+  {
+    "question": "What architectural change should be applied when increasing data volume under a fixed model size constraint to improve performance, and how does this recommendation highlight a gap in the configuration of contemporary models?",
+    "chunk_id": "9EEm4iMAF5s:35"
+  },
+  {
+    "question": "How can you determine which specific CUDA kernel is being executed for a matrix multiplication by analyzing the kernel name, and what information do components like 'cutlass', 'SM100', and 'f32' provide?",
+    "chunk_id": "xnDHaNUvHBg:14"
+  },
+  {
+    "question": "When implementing the GeLU activation function, how do you verify that a naive PyTorch implementation using the mathematical equation produces the same results as the built-in functional version?",
+    "chunk_id": "xnDHaNUvHBg:14"
+  },
+  {
+    "question": "What are the primary fault tolerance challenges introduced by the NVLink interconnects in NVIDIA's NVL72 Grace Blackwell systems, particularly regarding the physical properties of the connectors?",
+    "chunk_id": "9EEm4iMAF5s:18"
+  },
+  {
+    "question": "How should infrastructure design adapt to handle single-GPU failures and massive context windows (1M+ tokens) when serving production traffic with trillion-parameter models split across 72 GPUs?",
+    "chunk_id": "9EEm4iMAF5s:18"
+  },
+  {
+    "question": "What is the distinction between copyright protection for the expression of an idea versus the idea itself, and how does this apply to algorithmic implementations?",
+    "chunk_id": "-qm0ln33G24:8"
+  },
+  {
+    "question": "How does the threshold for obtaining copyright protection in the US differ from that of patents, particularly regarding the requirement of publication and registration?",
+    "chunk_id": "-qm0ln33G24:8"
+  },
+  {
+    "question": "How does the row sum kernel handle data that exceeds the block size, and where are the intermediate accumulation values stored during the iterative tiling process?",
+    "chunk_id": "xnDHaNUvHBg:31"
+  },
+  {
+    "question": "In the context of the Triton compiler, who determines the physical location (registers vs. shared memory) for the accumulator when processing rows that require multiple loop iterations?",
+    "chunk_id": "xnDHaNUvHBg:31"
+  },
+  {
+    "question": "How does MinHash utilize random hash functions to estimate the Jaccard similarity between two sets, and why does the probability of the minimum hash values colliding correspond to the intersection over union of the sets?",
+    "chunk_id": "5sxHosTLPF8:16"
+  },
+  {
+    "question": "In the context of Locality Sensitive Hashing, why do we intentionally allow collisions in MinHash, and how does selecting the minimum hash value help align these collisions with the structural similarity of the input sets?",
+    "chunk_id": "5sxHosTLPF8:16"
+  },
+  {
+    "question": "How does Multi-Latent Attention (MLA) in DeepSeek-V2 reduce the KV cache size compared to standard multi-headed attention, and what is the trade-off regarding RoPE compatibility?",
+    "chunk_id": "EfM546A79aM:23"
+  },
+  {
+    "question": "What is the mechanism behind GQA's reduction of keys and values, and why might accuracy evaluations for such optimizations need to be interpreted with caution?",
+    "chunk_id": "EfM546A79aM:23"
+  },
+  {
+    "question": "How does MinHash enable the efficient detection of near-duplicate documents by leveraging the relationship between hash collisions and Jaccard similarity?",
+    "chunk_id": "5sxHosTLPF8:15"
+  },
+  {
+    "question": "What is the definition of Jaccard similarity for two sets, and how is it used to determine if documents are near duplicates with a specific threshold?",
+    "chunk_id": "5sxHosTLPF8:15"
+  },
+  {
+    "question": "How does the paper 'Resolving Discrepancy to Compute-Optimal Scaling of Language Models' attribute the gap between the Kaplan and Chinchilla scaling laws to implementation details?",
+    "chunk_id": "Q15rhEWZPQ4:44"
+  },
+  {
+    "question": "Why does excluding last layer parameters in model size counts distort scaling law results more than excluding embedding parameters, given the structural relationship between these components?",
+    "chunk_id": "Q15rhEWZPQ4:44"
+  },
+  {
+    "question": "What factors contribute to CPU performance becoming a bottleneck in language model inference, and how does the placement of the KV cache influence this limitation?",
+    "chunk_id": "9EEm4iMAF5s:16"
+  },
+  {
+    "question": "How does the inference engine manage KV cache eviction and retrieval when GPU memory is insufficient, and what are the latency trade-offs between offloading to CPU memory versus disk storage?",
+    "chunk_id": "9EEm4iMAF5s:16"
+  },
+  {
+    "question": "How does the length normalizer in RLVR affect the Chain-of-Thought (CoT) generation for positive versus negative cases, and what are the trade-offs regarding inference costs and accuracy?",
+    "chunk_id": "dIFAi87Ws4E:24"
+  },
+  {
+    "question": "Why is Kimi K1.5 often overlooked in discussions comparing it to DeepSeek R1, despite being released at the same time and achieving comparable performance?",
+    "chunk_id": "dIFAi87Ws4E:24"
+  },
+  {
+    "question": "How does the Mamba-2 architecture resolve the limitation of standard linear attention by introducing a time-dependent gate \u03b3(t), and why does restricting this gate to depend only on the current input x(t) preserve computational efficiency across both parallel training and recurrent inference?",
+    "chunk_id": "cKSwj_qZ8Jg:7"
+  },
+  {
+    "question": "While Mamba-2 is fundamentally rooted in state space theory, how can its update mechanics be reinterpreted as an elaboration of linear attention, and how is this pattern typically integrated into large-scale models like Nemotron-3 alongside traditional softmax attention?",
+    "chunk_id": "cKSwj_qZ8Jg:7"
+  },
+  {
+    "question": "How does the Chatbot Arena methodology use pairwise comparisons and human feedback to evaluate open-ended model responses when exact match is impossible and there is no ground truth?",
+    "chunk_id": "JpAxdTWQJxM:16"
+  },
+  {
+    "question": "What is the probabilistic definition of ELO rankings, and how are the rating parameters fitted to maximize the probability of the observed pairwise comparisons?",
+    "chunk_id": "JpAxdTWQJxM:16"
+  },
+  {
+    "question": "In the context of the CS336 curriculum, why is evaluation considered a critical factor in shaping AI development beyond just being a mechanical assessment of model accuracy?",
+    "chunk_id": "JpAxdTWQJxM:0"
+  },
+  {
+    "question": "How does the concept of 'North Stars' in evaluation influence the progress and development of both open and closed model developers?",
+    "chunk_id": "JpAxdTWQJxM:0"
+  },
+  {
+    "question": "How is a ReGLU constructed from a standard feed-forward layer, and what is the specific role of the gating matrix V?",
+    "chunk_id": "lVynu4bo1rY:14"
+  },
+  {
+    "question": "What is the relationship between standard activation functions like GeLU and SwiGLU and their corresponding GLU variants (GeGLU and SwiGLU) in modern language model architectures?",
+    "chunk_id": "lVynu4bo1rY:14"
+  },
+  {
+    "question": "Given that nvfp4 only allocates 4 bits per value, how does the format overcome the limited dynamic range, and what role does block-wise scaling play in representing values?",
+    "chunk_id": "kuYAsz7zspQ:6"
+  },
+  {
+    "question": "When working with extremely low-precision formats like fp4, do we directly instantiate them using PyTorch's dtype argument, or is the precision handling managed under the hood by NVIDIA's software stack?",
+    "chunk_id": "kuYAsz7zspQ:6"
+  },
+  {
+    "question": "Why is it often more practical to scale models by increasing width rather than depth, considering the challenges of tensor parallelism?",
+    "chunk_id": "lVynu4bo1rY:33"
+  },
+  {
+    "question": "According to the Kaplan et al. experiments on hyperparameter sweeps, does the specific aspect ratio of depth to width significantly impact model performance, or is another factor more dominant?",
+    "chunk_id": "lVynu4bo1rY:33"
+  },
+  {
+    "question": "Why have Mixture of Experts (MoE) architectures become the standard for large language models on platforms like Hugging Face, and what specific computational advantage do they offer over dense models when scaling parameter count?",
+    "chunk_id": "cKSwj_qZ8Jg:22"
+  },
+  {
+    "question": "Based on the empirical results from the Switch Transformer paper (Fedus et al., 2022), how does increasing the number of experts while keeping active parameters constant affect test loss and training speed relative to total compute?",
+    "chunk_id": "cKSwj_qZ8Jg:22"
+  },
+  {
+    "question": "How does the quality of the dataset influence SFT effectiveness, particularly regarding the extraction of pre-training behaviors versus introducing hallucinations?",
+    "chunk_id": "2oH6PWPrYFo:21"
+  },
+  {
+    "question": "What are the limitations of using SFT to determine whether specific capabilities, such as safety alignment or programming generalization, are already present in the pre-trained model?",
+    "chunk_id": "2oH6PWPrYFo:21"
+  },
+  {
+    "question": "When designing a model architecture for serving on Cerebras chips, what is the primary hardware constraint that dictates model sizing and capacity planning?",
+    "chunk_id": "9EEm4iMAF5s:39"
+  },
+  {
+    "question": "How does the choice of quantization format, such as NVFP4 versus MXFP4, depend on the target inference hardware, and what are the implications for model training?",
+    "chunk_id": "9EEm4iMAF5s:39"
+  },
+  {
+    "question": "What are the initial steps in the lifecycle of a token request within an inference engine, specifically regarding scheduling and KV cache interaction?",
+    "chunk_id": "9EEm4iMAF5s:4"
+  },
+  {
+    "question": "How does the system determine if compute can be saved by checking for previous versions of a request before executing core machine learning code?",
+    "chunk_id": "9EEm4iMAF5s:4"
+  },
+  {
+    "question": "What are the risks of using downstream evaluations as the target for optimizing data mixtures during pre-training, and how can this lead to overfitting?",
+    "chunk_id": "5sxHosTLPF8:28"
+  },
+  {
+    "question": "What are the key design decisions involved in optimizing data mixtures using scaling law principles, and why is there a cost-accuracy trade-off in determining the scale of the models used for this optimization?",
+    "chunk_id": "5sxHosTLPF8:28"
+  },
+  {
+    "question": "Why are dot products and matrix-vector products considered memory-bound operations despite involving arithmetic computations?",
+    "chunk_id": "kuYAsz7zspQ:23"
+  },
+  {
+    "question": "How does the arithmetic intensity of matrix multiplication compare to that of dot products, and why does matrix multiplication shift the bottleneck towards compute-bound performance?",
+    "chunk_id": "kuYAsz7zspQ:23"
+  },
+  {
+    "question": "How is the critical batch size defined in terms of the minimum number of examples and steps required, and what is the rationale for choosing this specific batch size regarding convergence rate and compute efficiency?",
+    "chunk_id": "Q15rhEWZPQ4:30"
+  },
+  {
+    "question": "Why is the critical batch size considered a relevant concept in the context of scaling laws, particularly in relation to how the optimal batch size scales as a function of the target loss or compute budget?",
+    "chunk_id": "Q15rhEWZPQ4:30"
+  },
+  {
+    "question": "In the context of scaling laws for Mixture of Experts models, how does increasing the ratio of total parameters to active parameters affect the model's loss, and what does this imply about the utility of inactive experts?",
+    "chunk_id": "Q15rhEWZPQ4:26"
+  },
+  {
+    "question": "How does the sparsity of a Mixture of Experts architecture influence the number of active parameters relative to the compute budget, and what architectural trends are typically observed when training large-scale models?",
+    "chunk_id": "Q15rhEWZPQ4:26"
+  },
+  {
+    "question": "Why is 'best-of-k' filtering essential in RLVR training, and how does it help identify examples that provide sufficient learning signal compared to those at the edge of the model's capabilities?",
+    "chunk_id": "dIFAi87Ws4E:26"
+  },
+  {
+    "question": "What is the rationale for excluding multiple-choice questions from RLVR datasets, and how does filtering for problems that require long, deep thought contribute to broad coverage and effective reward signal generation?",
+    "chunk_id": "dIFAi87Ws4E:26"
+  },
+  {
+    "question": "How do the scaling laws for batch size and learning rate interact under Chinchilla-like scaling assumptions, and what is the predicted effect on the learning rate as total compute increases?",
+    "chunk_id": "vTfEyOyzV9E:24"
+  },
+  {
+    "question": "What are the specific scaling relationships for batch size and learning rate relative to the dataset size and model size, and how does the DeepSeek Law describe the trade-off between these hyperparameters as compute scales up?",
+    "chunk_id": "vTfEyOyzV9E:24"
+  },
+  {
+    "question": "How do the intended goals of evaluation\u2014such as measuring intelligence, assessing benefits and harms for policy, providing developer feedback, or aiding purchase decisions\u2014dictate the selection of specific benchmarks and evaluation strategies?",
+    "chunk_id": "JpAxdTWQJxM:36"
+  },
+  {
+    "question": "What distinguishes the evaluation of algorithms from the evaluation of end models in the era of foundation models, and how does the NanoGPT speedrun serve as an exception to the prevailing trend of evaluating models rather than methods?",
+    "chunk_id": "JpAxdTWQJxM:36"
+  },
+  {
+    "question": "Why must we explicitly allocate an output tensor and avoid functional returns when writing a Triton kernel?",
+    "chunk_id": "xnDHaNUvHBg:19"
+  },
+  {
+    "question": "How do we configure the execution grid to process an 8,000-dimensional vector using a block size of 1,024 elements?",
+    "chunk_id": "xnDHaNUvHBg:19"
+  },
+  {
+    "question": "How did the GPT-2 data collection strategy leverage Reddit to filter for high-quality web content, and what was the scale of the resulting dataset?",
+    "chunk_id": "-qm0ln33G24:23"
+  },
+  {
+    "question": "What specific techniques did CCNET employ for language identification and quality filtering, and how did it use Wikipedia to assess document quality?",
+    "chunk_id": "-qm0ln33G24:23"
+  },
+  {
+    "question": "How many units is CS336 worth, and how should students calibrate their expectations for the first assignment's difficulty relative to the cumulative workload of CS 224n?",
+    "chunk_id": "JuoVZkPBiKk:11"
+  },
+  {
+    "question": "What research and engineering capabilities does CS336 aim to develop for students tackling the systems and empirical side of language modeling, and how does its pedagogical role compare to theoretical courses like Statistical Learning Theory?",
+    "chunk_id": "JuoVZkPBiKk:11"
+  }
+]

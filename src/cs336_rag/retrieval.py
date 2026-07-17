@@ -18,7 +18,8 @@ evaluation (see ``cs336_rag.evals``); the app serves the winner.
 """
 
 import logging
-from typing import Any, Literal, get_args
+import re
+from typing import Any, get_args
 
 import httpx
 import psycopg
@@ -32,11 +33,9 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 from cs336_rag.config import Settings
 from cs336_rag.embeddings import Embedder
 from cs336_rag.llm import build_openai_client, build_rerank_http, retry_transient
-from cs336_rag.models import Chunk
+from cs336_rag.models import Chunk, SearchMethod
 
 logger = logging.getLogger(__name__)
-
-SearchMethod = Literal["text", "vector", "hybrid", "hybrid_rerank"]
 
 RRF_K = 60  # standard damping constant from the original RRF paper
 CANDIDATE_FACTOR = 3  # hybrid fusion / rerank pools consider limit * factor candidates
@@ -69,18 +68,36 @@ def _row_to_result(row: dict[str, Any], score: float) -> SearchResult:
     return SearchResult(chunk=chunk, score=score)
 
 
+def _or_tsquery(query: str) -> str:
+    """Build an OR tsquery string from free text.
+
+    ``websearch_to_tsquery`` ANDs every term, so a full-sentence question
+    only matches a chunk that literally contains *all* of its words —
+    almost never true for paraphrased natural-language queries. ORing the
+    terms lets any overlap match, and ``ts_rank_cd`` then ranks by how many
+    query terms are covered and how densely. Terms are reduced to bare
+    alphanumerics, so the result is always a safe ``to_tsquery`` input
+    (stopwords are dropped by the ``english`` config).
+    """
+    terms = re.findall(r"[a-z0-9]+", query.lower())
+    return " | ".join(terms)
+
+
 def text_search(conn: psycopg.Connection, query: str, limit: int = 10) -> list[SearchResult]:
     """Full-text search with English stemming, ranked by cover density."""
+    tsquery = _or_tsquery(query)
+    if not tsquery:
+        return []
     with conn.cursor(row_factory=dict_row) as cursor:
         rows = cursor.execute(
             f"""
             SELECT {_CHUNK_COLUMNS}, ts_rank_cd(tsv, query) AS score
-            FROM chunks, websearch_to_tsquery('english', %s) AS query
+            FROM chunks, to_tsquery('english', %s) AS query
             WHERE tsv @@ query
             ORDER BY score DESC
             LIMIT %s
             """,
-            (query, limit),
+            (tsquery, limit),
         ).fetchall()
     return [_row_to_result(row, float(row["score"])) for row in rows]
 
@@ -241,11 +258,16 @@ def search(
     settings: Settings,
     conn: psycopg.Connection,
     query: str,
-    method: SearchMethod = "hybrid_rerank",
+    method: SearchMethod | None = None,
     limit: int = 10,
     embedder: Embedder | None = None,
 ) -> list[SearchResult]:
-    """Dispatch to a search method by name (the evaluation compares them all)."""
+    """Dispatch to a search method by name (the evaluation compares them all).
+
+    ``method`` defaults to ``settings.retrieval_method`` (the evaluation
+    winner; see docs/evaluation.md).
+    """
+    method = method or settings.retrieval_method
     if method not in get_args(SearchMethod):  # guard untyped callers (CLI args, eval configs)
         raise ValueError(f"Unknown search method {method!r}; expected {get_args(SearchMethod)}")
 

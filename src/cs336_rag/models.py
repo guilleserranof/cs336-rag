@@ -6,6 +6,9 @@ from pydantic import BaseModel
 
 YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
 
+# Retrieval methods compared in the evaluation (cs336_rag.evals.retrieval_eval).
+SearchMethod = Literal["text", "vector", "hybrid", "hybrid_rerank"]
+
 
 class TranscriptSegment(BaseModel):
     """One caption snippet as returned by YouTube or Whisper."""

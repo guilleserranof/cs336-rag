@@ -86,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
         from cs336_rag.embeddings import EmbeddingClient
         from cs336_rag.evals.ground_truth import load_ground_truth
         from cs336_rag.evals.retrieval_eval import evaluate_retrieval
-        from cs336_rag.retrieval import SearchMethod
+        from cs336_rag.models import SearchMethod
 
         settings = get_settings()
         entries = load_ground_truth(settings.data_dir / "ground_truth.json")

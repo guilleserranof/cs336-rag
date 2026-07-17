@@ -141,6 +141,17 @@ class TestRewriteQuery:
         assert client.chat.completions.create.call_args.kwargs["model"] == "gemma4"
 
 
+class TestOrTsquery:
+    def test_ors_terms(self) -> None:
+        assert retrieval._or_tsquery("byte pair encoding") == "byte | pair | encoding"
+
+    def test_lowercases_and_strips_punctuation(self) -> None:
+        assert retrieval._or_tsquery("What is BPE?") == "what | is | bpe"
+
+    def test_empty_query_is_empty(self) -> None:
+        assert retrieval._or_tsquery("!!! ???") == ""
+
+
 # ---------------------------------------------------------------------------
 # Integration tests: SQL-backed searches against seeded chunks
 # ---------------------------------------------------------------------------
@@ -173,6 +184,19 @@ class TestSqlSearches:
 
     def test_text_search_no_match_returns_empty(self, seeded_conn: psycopg.Connection) -> None:
         assert retrieval.text_search(seeded_conn, "zebra migration", limit=5) == []
+
+    def test_text_search_matches_on_partial_term_overlap(
+        self, seeded_conn: psycopg.Connection
+    ) -> None:
+        # A full-sentence question whose terms only partially appear in the
+        # target chunk still matches (OR semantics), where ANDing every term
+        # would return nothing.
+        results = retrieval.text_search(
+            seeded_conn, "how does the tokenizer handle rare unicode symbols?", limit=3
+        )
+
+        assert results
+        assert results[0].chunk.chunk_index == 0
 
     def test_vector_search_ranks_by_cosine(self, seeded_conn: psycopg.Connection) -> None:
         query_vector = [0.1, 0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]

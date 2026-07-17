@@ -19,7 +19,7 @@ from cs336_rag.embeddings import Embedder
 from cs336_rag.evals.ground_truth import GroundTruthEntry
 from cs336_rag.evals.metrics import hit_rate_at, mrr, rank_of
 from cs336_rag.llm import build_rerank_http
-from cs336_rag.retrieval import SearchMethod
+from cs336_rag.models import SearchMethod
 
 logger = logging.getLogger(__name__)
 
