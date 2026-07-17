@@ -82,9 +82,7 @@ class TestRerank:
             ]
         )
 
-        reranked = retrieval.rerank_chunks(
-            make_settings(), "what is attention", chunks, http=http
-        )
+        reranked = retrieval.rerank_chunks(make_settings(), "what is attention", chunks, http=http)
 
         assert [result.chunk.chunk_index for result in reranked] == [1, 0]
         assert reranked[0].score == pytest.approx(0.9)
@@ -203,6 +201,4 @@ class TestSqlSearches:
 class TestSearchDispatch:
     def test_unknown_method_raises(self) -> None:
         with pytest.raises(ValueError, match="method"):
-            retrieval.search(
-                make_settings(), MagicMock(), "q", method="bm25", embedder=MagicMock()
-            )
+            retrieval.search(make_settings(), MagicMock(), "q", method="bm25", embedder=MagicMock())
