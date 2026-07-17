@@ -1,0 +1,23 @@
+# Development dependencies. The app and Grafana services join this file in
+# later iterations; for now it provides the pgvector-enabled Postgres used
+# by the ingestion pipeline and the integration tests.
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: cs336-rag-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-cs336_rag}
+      POSTGRES_USER: ${DB_USER:-cs336}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cs336}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cs336} -d ${DB_NAME:-cs336_rag}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

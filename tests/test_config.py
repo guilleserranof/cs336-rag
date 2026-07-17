@@ -47,6 +47,18 @@ def test_env_overrides(monkeypatch: object) -> None:
     assert settings.db_port == 5433
 
 
+def test_nonpositive_chunk_settings_rejected() -> None:
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        make_settings(chunk_max_chars=0)
+    with pytest.raises(ValidationError):
+        make_settings(embed_batch_size=0)
+    with pytest.raises(ValidationError):
+        make_settings(chunk_overlap_chars=-1)
+
+
 def test_db_dsn() -> None:
     settings = make_settings(
         db_host="db", db_port=5432, db_name="cs336_rag", db_user="u", db_password="p"
