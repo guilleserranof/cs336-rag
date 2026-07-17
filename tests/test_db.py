@@ -5,21 +5,9 @@ import pytest
 
 from cs336_rag import db
 from cs336_rag.config import Settings
-from cs336_rag.models import Chunk
+from tests.conftest import make_chunk
 
 pytestmark = pytest.mark.integration
-
-
-def make_chunk(index: int = 0, content: str = "attention is all you need") -> Chunk:
-    return Chunk(
-        video_id="vid1",
-        title="Lecture 1",
-        position=1,
-        chunk_index=index,
-        start=float(index * 10),
-        end=float(index * 10 + 10),
-        content=content,
-    )
 
 
 def test_init_schema_is_idempotent(db_conn: psycopg.Connection, db_settings: Settings) -> None:

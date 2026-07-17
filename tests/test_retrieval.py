@@ -6,7 +6,7 @@ import psycopg
 import pytest
 
 from cs336_rag import db, retrieval
-from cs336_rag.models import Chunk
+from tests.conftest import make_chunk
 from tests.test_config import make_settings
 
 # ---------------------------------------------------------------------------
@@ -20,9 +20,6 @@ class TestRrfFuse:
         assert [chunk_id for chunk_id, _ in fused] == ["a", "b", "c"]
 
     def test_item_ranked_high_in_both_beats_single_list_winner(self) -> None:
-        fused = retrieval.rrf_fuse([["a", "b"], ["b", "a"]])
-        # b: 1/2 + 1/1 vs a: 1/1 + 1/2 (k=0 view) -- with equal totals order
-        # falls back to first-seen; use asymmetric case instead
         fused = retrieval.rrf_fuse([["x", "b", "a"], ["b", "a", "y"]])
         assert fused[0][0] == "b"
 
@@ -50,18 +47,6 @@ class TestRrfFuse:
 # ---------------------------------------------------------------------------
 # Unit tests: reranking via the /rerank endpoint (HTTP mocked)
 # ---------------------------------------------------------------------------
-
-
-def make_chunk(index: int, content: str) -> Chunk:
-    return Chunk(
-        video_id="vid1",
-        title="Lecture 1",
-        position=1,
-        chunk_index=index,
-        start=float(index * 10),
-        end=float(index * 10 + 10),
-        content=content,
-    )
 
 
 class TestRerank:
@@ -103,6 +88,19 @@ class TestRerank:
         assert retrieval.rerank_chunks(make_settings(), "q", [], http=http) == []
         http.post.assert_not_called()
 
+    def test_out_of_range_indices_are_ignored(self) -> None:
+        chunks = [make_chunk(0, "only doc")]
+        http = self._http_returning(
+            [
+                {"index": 5, "relevance_score": 0.9},
+                {"index": 0, "relevance_score": 0.4},
+            ]
+        )
+
+        reranked = retrieval.rerank_chunks(make_settings(), "q", chunks, http=http)
+
+        assert [result.chunk.chunk_index for result in reranked] == [0]
+
 
 # ---------------------------------------------------------------------------
 # Unit tests: query rewriting (chat API mocked)
@@ -127,6 +125,14 @@ class TestRewriteQuery:
 
     def test_blank_rewrite_falls_back_to_original(self) -> None:
         client = self._chat_returning("   ")
+        assert retrieval.rewrite_query(make_settings(), "original", client=client) == "original"
+
+    def test_empty_choices_fall_back_to_original(self) -> None:
+        client = MagicMock()
+        completion = MagicMock()
+        completion.choices = []
+        client.chat.completions.create.return_value = completion
+
         assert retrieval.rewrite_query(make_settings(), "original", client=client) == "original"
 
     def test_uses_configured_chat_model(self) -> None:
@@ -201,4 +207,10 @@ class TestSqlSearches:
 class TestSearchDispatch:
     def test_unknown_method_raises(self) -> None:
         with pytest.raises(ValueError, match="method"):
-            retrieval.search(make_settings(), MagicMock(), "q", method="bm25", embedder=MagicMock())
+            retrieval.search(
+                make_settings(),
+                MagicMock(),
+                "q",
+                method="bm25",  # type: ignore[arg-type]  # untyped callers hit the runtime guard
+                embedder=MagicMock(),
+            )

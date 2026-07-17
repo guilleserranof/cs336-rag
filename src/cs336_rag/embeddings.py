@@ -1,25 +1,23 @@
 """Thin wrapper around the OpenAI-compatible embeddings endpoint.
 
-Adds batching (the API rejects oversized requests), retry with exponential
-backoff on transient failures, and the ``dimensions`` parameter
-(qwen3-embedding supports matryoshka truncation; 1024 dims keeps
-pgvector's HNSW index applicable and returns unit-norm vectors).
+Adds batching (the API rejects oversized requests), retry on transient
+failures, and the ``dimensions`` parameter (qwen3-embedding supports
+matryoshka truncation; 1024 dims keeps pgvector's HNSW index applicable
+and returns unit-norm vectors).
 """
 
-from openai import (
-    APIConnectionError,
-    APITimeoutError,
-    InternalServerError,
-    OpenAI,
-    RateLimitError,
-)
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from typing import Protocol
+
+from openai import OpenAI
 
 from cs336_rag.config import Settings
-from cs336_rag.llm import build_openai_client
+from cs336_rag.llm import build_openai_client, retry_transient
 
-# transient failures worth retrying; auth/validation errors fail fast
-RETRYABLE_ERRORS = (APIConnectionError, APITimeoutError, InternalServerError, RateLimitError)
+
+class Embedder(Protocol):
+    """Anything that turns texts into vectors (real API client or test fake)."""
+
+    def embed(self, texts: list[str]) -> list[list[float]]: ...
 
 
 class EmbeddingClient:
@@ -29,12 +27,7 @@ class EmbeddingClient:
         self._dimensions = settings.embedding_dim
         self._batch_size = settings.embed_batch_size
 
-    @retry(
-        retry=retry_if_exception_type(RETRYABLE_ERRORS),
-        stop=stop_after_attempt(5),
-        wait=wait_exponential(multiplier=1, max=30),
-        reraise=True,
-    )
+    @retry_transient
     def _embed_batch(self, texts: list[str]) -> list[list[float]]:
         response = self._client.embeddings.create(
             model=self._model, input=texts, dimensions=self._dimensions
