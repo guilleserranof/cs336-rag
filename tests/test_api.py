@@ -108,9 +108,7 @@ class TestFeedback:
     def test_unknown_conversation_returns_404(self, client: TestClient) -> None:
         from uuid import uuid4
 
-        response = client.post(
-            "/api/feedback", json={"conversation_id": str(uuid4()), "rating": 1}
-        )
+        response = client.post("/api/feedback", json={"conversation_id": str(uuid4()), "rating": 1})
         assert response.status_code == 404
 
     def test_invalid_rating_returns_422(self, client: TestClient) -> None:
@@ -130,6 +128,33 @@ class TestStats:
 
         assert body["conversations"] == 1
         assert body["positive"] == 1
+
+
+class TestSchemaBootstrap:
+    def test_creates_telemetry_tables_when_missing(
+        self, db_settings: Settings, db_conn: psycopg.Connection
+    ) -> None:
+        """The app must work on a database where ingestion never ran."""
+        db_conn.execute("DROP TABLE IF EXISTS feedback, conversations CASCADE")
+        db_conn.commit()
+
+        app = create_app(db_settings, service=FakeService())
+        with TestClient(app) as fresh_client:
+            response = fresh_client.post("/api/ask", json={"question": "q"})
+
+        assert response.status_code == 200
+
+    def test_does_not_touch_the_knowledge_base(
+        self, db_settings: Settings, db_conn: psycopg.Connection
+    ) -> None:
+        """Starting the app must never drop or clear `chunks`."""
+        from cs336_rag import db as db_module
+
+        db_module.replace_chunks(db_conn, [make_chunk(0)], [[0.1] * db_settings.embedding_dim])
+
+        create_app(db_settings, service=FakeService())
+
+        assert db_module.count_chunks(db_conn) == 1
 
 
 class TestUi:

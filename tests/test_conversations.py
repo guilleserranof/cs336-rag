@@ -36,8 +36,13 @@ class TestLogConversation:
             "FROM conversations WHERE id = %s",
             (conversation_id,),
         ).fetchone()
-        assert row == ("what is bpe?", "Byte pair encoding merges frequent pairs [1].",
-                       "tutor", "vector", 2)
+        assert row == (
+            "what is bpe?",
+            "Byte pair encoding merges frequent pairs [1].",
+            "tutor",
+            "vector",
+            2,
+        )
 
     def test_stores_timings_and_tokens(self, db_conn: psycopg.Connection) -> None:
         conversation_id = conversations.log_conversation(db_conn, make_record())

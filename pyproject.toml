@@ -37,6 +37,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/cs336_rag"]
+# schema.sql and static/ are loaded at runtime via importlib.resources
+artifacts = ["src/cs336_rag/schema.sql", "src/cs336_rag/static/*"]
 
 [tool.ruff]
 target-version = "py312"
