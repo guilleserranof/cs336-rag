@@ -79,18 +79,16 @@ def main(argv: list[str] | None = None) -> int:
         save_ground_truth(entries, path)
         print(f"Generated {len(entries)} questions from {len(sampled)} chunks -> {path}")
     elif args.command == "evaluate-retrieval":
-        from typing import get_args as literal_args
-
         from cs336_rag import db
         from cs336_rag.config import get_settings
         from cs336_rag.embeddings import EmbeddingClient
         from cs336_rag.evals.ground_truth import load_ground_truth
         from cs336_rag.evals.retrieval_eval import evaluate_retrieval
-        from cs336_rag.models import SearchMethod
+        from cs336_rag.models import ALL_SEARCH_METHODS
 
         settings = get_settings()
         entries = load_ground_truth(settings.data_dir / "ground_truth.json")
-        methods = list(literal_args(SearchMethod))
+        methods = list(ALL_SEARCH_METHODS)
         with db.connect(settings) as conn:
             report = evaluate_retrieval(
                 settings,

@@ -115,6 +115,25 @@ def test_hybrid_rerank_uses_injected_http(
     assert report.results["hybrid_rerank"].questions == 2
 
 
+def test_empty_entries_raise(db_conn: psycopg.Connection, db_settings: Settings) -> None:
+    with pytest.raises(ValueError, match="No ground-truth"):
+        evaluate_retrieval(db_settings, db_conn, entries=[], methods=["text"], embedder=MagicMock())
+
+
+def test_stale_ground_truth_raises(
+    eval_setup: dict[str, object], db_conn: psycopg.Connection, db_settings: Settings
+) -> None:
+    stale = [GroundTruthEntry(question="q?", chunk_id="does-not-exist:0")]
+    with pytest.raises(ValueError, match="out of sync"):
+        evaluate_retrieval(
+            db_settings,
+            db_conn,
+            entries=stale,
+            methods=["text"],
+            embedder=eval_setup["embedder"],  # type: ignore[arg-type]
+        )
+
+
 def test_report_is_serializable(
     eval_setup: dict[str, object], db_conn: psycopg.Connection, db_settings: Settings
 ) -> None:

@@ -10,7 +10,6 @@ without re-paying the generation cost.
 import json
 import logging
 import random
-import re
 from pathlib import Path
 
 from openai import OpenAI
@@ -34,8 +33,6 @@ GENERATION_USER_TEMPLATE = (
     "'the speaker'. Reply with a JSON array of exactly {n} strings."
 )
 
-_JSON_ARRAY = re.compile(r"\[.*\]", re.DOTALL)
-
 
 class GroundTruthEntry(BaseModel):
     question: str
@@ -45,19 +42,21 @@ class GroundTruthEntry(BaseModel):
 def parse_questions(raw: str) -> list[str]:
     """Extract a JSON array of question strings from a model reply.
 
-    Tolerates code fences and surrounding prose; drops non-string items.
-    Returns [] when no parseable array is found.
+    Scans for the first ``[`` that begins a valid JSON array, tolerating code
+    fences, surrounding prose and stray brackets elsewhere in the text.
+    Non-string items are dropped; returns [] when nothing parses.
     """
-    match = _JSON_ARRAY.search(raw)
-    if match is None:
-        return []
-    try:
-        data = json.loads(match.group(0))
-    except json.JSONDecodeError:
-        return []
-    if not isinstance(data, list):
-        return []
-    return [item for item in data if isinstance(item, str) and item.strip()]
+    decoder = json.JSONDecoder()
+    for index, char in enumerate(raw):
+        if char != "[":
+            continue
+        try:
+            data, _ = decoder.raw_decode(raw[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, list):
+            return [item for item in data if isinstance(item, str) and item.strip()]
+    return []
 
 
 def sample_chunks(chunks: list[Chunk], size: int, seed: int) -> list[Chunk]:

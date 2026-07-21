@@ -32,8 +32,8 @@ are reproducible without regenerating the dataset.
 |---|---|---|---|
 | text (BM25-style FTS) | 0.797 | 0.883 | 0.578 |
 | **vector (pgvector cosine)** | **0.973** | **0.990** | **0.869** |
-| hybrid (RRF of text + vector) | 0.960 | 0.983 | 0.796 |
-| hybrid + rerank (cross-encoder) | 0.210 | 0.310 | 0.128 |
+| hybrid (RRF of text + vector) | 0.963 | 0.983 | 0.796 |
+| hybrid + rerank (cross-encoder) | 0.207 | 0.310 | 0.129 |
 
 **Winner: `vector`.** It leads on every metric, so it is the default retrieval
 method (`RETRIEVAL_METHOD=vector`, wired through `Settings.retrieval_method`).

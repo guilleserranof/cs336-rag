@@ -28,6 +28,13 @@ class TestParseQuestions:
     def test_non_string_items_are_dropped(self) -> None:
         assert parse_questions('["ok?", 42, null]') == ["ok?"]
 
+    def test_stray_brackets_in_prose_do_not_break_parsing(self) -> None:
+        raw = 'Here are questions [based on lecture 3]:\n["q1?", "q2?"]'
+        assert parse_questions(raw) == ["q1?", "q2?"]
+
+    def test_bracket_inside_question_string_is_preserved(self) -> None:
+        assert parse_questions('["what is BPE [tokenization]?"]') == ["what is BPE [tokenization]?"]
+
 
 class TestSampleChunks:
     def test_deterministic_with_seed(self) -> None:

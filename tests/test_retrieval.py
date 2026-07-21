@@ -151,6 +151,9 @@ class TestOrTsquery:
     def test_empty_query_is_empty(self) -> None:
         assert retrieval._or_tsquery("!!! ???") == ""
 
+    def test_accented_terms_are_kept_whole(self) -> None:
+        assert retrieval._or_tsquery("naïve café") == "naïve | café"
+
 
 # ---------------------------------------------------------------------------
 # Integration tests: SQL-backed searches against seeded chunks

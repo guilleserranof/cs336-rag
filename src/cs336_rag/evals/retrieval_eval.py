@@ -48,6 +48,34 @@ class RetrievalReport(BaseModel):
         return "\n".join(lines)
 
 
+def _check_ground_truth_matches_kb(
+    conn: psycopg.Connection, entries: list[GroundTruthEntry]
+) -> None:
+    """Guard against a stale ground truth: its chunk ids must exist in the KB.
+
+    chunk ids embed the chunk index, so re-ingesting with different chunk
+    settings shifts them. Without this check every relevant id would silently
+    miss and all methods would score ~0 for the wrong reason.
+    """
+    gt_ids = {entry.chunk_id for entry in entries}
+    rows = conn.execute("SELECT id FROM chunks WHERE id = ANY(%s)", (list(gt_ids),)).fetchall()
+    present = {row[0] for row in rows}
+    missing = gt_ids - present
+    if not missing:
+        return
+    if missing == gt_ids:
+        raise ValueError(
+            "None of the ground-truth chunks exist in the knowledge base; the DB and "
+            "ground_truth.json are out of sync (re-ingest or regenerate the ground truth)."
+        )
+    logger.warning(
+        "%d/%d ground-truth chunks are absent from the knowledge base; results may be "
+        "understated (re-ingest with matching chunk settings or regenerate the ground truth)",
+        len(missing),
+        len(gt_ids),
+    )
+
+
 def _retrieved_ids(
     settings: Settings,
     conn: psycopg.Connection,
@@ -57,24 +85,18 @@ def _retrieved_ids(
     limit: int,
     rerank_http: httpx.Client | None,
 ) -> list[str]:
-    if method == "text":
-        results = retrieval.text_search(conn, entry.question, limit)
-    elif method == "vector":
-        assert question_vector is not None
-        results = retrieval.vector_search(conn, question_vector, limit)
-    elif method == "hybrid":
-        assert question_vector is not None
-        results = retrieval.hybrid_search(conn, entry.question, question_vector, limit)
-    else:  # hybrid_rerank
-        assert question_vector is not None
-        pool = limit * retrieval.CANDIDATE_FACTOR
-        candidates = retrieval.hybrid_search(
-            conn, entry.question, question_vector, limit=pool, candidates=pool
-        )
-        reranked = retrieval.rerank_chunks(
-            settings, entry.question, [result.chunk for result in candidates], http=rerank_http
-        )
-        results = reranked[:limit]
+    """Retrieve via the production ``search`` dispatch, reusing the shared
+    question embedding and rerank connection so the evaluated pipeline is the
+    same code the app serves."""
+    results = retrieval.search(
+        settings,
+        conn,
+        entry.question,
+        method=method,
+        limit=limit,
+        query_vector=question_vector,
+        rerank_http=rerank_http,
+    )
     return [result.chunk.id for result in results]
 
 
@@ -88,6 +110,10 @@ def evaluate_retrieval(
     rerank_http: httpx.Client | None = None,
 ) -> RetrievalReport:
     """Score every method on the full question set."""
+    if not entries:
+        raise ValueError("No ground-truth entries to evaluate")
+    _check_ground_truth_matches_kb(conn, entries)
+
     needs_vectors = any(method != "text" for method in methods)
     question_vectors: list[list[float] | None]
     if needs_vectors:
