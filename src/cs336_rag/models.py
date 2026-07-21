@@ -1,10 +1,14 @@
 """Domain models shared across ingestion, retrieval and the API."""
 
-from typing import Literal
+from typing import Literal, get_args
 
 from pydantic import BaseModel
 
 YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
+
+# Retrieval methods compared in the evaluation (cs336_rag.evals.retrieval_eval).
+SearchMethod = Literal["text", "vector", "hybrid", "hybrid_rerank"]
+ALL_SEARCH_METHODS: tuple[SearchMethod, ...] = get_args(SearchMethod)
 
 
 class TranscriptSegment(BaseModel):

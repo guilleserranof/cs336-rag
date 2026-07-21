@@ -18,7 +18,8 @@ evaluation (see ``cs336_rag.evals``); the app serves the winner.
 """
 
 import logging
-from typing import Any, Literal, get_args
+import re
+from typing import Any, get_args
 
 import httpx
 import psycopg
@@ -32,11 +33,9 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 from cs336_rag.config import Settings
 from cs336_rag.embeddings import Embedder
 from cs336_rag.llm import build_openai_client, build_rerank_http, retry_transient
-from cs336_rag.models import Chunk
+from cs336_rag.models import Chunk, SearchMethod
 
 logger = logging.getLogger(__name__)
-
-SearchMethod = Literal["text", "vector", "hybrid", "hybrid_rerank"]
 
 RRF_K = 60  # standard damping constant from the original RRF paper
 CANDIDATE_FACTOR = 3  # hybrid fusion / rerank pools consider limit * factor candidates
@@ -69,18 +68,37 @@ def _row_to_result(row: dict[str, Any], score: float) -> SearchResult:
     return SearchResult(chunk=chunk, score=score)
 
 
+def _or_tsquery(query: str) -> str:
+    """Build an OR tsquery string from free text.
+
+    ``websearch_to_tsquery`` ANDs every term, so a full-sentence question
+    only matches a chunk that literally contains *all* of its words —
+    almost never true for paraphrased natural-language queries. ORing the
+    terms lets any overlap match, and ``ts_rank_cd`` then ranks by how many
+    query terms are covered and how densely. Terms are reduced to bare
+    word characters (no tsquery operators survive), so the result is always
+    a safe ``to_tsquery`` input; stopwords are dropped by the ``english``
+    config.
+    """
+    terms = re.findall(r"\w+", query.lower(), flags=re.UNICODE)
+    return " | ".join(terms)
+
+
 def text_search(conn: psycopg.Connection, query: str, limit: int = 10) -> list[SearchResult]:
     """Full-text search with English stemming, ranked by cover density."""
+    tsquery = _or_tsquery(query)
+    if not tsquery:
+        return []
     with conn.cursor(row_factory=dict_row) as cursor:
         rows = cursor.execute(
             f"""
             SELECT {_CHUNK_COLUMNS}, ts_rank_cd(tsv, query) AS score
-            FROM chunks, websearch_to_tsquery('english', %s) AS query
+            FROM chunks, to_tsquery('english', %s) AS query
             WHERE tsv @@ query
             ORDER BY score DESC
             LIMIT %s
             """,
-            (query, limit),
+            (tsquery, limit),
         ).fetchall()
     return [_row_to_result(row, float(row["score"])) for row in rows]
 
@@ -241,22 +259,34 @@ def search(
     settings: Settings,
     conn: psycopg.Connection,
     query: str,
-    method: SearchMethod = "hybrid_rerank",
+    method: SearchMethod | None = None,
     limit: int = 10,
     embedder: Embedder | None = None,
+    *,
+    query_vector: list[float] | None = None,
+    rerank_http: httpx.Client | None = None,
 ) -> list[SearchResult]:
-    """Dispatch to a search method by name (the evaluation compares them all)."""
+    """Dispatch to a search method by name (the evaluation compares them all).
+
+    ``method`` defaults to ``settings.retrieval_method`` (the evaluation
+    winner; see docs/evaluation.md). Callers that already hold a question
+    embedding or a shared rerank client (the evaluation runner) can pass
+    ``query_vector`` / ``rerank_http`` so the served pipeline and the
+    evaluated pipeline are the same code path.
+    """
+    method = settings.retrieval_method if method is None else method
     if method not in get_args(SearchMethod):  # guard untyped callers (CLI args, eval configs)
         raise ValueError(f"Unknown search method {method!r}; expected {get_args(SearchMethod)}")
 
     if method == "text":
         return text_search(conn, query, limit)
 
-    if embedder is None:
-        from cs336_rag.embeddings import EmbeddingClient
+    if query_vector is None:
+        if embedder is None:
+            from cs336_rag.embeddings import EmbeddingClient
 
-        embedder = EmbeddingClient(settings)
-    query_vector = embedder.embed([query])[0]
+            embedder = EmbeddingClient(settings)
+        query_vector = embedder.embed([query])[0]
 
     if method == "vector":
         return vector_search(conn, query_vector, limit)
@@ -266,5 +296,7 @@ def search(
     # hybrid_rerank: build a wider candidate pool, let the cross-encoder pick
     pool = limit * CANDIDATE_FACTOR
     candidates = hybrid_search(conn, query, query_vector, limit=pool, candidates=pool)
-    reranked = rerank_chunks(settings, query, [result.chunk for result in candidates])
+    reranked = rerank_chunks(
+        settings, query, [result.chunk for result in candidates], http=rerank_http
+    )
     return reranked[:limit]
