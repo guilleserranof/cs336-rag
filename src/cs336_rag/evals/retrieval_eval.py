@@ -112,6 +112,8 @@ def evaluate_retrieval(
     """Score every method on the full question set."""
     if not entries:
         raise ValueError("No ground-truth entries to evaluate")
+    if limit < 10:
+        raise ValueError("Retrieval evaluation limit must be at least 10 to compute hit_rate_10")
     _check_ground_truth_matches_kb(conn, entries)
 
     needs_vectors = any(method != "text" for method in methods)
