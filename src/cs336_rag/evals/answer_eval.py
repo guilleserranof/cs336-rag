@@ -3,12 +3,11 @@
 For each evaluation question the context is retrieved once and shared
 across variants, each variant generates an answer, and a separate judge
 model (``Settings.judge_model``, different from the generator to reduce
-self-preference bias) rates the answer for relevance and groundedness on a
-1-5 scale. Variants are ranked by mean overall score; the winner is wired
-in as ``Settings.rag_prompt_variant``.
+self-preference bias) rates the answer for relevance, groundedness and
+citation quality on a 1-5 scale. Variants are ranked by mean overall
+score; the winner is wired in as ``Settings.rag_prompt_variant``.
 """
 
-import json
 import logging
 import random
 from collections.abc import Callable
@@ -18,9 +17,10 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 from cs336_rag.config import Settings
+from cs336_rag.evals.json_scan import scan_json
 from cs336_rag.llm import retry_transient
 from cs336_rag.models import Chunk
-from cs336_rag.rag import format_context, generate_answer
+from cs336_rag.rag import EmptyAnswerError, format_context, generate_answer
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +29,16 @@ _SCORE_MAX = 5
 
 JUDGE_SYSTEM_PROMPT = (
     "You are a strict evaluator of answers to questions about the Stanford CS336 "
-    "lecture series. Given a question, the context passages the answer was supposed "
-    "to use, and the answer, rate it on two axes from 1 to 5:\n"
-    "- relevance: does the answer address the question?\n"
+    "lecture series. Given a question, the numbered context passages the answer was "
+    "supposed to use, and the answer, rate it on three axes from 1 to 5:\n"
+    "- relevance: does the answer directly and completely address the question?\n"
     "- groundedness: is every claim supported by the context, with no invented facts?\n"
-    'Reply with ONLY a JSON object: {"relevance": <1-5>, "groundedness": <1-5>}.'
+    "- citation: are the specific claims attributed to the numbered passages with "
+    "inline markers like [1], [2]? An answer with no citations scores 1 here.\n"
+    "Be discerning and use the full range; reserve 5 for an answer that genuinely "
+    "could not be improved on that axis.\n"
+    "Reply with ONLY a JSON object: "
+    '{"relevance": <1-5>, "groundedness": <1-5>, "citation": <1-5>}.'
 )
 
 JUDGE_USER_TEMPLATE = "Question:\n{question}\n\nContext:\n{context}\n\nAnswer:\n{answer}"
@@ -45,15 +50,17 @@ RetrieveFn = Callable[[str], list[Chunk]]
 class JudgeScore(BaseModel):
     relevance: int
     groundedness: int
+    citation: int
 
     @property
     def overall(self) -> float:
-        return (self.relevance + self.groundedness) / 2
+        return (self.relevance + self.groundedness + self.citation) / 3
 
 
 class PromptResult(BaseModel):
     avg_relevance: float
     avg_groundedness: float
+    avg_citation: float
     avg_overall: float
     questions: int
 
@@ -70,10 +77,13 @@ class AnswerReport(BaseModel):
         return max(scored, key=lambda name: scored[name].avg_overall)
 
     def as_markdown(self) -> str:
-        lines = ["| Variant | Relevance | Groundedness | Overall | n |", "|---|---|---|---|---|"]
+        lines = [
+            "| Variant | Relevance | Groundedness | Citation | Overall | n |",
+            "|---|---|---|---|---|---|",
+        ]
         lines.extend(
             f"| {name} | {r.avg_relevance:.2f} | {r.avg_groundedness:.2f} "
-            f"| {r.avg_overall:.2f} | {r.questions} |"
+            f"| {r.avg_citation:.2f} | {r.avg_overall:.2f} | {r.questions} |"
             for name, r in self.results.items()
         )
         return "\n".join(lines)
@@ -89,32 +99,29 @@ def _clamp(value: int) -> int:
     return max(_SCORE_MIN, min(_SCORE_MAX, value))
 
 
+def _score_from(data: object) -> JudgeScore | None:
+    """Convert a decoded JSON object into a JudgeScore, or None to keep scanning."""
+    if not isinstance(data, dict):
+        return None
+    if not {"relevance", "groundedness", "citation"} <= data.keys():
+        return None
+    try:
+        return JudgeScore(
+            relevance=_clamp(int(data["relevance"])),
+            groundedness=_clamp(int(data["groundedness"])),
+            citation=_clamp(int(data["citation"])),
+        )
+    except (ValueError, TypeError):
+        return None
+
+
 def parse_judge(raw: str) -> JudgeScore | None:
     """Extract judge scores from a model reply; None when unparseable.
 
-    Scans for the first valid JSON object; requires both fields; clamps
-    scores into the 1-5 range.
+    Scans for the first JSON object carrying all three score fields (so a
+    preamble object does not abort the search); clamps scores into 1-5.
     """
-    decoder = json.JSONDecoder()
-    for index, char in enumerate(raw):
-        if char != "{":
-            continue
-        try:
-            data, _ = decoder.raw_decode(raw[index:])
-        except json.JSONDecodeError:
-            continue
-        if not isinstance(data, dict):
-            continue
-        if "relevance" not in data or "groundedness" not in data:
-            return None
-        try:
-            return JudgeScore(
-                relevance=_clamp(int(data["relevance"])),
-                groundedness=_clamp(int(data["groundedness"])),
-            )
-        except (ValueError, TypeError):
-            return None
-    return None
+    return scan_json(raw, "{", _score_from)
 
 
 @retry_transient
@@ -151,11 +158,18 @@ def judge_answer(
 
 def _aggregate(scores: list[JudgeScore]) -> PromptResult:
     if not scores:
-        return PromptResult(avg_relevance=0.0, avg_groundedness=0.0, avg_overall=0.0, questions=0)
+        return PromptResult(
+            avg_relevance=0.0,
+            avg_groundedness=0.0,
+            avg_citation=0.0,
+            avg_overall=0.0,
+            questions=0,
+        )
     n = len(scores)
     return PromptResult(
         avg_relevance=sum(s.relevance for s in scores) / n,
         avg_groundedness=sum(s.groundedness for s in scores) / n,
+        avg_citation=sum(s.citation for s in scores) / n,
         avg_overall=sum(s.overall for s in scores) / n,
         questions=n,
     )
@@ -174,6 +188,8 @@ def evaluate_prompts(
     Context is retrieved once per question and reused across variants so the
     only thing that differs between variants is the prompt.
     """
+    if not questions:
+        raise ValueError("No questions to evaluate")
     contexts = {question: retrieve(question) for question in questions}
 
     results: dict[str, PromptResult] = {}
@@ -181,7 +197,13 @@ def evaluate_prompts(
         scores: list[JudgeScore] = []
         for question in questions:
             chunks = contexts[question]
-            answer = generate_answer(settings, question, chunks, variant=variant, client=gen_client)
+            try:
+                answer = generate_answer(
+                    settings, question, chunks, variant=variant, client=gen_client
+                )
+            except EmptyAnswerError:
+                logger.warning("Empty generation for variant %s, question %r", variant, question)
+                continue
             score = judge_answer(settings, question, chunks, answer.answer, judge_client)
             if score is None:
                 logger.warning("Unjudgeable answer for variant %s, question %r", variant, question)
@@ -189,10 +211,11 @@ def evaluate_prompts(
             scores.append(score)
         results[variant] = _aggregate(scores)
         logger.info(
-            "%s: relevance=%.2f groundedness=%.2f overall=%.2f (n=%d)",
+            "%s: relevance=%.2f groundedness=%.2f citation=%.2f overall=%.2f (n=%d)",
             variant,
             results[variant].avg_relevance,
             results[variant].avg_groundedness,
+            results[variant].avg_citation,
             results[variant].avg_overall,
             results[variant].questions,
         )

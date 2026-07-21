@@ -10,6 +10,12 @@ YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
 SearchMethod = Literal["text", "vector", "hybrid", "hybrid_rerank"]
 ALL_SEARCH_METHODS: tuple[SearchMethod, ...] = get_args(SearchMethod)
 
+# RAG prompt variants compared in the answer evaluation (cs336_rag.evals.answer_eval).
+# The templates live in cs336_rag.rag; the names live here so Settings can
+# validate them without importing the generation layer.
+PromptVariantName = Literal["baseline", "grounded", "tutor"]
+ALL_PROMPT_VARIANTS: tuple[PromptVariantName, ...] = get_args(PromptVariantName)
+
 
 class TranscriptSegment(BaseModel):
     """One caption snippet as returned by YouTube or Whisper."""

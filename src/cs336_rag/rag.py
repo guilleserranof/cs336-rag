@@ -22,10 +22,14 @@ from cs336_rag.models import Chunk
 logger = logging.getLogger(__name__)
 
 
-class PromptVariant(BaseModel):
-    """A named system prompt paired with generation parameters to compare."""
+class EmptyAnswerError(RuntimeError):
+    """The model returned no answer text (filtered, truncated or empty)."""
 
-    name: str
+
+class PromptVariant(BaseModel):
+    """A system prompt paired with generation parameters, keyed by name in
+    ``PROMPT_VARIANTS``."""
+
     system: str
     temperature: float = 0.2
 
@@ -33,14 +37,12 @@ class PromptVariant(BaseModel):
 # Three deliberately different answering strategies, scored in the answer eval.
 PROMPT_VARIANTS: dict[str, PromptVariant] = {
     "baseline": PromptVariant(
-        name="baseline",
         system=(
             "You answer questions about the Stanford CS336 lecture series using the "
             "provided context passages. Answer the question."
         ),
     ),
     "grounded": PromptVariant(
-        name="grounded",
         system=(
             "You are a teaching assistant for Stanford CS336 'Language Modeling from "
             "Scratch'. Answer the question using ONLY the numbered context passages "
@@ -50,7 +52,6 @@ PROMPT_VARIANTS: dict[str, PromptVariant] = {
         ),
     ),
     "tutor": PromptVariant(
-        name="tutor",
         system=(
             "You are an encouraging teaching assistant for Stanford CS336. Using only "
             "the numbered context passages, explain the answer clearly enough for a "
@@ -110,14 +111,18 @@ def generate_answer(
     variant: str,
     client: OpenAI | None = None,
 ) -> RagAnswer:
-    """Generate an answer for a question from already-retrieved chunks."""
-    if variant not in PROMPT_VARIANTS:
-        raise ValueError(f"Unknown prompt variant {variant!r}; expected {list(PROMPT_VARIANTS)}")
+    """Generate an answer for a question from already-retrieved chunks.
+
+    Raises ``EmptyAnswerError`` when the model returns nothing, so callers can
+    tell a generation failure from a genuinely poor answer.
+    """
+    messages = build_messages(variant, question, chunks)  # validates the variant
     client = client or build_openai_client(settings, purpose="generate answers")
-    messages = build_messages(variant, question, chunks)
     text = _create_answer(
         client, settings.chat_model, messages, PROMPT_VARIANTS[variant].temperature
     )
+    if not text:
+        raise EmptyAnswerError(f"Model returned no answer for variant {variant!r}")
     return RagAnswer(question=question, answer=text, variant=variant, sources=chunks)
 
 
@@ -133,7 +138,7 @@ def retrieve_context(
         settings,
         conn,
         question,
-        limit=limit or settings.rag_context_size,
+        limit=settings.rag_context_size if limit is None else limit,
         embedder=embedder,
     )
     return [result.chunk for result in results]
@@ -149,7 +154,8 @@ def answer(
     client: OpenAI | None = None,
 ) -> RagAnswer:
     """Full RAG flow: retrieve context, then generate a grounded answer."""
+    chosen = settings.rag_prompt_variant if variant is None else variant
+    if chosen not in PROMPT_VARIANTS:  # fail before paying for retrieval
+        raise ValueError(f"Unknown prompt variant {chosen!r}; expected {list(PROMPT_VARIANTS)}")
     chunks = retrieve_context(settings, conn, question, limit=limit, embedder=embedder)
-    return generate_answer(
-        settings, question, chunks, variant=variant or settings.rag_prompt_variant, client=client
-    )
+    return generate_answer(settings, question, chunks, variant=chosen, client=client)

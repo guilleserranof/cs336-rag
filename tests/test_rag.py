@@ -90,6 +90,11 @@ class TestGenerateAnswer:
         assert result.sources == []
         assert result.answer
 
+    def test_empty_generation_raises(self) -> None:
+        client = make_chat_client("   ")
+        with pytest.raises(rag.EmptyAnswerError):
+            rag.generate_answer(make_settings(), "q", [make_chunk(0)], "grounded", client=client)
+
 
 class TestAnswer:
     def test_retrieves_then_generates(self, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -103,6 +108,21 @@ class TestAnswer:
 
         assert result.answer == "BPE merges pairs [1]."
         assert [c.id for c in result.sources] == ["vid1:0"]
+
+    def test_invalid_variant_fails_before_retrieval(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        called = False
+
+        def spy(*args: object, **kwargs: object) -> list[Chunk]:
+            nonlocal called
+            called = True
+            return []
+
+        monkeypatch.setattr(rag, "retrieve_context", spy)
+
+        with pytest.raises(ValueError, match="variant"):
+            rag.answer(make_settings(), MagicMock(), "q", variant="nope")
+
+        assert not called  # no embedding/DB cost paid for a bad variant
 
 
 def test_rag_answer_is_serializable() -> None:
