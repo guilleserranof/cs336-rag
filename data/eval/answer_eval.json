@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-07-21T09:44:33.505613Z",
+  "results": {
+    "baseline": {
+      "avg_relevance": 4.833333333333333,
+      "avg_groundedness": 4.866666666666666,
+      "avg_citation": 2.9,
+      "avg_overall": 4.2,
+      "questions": 30
+    },
+    "grounded": {
+      "avg_relevance": 4.833333333333333,
+      "avg_groundedness": 4.866666666666666,
+      "avg_citation": 4.8,
+      "avg_overall": 4.833333333333333,
+      "questions": 30
+    },
+    "tutor": {
+      "avg_relevance": 4.931034482758621,
+      "avg_groundedness": 4.896551724137931,
+      "avg_citation": 4.896551724137931,
+      "avg_overall": 4.908045977011494,
+      "questions": 29
+    }
+  }
+}

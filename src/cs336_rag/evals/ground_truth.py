@@ -15,6 +15,7 @@ from pathlib import Path
 from openai import OpenAI
 from pydantic import BaseModel
 
+from cs336_rag.evals.json_scan import scan_json
 from cs336_rag.llm import retry_transient
 from cs336_rag.models import Chunk
 
@@ -39,24 +40,22 @@ class GroundTruthEntry(BaseModel):
     chunk_id: str
 
 
+def _questions_from(data: object) -> list[str] | None:
+    """Convert a decoded JSON array into question strings, or None to keep scanning."""
+    if not isinstance(data, list):
+        return None
+    questions = [item for item in data if isinstance(item, str) and item.strip()]
+    return questions or None
+
+
 def parse_questions(raw: str) -> list[str]:
     """Extract a JSON array of question strings from a model reply.
 
-    Scans for the first ``[`` that begins a valid JSON array, tolerating code
-    fences, surrounding prose and stray brackets elsewhere in the text.
-    Non-string items are dropped; returns [] when nothing parses.
+    Scans for the first ``[`` that begins a valid JSON array of strings,
+    tolerating code fences, surrounding prose and stray brackets elsewhere.
+    Returns [] when nothing parses.
     """
-    decoder = json.JSONDecoder()
-    for index, char in enumerate(raw):
-        if char != "[":
-            continue
-        try:
-            data, _ = decoder.raw_decode(raw[index:])
-        except json.JSONDecodeError:
-            continue
-        if isinstance(data, list):
-            return [item for item in data if isinstance(item, str) and item.strip()]
-    return []
+    return scan_json(raw, "[", _questions_from) or []
 
 
 def sample_chunks(chunks: list[Chunk], size: int, seed: int) -> list[Chunk]:

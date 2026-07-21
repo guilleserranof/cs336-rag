@@ -6,7 +6,7 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from cs336_rag.models import SearchMethod
+from cs336_rag.models import PromptVariantName, SearchMethod
 
 CS336_PLAYLIST_ID = "PLoROMvodv4rMqXOcazWaTUHhq-yembLCV"
 
@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     # Retrieval method served by default (winner of the retrieval evaluation;
     # see docs/evaluation.md). Override via RETRIEVAL_METHOD.
     retrieval_method: SearchMethod = "vector"
+
+    # RAG answer generation. rag_prompt_variant is the winner of the answer
+    # evaluation (see docs/evaluation.md); rag_context_size is how many chunks
+    # are passed to the answer prompt.
+    rag_prompt_variant: PromptVariantName = "tutor"
+    rag_context_size: int = Field(default=5, gt=0)
 
     @property
     def db_dsn(self) -> str:

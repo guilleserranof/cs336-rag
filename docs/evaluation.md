@@ -66,3 +66,61 @@ Query rewriting (`retrieval.rewrite_query`) targets messy real-world queries
 (typos, abbreviations, conversational phrasing). The ground-truth questions are
 already clean, well-formed sentences, so rewriting them changes little; its value
 is on the live interactive path rather than this offline benchmark.
+
+## Answer evaluation (prompt variants)
+
+### Method
+
+Three answering strategies are compared over a seeded sample of 30 evaluation
+questions. Context is retrieved **once per question** and shared across variants,
+so the only thing that differs is the prompt:
+
+- **baseline** — minimal instruction: answer the question from the context.
+- **grounded** — answer only from the context, cite passages inline as `[n]`,
+  say so plainly when the context does not cover the question.
+- **tutor** — same grounding and citation discipline, but explain for a student
+  new to the topic: define terms and give intuition before specifics.
+
+A separate judge model (`deepseek-v4-flash`, deliberately different from the
+`qwen3.6` generator to reduce self-preference bias) rates each answer 1-5 on:
+
+- **relevance** — does it directly and completely address the question?
+- **groundedness** — is every claim supported by the context?
+- **citation** — are claims attributed to numbered passages with `[n]` markers?
+
+Reproduce with:
+
+```bash
+uv run cs336-rag evaluate-prompts --sample 30   # -> data/eval/answer_eval.json
+```
+
+### Results
+
+| Variant | Relevance | Groundedness | Citation | Overall | n |
+|---|---|---|---|---|---|
+| baseline | 4.83 | 4.87 | 2.90 | 4.20 | 30 |
+| grounded | 4.83 | 4.87 | 4.80 | 4.83 | 30 |
+| **tutor** | **4.93** | **4.90** | **4.90** | **4.91** | 29 |
+
+**Winner: `tutor`**, wired in as the default (`RAG_PROMPT_VARIANT=tutor`).
+
+### Discussion
+
+- **The citation axis is what separates the variants.** An earlier run judged
+  only relevance and groundedness, and every variant scored 4.97-5.00 — the
+  differences were within noise and the "winner" was arbitrary. Retrieval is
+  strong (hit rate@10 = 0.99), so the context nearly always supports a good
+  answer and both axes saturate. Citation quality is the dimension the prompts
+  genuinely differ on, and the one that makes answers auditable, so it was added
+  as a third axis.
+- **`baseline` fails on citation (2.90).** With no instruction to cite, the model
+  usually writes a fluent, correct, *unverifiable* answer. That is precisely the
+  failure mode a RAG system must avoid: a reader cannot check the claim against
+  the lecture.
+- **`tutor` edges out `grounded`** on all three axes. Explaining terms before
+  specifics appears to make answers read as more complete (relevance 4.93 vs
+  4.83) without loosening grounding. The margin over `grounded` is small (0.08);
+  both are defensible choices and either is far ahead of `baseline`.
+- **`n=29` for `tutor`**: one answer produced no parseable judgement and was
+  excluded rather than silently scored, so variants are compared only on
+  questions where the judge actually returned a verdict.

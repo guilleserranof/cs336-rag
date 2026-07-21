@@ -38,6 +38,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     evaluate.add_argument("--limit", type=int, default=10, help="Results per query.")
 
+    ask = subparsers.add_parser("ask", help="Answer a question with the RAG flow.")
+    ask.add_argument("question", help="The question to answer.")
+    ask.add_argument("--variant", default=None, help="Prompt variant (default: configured).")
+
+    evaluate_prompts_parser = subparsers.add_parser(
+        "evaluate-prompts",
+        help="Judge RAG prompt variants over a question sample (LLM judge).",
+    )
+    evaluate_prompts_parser.add_argument(
+        "--sample", type=int, default=40, help="Questions to evaluate."
+    )
+    evaluate_prompts_parser.add_argument("--seed", type=int, default=7, help="Sampling seed.")
+
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -103,6 +116,46 @@ def main(argv: list[str] | None = None) -> int:
         path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
         print(report.as_markdown())
         print(f"\nSaved to {path}")
+    elif args.command == "ask":
+        from cs336_rag import db, rag
+        from cs336_rag.config import get_settings
+
+        settings = get_settings()
+        with db.connect(settings) as conn:
+            result = rag.answer(settings, conn, args.question, variant=args.variant)
+        print(result.answer)
+        print("\nSources:")
+        for index, chunk in enumerate(result.sources, start=1):
+            print(f"  [{index}] {chunk.title} — {chunk.url}")
+    elif args.command == "evaluate-prompts":
+        from cs336_rag import db, rag
+        from cs336_rag.config import get_settings
+        from cs336_rag.embeddings import EmbeddingClient
+        from cs336_rag.evals.answer_eval import evaluate_prompts, sample_questions
+        from cs336_rag.evals.ground_truth import load_ground_truth
+        from cs336_rag.llm import build_openai_client
+        from cs336_rag.rag import PROMPT_VARIANTS
+
+        settings = get_settings()
+        entries = load_ground_truth(settings.data_dir / "ground_truth.json")
+        questions = sample_questions([e.question for e in entries], args.sample, args.seed)
+        embedder = EmbeddingClient(settings)
+        gen_client = build_openai_client(settings, purpose="generate answers")
+        judge_client = build_openai_client(settings, purpose="judge answers")
+        with db.connect(settings) as conn:
+            answer_report = evaluate_prompts(
+                settings,
+                questions=questions,
+                variants=list(PROMPT_VARIANTS),
+                retrieve=lambda q: rag.retrieve_context(settings, conn, q, embedder=embedder),
+                gen_client=gen_client,
+                judge_client=judge_client,
+            )
+        path = settings.data_dir / "eval" / "answer_eval.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(answer_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        print(answer_report.as_markdown())
+        print(f"\nBest variant: {answer_report.best_variant}\nSaved to {path}")
     return 0
 
 
