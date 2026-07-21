@@ -76,16 +76,17 @@ class TestGenerateAnswer:
     def test_uses_configured_chat_model(self) -> None:
         client = make_chat_client("ok")
         rag.generate_answer(
-            make_settings(chat_model="gemma4"), "q", [make_chunk(0)], variant="grounded",
+            make_settings(chat_model="gemma4"),
+            "q",
+            [make_chunk(0)],
+            variant="grounded",
             client=client,
         )
         assert client.chat.completions.create.call_args.kwargs["model"] == "gemma4"
 
     def test_empty_context_still_answers(self) -> None:
         client = make_chat_client("I don't have enough information.")
-        result = rag.generate_answer(
-            make_settings(), "q", [], variant="grounded", client=client
-        )
+        result = rag.generate_answer(make_settings(), "q", [], variant="grounded", client=client)
         assert result.sources == []
         assert result.answer
 
@@ -105,9 +106,7 @@ class TestAnswer:
 
 
 def test_rag_answer_is_serializable() -> None:
-    ans = rag.RagAnswer(
-        question="q", answer="a", variant="grounded", sources=[make_chunk(0)]
-    )
+    ans = rag.RagAnswer(question="q", answer="a", variant="grounded", sources=[make_chunk(0)])
     dumped = ans.model_dump()
     assert dumped["sources"][0]["video_id"] == "vid1"
     assert isinstance(ans.sources[0], Chunk)

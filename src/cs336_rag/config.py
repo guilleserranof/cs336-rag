@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     # see docs/evaluation.md). Override via RETRIEVAL_METHOD.
     retrieval_method: SearchMethod = "vector"
 
+    # RAG answer generation. rag_prompt_variant is the winner of the answer
+    # evaluation (see docs/evaluation.md); rag_context_size is how many chunks
+    # are passed to the answer prompt.
+    rag_prompt_variant: str = "grounded"
+    rag_context_size: int = Field(default=5, gt=0)
+
     @property
     def db_dsn(self) -> str:
         return (

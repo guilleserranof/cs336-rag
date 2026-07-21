@@ -2,15 +2,12 @@
 
 from unittest.mock import MagicMock
 
-import pytest
-
 from cs336_rag.evals.answer_eval import (
     JudgeScore,
     evaluate_prompts,
     judge_answer,
     parse_judge,
 )
-from cs336_rag.models import Chunk
 from tests.conftest import make_chunk
 from tests.test_config import make_settings
 
@@ -94,13 +91,13 @@ class TestEvaluatePrompts:
         report = evaluate_prompts(
             make_settings(),
             questions=["q1", "q2"],
-            variants=["grounded", "concise"],
+            variants=["grounded", "baseline"],
             retrieve=lambda question: chunks,
             gen_client=gen,
             judge_client=judge,
         )
 
-        assert set(report.results) == {"grounded", "concise"}
+        assert set(report.results) == {"grounded", "baseline"}
         assert report.results["grounded"].questions == 2
         assert report.results["grounded"].avg_overall == 5.0
 
@@ -127,7 +124,7 @@ class TestEvaluatePrompts:
         report = evaluate_prompts(
             make_settings(),
             questions=["q1"],
-            variants=["grounded", "concise"],
+            variants=["grounded", "baseline"],
             retrieve=lambda question: [make_chunk(0)],
             gen_client=gen,
             judge_client=judge,
@@ -135,7 +132,7 @@ class TestEvaluatePrompts:
 
         assert report.best_variant == "grounded"
         assert report.results["grounded"].avg_overall == 5.0
-        assert report.results["concise"].avg_overall == 2.0
+        assert report.results["baseline"].avg_overall == 2.0
 
     def test_skips_unjudgeable_answers(self) -> None:
         gen, judge = self._clients("not a score")
