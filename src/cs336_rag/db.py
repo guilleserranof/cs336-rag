@@ -6,6 +6,7 @@ from importlib import resources
 import psycopg
 from pgvector import Vector
 from pgvector.psycopg import register_vector
+from psycopg_pool import ConnectionPool
 
 from cs336_rag.config import Settings
 from cs336_rag.models import Chunk
@@ -13,21 +14,41 @@ from cs336_rag.models import Chunk
 logger = logging.getLogger(__name__)
 
 
-def connect(settings: Settings) -> psycopg.Connection:
-    """Open a connection with the pgvector type adapter registered.
+def prepare_connection(conn: psycopg.Connection) -> None:
+    """Register the pgvector adapters on a fresh connection.
 
     On a brand-new database the vector extension does not exist yet, so
-    registration fails once; we bootstrap the extension and retry. After
-    that first connection, opening a connection issues no DDL.
+    registration fails once; we bootstrap the extension and retry.
+    Used both by ``connect`` and as the pool's per-connection configure hook.
     """
-    conn = psycopg.connect(settings.db_dsn)
     try:
         register_vector(conn)
     except psycopg.ProgrammingError:
         conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
         conn.commit()
         register_vector(conn)
+
+
+def connect(settings: Settings) -> psycopg.Connection:
+    """Open a single prepared connection (scripts, CLI, tests)."""
+    conn = psycopg.connect(settings.db_dsn)
+    prepare_connection(conn)
     return conn
+
+
+def create_pool(settings: Settings, max_size: int = 10) -> ConnectionPool:
+    """A pool for the web app, so requests do not pay connection setup.
+
+    Opens in the background: a database that is not ready yet does not
+    prevent the process from starting.
+    """
+    return ConnectionPool(
+        settings.db_dsn,
+        min_size=1,
+        max_size=max_size,
+        configure=prepare_connection,
+        open=True,
+    )
 
 
 def _current_embedding_dim(conn: psycopg.Connection) -> int | None:
@@ -41,8 +62,23 @@ def _current_embedding_dim(conn: psycopg.Connection) -> int | None:
     return int(row[0]) if row else None
 
 
+def _read_sql(name: str) -> str:
+    return resources.files("cs336_rag").joinpath(name).read_text(encoding="utf-8")
+
+
+def init_app_schema(conn: psycopg.Connection) -> None:
+    """Create the telemetry tables (conversations, feedback); idempotent.
+
+    Kept separate from the knowledge-base schema so the serving app can
+    ensure its own tables exist without any chance of touching ``chunks``
+    (``init_schema`` may drop it on an embedding-dimension change).
+    """
+    conn.execute(_read_sql("schema_app.sql"))
+    conn.commit()
+
+
 def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
-    """Create tables and indexes; safe to run repeatedly.
+    """Create every table and index; safe to run repeatedly.
 
     If the configured embedding dimension differs from the existing
     column, the chunks table is dropped and recreated: every ingestion
@@ -57,10 +93,11 @@ def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
             embedding_dim,
         )
         conn.execute("DROP TABLE chunks")
-    template = resources.files("cs336_rag").joinpath("schema.sql").read_text(encoding="utf-8")
+    template = _read_sql("schema.sql")
     # targeted replace instead of str.format: SQL is full of braces-in-waiting
     conn.execute(template.replace("{embedding_dim}", str(int(embedding_dim))))
     conn.commit()
+    init_app_schema(conn)
 
 
 def replace_chunks(

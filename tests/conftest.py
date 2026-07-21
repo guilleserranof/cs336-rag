@@ -59,6 +59,7 @@ def db_conn(db_settings: Settings) -> Iterator[psycopg.Connection]:
 
     with db.connect(db_settings) as conn:
         db.init_schema(conn, db_settings.embedding_dim)
-        conn.execute("TRUNCATE chunks")
+        # feedback cascades from conversations
+        conn.execute("TRUNCATE chunks, conversations CASCADE")
         conn.commit()
         yield conn

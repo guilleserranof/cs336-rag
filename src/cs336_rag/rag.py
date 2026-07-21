@@ -63,11 +63,17 @@ PROMPT_VARIANTS: dict[str, PromptVariant] = {
 }
 
 
+class TokenUsage(BaseModel):
+    prompt_tokens: int
+    completion_tokens: int
+
+
 class RagAnswer(BaseModel):
     question: str
     answer: str
     variant: str
     sources: list[Chunk]
+    usage: TokenUsage | None = None
 
 
 def format_context(chunks: list[Chunk]) -> str:
@@ -90,18 +96,33 @@ def build_messages(variant: str, question: str, chunks: list[Chunk]) -> list[dic
     ]
 
 
+def _extract_usage(completion: object) -> TokenUsage | None:
+    """Read token counts when the backend reports them (best effort)."""
+    usage = getattr(completion, "usage", None)
+    if usage is None:
+        return None
+    try:
+        return TokenUsage(
+            prompt_tokens=int(usage.prompt_tokens),
+            completion_tokens=int(usage.completion_tokens),
+        )
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
 @retry_transient
 def _create_answer(
     client: OpenAI, model: str, messages: list[dict[str, str]], temperature: float
-) -> str:
+) -> tuple[str, TokenUsage | None]:
     completion = client.chat.completions.create(
         model=model,
         messages=messages,  # type: ignore[arg-type]
         temperature=temperature,
     )
+    usage = _extract_usage(completion)
     if not completion.choices:
-        return ""
-    return (completion.choices[0].message.content or "").strip()
+        return "", usage
+    return (completion.choices[0].message.content or "").strip(), usage
 
 
 def generate_answer(
@@ -118,12 +139,12 @@ def generate_answer(
     """
     messages = build_messages(variant, question, chunks)  # validates the variant
     client = client or build_openai_client(settings, purpose="generate answers")
-    text = _create_answer(
+    text, usage = _create_answer(
         client, settings.chat_model, messages, PROMPT_VARIANTS[variant].temperature
     )
     if not text:
         raise EmptyAnswerError(f"Model returned no answer for variant {variant!r}")
-    return RagAnswer(question=question, answer=text, variant=variant, sources=chunks)
+    return RagAnswer(question=question, answer=text, variant=variant, sources=chunks, usage=usage)
 
 
 def retrieve_context(

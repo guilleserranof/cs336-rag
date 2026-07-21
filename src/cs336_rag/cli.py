@@ -51,6 +51,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     evaluate_prompts_parser.add_argument("--seed", type=int, default=7, help="Sampling seed.")
 
+    serve = subparsers.add_parser("serve", help="Run the web application (FastAPI + UI).")
+    serve.add_argument("--host", default="0.0.0.0", help="Bind address.")  # noqa: S104
+    serve.add_argument("--port", type=int, default=8000, help="Bind port.")
+    serve.add_argument("--reload", action="store_true", help="Auto-reload on code changes.")
+
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
@@ -156,6 +161,16 @@ def main(argv: list[str] | None = None) -> int:
         path.write_text(answer_report.model_dump_json(indent=2) + "\n", encoding="utf-8")
         print(answer_report.as_markdown())
         print(f"\nBest variant: {answer_report.best_variant}\nSaved to {path}")
+    elif args.command == "serve":
+        import uvicorn
+
+        uvicorn.run(
+            "cs336_rag.api:app",
+            factory=True,
+            host=args.host,
+            port=args.port,
+            reload=args.reload,
+        )
     return 0
 
 

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CS336 Lecture Assistant</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --line: #262b36;
+    --text: #e6e8ec; --muted: #9aa3b2; --accent: #7aa2f7; --ok: #7bd88f; --bad: #f7768e;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f7f8fa; --panel: #ffffff; --line: #e3e6ec;
+      --text: #1a1d23; --muted: #5b6472; --accent: #3b5bdb;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 32px 20px 64px; }
+  header h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  header p { color: var(--muted); margin: 0 0 24px; }
+  form { display: flex; gap: 8px; margin-bottom: 8px; }
+  input[type=text] {
+    flex: 1; padding: 12px 14px; border-radius: 8px; font-size: 1rem;
+    background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  }
+  input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  button {
+    padding: 12px 18px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--accent); color: #fff; font-size: 1rem; cursor: pointer;
+  }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .examples { color: var(--muted); font-size: .875rem; margin-bottom: 24px; }
+  .examples button {
+    background: none; border: none; color: var(--accent);
+    padding: 0 4px; font-size: .875rem; text-decoration: underline;
+  }
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px; margin-bottom: 16px;
+  }
+  .answer { white-space: pre-wrap; }
+  .answer h1, .answer h2, .answer h3 { font-size: 1.05rem; margin: 16px 0 4px; }
+  h2.sub { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+           color: var(--muted); margin: 0 0 10px; }
+  ol.sources { margin: 0; padding-left: 22px; }
+  ol.sources li { margin-bottom: 6px; }
+  a { color: var(--accent); }
+  .meta { color: var(--muted); font-size: .8rem; margin-top: 14px;
+          border-top: 1px solid var(--line); padding-top: 12px; }
+  .vote { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+  .vote button { background: transparent; color: var(--text); }
+  .vote button.up:hover  { border-color: var(--ok);  color: var(--ok); }
+  .vote button.down:hover { border-color: var(--bad); color: var(--bad); }
+  .vote button.chosen { border-color: var(--accent); color: var(--accent); }
+  .status { color: var(--muted); font-size: .875rem; }
+  .error { color: var(--bad); }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px; border: 2px solid var(--line);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite;
+    vertical-align: -2px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>CS336 Lecture Assistant</h1>
+    <p>Ask about Stanford CS336 &mdash; Language Modeling from Scratch. Answers cite the lecture and link to the exact moment.</p>
+  </header>
+
+  <form id="ask-form">
+    <input id="question" type="text" autocomplete="off"
+           placeholder="e.g. Why is prenorm preferred over postnorm?" required />
+    <button id="submit" type="submit">Ask</button>
+  </form>
+  <p class="examples">
+    Try:
+    <button type="button" class="example">What is byte pair encoding and why is it used?</button>
+    <button type="button" class="example">How does FlashAttention reduce memory usage?</button>
+    <button type="button" class="example">What are scaling laws used for?</button>
+  </p>
+
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <div id="result"></div>
+</div>
+
+<script>
+const form = document.getElementById("ask-form");
+const input = document.getElementById("question");
+const submit = document.getElementById("submit");
+const statusEl = document.getElementById("status");
+const resultEl = document.getElementById("result");
+
+document.querySelectorAll(".example").forEach((b) =>
+  b.addEventListener("click", () => { input.value = b.textContent; input.focus(); })
+);
+
+const escapeHtml = (s) =>
+  s.replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Turn inline [n] citations into links to the matching source.
+function renderAnswer(text, sources) {
+  return escapeHtml(text).replace(/\[(\d+)\]/g, (match, n) => {
+    const source = sources[Number(n) - 1];
+    if (!source) return match;
+    return `<a href="${escapeHtml(source.url)}" target="_blank" rel="noopener"
+              title="${escapeHtml(source.title)}">${match}</a>`;
+  });
+}
+
+async function vote(conversationId, rating, buttons, chosen) {
+  buttons.forEach((b) => (b.disabled = true));
+  try {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversation_id: conversationId, rating }),
+    });
+    if (!response.ok) throw new Error("Could not record feedback");
+    chosen.classList.add("chosen");
+    chosen.insertAdjacentHTML("afterend", '<span class="status">Thanks!</span>');
+  } catch (error) {
+    buttons.forEach((b) => (b.disabled = false));
+    chosen.insertAdjacentHTML("afterend",
+      `<span class="status error">${escapeHtml(error.message)}</span>`);
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const question = input.value.trim();
+  if (!question) return;
+
+  submit.disabled = true;
+  resultEl.innerHTML = "";
+  statusEl.innerHTML = '<span class="spinner"></span>Searching the lectures&hellip;';
+
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    });
+    if (!response.ok) {
+      const detail = await response.json().catch(() => ({}));
+      throw new Error(detail.detail || `Request failed (${response.status})`);
+    }
+    const data = await response.json();
+    statusEl.textContent = "";
+
+    const sources = data.sources
+      .map((s, i) =>
+        `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title)}</a></li>`)
+      .join("");
+
+    resultEl.innerHTML = `
+      <div class="card">
+        <div class="answer">${renderAnswer(data.answer, data.sources)}</div>
+        <div class="vote">
+          <span class="status">Was this helpful?</span>
+          <button class="up" type="button" aria-label="Helpful">&#128077;</button>
+          <button class="down" type="button" aria-label="Not helpful">&#128078;</button>
+        </div>
+        <div class="meta">
+          ${data.total_ms.toFixed(0)} ms
+          (retrieval ${data.retrieval_ms.toFixed(0)} ms, generation ${data.generation_ms.toFixed(0)} ms)
+          &middot; prompt: ${escapeHtml(data.variant)}
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="sub">Sources</h2>
+        <ol class="sources">${sources}</ol>
+      </div>`;
+
+    const buttons = [...resultEl.querySelectorAll(".vote button")];
+    const [up, down] = buttons;
+    up.addEventListener("click", () => vote(data.conversation_id, 1, buttons, up));
+    down.addEventListener("click", () => vote(data.conversation_id, -1, buttons, down));
+  } catch (error) {
+    statusEl.innerHTML = `<span class="error">${escapeHtml(error.message)}</span>`;
+  } finally {
+    submit.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
