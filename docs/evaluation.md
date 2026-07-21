@@ -96,13 +96,17 @@ uv run cs336-rag evaluate-prompts --sample 30   # -> data/eval/answer_eval.json
 
 ### Results
 
+Scored in the configuration the app actually serves — reasoning disabled (see
+the latency section below), since a different generation mode can change which
+prompt wins:
+
 | Variant | Relevance | Groundedness | Citation | Overall | n |
 |---|---|---|---|---|---|
-| baseline | 4.83 | 4.87 | 2.90 | 4.20 | 30 |
-| grounded | 4.83 | 4.87 | 4.80 | 4.83 | 30 |
-| **tutor** | **4.93** | **4.90** | **4.90** | **4.91** | 29 |
+| baseline | 4.83 | 4.90 | 2.80 | 4.18 | 30 |
+| **grounded** | 4.83 | **4.97** | **4.83** | **4.88** | 30 |
+| tutor | 4.80 | 4.80 | 4.80 | 4.80 | 30 |
 
-**Winner: `tutor`**, wired in as the default (`RAG_PROMPT_VARIANT=tutor`).
+**Winner: `grounded`**, wired in as the default (`RAG_PROMPT_VARIANT=grounded`).
 
 ### Discussion
 
@@ -113,14 +117,37 @@ uv run cs336-rag evaluate-prompts --sample 30   # -> data/eval/answer_eval.json
   answer and both axes saturate. Citation quality is the dimension the prompts
   genuinely differ on, and the one that makes answers auditable, so it was added
   as a third axis.
-- **`baseline` fails on citation (2.90).** With no instruction to cite, the model
+- **`baseline` fails on citation (2.80).** With no instruction to cite, the model
   usually writes a fluent, correct, *unverifiable* answer. That is precisely the
   failure mode a RAG system must avoid: a reader cannot check the claim against
   the lecture.
-- **`tutor` edges out `grounded`** on all three axes. Explaining terms before
-  specifics appears to make answers read as more complete (relevance 4.93 vs
-  4.83) without loosening grounding. The margin over `grounded` is small (0.08);
-  both are defensible choices and either is far ahead of `baseline`.
-- **`n=29` for `tutor`**: one answer produced no parseable judgement and was
-  excluded rather than silently scored, so variants are compared only on
-  questions where the judge actually returned a verdict.
+- **`grounded` and `tutor` are close, and the order depends on generation mode.**
+  With reasoning *enabled* `tutor` narrowly led (4.91 vs 4.83); with reasoning
+  *disabled* — the served configuration — `grounded` leads (4.88 vs 4.80). The
+  gaps are within judge run-to-run noise, so the honest reading is that both
+  citing prompts are near-equivalent and far ahead of `baseline`. The default
+  follows the eval run in the served configuration: `grounded`.
+- The evaluation was **re-run after disabling reasoning** rather than assumed to
+  carry over — the winner changing is exactly why an eval must reflect the
+  deployed configuration.
+
+### Latency: disabling the model's reasoning mode
+
+The chat model (`qwen3.6`) is a *reasoning* model. Left in its default mode it
+emits a long internal chain of thought before the first word of the answer.
+Measured on a single answer:
+
+| | time to first answer token | total | reasoning tokens |
+|---|---|---|---|
+| thinking on (default) | 94.6 s | 99.0 s | 1,721 |
+| **thinking off** | **1.3 s** | **1.5 s** | **0** |
+
+~95% of the wall-clock was internal reasoning that never reaches the user, and
+streaming the answer would not have helped — there is nothing to stream until
+thinking finishes. Reasoning is therefore disabled on the answer path
+(`CHAT_DISABLE_THINKING=true`, via the vLLM `enable_thinking=false` chat-template
+kwarg). Answer quality holds: re-running the prompt evaluation with reasoning
+off keeps every variant in the same 4.2-4.9 band as before (see the results
+table above), because for a grounded RAG answer over retrieved context the
+"thinking" was mostly restating the passages rather than improving the result.
+End-to-end a served answer now takes ~5-12 s instead of ~60-100 s.

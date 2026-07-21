@@ -47,7 +47,7 @@ class TestGenerateAnswerPassesExtraBody:
         kwargs = client.chat.completions.create.call_args.kwargs
         assert kwargs["extra_body"] == {"chat_template_kwargs": {"enable_thinking": False}}
 
-    def test_omits_extra_body_when_allowed(self) -> None:
+    def test_sends_no_extra_body_when_allowed(self) -> None:
         client = make_chat_client()
         rag.generate_answer(
             make_settings(chat_disable_thinking=False),
@@ -57,4 +57,4 @@ class TestGenerateAnswerPassesExtraBody:
             client=client,
         )
         kwargs = client.chat.completions.create.call_args.kwargs
-        assert "extra_body" not in kwargs
+        assert kwargs["extra_body"] is None  # SDK omits it from the request
