@@ -10,8 +10,8 @@ from fastapi.testclient import TestClient
 
 from cs336_rag.api import create_app
 from cs336_rag.config import Settings
-from cs336_rag.rag import RagAnswer
-from cs336_rag.service import AnsweredResult
+from cs336_rag.models import Chunk
+from cs336_rag.rag import EmptyAnswerError, RagAnswer
 from tests.conftest import make_chunk
 
 pytestmark = pytest.mark.integration
@@ -24,19 +24,23 @@ class FakeService:
         self.answer_text = answer_text
         self.calls: list[tuple[str, str | None]] = []
 
-    def answer(
-        self, conn: psycopg.Connection, question: str, variant: str | None = None
-    ) -> AnsweredResult:
+    def retrieve(self, conn: psycopg.Connection, question: str) -> tuple[list[Chunk], float]:
+        return [make_chunk(0), make_chunk(1)], 10.0
+
+    def generate(
+        self, question: str, chunks: list[Chunk], variant: str | None = None
+    ) -> tuple[RagAnswer, float]:
         self.calls.append((question, variant))
-        return AnsweredResult(
-            answer=RagAnswer(
+        if not self.answer_text:
+            raise EmptyAnswerError("no answer")
+        return (
+            RagAnswer(
                 question=question,
                 answer=self.answer_text,
                 variant=variant or "tutor",
-                sources=[make_chunk(0), make_chunk(1)],
+                sources=chunks,
             ),
-            retrieval_ms=10.0,
-            generation_ms=500.0,
+            500.0,
         )
 
 
@@ -86,6 +90,18 @@ class TestAsk:
 
     def test_missing_question_rejected(self, client: TestClient) -> None:
         assert client.post("/api/ask", json={}).status_code == 422
+
+    def test_unknown_variant_rejected_with_422(self, client: TestClient) -> None:
+        response = client.post("/api/ask", json={"question": "q", "variant": "bogus"})
+        assert response.status_code == 422
+
+    def test_empty_generation_returns_502(
+        self, db_settings: Settings, db_conn: psycopg.Connection
+    ) -> None:
+        app = create_app(db_settings, service=FakeService(answer_text=""))
+        with TestClient(app) as failing_client:
+            response = failing_client.post("/api/ask", json={"question": "q"})
+        assert response.status_code == 502
 
 
 class TestFeedback:
