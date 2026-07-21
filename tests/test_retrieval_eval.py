@@ -59,7 +59,7 @@ def test_vector_method_scores_perfectly(
         entries=eval_setup["entries"],  # type: ignore[arg-type]
         methods=["vector"],
         embedder=eval_setup["embedder"],  # type: ignore[arg-type]
-        limit=5,
+        limit=10,
     )
 
     result = report.results["vector"]
@@ -77,7 +77,7 @@ def test_text_method_finds_keyword_questions(
         entries=eval_setup["entries"],  # type: ignore[arg-type]
         methods=["text"],
         embedder=eval_setup["embedder"],  # type: ignore[arg-type]
-        limit=5,
+        limit=10,
     )
 
     assert report.results["text"].hit_rate_5 == 1.0
@@ -107,7 +107,7 @@ def test_hybrid_rerank_uses_injected_http(
         entries=eval_setup["entries"],  # type: ignore[arg-type]
         methods=["hybrid_rerank"],
         embedder=eval_setup["embedder"],  # type: ignore[arg-type]
-        limit=5,
+        limit=10,
         rerank_http=http,
     )
 
@@ -143,9 +143,9 @@ def test_report_is_serializable(
         entries=eval_setup["entries"],  # type: ignore[arg-type]
         methods=["text", "vector"],
         embedder=eval_setup["embedder"],  # type: ignore[arg-type]
-        limit=5,
+        limit=10,
     )
 
     dumped = report.model_dump_json()
     assert "hit_rate_5" in dumped
-    assert report.limit == 5
+    assert report.limit == 10
