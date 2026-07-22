@@ -54,3 +54,20 @@ jobs:
         run: uv sync --frozen
       - name: Run tests (unit + integration)
         run: uv run pytest -v --cov --cov-report=term-missing
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: cs336-rag-app:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke-test the image (CLI help, no services needed)
+        run: docker run --rm cs336-rag-app:ci cs336-rag --help
