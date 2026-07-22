@@ -60,12 +60,36 @@ method (`RETRIEVAL_METHOD=vector`, wired through `Settings.retrieval_method`).
   cannot discriminate and pushes the correct chunk out of the top 10. The rerank
   path is implemented and evaluated, but deliberately not used by default.
 
-### Note on query rewriting
+### Query rewriting
 
-Query rewriting (`retrieval.rewrite_query`) targets messy real-world queries
-(typos, abbreviations, conversational phrasing). The ground-truth questions are
-already clean, well-formed sentences, so rewriting them changes little; its value
-is on the live interactive path rather than this offline benchmark.
+Query rewriting (`retrieval.rewrite_query`) rewrites the user's question into a
+cleaner search query before retrieval — expanding acronyms, fixing typos, and
+dropping filler. It is measured the same way as the methods above
+(`evaluate-retrieval --rewrite`), on the winning `vector` method (80-question
+seeded subset):
+
+| | Hit@5 | Hit@10 | MRR |
+|---|---|---|---|
+| vector | 0.975 | 0.988 | 0.892 |
+| vector + rewrite | 0.925 | 0.950 | 0.838 |
+
+On this benchmark rewriting **slightly hurts**. That is expected and honest: the
+ground-truth questions are already well-formed, so rewriting can only paraphrase
+them — occasionally drifting from the exact terminology used in the transcript,
+which is what lexical and embedding retrieval key on.
+
+Its value is on the *interactive* path, where real users type messy queries. Live
+example (with `RAG_REWRITE_QUERY=true`):
+
+```
+"whats bpe n y do llms use it"
+  → "What is Byte Pair Encoding (BPE) and why do large language models use it?"
+```
+
+So rewriting is **implemented, wired into the served flow, and evaluated**, but
+**off by default**: it costs a chat round-trip and measurably hurts on clean
+questions, while helping mainly on the kind of messy input this offline benchmark
+does not contain. Enable it with `RAG_REWRITE_QUERY=true`.
 
 ## Answer evaluation (prompt variants)
 

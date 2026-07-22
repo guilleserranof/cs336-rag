@@ -131,9 +131,10 @@ evaluations) is in **[docs/usage.md](docs/usage.md)**.
 - **Every design decision is measured, not assumed.** Retrieval method, prompt
   variant, and generation mode were each chosen by a reproducible evaluation with
   committed results ([docs/evaluation.md](docs/evaluation.md)).
-- **Hybrid search, reranking, and query rewriting** are all implemented and
-  evaluated (hybrid and reranking lost to plain vector search on this corpus —
-  and the evaluation explains why).
+- **Hybrid search, reranking, and query rewriting** are all implemented, wired
+  into the served flow, and evaluated — and each *lost* to plain vector search on
+  this corpus, with the evaluation explaining why (a result worth more than
+  adopting them uncritically).
 - **Automated ingestion** (`cs336-rag ingest`) — YouTube captions with a Whisper
   fallback, chunking, embedding, and an idempotent load into pgvector.
 - **Monitoring**: user feedback (👍/👎) plus an 11-panel Grafana dashboard over
