@@ -1,0 +1,20 @@
+# Provisioned Postgres datasource — Grafana reads the telemetry tables the
+# app writes (conversations, feedback). Values come from the compose env.
+apiVersion: 1
+
+datasources:
+  - name: CS336 Postgres
+    uid: cs336-postgres
+    type: postgres
+    access: proxy
+    url: ${DB_HOST}:${DB_PORT}
+    user: ${DB_USER}
+    jsonData:
+      database: ${DB_NAME}
+      sslmode: disable
+      postgresVersion: 1700
+      timescaledb: false
+    secureJsonData:
+      password: ${DB_PASSWORD}
+    isDefault: true
+    editable: false

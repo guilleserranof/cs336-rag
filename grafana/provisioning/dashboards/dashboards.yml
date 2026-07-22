@@ -1,0 +1,13 @@
+# Load every dashboard JSON under /var/lib/grafana/dashboards at startup.
+apiVersion: 1
+
+providers:
+  - name: CS336 dashboards
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
