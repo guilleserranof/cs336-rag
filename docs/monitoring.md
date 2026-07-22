@@ -7,13 +7,17 @@ provisioned datasource and renders a dashboard — no extra pipeline.
 ## Running it
 
 ```bash
-docker compose up -d          # starts postgres + grafana (and the app)
+docker compose up -d postgres grafana
 ```
 
 Open <http://localhost:3000>. The dashboard **CS336 Lecture Assistant —
-Monitoring** is provisioned automatically (anonymous viewing is enabled for
-convenience; the admin login is `admin` / `admin` by default, override with
-`GRAFANA_USER` / `GRAFANA_PASSWORD`).
+Monitoring** is provisioned automatically. Log in with `admin` / `admin` by
+default, or override those credentials with `GRAFANA_USER` /
+`GRAFANA_PASSWORD`.
+
+Grafana is bound to `127.0.0.1` by default. For a local demo where anonymous
+viewing is acceptable, set `GRAFANA_ANONYMOUS_ENABLED=true`; do not expose that
+mode on a shared network because viewers can query the provisioned datasource.
 
 Everything is provisioned from version-controlled files, so the dashboard is
 reproducible from a clean checkout:

@@ -39,8 +39,8 @@ def seed(count: int, days: int, seed: int) -> None:
         for _ in range(count):
             conversation_id = uuid4()
             created = now - timedelta(seconds=rng.uniform(0, days * 24 * 3600))
-            retrieval_ms = rng.gauss(1100, 300)
-            generation_ms = rng.gauss(9000, 3500)
+            retrieval_ms = max(rng.gauss(1100, 300), 50)
+            generation_ms = max(rng.gauss(9000, 3500), 500)
             prompt_tokens = rng.randint(900, 3000)
             completion_tokens = rng.randint(300, 1200)
             conn.execute(
@@ -59,9 +59,9 @@ def seed(count: int, days: int, seed: int) -> None:
                     rng.choice(METHODS),
                     ["JuoVZkPBiKk:3", "JuoVZkPBiKk:4"],
                     rng.randint(3, 5),
-                    max(retrieval_ms, 50),
-                    max(generation_ms, 500),
-                    max(retrieval_ms + generation_ms, 600),
+                    retrieval_ms,
+                    generation_ms,
+                    retrieval_ms + generation_ms,  # total = the two phases, so charts reconcile
                     prompt_tokens,
                     completion_tokens,
                     created,

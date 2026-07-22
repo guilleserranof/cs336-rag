@@ -65,6 +65,13 @@ def test_panel_ids_are_unique() -> None:
     assert len(ids) == len(set(ids))
 
 
+def test_there_are_panel_queries_to_validate() -> None:
+    # guards the parametrized SQL check below: if the dashboard file moves or
+    # its shape changes, _panel_queries() returns [] and those tests silently
+    # vanish (0 params). This keeps that from passing unnoticed.
+    assert len(_panel_queries()) >= 8
+
+
 @pytest.mark.integration
 @pytest.mark.parametrize(("title", "sql"), _panel_queries())
 def test_panel_query_runs_against_schema(title: str, sql: str, db_conn: psycopg.Connection) -> None:
