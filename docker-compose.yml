@@ -1,6 +1,27 @@
-# Development dependencies: pgvector-enabled Postgres plus a local Grafana
-# dashboard over the telemetry tables.
+# Full stack: the FastAPI app, its pgvector-enabled Postgres, and a Grafana
+# dashboard over the telemetry tables. `docker compose up` brings up all three.
+#
+# First run only, to populate the knowledge base (needs OPENAI_KEY):
+#   docker compose run --rm app cs336-rag ingest
 services:
+  app:
+    build: .
+    container_name: cs336-rag-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      OPENAI_KEY: ${OPENAI_KEY:?set OPENAI_KEY in your .env}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.nan.builders/v1}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cs336_rag}
+      DB_USER: ${DB_USER:-cs336}
+      DB_PASSWORD: ${DB_PASSWORD:-cs336}
+    restart: unless-stopped
+
   postgres:
     image: pgvector/pgvector:pg17
     container_name: cs336-rag-postgres
