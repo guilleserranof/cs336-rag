@@ -5,6 +5,8 @@ paths cannot drift apart, together with the house retry policy for
 transient API failures.
 """
 
+from typing import Any
+
 import httpx
 from openai import (
     APIConnectionError,
@@ -26,6 +28,18 @@ retry_transient = retry(
     wait=wait_exponential(multiplier=1, max=30),
     reraise=True,
 )
+
+
+def thinking_extra_body(settings: Settings) -> dict[str, Any] | None:
+    """Extra request body that turns off the model's reasoning mode.
+
+    ``enable_thinking`` is a chat-template kwarg understood by vLLM-served
+    qwen3 models. Returns ``None`` when thinking is allowed, so the request
+    stays plain for backends that do not know the kwarg.
+    """
+    if not settings.chat_disable_thinking:
+        return None
+    return {"chat_template_kwargs": {"enable_thinking": False}}
 
 
 def build_openai_client(settings: Settings, purpose: str) -> OpenAI:

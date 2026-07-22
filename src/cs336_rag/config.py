@@ -47,7 +47,14 @@ class Settings(BaseSettings):
     # RAG answer generation. rag_prompt_variant is the winner of the answer
     # evaluation (see docs/evaluation.md); rag_context_size is how many chunks
     # are passed to the answer prompt.
-    rag_prompt_variant: PromptVariantName = "tutor"
+    rag_prompt_variant: PromptVariantName = "grounded"
+
+    # qwen3.6 is a reasoning model: with thinking enabled it spends ~95% of the
+    # wall-clock emitting internal reasoning before the first word of the answer
+    # (measured: 94s to first content token vs 1.3s with it off). Disabled for
+    # the answer path. Set false if switching to a model without this template
+    # kwarg. See docs/evaluation.md.
+    chat_disable_thinking: bool = True
     rag_context_size: int = Field(default=5, gt=0)
 
     @property

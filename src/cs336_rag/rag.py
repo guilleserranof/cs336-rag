@@ -8,6 +8,7 @@ the winner (``Settings.rag_prompt_variant``).
 """
 
 import logging
+from typing import Any
 
 import psycopg
 from openai import OpenAI
@@ -16,7 +17,7 @@ from pydantic import BaseModel
 from cs336_rag import retrieval
 from cs336_rag.config import Settings
 from cs336_rag.embeddings import Embedder
-from cs336_rag.llm import build_openai_client, retry_transient
+from cs336_rag.llm import build_openai_client, retry_transient, thinking_extra_body
 from cs336_rag.models import Chunk
 
 logger = logging.getLogger(__name__)
@@ -112,12 +113,19 @@ def _extract_usage(completion: object) -> TokenUsage | None:
 
 @retry_transient
 def _create_answer(
-    client: OpenAI, model: str, messages: list[dict[str, str]], temperature: float
+    client: OpenAI,
+    model: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    extra_body: dict[str, Any] | None = None,
 ) -> tuple[str, TokenUsage | None]:
+    # extra_body=None is a no-op, so backends that do not understand the
+    # thinking kwarg still receive a plain request
     completion = client.chat.completions.create(
         model=model,
         messages=messages,  # type: ignore[arg-type]
         temperature=temperature,
+        extra_body=extra_body,
     )
     usage = _extract_usage(completion)
     if not completion.choices:
@@ -140,7 +148,11 @@ def generate_answer(
     messages = build_messages(variant, question, chunks)  # validates the variant
     client = client or build_openai_client(settings, purpose="generate answers")
     text, usage = _create_answer(
-        client, settings.chat_model, messages, PROMPT_VARIANTS[variant].temperature
+        client,
+        settings.chat_model,
+        messages,
+        PROMPT_VARIANTS[variant].temperature,
+        extra_body=thinking_extra_body(settings),
     )
     if not text:
         raise EmptyAnswerError(f"Model returned no answer for variant {variant!r}")
