@@ -1,0 +1,26 @@
+# VCS and CI
+.git
+.github
+
+# Local envs and caches
+.venv
+.env
+__pycache__
+*.py[cod]
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Not needed inside the image
+tests
+docs
+grafana
+scripts
+data/audio
+
+# Docker/compose itself
+Dockerfile
+.dockerignore
+docker-compose.yml

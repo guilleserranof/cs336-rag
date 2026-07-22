@@ -1,6 +1,42 @@
-# Development dependencies: pgvector-enabled Postgres plus a local Grafana
-# dashboard over the telemetry tables.
+# Full stack: the FastAPI app, its pgvector-enabled Postgres, and a Grafana
+# dashboard over the telemetry tables. `docker compose up` brings up all three.
+#
+# First run only, to populate the knowledge base (needs OPENAI_KEY):
+#   docker compose run --rm app cs336-rag ingest
 services:
+  app:
+    build: .
+    container_name: cs336-rag-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      OPENAI_KEY: ${OPENAI_KEY:?set OPENAI_KEY in your .env}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.nan.builders/v1}
+      CHAT_MODEL: ${CHAT_MODEL:-qwen3.6}
+      JUDGE_MODEL: ${JUDGE_MODEL:-deepseek-v4-flash}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-qwen3-embedding}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-1024}
+      RERANK_MODEL: ${RERANK_MODEL:-rerank}
+      WHISPER_MODEL: ${WHISPER_MODEL:-whisper}
+      RETRIEVAL_METHOD: ${RETRIEVAL_METHOD:-vector}
+      RAG_PROMPT_VARIANT: ${RAG_PROMPT_VARIANT:-grounded}
+      RAG_CONTEXT_SIZE: ${RAG_CONTEXT_SIZE:-5}
+      CHAT_DISABLE_THINKING: ${CHAT_DISABLE_THINKING:-true}
+      CHUNK_MAX_CHARS: ${CHUNK_MAX_CHARS:-1800}
+      CHUNK_OVERLAP_CHARS: ${CHUNK_OVERLAP_CHARS:-300}
+      EMBED_BATCH_SIZE: ${EMBED_BATCH_SIZE:-64}
+      DATA_DIR: ${DATA_DIR:-data}
+      PLAYLIST_ID: ${PLAYLIST_ID:-PLoROMvodv4rMqXOcazWaTUHhq-yembLCV}
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cs336_rag}
+      DB_USER: ${DB_USER:-cs336}
+      DB_PASSWORD: ${DB_PASSWORD:-cs336}
+    restart: unless-stopped
+
   postgres:
     image: pgvector/pgvector:pg17
     container_name: cs336-rag-postgres
