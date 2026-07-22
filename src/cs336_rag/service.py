@@ -17,6 +17,7 @@ from cs336_rag.embeddings import Embedder, EmbeddingClient
 from cs336_rag.llm import build_openai_client
 from cs336_rag.models import Chunk
 from cs336_rag.rag import RagAnswer, generate_answer, retrieve_context
+from cs336_rag.retrieval import rewrite_query
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +47,17 @@ class RagService:
         self._client = client or build_openai_client(settings, purpose="generate answers")
 
     def retrieve(self, conn: psycopg.Connection, question: str) -> tuple[list[Chunk], float]:
-        """Fetch context chunks. The only phase that needs the database."""
+        """Fetch context chunks. The only phase that needs the database.
+
+        With ``rag_rewrite_query`` enabled the question is first rewritten into
+        a cleaner search query; the original question still drives the answer
+        prompt (see ``generate``).
+        """
         started = perf_counter()
-        chunks = retrieve_context(self._settings, conn, question, embedder=self._embedder)
+        search_query = question
+        if self._settings.rag_rewrite_query:
+            search_query = rewrite_query(self._settings, question, client=self._client)
+        chunks = retrieve_context(self._settings, conn, search_query, embedder=self._embedder)
         return chunks, (perf_counter() - started) * 1000
 
     def generate(

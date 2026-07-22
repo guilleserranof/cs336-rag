@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 
 import httpx
 import psycopg
+from openai import OpenAI
 from pydantic import BaseModel
 
 from cs336_rag import retrieval
@@ -80,7 +81,7 @@ def _retrieved_ids(
     settings: Settings,
     conn: psycopg.Connection,
     method: SearchMethod,
-    entry: GroundTruthEntry,
+    search_query: str,
     question_vector: list[float] | None,
     limit: int,
     rerank_http: httpx.Client | None,
@@ -91,7 +92,7 @@ def _retrieved_ids(
     results = retrieval.search(
         settings,
         conn,
-        entry.question,
+        search_query,
         method=method,
         limit=limit,
         query_vector=question_vector,
@@ -108,18 +109,32 @@ def evaluate_retrieval(
     embedder: Embedder,
     limit: int = 10,
     rerank_http: httpx.Client | None = None,
+    rewrite_client: OpenAI | None = None,
 ) -> RetrievalReport:
-    """Score every method on the full question set."""
+    """Score every method on the full question set.
+
+    When ``rewrite_client`` is given, each question is rewritten into a search
+    query first (as the served app can, with ``rag_rewrite_query``), so the
+    measured effect of query rewriting is comparable to the plain run.
+    """
     if not entries:
         raise ValueError("No ground-truth entries to evaluate")
     if limit < 10:
         raise ValueError("Retrieval evaluation limit must be at least 10 to compute hit_rate_10")
     _check_ground_truth_matches_kb(conn, entries)
 
+    if rewrite_client is not None:
+        search_queries = [
+            retrieval.rewrite_query(settings, entry.question, client=rewrite_client)
+            for entry in entries
+        ]
+    else:
+        search_queries = [entry.question for entry in entries]
+
     needs_vectors = any(method != "text" for method in methods)
     question_vectors: list[list[float] | None]
     if needs_vectors:
-        question_vectors = list(embedder.embed([entry.question for entry in entries]))
+        question_vectors = list(embedder.embed(search_queries))
     else:
         question_vectors = [None] * len(entries)
 
@@ -132,9 +147,11 @@ def evaluate_retrieval(
         results: dict[str, MethodResult] = {}
         for method in methods:
             ranks: list[int | None] = []
-            for entry, question_vector in zip(entries, question_vectors, strict=True):
+            for entry, search_query, question_vector in zip(
+                entries, search_queries, question_vectors, strict=True
+            ):
                 retrieved = _retrieved_ids(
-                    settings, conn, method, entry, question_vector, limit, rerank_http
+                    settings, conn, method, search_query, question_vector, limit, rerank_http
                 )
                 ranks.append(rank_of(retrieved, entry.chunk_id))
             results[method] = MethodResult(

@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     chat_disable_thinking: bool = True
     rag_context_size: int = Field(default=5, gt=0)
 
+    # Rewrite the user's question into a cleaner search query before retrieval
+    # (expands acronyms, fixes typos). Off by default: it adds a chat round-trip
+    # and helps messy real queries more than the already-clean eval set. See
+    # docs/evaluation.md.
+    rag_rewrite_query: bool = False
+
     @property
     def db_dsn(self) -> str:
         return (
