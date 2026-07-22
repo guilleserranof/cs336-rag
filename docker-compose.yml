@@ -1,6 +1,5 @@
-# Development dependencies. The app and Grafana services join this file in
-# later iterations; for now it provides the pgvector-enabled Postgres used
-# by the ingestion pipeline and the integration tests.
+# Development dependencies: pgvector-enabled Postgres plus a local Grafana
+# dashboard over the telemetry tables.
 services:
   postgres:
     image: pgvector/pgvector:pg17
@@ -19,5 +18,31 @@ services:
       timeout: 5s
       retries: 10
 
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: cs336-rag-grafana
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    environment:
+      # datasource provisioning reads these (see grafana/provisioning/datasources)
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cs336_rag}
+      DB_USER: ${DB_USER:-cs336}
+      DB_PASSWORD: ${DB_PASSWORD:-cs336}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_DEFAULT_THEME: dark
+      GF_AUTH_ANONYMOUS_ENABLED: ${GRAFANA_ANONYMOUS_ENABLED:-false}
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+
 volumes:
   postgres_data:
+  grafana_data:
