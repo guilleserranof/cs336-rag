@@ -4,6 +4,11 @@ The application logs every answered question to Postgres (`conversations`) and
 records user votes (`feedback`). Grafana reads those tables directly through a
 provisioned datasource and renders a dashboard — no extra pipeline.
 
+![Grafana dashboard](images/dashboard.png)
+
+*(The screenshot above is populated with synthetic demo data — see
+[Populating it](#populating-it).)*
+
 ## Running it
 
 ```bash

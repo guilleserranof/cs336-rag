@@ -441,7 +441,7 @@
           },
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT CASE WHEN rating=1 THEN 'positive' ELSE 'negative' END AS metric, count(*) AS value FROM feedback GROUP BY 1",
+          "rawSql": "SELECT count(*) FILTER (WHERE rating = 1) AS \"positive\", count(*) FILTER (WHERE rating = -1) AS \"negative\" FROM feedback",
           "refId": "A"
         }
       ],
@@ -464,7 +464,9 @@
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "",
+          "values": false
         }
       },
       "id": 9

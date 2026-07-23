@@ -131,13 +131,16 @@ evaluations) is in **[docs/usage.md](docs/usage.md)**.
 - **Every design decision is measured, not assumed.** Retrieval method, prompt
   variant, and generation mode were each chosen by a reproducible evaluation with
   committed results ([docs/evaluation.md](docs/evaluation.md)).
-- **Hybrid search, reranking, and query rewriting** are all implemented and
-  evaluated (hybrid and reranking lost to plain vector search on this corpus —
-  and the evaluation explains why).
+- **Hybrid search, reranking, and query rewriting** are all implemented, wired
+  into the served flow, and evaluated — and each *lost* to plain vector search on
+  this corpus, with the evaluation explaining why (a result worth more than
+  adopting them uncritically).
 - **Automated ingestion** (`cs336-rag ingest`) — YouTube captions with a Whisper
   fallback, chunking, embedding, and an idempotent load into pgvector.
 - **Monitoring**: user feedback (👍/👎) plus an 11-panel Grafana dashboard over
-  live telemetry ([docs/monitoring.md](docs/monitoring.md)).
+  live telemetry ([docs/monitoring.md](docs/monitoring.md)):
+
+  ![Grafana dashboard](docs/images/dashboard.png)
 - **Full stack in one `docker compose up`**; the app is a slim non-root image.
 - **Engineered like production**: red/green TDD, ~170 tests (unit + Postgres
   integration), ruff + mypy (strict), and CI that lints, tests against a real
@@ -209,6 +212,11 @@ make ci                       # lint + format-check + typecheck + tests
 ```
 
 See [docs/setup.md](docs/setup.md) for the full developer workflow.
+
+## Contributing
+
+Architecture notes and the development workflow are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

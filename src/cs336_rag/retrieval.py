@@ -32,7 +32,12 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 
 from cs336_rag.config import Settings
 from cs336_rag.embeddings import Embedder
-from cs336_rag.llm import build_openai_client, build_rerank_http, retry_transient
+from cs336_rag.llm import (
+    build_openai_client,
+    build_rerank_http,
+    retry_transient,
+    thinking_extra_body,
+)
 from cs336_rag.models import Chunk, SearchMethod
 
 logger = logging.getLogger(__name__)
@@ -227,6 +232,9 @@ def rerank_chunks(
 
 @retry_transient
 def _create_rewrite(client: OpenAI, settings: Settings, query: str) -> ChatCompletion:
+    # Disable reasoning: rewriting is a quick reformat, and with thinking on the
+    # model burns the small max_tokens budget on reasoning and returns empty
+    # content (then silently falls back to the original query).
     return client.chat.completions.create(
         model=settings.chat_model,
         messages=[
@@ -235,6 +243,7 @@ def _create_rewrite(client: OpenAI, settings: Settings, query: str) -> ChatCompl
         ],
         temperature=0.0,
         max_tokens=120,
+        extra_body=thinking_extra_body(settings),
     )
 
 

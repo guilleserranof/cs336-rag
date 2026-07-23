@@ -37,6 +37,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Score all retrieval methods (hit rate@5/@10, MRR) on the ground truth.",
     )
     evaluate.add_argument("--limit", type=int, default=10, help="Results per query.")
+    evaluate.add_argument(
+        "--rewrite",
+        action="store_true",
+        help="Rewrite each question into a search query first (measures query rewriting).",
+    )
 
     ask = subparsers.add_parser("ask", help="Answer a question with the RAG flow.")
     ask.add_argument("question", help="The question to answer.")
@@ -102,11 +107,15 @@ def main(argv: list[str] | None = None) -> int:
         from cs336_rag.embeddings import EmbeddingClient
         from cs336_rag.evals.ground_truth import load_ground_truth
         from cs336_rag.evals.retrieval_eval import evaluate_retrieval
+        from cs336_rag.llm import build_openai_client
         from cs336_rag.models import ALL_SEARCH_METHODS
 
         settings = get_settings()
         entries = load_ground_truth(settings.data_dir / "ground_truth.json")
         methods = list(ALL_SEARCH_METHODS)
+        rewrite_client = (
+            build_openai_client(settings, purpose="rewrite queries") if args.rewrite else None
+        )
         with db.connect(settings) as conn:
             report = evaluate_retrieval(
                 settings,
@@ -115,8 +124,10 @@ def main(argv: list[str] | None = None) -> int:
                 methods=methods,
                 embedder=EmbeddingClient(settings),
                 limit=args.limit,
+                rewrite_client=rewrite_client,
             )
-        path = settings.data_dir / "eval" / "retrieval_eval.json"
+        suffix = "_rewrite" if args.rewrite else ""
+        path = settings.data_dir / "eval" / f"retrieval_eval{suffix}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
         print(report.as_markdown())
